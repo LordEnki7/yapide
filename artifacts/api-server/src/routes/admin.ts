@@ -1,6 +1,6 @@
 import { Router, type IRouter } from "express";
 import { eq, desc } from "drizzle-orm";
-import { db, usersTable, driversTable, businessesTable, ordersTable } from "@workspace/db";
+import { db, usersTable, driversTable, businessesTable, ordersTable, productsTable } from "@workspace/db";
 import { AdminListUsersQueryParams, AdminBanUserBody, AdminLockDriverBody } from "@workspace/api-zod";
 
 const router: IRouter = Router();
@@ -93,6 +93,86 @@ router.post("/admin/businesses/:businessId/toggle", async (req, res): Promise<vo
   const [biz] = await db.select().from(businessesTable).where(eq(businessesTable.id, id));
   if (!biz) { res.status(404).json({ error: "Business not found" }); return; }
   await db.update(businessesTable).set({ isActive: !biz.isActive }).where(eq(businessesTable.id, id));
+  res.json({ success: true });
+});
+
+router.post("/admin/businesses", async (req, res): Promise<void> => {
+  if (!isAdmin(req)) { res.status(401).json({ error: "Unauthorized" }); return; }
+  const sessionUserId = (req.session as any)?.userId;
+  const { name, description, address, phone, category, imageUrl, lat, lng } = req.body;
+  if (!name || !category || !address) { res.status(400).json({ error: "name, category, and address are required" }); return; }
+  const [biz] = await db.insert(businessesTable).values({
+    userId: sessionUserId,
+    name, description: description || null, address, phone: phone || null,
+    category, imageUrl: imageUrl || null,
+    lat: lat ? parseFloat(lat) : null, lng: lng ? parseFloat(lng) : null,
+    isActive: true,
+  }).returning();
+  res.status(201).json(biz);
+});
+
+router.patch("/admin/businesses/:businessId", async (req, res): Promise<void> => {
+  if (!isAdmin(req)) { res.status(401).json({ error: "Unauthorized" }); return; }
+  const raw = Array.isArray(req.params.businessId) ? req.params.businessId[0] : req.params.businessId;
+  const id = parseInt(raw, 10);
+  if (isNaN(id)) { res.status(400).json({ error: "Invalid businessId" }); return; }
+  const { name, description, address, phone, category, imageUrl, lat, lng } = req.body;
+  const [biz] = await db.update(businessesTable).set({
+    ...(name && { name }), ...(description !== undefined && { description }),
+    ...(address && { address }), ...(phone !== undefined && { phone }),
+    ...(category && { category }), ...(imageUrl !== undefined && { imageUrl }),
+    ...(lat !== undefined && { lat: lat ? parseFloat(lat) : null }),
+    ...(lng !== undefined && { lng: lng ? parseFloat(lng) : null }),
+  }).where(eq(businessesTable.id, id)).returning();
+  if (!biz) { res.status(404).json({ error: "Business not found" }); return; }
+  res.json(biz);
+});
+
+router.get("/admin/businesses/:businessId/products", async (req, res): Promise<void> => {
+  if (!isAdmin(req)) { res.status(401).json({ error: "Unauthorized" }); return; }
+  const raw = Array.isArray(req.params.businessId) ? req.params.businessId[0] : req.params.businessId;
+  const id = parseInt(raw, 10);
+  if (isNaN(id)) { res.status(400).json({ error: "Invalid businessId" }); return; }
+  const products = await db.select().from(productsTable).where(eq(productsTable.businessId, id));
+  res.json(products);
+});
+
+router.post("/admin/businesses/:businessId/products", async (req, res): Promise<void> => {
+  if (!isAdmin(req)) { res.status(401).json({ error: "Unauthorized" }); return; }
+  const raw = Array.isArray(req.params.businessId) ? req.params.businessId[0] : req.params.businessId;
+  const bizId = parseInt(raw, 10);
+  if (isNaN(bizId)) { res.status(400).json({ error: "Invalid businessId" }); return; }
+  const { name, description, price, category, imageUrl, isAvailable } = req.body;
+  if (!name || price === undefined) { res.status(400).json({ error: "name and price are required" }); return; }
+  const [product] = await db.insert(productsTable).values({
+    businessId: bizId, name, description: description || null,
+    price: parseFloat(price), category: category || null,
+    imageUrl: imageUrl || null, isAvailable: isAvailable !== false,
+  }).returning();
+  res.status(201).json(product);
+});
+
+router.patch("/admin/businesses/:businessId/products/:productId", async (req, res): Promise<void> => {
+  if (!isAdmin(req)) { res.status(401).json({ error: "Unauthorized" }); return; }
+  const productId = parseInt(Array.isArray(req.params.productId) ? req.params.productId[0] : req.params.productId, 10);
+  if (isNaN(productId)) { res.status(400).json({ error: "Invalid productId" }); return; }
+  const { name, description, price, category, imageUrl, isAvailable } = req.body;
+  const [product] = await db.update(productsTable).set({
+    ...(name && { name }), ...(description !== undefined && { description }),
+    ...(price !== undefined && { price: parseFloat(price) }),
+    ...(category !== undefined && { category }),
+    ...(imageUrl !== undefined && { imageUrl }),
+    ...(isAvailable !== undefined && { isAvailable }),
+  }).where(eq(productsTable.id, productId)).returning();
+  if (!product) { res.status(404).json({ error: "Product not found" }); return; }
+  res.json(product);
+});
+
+router.delete("/admin/businesses/:businessId/products/:productId", async (req, res): Promise<void> => {
+  if (!isAdmin(req)) { res.status(401).json({ error: "Unauthorized" }); return; }
+  const productId = parseInt(Array.isArray(req.params.productId) ? req.params.productId[0] : req.params.productId, 10);
+  if (isNaN(productId)) { res.status(400).json({ error: "Invalid productId" }); return; }
+  await db.delete(productsTable).where(eq(productsTable.id, productId));
   res.json({ success: true });
 });
 

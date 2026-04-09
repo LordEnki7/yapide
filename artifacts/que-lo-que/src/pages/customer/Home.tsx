@@ -125,37 +125,35 @@ export default function CustomerHome() {
             <p className="text-gray-400">{t.emptyBusinesses}</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 gap-4">
+          <div className="grid grid-cols-2 gap-3">
             {businesses?.map((biz) => (
               <Link key={biz.id} href={`/customer/business/${biz.id}`}>
                 <div
                   data-testid={`business-card-${biz.id}`}
-                  className="bg-white/5 border border-white/10 rounded-2xl overflow-hidden hover:border-yellow-400/40 hover:shadow-[0_0_20px_rgba(255,215,0,0.1)] transition-all cursor-pointer group"
+                  className="bg-white/5 border border-white/10 rounded-2xl overflow-hidden hover:border-yellow-400/40 hover:shadow-[0_0_20px_rgba(255,215,0,0.1)] transition-all cursor-pointer group h-full"
                 >
-                  {biz.imageUrl && (
-                    <div className="relative h-40 overflow-hidden">
+                  <div className="relative h-28 overflow-hidden bg-yellow-400/5">
+                    {biz.imageUrl ? (
                       <img src={biz.imageUrl} alt={biz.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-                      <Badge className="absolute top-3 left-3 bg-yellow-400 text-black font-bold text-xs">
-                        {CATEGORY_LABELS[biz.category] ?? biz.category}
-                      </Badge>
-                    </div>
-                  )}
-                  <div className="p-4">
-                    <h3 className="font-black text-lg text-white">{biz.name}</h3>
-                    {biz.description && <p className="text-gray-400 text-sm mt-1 line-clamp-1">{biz.description}</p>}
-                    <div className="flex items-center gap-4 mt-3">
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-3xl">🍽️</div>
+                    )}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
+                    <Badge className="absolute top-2 left-2 bg-yellow-400 text-black font-bold text-[10px] px-1.5 py-0.5">
+                      {CATEGORY_LABELS[biz.category] ?? biz.category}
+                    </Badge>
+                  </div>
+                  <div className="p-3">
+                    <h3 className="font-black text-sm text-white line-clamp-1">{biz.name}</h3>
+                    {biz.description && <p className="text-gray-500 text-xs mt-0.5 line-clamp-1">{biz.description}</p>}
+                    <div className="flex items-center justify-between mt-2">
                       <div className="flex items-center gap-1 text-yellow-400">
-                        <Star size={14} fill="currentColor" />
-                        <span className="text-sm font-bold">{biz.rating?.toFixed(1)}</span>
+                        <Star size={11} fill="currentColor" />
+                        <span className="text-xs font-bold">{biz.rating?.toFixed(1)}</span>
                       </div>
-                      <div className="flex items-center gap-1 text-gray-400">
-                        <MapPin size={12} />
-                        <span className="text-xs line-clamp-1">{biz.address}</span>
-                      </div>
-                      <div className="flex items-center gap-1 text-gray-400 ml-auto">
-                        <Clock size={12} />
-                        <span className="text-xs">{t.deliveryTime}</span>
+                      <div className="flex items-center gap-1 text-gray-500">
+                        <Clock size={10} />
+                        <span className="text-[10px]">{t.deliveryTime}</span>
                       </div>
                     </div>
                   </div>

@@ -28,6 +28,7 @@ import AdminDashboard from "@/pages/admin/Dashboard";
 import AdminUsers from "@/pages/admin/Users";
 import AdminDrivers from "@/pages/admin/Drivers";
 import AdminBusinesses from "@/pages/admin/Businesses";
+import AdminBusinessMenu from "@/pages/admin/BusinessMenu";
 import AdminOrders from "@/pages/admin/Orders";
 
 const queryClient = new QueryClient({
@@ -61,6 +62,7 @@ function Router() {
         <Route path="/admin/users" component={AdminUsers} />
         <Route path="/admin/drivers" component={AdminDrivers} />
         <Route path="/admin/businesses" component={AdminBusinesses} />
+        <Route path="/admin/businesses/:id/menu" component={AdminBusinessMenu} />
         <Route path="/admin/orders" component={AdminOrders} />
         <Route component={NotFound} />
       </Switch>
