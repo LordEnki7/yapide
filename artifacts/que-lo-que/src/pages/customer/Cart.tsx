@@ -2,7 +2,8 @@ import { useState } from "react";
 import { Link, useLocation } from "wouter";
 import { useCart } from "@/lib/cart";
 import { useCreateOrder, getListOrdersQueryKey } from "@workspace/api-client-react";
-import { getStoredUser, formatDOP } from "@/lib/auth";
+import { formatDOP } from "@/lib/auth";
+import { useLang } from "@/lib/lang";
 import { useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -18,7 +19,7 @@ export default function CustomerCart() {
   const [, navigate] = useLocation();
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  const user = getStoredUser();
+  const { t } = useLang();
 
   const DELIVERY_FEE = 175;
 
@@ -28,17 +29,17 @@ export default function CustomerCart() {
         clearCart();
         queryClient.invalidateQueries({ queryKey: getListOrdersQueryKey() });
         navigate(`/customer/orders/${order.id}`);
-        toast({ title: "Pedido enviado", description: "Tu pedido está en camino 🛵💨" });
+        toast({ title: t.orderSent, description: t.orderOnWay });
       },
       onError: () => {
-        toast({ title: "Error", description: "No se pudo crear el pedido. Intenta de nuevo.", variant: "destructive" });
+        toast({ title: t.error, description: t.orderError, variant: "destructive" });
       },
     },
   });
 
   const handleOrder = () => {
     if (!address.trim()) {
-      toast({ title: "Falta la dirección", description: "Pon dónde te llevamos el pedido", variant: "destructive" });
+      toast({ title: t.missingAddress, description: t.addressRequired, variant: "destructive" });
       return;
     }
     if (!businessId) return;
@@ -56,10 +57,10 @@ export default function CustomerCart() {
     return (
       <div className="min-h-screen bg-black text-white flex flex-col items-center justify-center p-6">
         <p className="text-5xl mb-4">🛒</p>
-        <h2 className="text-xl font-black mb-2">El carrito está vacío</h2>
-        <p className="text-gray-400 mb-8">Añade algo rico primero, bicho 😤</p>
+        <h2 className="text-xl font-black mb-2">{t.emptyCart}</h2>
+        <p className="text-gray-400 mb-8">{t.emptyCartMsg}</p>
         <Link href="/customer">
-          <Button className="bg-yellow-400 text-black font-bold hover:bg-yellow-300">Explorar negocios</Button>
+          <Button className="bg-yellow-400 text-black font-bold hover:bg-yellow-300">{t.exploreBusinesses}</Button>
         </Link>
       </div>
     );
@@ -73,11 +74,10 @@ export default function CustomerCart() {
             <ArrowLeft size={18} />
           </button>
         </Link>
-        <h1 className="text-xl font-black text-yellow-400">Tu pedido</h1>
+        <h1 className="text-xl font-black text-yellow-400">{t.yourOrder}</h1>
       </div>
 
       <div className="px-4 py-4 space-y-4">
-        {/* Items */}
         <div className="bg-white/5 border border-white/10 rounded-2xl overflow-hidden">
           {items.map((item, idx) => (
             <div key={item.productId} className={`flex items-center gap-3 p-4 ${idx < items.length - 1 ? "border-b border-white/5" : ""}`}>
@@ -100,21 +100,20 @@ export default function CustomerCart() {
           ))}
         </div>
 
-        {/* Delivery address */}
         <div className="bg-white/5 border border-white/10 rounded-2xl p-4">
           <div className="flex items-center gap-2 mb-3">
             <MapPin size={16} className="text-yellow-400" />
-            <h3 className="font-bold">Dirección de entrega</h3>
+            <h3 className="font-bold">{t.deliveryAddress}</h3>
           </div>
           <Input
-            placeholder="Ej: Calle El Sol #23, Santiago"
+            placeholder={t.addressPlaceholder}
             value={address}
             onChange={(e) => setAddress(e.target.value)}
             className="bg-white/5 border-white/10 text-white placeholder:text-gray-500 focus:border-yellow-400"
             data-testid="input-address"
           />
           <Textarea
-            placeholder="Instrucciones especiales... (opcional)"
+            placeholder={t.specialInstructions}
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
             className="bg-white/5 border-white/10 text-white placeholder:text-gray-500 focus:border-yellow-400 mt-3 resize-none"
@@ -122,9 +121,8 @@ export default function CustomerCart() {
           />
         </div>
 
-        {/* Payment method */}
         <div className="bg-white/5 border border-white/10 rounded-2xl p-4">
-          <h3 className="font-bold mb-3">Método de pago</h3>
+          <h3 className="font-bold mb-3">{t.paymentMethod}</h3>
           <div className="grid grid-cols-2 gap-3">
             <button
               onClick={() => setPaymentMethod("cash")}
@@ -132,7 +130,7 @@ export default function CustomerCart() {
               data-testid="payment-cash"
             >
               <Banknote size={24} className={paymentMethod === "cash" ? "text-yellow-400" : "text-gray-400"} />
-              <span className={`text-sm font-bold ${paymentMethod === "cash" ? "text-yellow-400" : "text-gray-400"}`}>Efectivo</span>
+              <span className={`text-sm font-bold ${paymentMethod === "cash" ? "text-yellow-400" : "text-gray-400"}`}>{t.cash}</span>
             </button>
             <button
               onClick={() => setPaymentMethod("card")}
@@ -140,23 +138,22 @@ export default function CustomerCart() {
               data-testid="payment-card"
             >
               <CreditCard size={24} className={paymentMethod === "card" ? "text-yellow-400" : "text-gray-400"} />
-              <span className={`text-sm font-bold ${paymentMethod === "card" ? "text-yellow-400" : "text-gray-400"}`}>Tarjeta</span>
+              <span className={`text-sm font-bold ${paymentMethod === "card" ? "text-yellow-400" : "text-gray-400"}`}>{t.card}</span>
             </button>
           </div>
         </div>
 
-        {/* Price summary */}
         <div className="bg-white/5 border border-white/10 rounded-2xl p-4 space-y-2">
           <div className="flex justify-between text-sm text-gray-300">
-            <span>Subtotal</span>
+            <span>{t.subtotal}</span>
             <span>{formatDOP(totalAmount)}</span>
           </div>
           <div className="flex justify-between text-sm text-gray-300">
-            <span>Delivery</span>
+            <span>{t.delivery}</span>
             <span>{formatDOP(DELIVERY_FEE)}</span>
           </div>
           <div className="border-t border-white/10 pt-2 flex justify-between font-black text-lg">
-            <span>Total</span>
+            <span>{t.total}</span>
             <span className="text-yellow-400">{formatDOP(totalAmount + DELIVERY_FEE)}</span>
           </div>
         </div>
@@ -169,7 +166,7 @@ export default function CustomerCart() {
           disabled={createOrder.isPending}
           data-testid="button-place-order"
         >
-          {createOrder.isPending ? "Un momento, que llegamos 🛵💨" : `Pedir ahora · ${formatDOP(totalAmount + DELIVERY_FEE)}`}
+          {createOrder.isPending ? t.placing : t.orderNow(formatDOP(totalAmount + DELIVERY_FEE))}
         </Button>
       </div>
     </div>

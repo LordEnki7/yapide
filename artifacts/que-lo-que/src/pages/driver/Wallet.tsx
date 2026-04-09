@@ -1,19 +1,13 @@
 import { Link } from "wouter";
 import { useGetDriverWallet, getGetDriverWalletQueryKey, useGetDriverTransactions, getGetDriverTransactionsQueryKey } from "@workspace/api-client-react";
 import { formatDOP } from "@/lib/auth";
-import { Badge } from "@/components/ui/badge";
+import { useLang } from "@/lib/lang";
+import LangToggle from "@/components/LangToggle";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ArrowLeft, AlertTriangle, TrendingUp, Wallet, ArrowDownRight, ArrowUpRight, Gift } from "lucide-react";
 
-const TRANSACTION_CONFIG: Record<string, { icon: typeof Wallet; label: string; colorClass: string; sign: string }> = {
-  earning: { icon: ArrowUpRight, label: "Ganancia", colorClass: "text-green-400", sign: "+" },
-  cash_collected: { icon: ArrowDownRight, label: "Efectivo cobrado", colorClass: "text-red-400", sign: "-" },
-  bonus: { icon: Gift, label: "Bono", colorClass: "text-yellow-400", sign: "+" },
-  adjustment: { icon: Wallet, label: "Ajuste", colorClass: "text-blue-400", sign: "±" },
-  settlement: { icon: TrendingUp, label: "Depósito", colorClass: "text-purple-400", sign: "+" },
-};
-
 export default function DriverWallet() {
+  const { t } = useLang();
   const { data: wallet, isLoading: walletLoading } = useGetDriverWallet({
     query: { queryKey: getGetDriverWalletQueryKey() }
   });
@@ -24,6 +18,14 @@ export default function DriverWallet() {
   const cashOver80 = (wallet?.cashBalance ?? 0) >= 8000;
   const cashLocked = (wallet?.cashBalance ?? 0) >= 10000;
 
+  const TRANSACTION_CONFIG: Record<string, { icon: typeof Wallet; label: string; colorClass: string; sign: string }> = {
+    earning: { icon: ArrowUpRight, label: t.earnType, colorClass: "text-green-400", sign: "+" },
+    cash_collected: { icon: ArrowDownRight, label: t.cashType, colorClass: "text-red-400", sign: "-" },
+    bonus: { icon: Gift, label: t.bonusType, colorClass: "text-yellow-400", sign: "+" },
+    adjustment: { icon: Wallet, label: t.adjustType, colorClass: "text-blue-400", sign: "±" },
+    settlement: { icon: TrendingUp, label: t.settlementType, colorClass: "text-purple-400", sign: "+" },
+  };
+
   return (
     <div className="min-h-screen bg-black text-white pb-8">
       <div className="bg-black border-b border-yellow-400/20 px-4 py-4 flex items-center gap-3 sticky top-0 z-10">
@@ -32,27 +34,29 @@ export default function DriverWallet() {
             <ArrowLeft size={18} />
           </button>
         </Link>
-        <h1 className="text-xl font-black text-yellow-400">Mi billetera</h1>
+        <h1 className="text-xl font-black text-yellow-400">{t.walletTitle}</h1>
+        <div className="ml-auto">
+          <LangToggle />
+        </div>
       </div>
 
       <div className="px-4 py-4 space-y-4">
-        {/* Balances */}
         {walletLoading ? (
           <Skeleton className="h-40 bg-white/5 rounded-2xl" />
         ) : (
           <>
             <div className="grid grid-cols-2 gap-3">
               <div className="bg-green-400/10 border border-green-400/30 rounded-2xl p-4 text-center">
-                <p className="text-xs text-gray-400 uppercase tracking-widest mb-1">Billetera</p>
+                <p className="text-xs text-gray-400 uppercase tracking-widest mb-1">{t.wallet}</p>
                 <p className="text-2xl font-black text-green-400">{formatDOP(wallet?.walletBalance ?? 0)}</p>
-                <p className="text-xs text-gray-500">ganancias acumuladas</p>
+                <p className="text-xs text-gray-500">{t.available}</p>
               </div>
               <div className={`rounded-2xl p-4 text-center border ${cashLocked ? "bg-red-500/20 border-red-500/50" : cashOver80 ? "bg-yellow-400/10 border-yellow-400/40" : "bg-white/5 border-white/10"}`}>
-                <p className="text-xs text-gray-400 uppercase tracking-widest mb-1">Efectivo</p>
+                <p className="text-xs text-gray-400 uppercase tracking-widest mb-1">{t.cashBalance}</p>
                 <p className={`text-2xl font-black ${cashLocked ? "text-red-400" : cashOver80 ? "text-yellow-400" : "text-white"}`}>
                   {formatDOP(wallet?.cashBalance ?? 0)}
                 </p>
-                <p className="text-xs text-gray-500">cobrado de clientes</p>
+                <p className="text-xs text-gray-500">{t.cashBalance}</p>
               </div>
             </div>
 
@@ -61,10 +65,10 @@ export default function DriverWallet() {
                 <AlertTriangle size={18} className={cashLocked ? "text-red-400 flex-shrink-0 mt-0.5" : "text-yellow-400 flex-shrink-0 mt-0.5"} />
                 <div>
                   <p className={`font-black text-sm ${cashLocked ? "text-red-400" : "text-yellow-400"}`}>
-                    {cashLocked ? "BLOQUEADO — Límite de RD$ 10,000 alcanzado" : "Atención: Límite de efectivo próximo"}
+                    {cashLocked ? t.cashLocked : t.cashWarning}
                   </p>
                   <p className="text-xs text-gray-400 mt-1">
-                    {cashLocked ? "Debes depositar el efectivo para reactivar tu cuenta." : "Al pasar RD$ 10,000 en efectivo serás bloqueado automáticamente."}
+                    {cashLocked ? t.cashLockedMsg : t.cashWarningMsg(formatDOP(wallet?.cashBalance ?? 0))}
                   </p>
                 </div>
               </div>
@@ -72,22 +76,21 @@ export default function DriverWallet() {
 
             <div className="grid grid-cols-2 gap-3">
               <div className="bg-white/5 border border-white/10 rounded-xl p-3">
-                <p className="text-xs text-gray-400">Hoy</p>
+                <p className="text-xs text-gray-400">{t.today}</p>
                 <p className="text-lg font-black text-yellow-400">{formatDOP(wallet?.totalEarningsToday ?? 0)}</p>
-                <p className="text-xs text-gray-500">{wallet?.deliveriesToday ?? 0} entregas</p>
+                <p className="text-xs text-gray-500">{wallet?.deliveriesToday ?? 0} {t.deliveries}</p>
               </div>
               <div className="bg-white/5 border border-white/10 rounded-xl p-3">
-                <p className="text-xs text-gray-400">Esta semana</p>
+                <p className="text-xs text-gray-400">{t.thisWeek}</p>
                 <p className="text-lg font-black text-yellow-400">{formatDOP(wallet?.totalEarningsWeek ?? 0)}</p>
-                <p className="text-xs text-gray-500">{wallet?.deliveriesWeek ?? 0} entregas</p>
+                <p className="text-xs text-gray-500">{wallet?.deliveriesWeek ?? 0} {t.deliveries}</p>
               </div>
             </div>
           </>
         )}
 
-        {/* Transaction history */}
         <div>
-          <h2 className="font-bold text-sm text-gray-400 uppercase tracking-widest mb-3">Historial</h2>
+          <h2 className="font-bold text-sm text-gray-400 uppercase tracking-widest mb-3">{t.history}</h2>
           {txnLoading ? (
             <div className="space-y-2">
               {[1, 2, 3].map(i => <Skeleton key={i} className="h-16 bg-white/5 rounded-xl" />)}
@@ -95,7 +98,7 @@ export default function DriverWallet() {
           ) : transactions?.length === 0 ? (
             <div className="text-center py-10 text-gray-400">
               <Wallet size={32} className="mx-auto mb-2 opacity-30" />
-              <p>No hay transacciones todavía</p>
+              <p>{t.noTransactions}</p>
             </div>
           ) : (
             <div className="space-y-2">
@@ -115,7 +118,7 @@ export default function DriverWallet() {
                       <p className={`font-black text-sm ${config.colorClass}`}>
                         {config.sign}{formatDOP(Math.abs(txn.amount))}
                       </p>
-                      <p className="text-xs text-gray-500">{new Date(txn.createdAt).toLocaleDateString("es-DO")}</p>
+                      <p className="text-xs text-gray-500">{new Date(txn.createdAt).toLocaleDateString()}</p>
                     </div>
                   </div>
                 );

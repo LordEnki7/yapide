@@ -6,6 +6,7 @@ import NotFound from "@/pages/not-found";
 import Landing from "@/pages/Landing";
 import Login from "@/pages/Login";
 import { CartProvider } from "@/lib/cart";
+import { LangProvider } from "@/lib/lang";
 import BottomNav from "@/components/BottomNav";
 
 import CustomerHome from "@/pages/customer/Home";
@@ -41,34 +42,24 @@ function Router() {
   return (
     <>
       <Switch>
-        {/* Landing & Auth */}
         <Route path="/" component={Landing} />
         <Route path="/login" component={Login} />
-
-        {/* Customer */}
         <Route path="/customer" component={CustomerHome} />
         <Route path="/customer/business/:id" component={BusinessStore} />
         <Route path="/customer/cart" component={CustomerCart} />
         <Route path="/customer/orders" component={CustomerOrders} />
         <Route path="/customer/orders/:id" component={CustomerOrderDetail} />
-
-        {/* Driver */}
         <Route path="/driver" component={DriverDashboard} />
         <Route path="/driver/jobs" component={DriverJobs} />
         <Route path="/driver/wallet" component={DriverWallet} />
-
-        {/* Business */}
         <Route path="/business" component={BusinessDashboard} />
         <Route path="/business/orders" component={BusinessOrders} />
         <Route path="/business/menu" component={BusinessMenu} />
-
-        {/* Admin */}
         <Route path="/admin" component={AdminDashboard} />
         <Route path="/admin/users" component={AdminUsers} />
         <Route path="/admin/drivers" component={AdminDrivers} />
         <Route path="/admin/businesses" component={AdminBusinesses} />
         <Route path="/admin/orders" component={AdminOrders} />
-
         <Route component={NotFound} />
       </Switch>
       <BottomNav />
@@ -80,11 +71,13 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
-        <CartProvider>
-          <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
-            <Router />
-          </WouterRouter>
-        </CartProvider>
+        <LangProvider>
+          <CartProvider>
+            <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
+              <Router />
+            </WouterRouter>
+          </CartProvider>
+        </LangProvider>
         <Toaster />
       </TooltipProvider>
     </QueryClientProvider>

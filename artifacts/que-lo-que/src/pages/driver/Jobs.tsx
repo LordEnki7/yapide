@@ -1,6 +1,8 @@
 import { Link } from "wouter";
 import { useGetAvailableJobs, getGetAvailableJobsQueryKey, useAcceptJob, useDeclineJob } from "@workspace/api-client-react";
 import { formatDOP } from "@/lib/auth";
+import { useLang } from "@/lib/lang";
+import LangToggle from "@/components/LangToggle";
 import { useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -14,14 +16,15 @@ export default function DriverJobs() {
   });
   const queryClient = useQueryClient();
   const { toast } = useToast();
+  const { t } = useLang();
 
   const accept = useAcceptJob({
     mutation: {
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: getGetAvailableJobsQueryKey() });
-        toast({ title: "Pedido aceptado", description: "¡A la calle! 🛵💨" });
+        toast({ title: t.orderSent, description: "🛵💨" });
       },
-      onError: () => toast({ title: "Error", description: "Ya fue tomado ese pedido", variant: "destructive" }),
+      onError: () => toast({ title: t.error, description: t.error, variant: "destructive" }),
     }
   });
 
@@ -41,10 +44,13 @@ export default function DriverJobs() {
             <ArrowLeft size={18} />
           </button>
         </Link>
-        <h1 className="text-xl font-black text-yellow-400">Pedidos disponibles</h1>
-        {jobs && jobs.length > 0 && (
-          <Badge className="ml-auto bg-yellow-400 text-black font-bold">{jobs.length}</Badge>
-        )}
+        <h1 className="text-xl font-black text-yellow-400">{t.availableJobs}</h1>
+        <div className="ml-auto flex items-center gap-2">
+          <LangToggle />
+          {jobs && jobs.length > 0 && (
+            <Badge className="bg-yellow-400 text-black font-bold">{jobs.length}</Badge>
+          )}
+        </div>
       </div>
 
       <div className="px-4 py-4">
@@ -55,8 +61,8 @@ export default function DriverJobs() {
         ) : jobs?.length === 0 ? (
           <div className="text-center py-20">
             <p className="text-5xl mb-3">😴</p>
-            <p className="text-xl font-black text-white mb-2">No hay pedidos</p>
-            <p className="text-gray-400">Un momento, que llegamos 🛵💨</p>
+            <p className="text-xl font-black text-white mb-2">{t.noJobs}</p>
+            <p className="text-gray-400">{t.noJobsMsg}</p>
           </div>
         ) : (
           <div className="space-y-4">
@@ -64,13 +70,13 @@ export default function DriverJobs() {
               <div key={job.id} data-testid={`job-card-${job.id}`} className="bg-white/5 border border-yellow-400/20 rounded-2xl p-4 shadow-[0_0_20px_rgba(255,215,0,0.05)]">
                 <div className="flex items-start justify-between mb-3">
                   <div>
-                    <p className="text-xs text-gray-400 mb-1 uppercase tracking-widest">Pedido #{job.id}</p>
+                    <p className="text-xs text-gray-400 mb-1 uppercase tracking-widest">#{job.id}</p>
                     <p className="font-black text-xl text-yellow-400">{formatDOP(job.driverEarnings)}</p>
-                    <p className="text-xs text-gray-400">tu ganancia estimada</p>
+                    <p className="text-xs text-gray-400">{t.yourEarning}</p>
                   </div>
                   <Badge className={`border ${job.paymentMethod === "cash" ? "bg-green-400/20 text-green-400 border-green-400/40" : "bg-blue-400/20 text-blue-400 border-blue-400/40"}`}>
                     {job.paymentMethod === "cash" ? <Banknote size={12} className="mr-1 inline" /> : <CreditCard size={12} className="mr-1 inline" />}
-                    {job.paymentMethod === "cash" ? "Efectivo" : "Tarjeta"}
+                    {job.paymentMethod === "cash" ? t.cash : t.card}
                   </Badge>
                 </div>
 
@@ -81,12 +87,12 @@ export default function DriverJobs() {
                   </div>
                   <div className="flex items-center gap-2 text-sm text-gray-400">
                     <Clock size={12} />
-                    <span>~25 min · 3 km estimado</span>
+                    <span>~25 min</span>
                   </div>
                 </div>
 
                 <div className="border-t border-white/10 pt-3 flex items-center justify-between mb-3">
-                  <span className="text-sm text-gray-400">Total del pedido</span>
+                  <span className="text-sm text-gray-400">{t.total}</span>
                   <span className="font-bold text-white">{formatDOP(job.totalAmount + job.deliveryFee)}</span>
                 </div>
 
@@ -97,7 +103,7 @@ export default function DriverJobs() {
                     onClick={() => decline.mutate({ orderId: job.id })}
                     disabled={decline.isPending}
                   >
-                    Pasar
+                    {t.decline}
                   </Button>
                   <Button
                     className="flex-2 flex-grow-[2] bg-yellow-400 text-black font-black hover:bg-yellow-300 shadow-[0_0_20px_rgba(255,215,0,0.3)]"
@@ -105,7 +111,7 @@ export default function DriverJobs() {
                     disabled={accept.isPending}
                     data-testid={`button-accept-${job.id}`}
                   >
-                    Aceptar pedido
+                    {t.accept}
                   </Button>
                 </div>
               </div>

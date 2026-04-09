@@ -3,6 +3,8 @@ import { useParams, Link } from "wouter";
 import { useGetBusiness, getGetBusinessQueryKey, useListProducts, getListProductsQueryKey } from "@workspace/api-client-react";
 import { useCart } from "@/lib/cart";
 import { formatDOP } from "@/lib/auth";
+import { useLang } from "@/lib/lang";
+import LangToggle from "@/components/LangToggle";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -13,6 +15,7 @@ export default function BusinessStore() {
   const businessId = parseInt(id, 10);
   const [quantities, setQuantities] = useState<Record<number, number>>({});
   const { addItem, items, totalAmount } = useCart();
+  const { t } = useLang();
 
   const { data: business, isLoading: bizLoading } = useGetBusiness(
     businessId,
@@ -49,7 +52,6 @@ export default function BusinessStore() {
 
   return (
     <div className="min-h-screen bg-black text-white pb-28">
-      {/* Header image */}
       <div className="relative h-52">
         {business?.imageUrl ? (
           <img src={business.imageUrl} alt={business.name} className="w-full h-full object-cover" />
@@ -62,6 +64,9 @@ export default function BusinessStore() {
             <ArrowLeft size={18} className="text-white" />
           </button>
         </Link>
+        <div className="absolute top-4 right-4">
+          <LangToggle />
+        </div>
       </div>
 
       <div className="px-4 -mt-6 relative">
@@ -86,7 +91,7 @@ export default function BusinessStore() {
         ) : Object.keys(groupedProducts).length === 0 ? (
           <div className="text-center py-12">
             <p className="text-3xl mb-2">🤷</p>
-            <p className="text-gray-400">No hay productos disponibles aún</p>
+            <p className="text-gray-400">{t.noProducts}</p>
           </div>
         ) : (
           Object.entries(groupedProducts).map(([category, prods]) => (
@@ -124,7 +129,7 @@ export default function BusinessStore() {
                             onClick={() => handleAdd(product)}
                             className="bg-yellow-400 text-black font-bold hover:bg-yellow-300 text-xs h-8"
                           >
-                            Agregar
+                            {t.addToCart}
                           </Button>
                         </div>
                       </div>
@@ -137,13 +142,12 @@ export default function BusinessStore() {
         )}
       </div>
 
-      {/* Floating cart bar */}
       {cartCount > 0 && (
         <div className="fixed bottom-0 left-0 right-0 p-4 bg-black border-t border-yellow-400/20 z-20">
           <Link href="/customer/cart">
             <Button className="w-full bg-yellow-400 text-black font-black text-lg h-14 hover:bg-yellow-300 shadow-[0_0_30px_rgba(255,215,0,0.3)]">
               <ShoppingCart size={20} className="mr-2" />
-              Ver carrito · {cartCount} {cartCount === 1 ? "item" : "items"} · {formatDOP(totalAmount)}
+              {t.viewCart} · {cartCount} {cartCount === 1 ? "item" : "items"} · {formatDOP(totalAmount)}
             </Button>
           </Link>
         </div>

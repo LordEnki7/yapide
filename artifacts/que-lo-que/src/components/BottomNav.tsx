@@ -1,46 +1,44 @@
 import { Link, useLocation } from "wouter";
-import { Home, ShoppingBag, User, Package, Wallet, ChefHat, BarChart3, Users, Bike, Building2 } from "lucide-react";
+import { Home, ShoppingBag, Clock, Package, Wallet, ChefHat, BarChart3, Users, Bike, Building2, LogOut } from "lucide-react";
 import { getStoredUser, clearStoredUser } from "@/lib/auth";
-
-type NavItem = { icon: typeof Home; label: string; href: string };
-
-const CUSTOMER_NAV: NavItem[] = [
-  { icon: Home, label: "Inicio", href: "/customer" },
-  { icon: ShoppingBag, label: "Pedidos", href: "/customer/orders" },
-];
-
-const DRIVER_NAV: NavItem[] = [
-  { icon: Home, label: "Inicio", href: "/driver" },
-  { icon: Package, label: "Pedidos", href: "/driver/jobs" },
-  { icon: Wallet, label: "Billetera", href: "/driver/wallet" },
-];
-
-const BUSINESS_NAV: NavItem[] = [
-  { icon: Home, label: "Inicio", href: "/business" },
-  { icon: Package, label: "Pedidos", href: "/business/orders" },
-  { icon: ChefHat, label: "Menú", href: "/business/menu" },
-];
-
-const ADMIN_NAV: NavItem[] = [
-  { icon: BarChart3, label: "Overview", href: "/admin" },
-  { icon: Users, label: "Usuarios", href: "/admin/users" },
-  { icon: Bike, label: "Drivers", href: "/admin/drivers" },
-  { icon: Building2, label: "Negocios", href: "/admin/businesses" },
-];
-
-const LOGOUT_ITEM = { icon: User, label: "Salir", href: "/" };
+import { useLang } from "@/lib/lang";
 
 export default function BottomNav() {
   const [location] = useLocation();
   const user = getStoredUser();
+  const { t } = useLang();
+
   if (!user) return null;
 
-  let navItems: NavItem[] = [];
-  if (location.startsWith("/customer")) navItems = CUSTOMER_NAV;
-  else if (location.startsWith("/driver")) navItems = DRIVER_NAV;
+  const CUSTOMER_NAV = [
+    { icon: Home, label: t.home, href: "/customer" },
+    { icon: Clock, label: t.myOrders, href: "/customer/orders" },
+  ];
+
+  const DRIVER_NAV = [
+    { icon: Home, label: t.home, href: "/driver" },
+    { icon: Package, label: t.orders, href: "/driver/jobs" },
+    { icon: Wallet, label: t.wallet, href: "/driver/wallet" },
+  ];
+
+  const BUSINESS_NAV = [
+    { icon: Home, label: t.home, href: "/business" },
+    { icon: Package, label: t.orders, href: "/business/orders" },
+    { icon: ChefHat, label: t.menu, href: "/business/menu" },
+  ];
+
+  const ADMIN_NAV = [
+    { icon: BarChart3, label: t.home, href: "/admin" },
+    { icon: Users, label: t.users, href: "/admin/users" },
+    { icon: Bike, label: t.drivers, href: "/admin/drivers" },
+    { icon: Building2, label: t.businesses, href: "/admin/businesses" },
+  ];
+
+  let navItems = CUSTOMER_NAV;
+  if (location.startsWith("/driver")) navItems = DRIVER_NAV;
   else if (location.startsWith("/business")) navItems = BUSINESS_NAV;
   else if (location.startsWith("/admin")) navItems = ADMIN_NAV;
-  else return null;
+  else if (!location.startsWith("/customer")) return null;
 
   const handleLogout = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -49,7 +47,7 @@ export default function BottomNav() {
   };
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-50 bg-black border-t border-yellow-400/20 px-2 pb-safe">
+    <div className="fixed bottom-0 left-0 right-0 z-50 bg-black border-t border-yellow-400/20 px-1">
       <div className="flex items-center justify-around">
         {navItems.map((item) => {
           const Icon = item.icon;
@@ -64,8 +62,8 @@ export default function BottomNav() {
           );
         })}
         <button onClick={handleLogout} className="flex flex-col items-center gap-1 py-3 px-3 text-gray-500 hover:text-gray-300 transition">
-          <User size={20} />
-          <span className="text-xs font-bold">Salir</span>
+          <LogOut size={20} />
+          <span className="text-xs font-bold">{t.exit}</span>
         </button>
       </div>
     </div>

@@ -2,23 +2,33 @@ import { useState } from "react";
 import { Link } from "wouter";
 import { useListBusinesses, getListBusinessesQueryKey } from "@workspace/api-client-react";
 import { getStoredUser } from "@/lib/auth";
+import { useLang } from "@/lib/lang";
+import LangToggle from "@/components/LangToggle";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Search, Star, MapPin, Clock } from "lucide-react";
 
-const CATEGORIES = [
-  { key: "all", label: "Todos", icon: "🏠" },
-  { key: "food", label: "Comida", icon: "🍔" },
-  { key: "supermarket", label: "Supermercado", icon: "🛒" },
-  { key: "liquor", label: "Licores", icon: "🍾" },
-  { key: "pharmacy", label: "Farmacia", icon: "💊" },
-];
-
 export default function CustomerHome() {
   const user = getStoredUser();
+  const { t, lang } = useLang();
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [search, setSearch] = useState("");
+
+  const CATEGORIES = [
+    { key: "all", label: t.allCategory, icon: "🏠" },
+    { key: "food", label: t.foodCategory, icon: "🍔" },
+    { key: "supermarket", label: t.supermarketCategory, icon: "🛒" },
+    { key: "liquor", label: t.liquorCategory, icon: "🍾" },
+    { key: "pharmacy", label: t.pharmacyCategory, icon: "💊" },
+  ];
+
+  const CATEGORY_LABELS: Record<string, string> = {
+    food: t.foodCategory,
+    supermarket: t.supermarketCategory,
+    pharmacy: t.pharmacyCategory,
+    liquor: t.liquorCategory,
+  };
 
   const { data: businesses, isLoading } = useListBusinesses(
     { category: selectedCategory as any, search: search || undefined },
@@ -27,23 +37,27 @@ export default function CustomerHome() {
 
   return (
     <div className="min-h-screen bg-black text-white">
-      {/* Header */}
       <div className="bg-black border-b border-yellow-400/20 px-4 py-4 sticky top-0 z-10">
         <div className="flex items-center justify-between mb-3">
           <div>
-            <p className="text-xs text-gray-400 uppercase tracking-widest">Que Lo Que</p>
-            <h1 className="text-lg font-black text-yellow-400">¿Qué tú quieres, {user?.name?.split(" ")[0] || "bicho"}?</h1>
+            <p className="text-xs text-gray-400 uppercase tracking-widest">{t.appName}</p>
+            <h1 className="text-lg font-black text-yellow-400">
+              {t.greeting(user?.name?.split(" ")[0] || (lang === "es" ? "bicho" : "friend"))}
+            </h1>
           </div>
-          <Link href="/customer/orders">
-            <div className="w-10 h-10 rounded-full bg-yellow-400/10 border border-yellow-400/30 flex items-center justify-center cursor-pointer hover:bg-yellow-400/20 transition">
-              <Clock size={18} className="text-yellow-400" />
-            </div>
-          </Link>
+          <div className="flex items-center gap-2">
+            <LangToggle />
+            <Link href="/customer/orders">
+              <div className="w-10 h-10 rounded-full bg-yellow-400/10 border border-yellow-400/30 flex items-center justify-center cursor-pointer hover:bg-yellow-400/20 transition">
+                <Clock size={18} className="text-yellow-400" />
+              </div>
+            </Link>
+          </div>
         </div>
         <div className="relative">
           <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
           <Input
-            placeholder="Busca lo que quieres..."
+            placeholder={t.searchPlaceholder}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="pl-9 bg-white/5 border-white/10 text-white placeholder:text-gray-500 focus:border-yellow-400"
@@ -52,7 +66,6 @@ export default function CustomerHome() {
       </div>
 
       <div className="px-4 pb-8">
-        {/* Category filters */}
         <div className="flex gap-2 overflow-x-auto py-4 scrollbar-none">
           {CATEGORIES.map((cat) => (
             <button
@@ -70,9 +83,8 @@ export default function CustomerHome() {
           ))}
         </div>
 
-        {/* Businesses grid */}
         <h2 className="text-sm font-bold text-gray-400 uppercase tracking-widest mb-3">
-          {selectedCategory === "all" ? "Todos los negocios" : CATEGORIES.find(c => c.key === selectedCategory)?.label}
+          {selectedCategory === "all" ? t.allBusinesses : CATEGORIES.find(c => c.key === selectedCategory)?.label}
         </h2>
 
         {isLoading ? (
@@ -84,7 +96,7 @@ export default function CustomerHome() {
         ) : businesses?.length === 0 ? (
           <div className="text-center py-16">
             <p className="text-4xl mb-3">😤</p>
-            <p className="text-gray-400">Todavía no hay nada aquí, bicho</p>
+            <p className="text-gray-400">{t.emptyBusinesses}</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 gap-4">
@@ -98,8 +110,8 @@ export default function CustomerHome() {
                     <div className="relative h-40 overflow-hidden">
                       <img src={biz.imageUrl} alt={biz.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-                      <Badge className="absolute top-3 left-3 bg-yellow-400 text-black font-bold text-xs capitalize">
-                        {biz.category === "food" ? "🍔" : biz.category === "supermarket" ? "🛒" : biz.category === "pharmacy" ? "💊" : "🍾"} {biz.category === "food" ? "Comida" : biz.category === "supermarket" ? "Supermercado" : biz.category === "pharmacy" ? "Farmacia" : "Licores"}
+                      <Badge className="absolute top-3 left-3 bg-yellow-400 text-black font-bold text-xs">
+                        {CATEGORY_LABELS[biz.category] ?? biz.category}
                       </Badge>
                     </div>
                   )}
@@ -117,7 +129,7 @@ export default function CustomerHome() {
                       </div>
                       <div className="flex items-center gap-1 text-gray-400 ml-auto">
                         <Clock size={12} />
-                        <span className="text-xs">~25 min</span>
+                        <span className="text-xs">{t.deliveryTime}</span>
                       </div>
                     </div>
                   </div>
