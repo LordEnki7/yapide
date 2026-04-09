@@ -673,6 +673,35 @@ paths:
         "200":
           description: Business status toggled
 
+  # POINTS / LOYALTY
+  /customer/points:
+    get:
+      operationId: getMyPoints
+      tags: [customers]
+      summary: Get current user's points balance and transaction history
+      responses:
+        "200":
+          description: Points data
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PointsData"
+
+  /customer/points/redeem:
+    post:
+      operationId: redeemPoints
+      tags: [customers]
+      summary: Redeem 500 points for a free meal credit
+      responses:
+        "200":
+          description: Redemption successful
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RedeemPointsResponse"
+        "400":
+          description: Not enough points
+
   # STATS
   /stats/platform:
     get:
@@ -1363,3 +1392,74 @@ components:
         - productName
         - totalSold
         - revenue
+
+    PointsTransaction:
+      type: object
+      properties:
+        id:
+          type: integer
+        userId:
+          type: integer
+        orderId:
+          type: integer
+          nullable: true
+        type:
+          type: string
+        amount:
+          type: integer
+        description:
+          type: string
+          nullable: true
+        createdAt:
+          type: string
+      required:
+        - id
+        - userId
+        - type
+        - amount
+        - createdAt
+
+    PointsData:
+      type: object
+      properties:
+        points:
+          type: integer
+        nextRewardAt:
+          type: integer
+        redemptionValue:
+          type: integer
+        progress:
+          type: integer
+        redeemableRewards:
+          type: integer
+        transactions:
+          type: array
+          items:
+            $ref: "#/components/schemas/PointsTransaction"
+      required:
+        - points
+        - nextRewardAt
+        - redemptionValue
+        - progress
+        - redeemableRewards
+        - transactions
+
+    RedeemPointsResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        pointsUsed:
+          type: integer
+        discountAmount:
+          type: integer
+        newPoints:
+          type: integer
+        message:
+          type: string
+      required:
+        - success
+        - pointsUsed
+        - discountAmount
+        - newPoints
+        - message

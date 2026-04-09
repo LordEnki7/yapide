@@ -37,8 +37,10 @@ import type {
   LoginUserBody,
   Order,
   PlatformStats,
+  PointsData,
   Product,
   RateOrderBody,
+  RedeemPointsResponse,
   RegisterDriverBody,
   RegisterUserBody,
   UpdateBusinessBody,
@@ -2991,6 +2993,162 @@ export const useAdminToggleBusiness = <
   TContext
 > => {
   return useMutation(getAdminToggleBusinessMutationOptions(options));
+};
+
+/**
+ * @summary Get current user's points balance and transaction history
+ */
+export const getGetMyPointsUrl = () => {
+  return `/api/customer/points`;
+};
+
+export const getMyPoints = async (
+  options?: RequestInit,
+): Promise<PointsData> => {
+  return customFetch<PointsData>(getGetMyPointsUrl(), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getGetMyPointsQueryKey = () => {
+  return [`/api/customer/points`] as const;
+};
+
+export const getGetMyPointsQueryOptions = <
+  TData = Awaited<ReturnType<typeof getMyPoints>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof getMyPoints>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getGetMyPointsQueryKey();
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof getMyPoints>>> = ({
+    signal,
+  }) => getMyPoints({ signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof getMyPoints>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetMyPointsQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getMyPoints>>
+>;
+export type GetMyPointsQueryError = ErrorType<unknown>;
+
+/**
+ * @summary Get current user's points balance and transaction history
+ */
+
+export function useGetMyPoints<
+  TData = Awaited<ReturnType<typeof getMyPoints>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof getMyPoints>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetMyPointsQueryOptions(options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * @summary Redeem 500 points for a free meal credit
+ */
+export const getRedeemPointsUrl = () => {
+  return `/api/customer/points/redeem`;
+};
+
+export const redeemPoints = async (
+  options?: RequestInit,
+): Promise<RedeemPointsResponse> => {
+  return customFetch<RedeemPointsResponse>(getRedeemPointsUrl(), {
+    ...options,
+    method: "POST",
+  });
+};
+
+export const getRedeemPointsMutationOptions = <
+  TError = ErrorType<void>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof redeemPoints>>,
+    TError,
+    void,
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof redeemPoints>>,
+  TError,
+  void,
+  TContext
+> => {
+  const mutationKey = ["redeemPoints"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof redeemPoints>>,
+    void
+  > = () => {
+    return redeemPoints(requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type RedeemPointsMutationResult = NonNullable<
+  Awaited<ReturnType<typeof redeemPoints>>
+>;
+
+export type RedeemPointsMutationError = ErrorType<void>;
+
+/**
+ * @summary Redeem 500 points for a free meal credit
+ */
+export const useRedeemPoints = <
+  TError = ErrorType<void>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof redeemPoints>>,
+    TError,
+    void,
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof redeemPoints>>,
+  TError,
+  void,
+  TContext
+> => {
+  return useMutation(getRedeemPointsMutationOptions(options));
 };
 
 /**

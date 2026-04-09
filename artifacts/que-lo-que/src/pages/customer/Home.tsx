@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "wouter";
-import { useListBusinesses, getListBusinessesQueryKey } from "@workspace/api-client-react";
+import { useListBusinesses, getListBusinessesQueryKey, useGetMyPoints, getGetMyPointsQueryKey } from "@workspace/api-client-react";
 import { getStoredUser } from "@/lib/auth";
 import { useLang } from "@/lib/lang";
 import LangToggle from "@/components/LangToggle";
@@ -29,6 +29,10 @@ export default function CustomerHome() {
     pharmacy: t.pharmacyCategory,
     liquor: t.liquorCategory,
   };
+
+  const { data: pointsData } = useGetMyPoints({
+    query: { queryKey: getGetMyPointsQueryKey() }
+  });
 
   const { data: businesses, isLoading } = useListBusinesses(
     { category: selectedCategory as any, search: search || undefined },
@@ -66,6 +70,28 @@ export default function CustomerHome() {
       </div>
 
       <div className="px-4 pb-8">
+        {(pointsData?.points ?? 0) >= 0 && (
+          <Link href="/customer/points">
+            <div className="mt-1 mb-1 flex items-center gap-3 bg-yellow-400/10 border border-yellow-400/30 rounded-2xl px-4 py-3 hover:bg-yellow-400/20 transition cursor-pointer">
+              <div className="w-9 h-9 rounded-full bg-yellow-400/20 flex items-center justify-center flex-shrink-0">
+                <Star size={18} className="text-yellow-400" fill="currentColor" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-black text-yellow-400">{pointsData?.points ?? 0} {t.pointsTitle}</p>
+                <div className="h-1.5 bg-white/10 rounded-full mt-1 overflow-hidden">
+                  <div
+                    className="h-full bg-yellow-400 rounded-full transition-all"
+                    style={{ width: `${Math.min(((pointsData?.progress ?? 0) / (pointsData?.nextRewardAt ?? 500)) * 100, 100)}%` }}
+                  />
+                </div>
+              </div>
+              <p className="text-xs text-gray-400 flex-shrink-0">
+                {pointsData ? `${pointsData.progress}/${pointsData.nextRewardAt}` : "0/500"}
+              </p>
+            </div>
+          </Link>
+        )}
+
         <div className="flex gap-2 overflow-x-auto py-4 scrollbar-none">
           {CATEGORIES.map((cat) => (
             <button

@@ -1,6 +1,6 @@
 import { Router, type IRouter } from "express";
 import { eq, and, desc } from "drizzle-orm";
-import { db, ordersTable, orderItemsTable, businessesTable, usersTable, driversTable, productsTable, walletTransactionsTable } from "@workspace/db";
+import { db, ordersTable, orderItemsTable, businessesTable, usersTable, driversTable, productsTable, walletTransactionsTable, pointsTransactionsTable } from "@workspace/db";
 import { CreateOrderBody, UpdateOrderStatusBody, RateOrderBody, ListOrdersQueryParams } from "@workspace/api-zod";
 import { calculateFees, CASH_LIMIT } from "../lib/dispatch";
 
@@ -164,6 +164,18 @@ router.post("/orders", async (req, res): Promise<void> => {
   }
 
   await db.update(businessesTable).set({ totalOrders: businessesTable.totalOrders }).where(eq(businessesTable.id, businessId));
+
+  const pointsEarned = Math.floor(totalAmount / 10);
+  if (pointsEarned > 0) {
+    await db.update(usersTable).set({ points: (await db.select({ points: usersTable.points }).from(usersTable).where(eq(usersTable.id, sessionUserId)))[0].points + pointsEarned }).where(eq(usersTable.id, sessionUserId));
+    await db.insert(pointsTransactionsTable).values({
+      userId: sessionUserId,
+      orderId: order.id,
+      type: "earn",
+      amount: pointsEarned,
+      description: `Pedido #${order.id} · RD$${totalAmount.toFixed(0)}`,
+    });
+  }
 
   res.status(201).json(await formatOrder(order));
 });

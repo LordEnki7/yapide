@@ -360,6 +360,33 @@ export interface DriverStats {
   bonusProgress: number;
 }
 
+export interface PointsTransaction {
+  id: number;
+  userId: number;
+  orderId?: number | null;
+  type: string;
+  amount: number;
+  description?: string | null;
+  createdAt: string;
+}
+
+export interface PointsData {
+  points: number;
+  nextRewardAt: number;
+  redemptionValue: number;
+  progress: number;
+  redeemableRewards: number;
+  transactions: PointsTransaction[];
+}
+
+export interface RedeemPointsResponse {
+  success: boolean;
+  pointsUsed: number;
+  discountAmount: number;
+  newPoints: number;
+  message: string;
+}
+
 export type ListBusinessesParams = {
   category?: ListBusinessesCategory;
   search?: string;

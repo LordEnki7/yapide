@@ -1,5 +1,5 @@
 import { Link, useLocation } from "wouter";
-import { Home, ShoppingBag, Clock, Package, Wallet, ChefHat, BarChart3, Users, Bike, Building2, LogOut } from "lucide-react";
+import { Home, Clock, Package, Wallet, ChefHat, BarChart3, Users, Bike, Building2, LogOut, Star } from "lucide-react";
 import { getStoredUser, clearStoredUser } from "@/lib/auth";
 import { useLang } from "@/lib/lang";
 
@@ -13,6 +13,7 @@ export default function BottomNav() {
   const CUSTOMER_NAV = [
     { icon: Home, label: t.home, href: "/customer" },
     { icon: Clock, label: t.myOrders, href: "/customer/orders" },
+    { icon: Star, label: t.pointsTitle, href: "/customer/points" },
   ];
 
   const DRIVER_NAV = [

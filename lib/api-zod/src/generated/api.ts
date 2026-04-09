@@ -1107,6 +1107,39 @@ export const AdminToggleBusinessParams = zod.object({
 });
 
 /**
+ * @summary Get current user's points balance and transaction history
+ */
+export const GetMyPointsResponse = zod.object({
+  points: zod.number(),
+  nextRewardAt: zod.number(),
+  redemptionValue: zod.number(),
+  progress: zod.number(),
+  redeemableRewards: zod.number(),
+  transactions: zod.array(
+    zod.object({
+      id: zod.number(),
+      userId: zod.number(),
+      orderId: zod.number().nullish(),
+      type: zod.string(),
+      amount: zod.number(),
+      description: zod.string().nullish(),
+      createdAt: zod.string(),
+    }),
+  ),
+});
+
+/**
+ * @summary Redeem 500 points for a free meal credit
+ */
+export const RedeemPointsResponse = zod.object({
+  success: zod.boolean(),
+  pointsUsed: zod.number(),
+  discountAmount: zod.number(),
+  newPoints: zod.number(),
+  message: zod.string(),
+});
+
+/**
  * @summary Get platform-wide stats for admin dashboard
  */
 export const GetPlatformStatsResponse = zod.object({

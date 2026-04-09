@@ -14,6 +14,7 @@ import BusinessStore from "@/pages/customer/BusinessStore";
 import CustomerCart from "@/pages/customer/Cart";
 import CustomerOrders from "@/pages/customer/Orders";
 import CustomerOrderDetail from "@/pages/customer/OrderDetail";
+import CustomerPoints from "@/pages/customer/Points";
 
 import DriverDashboard from "@/pages/driver/Dashboard";
 import DriverJobs from "@/pages/driver/Jobs";
@@ -49,6 +50,7 @@ function Router() {
         <Route path="/customer/cart" component={CustomerCart} />
         <Route path="/customer/orders" component={CustomerOrders} />
         <Route path="/customer/orders/:id" component={CustomerOrderDetail} />
+        <Route path="/customer/points" component={CustomerPoints} />
         <Route path="/driver" component={DriverDashboard} />
         <Route path="/driver/jobs" component={DriverJobs} />
         <Route path="/driver/wallet" component={DriverWallet} />
