@@ -5,3 +5,4 @@ export * from "./drivers";
 export * from "./orders";
 export * from "./wallets";
 export * from "./points";
+export * from "./addresses";

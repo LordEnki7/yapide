@@ -10,6 +10,8 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ArrowLeft, Star, ShoppingCart, Plus, Minus } from "lucide-react";
 
+const MARKUP = 0.15;
+
 export default function BusinessStore() {
   const { id } = useParams<{ id: string }>();
   const businessId = parseInt(id, 10);
@@ -107,7 +109,7 @@ export default function BusinessStore() {
                       <h3 className="font-bold text-white">{product.name}</h3>
                       {product.description && <p className="text-gray-400 text-xs mt-1 line-clamp-2">{product.description}</p>}
                       <div className="flex items-center justify-between mt-3">
-                        <span className="text-yellow-400 font-black text-lg">{formatDOP(product.price)}</span>
+                        <span className="text-yellow-400 font-black text-lg">{formatDOP(parseFloat((product.price * (1 + MARKUP)).toFixed(2)))}</span>
                         <div className="flex items-center gap-2">
                           <div className="flex items-center gap-1">
                             <button
@@ -147,7 +149,7 @@ export default function BusinessStore() {
           <Link href="/customer/cart">
             <Button className="w-full bg-yellow-400 text-black font-black text-lg h-14 hover:bg-yellow-300 shadow-[0_0_30px_rgba(255,215,0,0.3)]">
               <ShoppingCart size={20} className="mr-2" />
-              {t.viewCart} · {cartCount} {cartCount === 1 ? "item" : "items"} · {formatDOP(totalAmount)}
+              {t.viewCart} · {cartCount} {cartCount === 1 ? "item" : "items"} · {formatDOP(parseFloat((totalAmount * (1 + MARKUP)).toFixed(2)))}
             </Button>
           </Link>
         </div>

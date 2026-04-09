@@ -276,6 +276,7 @@ export const ListOrdersResponseItem = zod.object({
   deliveryFee: zod.number(),
   commission: zod.number().optional(),
   driverEarnings: zod.number().optional(),
+  tip: zod.number().optional(),
   paymentMethod: zod.enum(["cash", "card"]),
   isPaid: zod.boolean(),
   deliveryAddress: zod.string(),
@@ -363,6 +364,7 @@ export const CreateOrderBody = zod.object({
   paymentMethod: zod.enum(["cash", "card"]),
   deliveryAddress: zod.string(),
   notes: zod.string().optional(),
+  tip: zod.number().optional(),
   items: zod.array(
     zod.object({
       productId: zod.number(),
@@ -394,6 +396,7 @@ export const GetOrderResponse = zod.object({
   deliveryFee: zod.number(),
   commission: zod.number().optional(),
   driverEarnings: zod.number().optional(),
+  tip: zod.number().optional(),
   paymentMethod: zod.enum(["cash", "card"]),
   isPaid: zod.boolean(),
   deliveryAddress: zod.string(),
@@ -499,6 +502,7 @@ export const UpdateOrderStatusResponse = zod.object({
   deliveryFee: zod.number(),
   commission: zod.number().optional(),
   driverEarnings: zod.number().optional(),
+  tip: zod.number().optional(),
   paymentMethod: zod.enum(["cash", "card"]),
   isPaid: zod.boolean(),
   deliveryAddress: zod.string(),
@@ -722,6 +726,7 @@ export const GetAvailableJobsResponseItem = zod.object({
   deliveryFee: zod.number(),
   commission: zod.number().optional(),
   driverEarnings: zod.number().optional(),
+  tip: zod.number().optional(),
   paymentMethod: zod.enum(["cash", "card"]),
   isPaid: zod.boolean(),
   deliveryAddress: zod.string(),
@@ -824,6 +829,7 @@ export const AcceptJobResponse = zod.object({
   deliveryFee: zod.number(),
   commission: zod.number().optional(),
   driverEarnings: zod.number().optional(),
+  tip: zod.number().optional(),
   paymentMethod: zod.enum(["cash", "card"]),
   isPaid: zod.boolean(),
   deliveryAddress: zod.string(),
@@ -997,6 +1003,7 @@ export const AdminListOrdersResponseItem = zod.object({
   deliveryFee: zod.number(),
   commission: zod.number().optional(),
   driverEarnings: zod.number().optional(),
+  tip: zod.number().optional(),
   paymentMethod: zod.enum(["cash", "card"]),
   isPaid: zod.boolean(),
   deliveryAddress: zod.string(),
@@ -1137,6 +1144,35 @@ export const RedeemPointsResponse = zod.object({
   discountAmount: zod.number(),
   newPoints: zod.number(),
   message: zod.string(),
+});
+
+/**
+ * @summary Get saved addresses for the logged-in customer
+ */
+export const ListMyAddressesResponseItem = zod.object({
+  id: zod.number(),
+  userId: zod.number(),
+  label: zod.string(),
+  address: zod.string(),
+  isDefault: zod.boolean(),
+  createdAt: zod.coerce.date(),
+});
+export const ListMyAddressesResponse = zod.array(ListMyAddressesResponseItem);
+
+/**
+ * @summary Save a new delivery address
+ */
+export const SaveAddressBody = zod.object({
+  label: zod.string(),
+  address: zod.string(),
+  isDefault: zod.boolean().optional(),
+});
+
+/**
+ * @summary Delete a saved address
+ */
+export const DeleteAddressParams = zod.object({
+  id: zod.coerce.number(),
 });
 
 /**

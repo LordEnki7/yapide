@@ -15,6 +15,7 @@ export const ordersTable = pgTable("orders", {
   deliveryFee: real("delivery_fee").notNull(),
   commission: real("commission").notNull(),
   driverEarnings: real("driver_earnings").notNull(),
+  tip: real("tip").notNull().default(0),
   paymentMethod: text("payment_method").notNull().default("cash"),
   isPaid: boolean("is_paid").notNull().default(false),
   deliveryAddress: text("delivery_address").notNull(),

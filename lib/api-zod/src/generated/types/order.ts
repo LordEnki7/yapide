@@ -22,6 +22,7 @@ export interface Order {
   deliveryFee: number;
   commission?: number;
   driverEarnings?: number;
+  tip?: number;
   paymentMethod: OrderPaymentMethod;
   isPaid: boolean;
   deliveryAddress: string;

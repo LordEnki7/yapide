@@ -126,15 +126,15 @@ router.post("/orders", async (req, res): Promise<void> => {
   const parsed = CreateOrderBody.safeParse(req.body);
   if (!parsed.success) { res.status(400).json({ error: parsed.error.message }); return; }
 
-  const { businessId, paymentMethod, deliveryAddress, notes, items } = parsed.data;
+  const { businessId, paymentMethod, deliveryAddress, notes, items, tip = 0 } = parsed.data as any;
 
-  let totalAmount = 0;
+  let baseAmount = 0;
   const itemDetails: Array<{ productId: number; productName: string; quantity: number; price: number }> = [];
 
   for (const item of items) {
     const [product] = await db.select().from(productsTable).where(eq(productsTable.id, item.productId));
     if (!product) { res.status(404).json({ error: `Product ${item.productId} not found` }); return; }
-    totalAmount += product.price * item.quantity;
+    baseAmount += product.price * item.quantity;
     itemDetails.push({
       productId: product.id,
       productName: product.name,
@@ -143,7 +143,7 @@ router.post("/orders", async (req, res): Promise<void> => {
     });
   }
 
-  const { deliveryFee, commission, driverEarnings } = calculateFees(totalAmount);
+  const { totalAmount, deliveryFee, commission, driverEarnings } = calculateFees(baseAmount, 3, tip ?? 0);
 
   const [order] = await db.insert(ordersTable).values({
     customerId: sessionUserId,
@@ -155,6 +155,7 @@ router.post("/orders", async (req, res): Promise<void> => {
     deliveryFee,
     commission,
     driverEarnings,
+    tip: tip ?? 0,
     status: "pending",
     isPaid: paymentMethod === "card",
   }).returning();
@@ -165,7 +166,7 @@ router.post("/orders", async (req, res): Promise<void> => {
 
   await db.update(businessesTable).set({ totalOrders: businessesTable.totalOrders }).where(eq(businessesTable.id, businessId));
 
-  const pointsEarned = Math.floor(totalAmount / 10);
+  const pointsEarned = Math.floor(baseAmount / 10);
   if (pointsEarned > 0) {
     await db.update(usersTable).set({ points: (await db.select({ points: usersTable.points }).from(usersTable).where(eq(usersTable.id, sessionUserId)))[0].points + pointsEarned }).where(eq(usersTable.id, sessionUserId));
     await db.insert(pointsTransactionsTable).values({
@@ -195,7 +196,8 @@ router.patch("/orders/:orderId/status", async (req, res): Promise<void> => {
   if (parsed.data.status === "delivered" && order.driverId) {
     const [driver] = await db.select().from(driversTable).where(eq(driversTable.id, order.driverId));
     if (driver) {
-      const newCashBalance = order.paymentMethod === "cash" ? driver.cashBalance + order.totalAmount + order.deliveryFee : driver.cashBalance;
+      const tipAmount = order.tip ?? 0;
+      const newCashBalance = order.paymentMethod === "cash" ? driver.cashBalance + order.totalAmount + order.deliveryFee + tipAmount : driver.cashBalance;
       const newWalletBalance = driver.walletBalance + order.driverEarnings;
       const newTotalDeliveries = driver.totalDeliveries + 1;
       const isLocked = newCashBalance > CASH_LIMIT;
@@ -211,14 +213,14 @@ router.patch("/orders/:orderId/status", async (req, res): Promise<void> => {
         driverId: driver.id,
         type: "earning",
         amount: order.driverEarnings,
-        description: `Delivery #${order.id} earnings`,
+        description: `Delivery #${order.id} — 50% tarifa (RD$${(order.driverEarnings - tipAmount).toFixed(0)}) + propina (RD$${tipAmount.toFixed(0)})`,
       });
 
       if (order.paymentMethod === "cash") {
         await db.insert(walletTransactionsTable).values({
           driverId: driver.id,
           type: "cash_collected",
-          amount: order.totalAmount + order.deliveryFee,
+          amount: order.totalAmount + order.deliveryFee + tipAmount,
           description: `Cash collected for order #${order.id}`,
         });
       }

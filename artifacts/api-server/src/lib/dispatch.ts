@@ -52,15 +52,24 @@ export async function findNearbyDrivers(pickupLat: number, pickupLng: number, ra
   return scored;
 }
 
-export const DELIVERY_BASE_FEE = 100;
+export const PLATFORM_MARKUP = 0.15;
+export const DELIVERY_BASE_FEE = 150;
 export const DELIVERY_FEE_PER_KM = 25;
-export const COMMISSION_RATE = 0.15;
-export const DRIVER_EARNINGS_RATE = 0.75;
+export const DELIVERY_DRIVER_SHARE = 0.50;
 export const CASH_LIMIT = 10000;
 
-export function calculateFees(totalAmount: number, distanceKm = 3) {
-  const deliveryFee = DELIVERY_BASE_FEE + DELIVERY_FEE_PER_KM * distanceKm;
-  const commission = totalAmount * COMMISSION_RATE;
-  const driverEarnings = deliveryFee * DRIVER_EARNINGS_RATE;
-  return { deliveryFee, commission, driverEarnings };
+export function calculateFees(baseAmount: number, distanceKm = 3, tip = 0) {
+  const markedUpTotal = parseFloat((baseAmount * (1 + PLATFORM_MARKUP)).toFixed(2));
+  const platformMarkup = parseFloat((baseAmount * PLATFORM_MARKUP).toFixed(2));
+  const deliveryFee = parseFloat((DELIVERY_BASE_FEE + DELIVERY_FEE_PER_KM * distanceKm).toFixed(2));
+  const driverDeliveryShare = parseFloat((deliveryFee * DELIVERY_DRIVER_SHARE).toFixed(2));
+  const driverEarnings = parseFloat((driverDeliveryShare + tip).toFixed(2));
+  const commission = parseFloat((platformMarkup + deliveryFee * (1 - DELIVERY_DRIVER_SHARE)).toFixed(2));
+  return {
+    totalAmount: markedUpTotal,
+    deliveryFee,
+    commission,
+    driverEarnings,
+    tip,
+  };
 }

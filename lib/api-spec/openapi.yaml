@@ -702,6 +702,54 @@ paths:
         "400":
           description: Not enough points
 
+  # ADDRESSES
+  /customer/addresses:
+    get:
+      operationId: listMyAddresses
+      tags: [customers]
+      summary: Get saved addresses for the logged-in customer
+      responses:
+        "200":
+          description: List of saved addresses
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/UserAddress"
+    post:
+      operationId: saveAddress
+      tags: [customers]
+      summary: Save a new delivery address
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SaveAddressBody"
+      responses:
+        "201":
+          description: Address saved
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserAddress"
+
+  /customer/addresses/{id}:
+    delete:
+      operationId: deleteAddress
+      tags: [customers]
+      summary: Delete a saved address
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Deleted
+
   # STATS
   /stats/platform:
     get:
@@ -986,6 +1034,8 @@ components:
           type: number
         driverEarnings:
           type: number
+        tip:
+          type: number
         paymentMethod:
           type: string
           enum: [cash, card]
@@ -1059,6 +1109,8 @@ components:
           type: string
         notes:
           type: string
+        tip:
+          type: number
         items:
           type: array
           items:
@@ -1463,3 +1515,40 @@ components:
         - discountAmount
         - newPoints
         - message
+
+    UserAddress:
+      type: object
+      properties:
+        id:
+          type: integer
+        userId:
+          type: integer
+        label:
+          type: string
+        address:
+          type: string
+        isDefault:
+          type: boolean
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - userId
+        - label
+        - address
+        - isDefault
+        - createdAt
+
+    SaveAddressBody:
+      type: object
+      properties:
+        label:
+          type: string
+        address:
+          type: string
+        isDefault:
+          type: boolean
+      required:
+        - label
+        - address

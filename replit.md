@@ -38,9 +38,17 @@ pnpm workspace monorepo using TypeScript.
 
 ### Backend (`artifacts/api-server`)
 - Express 5 API server at `/api/`
-- Routes: auth, businesses, products, orders, drivers, admin, stats
+- Routes: auth, businesses, products, orders, drivers, admin, stats, points, addresses
 - Session-based auth using `express-session`, `credentials: include` required
 - Cash limit system: >8000 DOP = red warning, >10000 DOP = driver locked
+
+### Fee & Revenue Structure
+- **15% markup** on all product prices shown to customers (business gets original price, platform keeps 15%)
+- **Delivery fee**: RD$150 base + RD$25/km — split 50/50 between platform and driver
+- **Tips**: 100% go to the driver, added to their wallet on delivery
+- Platform revenue = 15% food markup + 50% of delivery fee
+- Driver earnings = 50% of delivery fee + 100% of tip
+- Points: 1 point per RD$10 (based on pre-markup base price)
 
 ### Frontend (`artifacts/que-lo-que`)
 - Single-page app with wouter routing

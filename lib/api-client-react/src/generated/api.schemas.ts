@@ -194,6 +194,7 @@ export interface Order {
   deliveryFee: number;
   commission?: number;
   driverEarnings?: number;
+  tip?: number;
   paymentMethod: OrderPaymentMethod;
   isPaid: boolean;
   deliveryAddress: string;
@@ -226,6 +227,7 @@ export interface CreateOrderBody {
   paymentMethod: CreateOrderBodyPaymentMethod;
   deliveryAddress: string;
   notes?: string;
+  tip?: number;
   items: OrderItemInput[];
 }
 
@@ -385,6 +387,21 @@ export interface RedeemPointsResponse {
   discountAmount: number;
   newPoints: number;
   message: string;
+}
+
+export interface UserAddress {
+  id: number;
+  userId: number;
+  label: string;
+  address: string;
+  isDefault: boolean;
+  createdAt: string;
+}
+
+export interface SaveAddressBody {
+  label: string;
+  address: string;
+  isDefault?: boolean;
 }
 
 export type ListBusinessesParams = {

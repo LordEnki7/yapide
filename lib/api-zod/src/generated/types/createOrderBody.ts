@@ -13,5 +13,6 @@ export interface CreateOrderBody {
   paymentMethod: CreateOrderBodyPaymentMethod;
   deliveryAddress: string;
   notes?: string;
+  tip?: number;
   items: OrderItemInput[];
 }
