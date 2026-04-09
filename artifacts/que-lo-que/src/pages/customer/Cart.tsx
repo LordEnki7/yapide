@@ -8,7 +8,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { ArrowLeft, Trash2, MapPin, CreditCard, Banknote, Plus, Star, ChevronDown, ChevronUp, Check } from "lucide-react";
+import { ArrowLeft, Trash2, MapPin, Banknote, Plus, Star, ChevronDown, ChevronUp, Check } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 const MARKUP = 0.15;
@@ -27,7 +27,7 @@ export default function CustomerCart() {
   const [address, setAddress] = useState("");
   const [addressLabel, setAddressLabel] = useState("Casa");
   const [notes, setNotes] = useState("");
-  const [paymentMethod, setPaymentMethod] = useState<"cash" | "card">("cash");
+  const paymentMethod: "cash" | "card" = "cash";
   const [tip, setTip] = useState(0);
   const [customTip, setCustomTip] = useState("");
   const [showCustomTip, setShowCustomTip] = useState(false);
@@ -297,24 +297,12 @@ export default function CustomerCart() {
 
         {/* Payment */}
         <div className="bg-white/5 border border-white/10 rounded-2xl p-4">
-          <h3 className="font-bold mb-3">{t.paymentMethod}</h3>
-          <div className="grid grid-cols-2 gap-3">
-            <button
-              onClick={() => setPaymentMethod("cash")}
-              className={`flex flex-col items-center gap-2 p-3 rounded-xl border-2 transition-all ${paymentMethod === "cash" ? "border-yellow-400 bg-yellow-400/10" : "border-white/10 bg-white/5"}`}
-              data-testid="payment-cash"
-            >
-              <Banknote size={24} className={paymentMethod === "cash" ? "text-yellow-400" : "text-gray-400"} />
-              <span className={`text-sm font-bold ${paymentMethod === "cash" ? "text-yellow-400" : "text-gray-400"}`}>{t.cash}</span>
-            </button>
-            <button
-              onClick={() => setPaymentMethod("card")}
-              className={`flex flex-col items-center gap-2 p-3 rounded-xl border-2 transition-all ${paymentMethod === "card" ? "border-yellow-400 bg-yellow-400/10" : "border-white/10 bg-white/5"}`}
-              data-testid="payment-card"
-            >
-              <CreditCard size={24} className={paymentMethod === "card" ? "text-yellow-400" : "text-gray-400"} />
-              <span className={`text-sm font-bold ${paymentMethod === "card" ? "text-yellow-400" : "text-gray-400"}`}>{t.card}</span>
-            </button>
+          <div className="flex items-center gap-3">
+            <Banknote size={20} className="text-yellow-400 flex-shrink-0" />
+            <div>
+              <p className="font-bold text-sm">{t.paymentMethod}</p>
+              <p className="text-gray-400 text-xs mt-0.5">Pago en efectivo al repartidor · No se almacena información de tarjetas</p>
+            </div>
           </div>
         </div>
 
