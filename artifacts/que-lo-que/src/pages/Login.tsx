@@ -6,9 +6,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { ArrowLeft, Eye, EyeOff } from "lucide-react";
-import logo from "@assets/4546fdbf-c360-4a5c-b528-0f447194854b_1775706126188.png";
 import { useLang } from "@/lib/lang";
 import LangToggle from "@/components/LangToggle";
+
+const logo = "/logo.png";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -46,7 +47,7 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen bg-black text-white flex flex-col">
+    <div className="min-h-screen bg-background text-white flex flex-col">
       <div className="px-4 pt-6 flex items-center justify-between">
         <Link href="/">
           <button className="flex items-center gap-2 text-gray-400 hover:text-white transition">
@@ -60,7 +61,7 @@ export default function Login() {
       <div className="flex-1 flex flex-col items-center justify-center px-6">
         <div className="w-full max-w-md">
           <div className="text-center mb-8">
-            <img src={logo} alt="Que Lo Que Logo" className="w-24 h-24 mx-auto object-contain mb-4" />
+            <img src={logo} alt="Que Lo Que Logo" className="w-36 mx-auto object-contain mb-2" />
             <h1 className="text-3xl font-black text-yellow-400 uppercase">{t.loginTitle}</h1>
             <p className="text-gray-400 mt-1">{t.tagline}</p>
           </div>
@@ -71,7 +72,7 @@ export default function Login() {
               placeholder={t.emailPlaceholder}
               value={email}
               onChange={e => setEmail(e.target.value)}
-              className="bg-white/5 border-white/10 text-white placeholder:text-gray-500 focus:border-yellow-400 h-12"
+              className="bg-white/8 border-white/10 text-white placeholder:text-gray-500 focus:border-yellow-400 h-12"
               data-testid="input-email"
               autoComplete="email"
             />
@@ -81,7 +82,7 @@ export default function Login() {
                 placeholder={t.passwordPlaceholder}
                 value={password}
                 onChange={e => setPassword(e.target.value)}
-                className="bg-white/5 border-white/10 text-white placeholder:text-gray-500 focus:border-yellow-400 h-12 pr-10"
+                className="bg-white/8 border-white/10 text-white placeholder:text-gray-500 focus:border-yellow-400 h-12 pr-10"
                 data-testid="input-password"
                 autoComplete="current-password"
               />
@@ -104,7 +105,7 @@ export default function Login() {
             </Button>
           </form>
 
-          <div className="mt-6 bg-white/5 border border-white/10 rounded-xl p-4">
+          <div className="mt-6 bg-white/8 border border-white/10 rounded-xl p-4">
             <p className="text-xs text-gray-400 font-bold uppercase tracking-widest mb-2">{t.demoLabel}</p>
             <div className="grid grid-cols-2 gap-2">
               {[
@@ -116,7 +117,7 @@ export default function Login() {
                 <button
                   key={demo.email}
                   onClick={() => { setEmail(demo.email); setPassword("password123"); }}
-                  className="text-xs text-gray-300 bg-white/5 rounded-lg px-2 py-1.5 hover:bg-white/10 hover:text-yellow-400 transition text-left"
+                  className="text-xs text-gray-300 bg-white/8 rounded-lg px-2 py-1.5 hover:bg-white/10 hover:text-yellow-400 transition text-left"
                 >
                   {demo.label}: {demo.email.split("@")[0]}
                 </button>

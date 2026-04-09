@@ -100,10 +100,10 @@ export default function BusinessMenu() {
   };
 
   return (
-    <div className="min-h-screen bg-black text-white pb-24">
-      <div className="bg-black border-b border-yellow-400/20 px-4 py-4 flex items-center gap-3 sticky top-0 z-10">
+    <div className="min-h-screen bg-background text-white pb-24">
+      <div className="bg-background border-b border-yellow-400/20 px-4 py-4 flex items-center gap-3 sticky top-0 z-10">
         <Link href="/business">
-          <button className="w-9 h-9 rounded-full bg-white/5 flex items-center justify-center hover:bg-white/10 transition">
+          <button className="w-9 h-9 rounded-full bg-white/8 flex items-center justify-center hover:bg-white/10 transition">
             <ArrowLeft size={18} />
           </button>
         </Link>
@@ -122,7 +122,7 @@ export default function BusinessMenu() {
       </div>
 
       {showForm && (
-        <div className="mx-4 mt-4 bg-white/5 border border-yellow-400/30 rounded-2xl p-4">
+        <div className="mx-4 mt-4 bg-white/8 border border-yellow-400/30 rounded-2xl p-4">
           <div className="flex items-center justify-between mb-4">
             <h2 className="font-black text-yellow-400">{editingId ? t.editProduct : t.newProduct}</h2>
             <button onClick={() => { setShowForm(false); setEditingId(null); setForm(DEFAULT_FORM); }}>
@@ -130,13 +130,13 @@ export default function BusinessMenu() {
             </button>
           </div>
           <div className="space-y-3">
-            <Input placeholder={t.productName} value={form.name} onChange={e => setForm(p => ({ ...p, name: e.target.value }))} className="bg-white/5 border-white/10 text-white placeholder:text-gray-500 focus:border-yellow-400" />
-            <Textarea placeholder={t.description} value={form.description} onChange={e => setForm(p => ({ ...p, description: e.target.value }))} className="bg-white/5 border-white/10 text-white placeholder:text-gray-500 focus:border-yellow-400 resize-none" rows={2} />
+            <Input placeholder={t.productName} value={form.name} onChange={e => setForm(p => ({ ...p, name: e.target.value }))} className="bg-white/8 border-white/10 text-white placeholder:text-gray-500 focus:border-yellow-400" />
+            <Textarea placeholder={t.description} value={form.description} onChange={e => setForm(p => ({ ...p, description: e.target.value }))} className="bg-white/8 border-white/10 text-white placeholder:text-gray-500 focus:border-yellow-400 resize-none" rows={2} />
             <div className="grid grid-cols-2 gap-2">
-              <Input type="number" placeholder={t.price} value={form.price} onChange={e => setForm(p => ({ ...p, price: e.target.value }))} className="bg-white/5 border-white/10 text-white placeholder:text-gray-500 focus:border-yellow-400" />
-              <Input placeholder={t.category} value={form.category} onChange={e => setForm(p => ({ ...p, category: e.target.value }))} className="bg-white/5 border-white/10 text-white placeholder:text-gray-500 focus:border-yellow-400" />
+              <Input type="number" placeholder={t.price} value={form.price} onChange={e => setForm(p => ({ ...p, price: e.target.value }))} className="bg-white/8 border-white/10 text-white placeholder:text-gray-500 focus:border-yellow-400" />
+              <Input placeholder={t.category} value={form.category} onChange={e => setForm(p => ({ ...p, category: e.target.value }))} className="bg-white/8 border-white/10 text-white placeholder:text-gray-500 focus:border-yellow-400" />
             </div>
-            <Input placeholder={t.imageUrl} value={form.imageUrl} onChange={e => setForm(p => ({ ...p, imageUrl: e.target.value }))} className="bg-white/5 border-white/10 text-white placeholder:text-gray-500 focus:border-yellow-400" />
+            <Input placeholder={t.imageUrl} value={form.imageUrl} onChange={e => setForm(p => ({ ...p, imageUrl: e.target.value }))} className="bg-white/8 border-white/10 text-white placeholder:text-gray-500 focus:border-yellow-400" />
             <div className="flex items-center gap-3">
               <Switch checked={form.isAvailable} onCheckedChange={v => setForm(p => ({ ...p, isAvailable: v }))} />
               <span className="text-sm text-gray-300">{t.available}</span>
@@ -155,7 +155,7 @@ export default function BusinessMenu() {
       <div className="px-4 py-4">
         {isLoading ? (
           <div className="space-y-3">
-            {[1, 2, 3].map(i => <Skeleton key={i} className="h-24 bg-white/5 rounded-xl" />)}
+            {[1, 2, 3].map(i => <Skeleton key={i} className="h-24 bg-white/8 rounded-xl" />)}
           </div>
         ) : products?.length === 0 ? (
           <div className="text-center py-20">
@@ -171,7 +171,7 @@ export default function BusinessMenu() {
         ) : (
           <div className="space-y-3">
             {products?.map((product) => (
-              <div key={product.id} data-testid={`menu-item-${product.id}`} className="bg-white/5 border border-white/10 rounded-xl p-3 flex gap-3">
+              <div key={product.id} data-testid={`menu-item-${product.id}`} className="bg-white/8 border border-white/10 rounded-xl p-3 flex gap-3">
                 {product.imageUrl && (
                   <img src={product.imageUrl} alt={product.name} className="w-16 h-16 object-cover rounded-lg flex-shrink-0" />
                 )}
@@ -182,7 +182,7 @@ export default function BusinessMenu() {
                       {product.category && <p className="text-xs text-gray-500">{product.category}</p>}
                     </div>
                     <div className="flex items-center gap-1 flex-shrink-0">
-                      <button onClick={() => openEdit(product)} className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center hover:bg-white/10 transition">
+                      <button onClick={() => openEdit(product)} className="w-8 h-8 rounded-lg bg-white/8 flex items-center justify-center hover:bg-white/10 transition">
                         <Pencil size={12} className="text-gray-400" />
                       </button>
                       <button onClick={() => deleteProduct.mutate({ productId: product.id })} className="w-8 h-8 rounded-lg bg-red-500/10 flex items-center justify-center hover:bg-red-500/20 transition">

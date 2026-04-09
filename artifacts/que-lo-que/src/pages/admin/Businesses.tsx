@@ -120,10 +120,10 @@ export default function AdminBusinesses() {
   });
 
   return (
-    <div className="min-h-screen bg-black text-white pb-24">
-      <div className="bg-black border-b border-yellow-400/20 px-4 py-4 flex items-center gap-3 sticky top-0 z-10">
+    <div className="min-h-screen bg-background text-white pb-24">
+      <div className="bg-background border-b border-yellow-400/20 px-4 py-4 flex items-center gap-3 sticky top-0 z-10">
         <Link href="/admin">
-          <button className="w-9 h-9 rounded-full bg-white/5 flex items-center justify-center hover:bg-white/10 transition">
+          <button className="w-9 h-9 rounded-full bg-white/8 flex items-center justify-center hover:bg-white/10 transition">
             <ArrowLeft size={18} />
           </button>
         </Link>
@@ -142,7 +142,7 @@ export default function AdminBusinesses() {
       </div>
 
       {showCreate && (
-        <div className="mx-4 mt-4 bg-white/5 border border-yellow-400/30 rounded-2xl p-4">
+        <div className="mx-4 mt-4 bg-white/8 border border-yellow-400/30 rounded-2xl p-4">
           <div className="flex items-center justify-between mb-4">
             <h2 className="font-black text-yellow-400">
               {editingId ? "Editar negocio" : "Nuevo negocio"}
@@ -156,32 +156,32 @@ export default function AdminBusinesses() {
               placeholder="Nombre del negocio *"
               value={form.name}
               onChange={e => setForm(p => ({ ...p, name: e.target.value }))}
-              className="bg-white/5 border-white/10 text-white placeholder:text-gray-500 focus:border-yellow-400"
+              className="bg-white/8 border-white/10 text-white placeholder:text-gray-500 focus:border-yellow-400"
             />
             <Textarea
               placeholder="Descripción (opcional)"
               value={form.description}
               onChange={e => setForm(p => ({ ...p, description: e.target.value }))}
-              className="bg-white/5 border-white/10 text-white placeholder:text-gray-500 focus:border-yellow-400 resize-none"
+              className="bg-white/8 border-white/10 text-white placeholder:text-gray-500 focus:border-yellow-400 resize-none"
               rows={2}
             />
             <Input
               placeholder="Dirección *"
               value={form.address}
               onChange={e => setForm(p => ({ ...p, address: e.target.value }))}
-              className="bg-white/5 border-white/10 text-white placeholder:text-gray-500 focus:border-yellow-400"
+              className="bg-white/8 border-white/10 text-white placeholder:text-gray-500 focus:border-yellow-400"
             />
             <div className="grid grid-cols-2 gap-2">
               <Input
                 placeholder="Teléfono"
                 value={form.phone}
                 onChange={e => setForm(p => ({ ...p, phone: e.target.value }))}
-                className="bg-white/5 border-white/10 text-white placeholder:text-gray-500 focus:border-yellow-400"
+                className="bg-white/8 border-white/10 text-white placeholder:text-gray-500 focus:border-yellow-400"
               />
               <select
                 value={form.category}
                 onChange={e => setForm(p => ({ ...p, category: e.target.value }))}
-                className="bg-[#1a1a1a] border border-white/10 text-white rounded-md px-3 py-2 text-sm focus:outline-none focus:border-yellow-400"
+                className="bg-secondary border border-white/10 text-white rounded-md px-3 py-2 text-sm focus:outline-none focus:border-yellow-400"
               >
                 {CATEGORY_OPTIONS.map(c => (
                   <option key={c} value={c}>{c}</option>
@@ -192,7 +192,7 @@ export default function AdminBusinesses() {
               placeholder="URL de imagen (opcional)"
               value={form.imageUrl}
               onChange={e => setForm(p => ({ ...p, imageUrl: e.target.value }))}
-              className="bg-white/5 border-white/10 text-white placeholder:text-gray-500 focus:border-yellow-400"
+              className="bg-white/8 border-white/10 text-white placeholder:text-gray-500 focus:border-yellow-400"
             />
             <Button
               className="w-full bg-yellow-400 text-black font-black hover:bg-yellow-300"
@@ -212,7 +212,7 @@ export default function AdminBusinesses() {
             placeholder="Buscar negocios..."
             value={search}
             onChange={e => setSearch(e.target.value)}
-            className="pl-9 bg-white/5 border-white/10 text-white placeholder:text-gray-500 focus:border-yellow-400"
+            className="pl-9 bg-white/8 border-white/10 text-white placeholder:text-gray-500 focus:border-yellow-400"
           />
         </div>
 
@@ -221,7 +221,7 @@ export default function AdminBusinesses() {
             <button
               key={f}
               onClick={() => setFilterActive(f)}
-              className={`px-3 py-1.5 rounded-full text-xs font-bold border transition ${filterActive === f ? "border-yellow-400 bg-yellow-400/20 text-yellow-400" : "border-white/10 bg-white/5 text-gray-400"}`}
+              className={`px-3 py-1.5 rounded-full text-xs font-bold border transition ${filterActive === f ? "border-yellow-400 bg-yellow-400/20 text-yellow-400" : "border-white/10 bg-white/8 text-gray-400"}`}
             >
               {f === "all" ? "Todos" : f === "active" ? "Activos" : "Inactivos"}
               {f === "all" && businesses ? ` (${businesses.length})` : ""}
@@ -233,12 +233,12 @@ export default function AdminBusinesses() {
 
         {isLoading ? (
           <div className="space-y-2">
-            {[1, 2, 3].map(i => <Skeleton key={i} className="h-24 bg-white/5 rounded-xl" />)}
+            {[1, 2, 3].map(i => <Skeleton key={i} className="h-24 bg-white/8 rounded-xl" />)}
           </div>
         ) : (
           <div className="space-y-3">
             {filtered.map((biz) => (
-              <div key={biz.id} data-testid={`business-${biz.id}`} className="bg-white/5 border border-white/10 rounded-2xl p-4">
+              <div key={biz.id} data-testid={`business-${biz.id}`} className="bg-white/8 border border-white/10 rounded-2xl p-4">
                 <div className="flex items-start gap-3">
                   {biz.imageUrl ? (
                     <img src={biz.imageUrl} alt={biz.name} className="w-14 h-14 object-cover rounded-xl flex-shrink-0" />
@@ -260,7 +260,7 @@ export default function AdminBusinesses() {
                         <Star size={12} fill="currentColor" />
                         <span className="text-xs font-bold">{biz.rating?.toFixed(1) ?? "—"}</span>
                       </div>
-                      <Badge className="text-xs bg-white/5 text-gray-400 border-white/10">{biz.category}</Badge>
+                      <Badge className="text-xs bg-white/8 text-gray-400 border-white/10">{biz.category}</Badge>
                       <span className="text-xs text-gray-600">{biz.totalOrders ?? 0} pedidos</span>
                     </div>
                   </div>
@@ -268,7 +268,7 @@ export default function AdminBusinesses() {
                 <div className="grid grid-cols-3 gap-2 mt-3">
                   <button
                     onClick={() => openEdit(biz)}
-                    className="flex items-center justify-center gap-1.5 py-2 rounded-xl bg-white/5 border border-white/10 text-xs font-bold text-gray-300 hover:bg-white/10 transition"
+                    className="flex items-center justify-center gap-1.5 py-2 rounded-xl bg-white/8 border border-white/10 text-xs font-bold text-gray-300 hover:bg-white/10 transition"
                   >
                     <Pencil size={12} />
                     Editar

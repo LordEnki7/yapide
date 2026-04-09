@@ -1,10 +1,11 @@
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
-import logo from "@assets/4546fdbf-c360-4a5c-b528-0f447194854b_1775706126188.png";
 import { setStoredUser } from "@/lib/auth";
 import { UserRole } from "@workspace/api-client-react";
 import { useLang } from "@/lib/lang";
 import LangToggle from "@/components/LangToggle";
+
+const logo = "/logo.png";
 
 export default function Landing() {
   const { t } = useLang();
@@ -21,15 +22,14 @@ export default function Landing() {
   };
 
   return (
-    <div className="min-h-screen bg-black text-white flex flex-col items-center justify-center p-6">
+    <div className="min-h-screen bg-background text-white flex flex-col items-center justify-center p-6">
       <div className="max-w-md w-full space-y-12">
         <div className="text-center space-y-6">
           <div className="flex justify-end">
             <LangToggle />
           </div>
-          <img src={logo} alt="Que Lo Que Logo" className="w-48 h-48 mx-auto object-contain" />
-          <h1 className="text-5xl font-black tracking-tighter uppercase text-primary">{t.appName}</h1>
-          <p className="text-xl italic text-gray-400">{t.tagline}</p>
+          <img src={logo} alt="Que Lo Que Logo" className="w-56 mx-auto object-contain drop-shadow-[0_0_30px_rgba(255,215,0,0.3)]" />
+          <p className="text-lg italic text-blue-200 mt-2">{t.tagline}</p>
         </div>
 
         <div className="space-y-4">

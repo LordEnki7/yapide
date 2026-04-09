@@ -37,10 +37,10 @@ export default function DriverJobs() {
   });
 
   return (
-    <div className="min-h-screen bg-black text-white">
-      <div className="bg-black border-b border-yellow-400/20 px-4 py-4 flex items-center gap-3 sticky top-0 z-10">
+    <div className="min-h-screen bg-background text-white">
+      <div className="bg-background border-b border-yellow-400/20 px-4 py-4 flex items-center gap-3 sticky top-0 z-10">
         <Link href="/driver">
-          <button className="w-9 h-9 rounded-full bg-white/5 flex items-center justify-center hover:bg-white/10 transition">
+          <button className="w-9 h-9 rounded-full bg-white/8 flex items-center justify-center hover:bg-white/10 transition">
             <ArrowLeft size={18} />
           </button>
         </Link>
@@ -56,7 +56,7 @@ export default function DriverJobs() {
       <div className="px-4 py-4">
         {isLoading ? (
           <div className="space-y-3">
-            {[1, 2].map(i => <Skeleton key={i} className="h-44 bg-white/5 rounded-2xl" />)}
+            {[1, 2].map(i => <Skeleton key={i} className="h-44 bg-white/8 rounded-2xl" />)}
           </div>
         ) : jobs?.length === 0 ? (
           <div className="text-center py-20">
@@ -67,7 +67,7 @@ export default function DriverJobs() {
         ) : (
           <div className="space-y-4">
             {jobs?.map((job) => (
-              <div key={job.id} data-testid={`job-card-${job.id}`} className="bg-white/5 border border-yellow-400/20 rounded-2xl p-4 shadow-[0_0_20px_rgba(255,215,0,0.05)]">
+              <div key={job.id} data-testid={`job-card-${job.id}`} className="bg-white/8 border border-yellow-400/20 rounded-2xl p-4 shadow-[0_0_20px_rgba(255,215,0,0.05)]">
                 <div className="flex items-start justify-between mb-3">
                   <div>
                     <p className="text-xs text-gray-400 mb-1 uppercase tracking-widest">#{job.id}</p>

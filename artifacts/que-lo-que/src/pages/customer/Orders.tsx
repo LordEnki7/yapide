@@ -22,10 +22,10 @@ export default function CustomerOrders() {
   };
 
   return (
-    <div className="min-h-screen bg-black text-white">
-      <div className="bg-black border-b border-yellow-400/20 px-4 py-4 flex items-center gap-3 sticky top-0 z-10">
+    <div className="min-h-screen bg-background text-white">
+      <div className="bg-background border-b border-yellow-400/20 px-4 py-4 flex items-center gap-3 sticky top-0 z-10">
         <Link href="/customer">
-          <button className="w-9 h-9 rounded-full bg-white/5 flex items-center justify-center hover:bg-white/10 transition">
+          <button className="w-9 h-9 rounded-full bg-white/8 flex items-center justify-center hover:bg-white/10 transition">
             <ArrowLeft size={18} />
           </button>
         </Link>
@@ -35,7 +35,7 @@ export default function CustomerOrders() {
       <div className="px-4 py-4">
         {isLoading ? (
           <div className="space-y-3">
-            {[1, 2, 3].map(i => <Skeleton key={i} className="h-28 bg-white/5 rounded-xl" />)}
+            {[1, 2, 3].map(i => <Skeleton key={i} className="h-28 bg-white/8 rounded-xl" />)}
           </div>
         ) : orders?.length === 0 ? (
           <div className="text-center py-20">
@@ -51,7 +51,7 @@ export default function CustomerOrders() {
               const status = statusConfig[order.status as keyof typeof statusConfig] ?? statusConfig.pending;
               return (
                 <Link key={order.id} href={`/customer/orders/${order.id}`}>
-                  <div data-testid={`order-card-${order.id}`} className="bg-white/5 border border-white/10 rounded-2xl p-4 hover:border-yellow-400/30 transition cursor-pointer">
+                  <div data-testid={`order-card-${order.id}`} className="bg-white/8 border border-white/10 rounded-2xl p-4 hover:border-yellow-400/30 transition cursor-pointer">
                     <div className="flex items-start justify-between mb-3">
                       <div>
                         <p className="font-black text-white">{order.business?.name ?? "Negocio"}</p>

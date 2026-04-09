@@ -64,15 +64,15 @@ export default function BusinessStore() {
   }, {}) ?? {};
 
   if (bizLoading) return (
-    <div className="min-h-screen bg-black p-4">
-      <Skeleton className="h-48 bg-white/5 rounded-2xl mb-4" />
-      <Skeleton className="h-8 bg-white/5 rounded mb-2" />
-      <Skeleton className="h-6 bg-white/5 rounded w-1/2" />
+    <div className="min-h-screen bg-background p-4">
+      <Skeleton className="h-48 bg-white/8 rounded-2xl mb-4" />
+      <Skeleton className="h-8 bg-white/8 rounded mb-2" />
+      <Skeleton className="h-6 bg-white/8 rounded w-1/2" />
     </div>
   );
 
   return (
-    <div className="min-h-screen bg-black text-white pb-28">
+    <div className="min-h-screen bg-background text-white pb-28">
 
       {/* Hero */}
       <div className="relative h-52">
@@ -83,7 +83,7 @@ export default function BusinessStore() {
         )}
         <div className="absolute inset-0 bg-gradient-to-t from-black to-transparent" />
         <Link href="/customer">
-          <button className="absolute top-4 left-4 w-10 h-10 bg-black/60 rounded-full flex items-center justify-center hover:bg-black/80 transition">
+          <button className="absolute top-4 left-4 w-10 h-10 bg-background/60 rounded-full flex items-center justify-center hover:bg-background/80 transition">
             <ArrowLeft size={18} className="text-white" />
           </button>
         </Link>
@@ -94,7 +94,7 @@ export default function BusinessStore() {
 
       <div className="px-4 -mt-6 relative">
         {/* Business Info */}
-        <div className="bg-white/5 border border-white/10 rounded-2xl p-4 mb-6">
+        <div className="bg-white/8 border border-white/10 rounded-2xl p-4 mb-6">
           <div className="flex items-start justify-between">
             <div>
               <h1 className="text-2xl font-black text-white">{business?.name}</h1>
@@ -111,7 +111,7 @@ export default function BusinessStore() {
         {/* Products */}
         {prodsLoading ? (
           <div className="space-y-3">
-            {[1, 2, 3].map(i => <Skeleton key={i} className="h-24 bg-white/5 rounded-xl" />)}
+            {[1, 2, 3].map(i => <Skeleton key={i} className="h-24 bg-white/8 rounded-xl" />)}
           </div>
         ) : Object.keys(groupedProducts).length === 0 ? (
           <div className="text-center py-12">
@@ -130,7 +130,7 @@ export default function BusinessStore() {
                     key={product.id}
                     data-testid={`product-${product.id}`}
                     onClick={() => openProduct(product)}
-                    className="bg-white/5 border border-white/10 rounded-xl overflow-hidden hover:border-yellow-400/40 transition cursor-pointer active:scale-[0.99]"
+                    className="bg-white/8 border border-white/10 rounded-xl overflow-hidden hover:border-yellow-400/40 transition cursor-pointer active:scale-[0.99]"
                   >
                     <div className="flex gap-3 p-3">
                       {product.imageUrl && (
@@ -174,7 +174,7 @@ export default function BusinessStore() {
 
       {/* Cart Bar */}
       {cartCount > 0 && (
-        <div className="fixed bottom-0 left-0 right-0 p-4 bg-black border-t border-yellow-400/20 z-20">
+        <div className="fixed bottom-0 left-0 right-0 p-4 bg-background border-t border-yellow-400/20 z-20">
           <Link href="/customer/cart">
             <Button className="w-full bg-yellow-400 text-black font-black text-lg h-14 hover:bg-yellow-300 shadow-[0_0_30px_rgba(255,215,0,0.3)]">
               <ShoppingCart size={20} className="mr-2" />
@@ -189,12 +189,12 @@ export default function BusinessStore() {
         <>
           {/* Backdrop */}
           <div
-            className="fixed inset-0 bg-black/70 z-30 backdrop-blur-sm"
+            className="fixed inset-0 bg-background/70 z-30 backdrop-blur-sm"
             onClick={closeSheet}
           />
 
           {/* Sheet */}
-          <div className="fixed bottom-0 left-0 right-0 z-40 bg-[#0f0f0f] border-t border-yellow-400/30 rounded-t-3xl overflow-hidden max-h-[90vh] flex flex-col animate-in slide-in-from-bottom duration-300">
+          <div className="fixed bottom-0 left-0 right-0 z-40 bg-card border-t border-yellow-400/30 rounded-t-3xl overflow-hidden max-h-[90vh] flex flex-col animate-in slide-in-from-bottom duration-300">
 
             {/* Product Image */}
             {selectedProduct.imageUrl ? (
@@ -207,7 +207,7 @@ export default function BusinessStore() {
                 <div className="absolute inset-0 bg-gradient-to-t from-[#0f0f0f] via-transparent to-transparent" />
                 <button
                   onClick={closeSheet}
-                  className="absolute top-4 right-4 w-9 h-9 bg-black/70 rounded-full flex items-center justify-center hover:bg-black transition"
+                  className="absolute top-4 right-4 w-9 h-9 bg-background/70 rounded-full flex items-center justify-center hover:bg-background transition"
                 >
                   <X size={16} className="text-white" />
                 </button>
@@ -217,7 +217,7 @@ export default function BusinessStore() {
                 <span className="text-6xl">🍽️</span>
                 <button
                   onClick={closeSheet}
-                  className="absolute top-4 right-4 w-9 h-9 bg-black/70 rounded-full flex items-center justify-center"
+                  className="absolute top-4 right-4 w-9 h-9 bg-background/70 rounded-full flex items-center justify-center"
                 >
                   <X size={16} className="text-white" />
                 </button>

@@ -43,17 +43,17 @@ export default function CustomerOrderDetail() {
   const isDelivered = order?.status === "delivered";
 
   if (isLoading) return (
-    <div className="min-h-screen bg-black p-4 space-y-3">
-      <Skeleton className="h-48 bg-white/5 rounded-2xl" />
-      <Skeleton className="h-24 bg-white/5 rounded-2xl" />
+    <div className="min-h-screen bg-background p-4 space-y-3">
+      <Skeleton className="h-48 bg-white/8 rounded-2xl" />
+      <Skeleton className="h-24 bg-white/8 rounded-2xl" />
     </div>
   );
 
   return (
-    <div className="min-h-screen bg-black text-white pb-8">
-      <div className="bg-black border-b border-yellow-400/20 px-4 py-4 flex items-center gap-3 sticky top-0 z-10">
+    <div className="min-h-screen bg-background text-white pb-8">
+      <div className="bg-background border-b border-yellow-400/20 px-4 py-4 flex items-center gap-3 sticky top-0 z-10">
         <Link href="/customer/orders">
-          <button className="w-9 h-9 rounded-full bg-white/5 flex items-center justify-center hover:bg-white/10 transition">
+          <button className="w-9 h-9 rounded-full bg-white/8 flex items-center justify-center hover:bg-white/10 transition">
             <ArrowLeft size={18} />
           </button>
         </Link>
@@ -64,7 +64,7 @@ export default function CustomerOrderDetail() {
       </div>
 
       <div className="px-4 py-4 space-y-4">
-        <div className="bg-white/5 border border-white/10 rounded-2xl p-4">
+        <div className="bg-white/8 border border-white/10 rounded-2xl p-4">
           <h2 className="font-bold text-sm text-gray-400 mb-4 uppercase tracking-widest">{t.orderStatus}</h2>
           <div className="space-y-3">
             {STEPS.map((step, i) => {
@@ -81,7 +81,7 @@ export default function CustomerOrderDetail() {
                     {step.label}
                   </span>
                   {isCurrent && order?.status !== "delivered" && (
-                    <span className="text-xs text-gray-400 bg-white/5 px-2 py-0.5 rounded-full ml-auto animate-pulse">...</span>
+                    <span className="text-xs text-gray-400 bg-white/8 px-2 py-0.5 rounded-full ml-auto animate-pulse">...</span>
                   )}
                 </div>
               );
@@ -90,7 +90,7 @@ export default function CustomerOrderDetail() {
         </div>
 
         {order?.driver && (
-          <div className="bg-white/5 border border-white/10 rounded-2xl p-4">
+          <div className="bg-white/8 border border-white/10 rounded-2xl p-4">
             <h2 className="font-bold text-sm text-gray-400 mb-3 uppercase tracking-widest">{t.yourDriver}</h2>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
@@ -115,7 +115,7 @@ export default function CustomerOrderDetail() {
           </div>
         )}
 
-        <div className="bg-white/5 border border-white/10 rounded-2xl p-4">
+        <div className="bg-white/8 border border-white/10 rounded-2xl p-4">
           <h2 className="font-bold text-sm text-gray-400 mb-3 uppercase tracking-widest">{t.yourItems}</h2>
           {order?.items?.map((item) => (
             <div key={item.id} className="flex justify-between items-center py-2 border-b border-white/5 last:border-0">

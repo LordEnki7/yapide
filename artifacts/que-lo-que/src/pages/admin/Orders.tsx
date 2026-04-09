@@ -30,10 +30,10 @@ export default function AdminOrders() {
   };
 
   return (
-    <div className="min-h-screen bg-black text-white pb-24">
-      <div className="bg-black border-b border-yellow-400/20 px-4 py-4 flex items-center gap-3 sticky top-0 z-10">
+    <div className="min-h-screen bg-background text-white pb-24">
+      <div className="bg-background border-b border-yellow-400/20 px-4 py-4 flex items-center gap-3 sticky top-0 z-10">
         <Link href="/admin">
-          <button className="w-9 h-9 rounded-full bg-white/5 flex items-center justify-center hover:bg-white/10 transition">
+          <button className="w-9 h-9 rounded-full bg-white/8 flex items-center justify-center hover:bg-white/10 transition">
             <ArrowLeft size={18} />
           </button>
         </Link>
@@ -46,7 +46,7 @@ export default function AdminOrders() {
       <div className="px-4 py-4 space-y-3">
         {isLoading ? (
           <div className="space-y-2">
-            {[1, 2, 3].map(i => <Skeleton key={i} className="h-24 bg-white/5 rounded-xl" />)}
+            {[1, 2, 3].map(i => <Skeleton key={i} className="h-24 bg-white/8 rounded-xl" />)}
           </div>
         ) : orders?.length === 0 ? (
           <div className="text-center py-16 text-gray-400">
@@ -56,7 +56,7 @@ export default function AdminOrders() {
         ) : (
           <div className="space-y-2">
             {orders?.map((order) => (
-              <div key={order.id} data-testid={`admin-order-${order.id}`} className="bg-white/5 border border-white/10 rounded-2xl p-4">
+              <div key={order.id} data-testid={`admin-order-${order.id}`} className="bg-white/8 border border-white/10 rounded-2xl p-4">
                 <div className="flex items-center justify-between mb-2">
                   <div>
                     <p className="font-black text-white">#{order.id}</p>

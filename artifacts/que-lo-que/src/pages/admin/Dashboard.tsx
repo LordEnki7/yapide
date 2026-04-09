@@ -26,8 +26,8 @@ export default function AdminDashboard() {
   ];
 
   return (
-    <div className="min-h-screen bg-black text-white pb-24">
-      <div className="bg-black border-b border-yellow-400/20 px-4 py-4">
+    <div className="min-h-screen bg-background text-white pb-24">
+      <div className="bg-background border-b border-yellow-400/20 px-4 py-4">
         <div className="flex items-center justify-between">
           <div>
             <p className="text-xs text-gray-400 uppercase tracking-widest">QUE LO QUE</p>
@@ -40,7 +40,7 @@ export default function AdminDashboard() {
       <div className="px-4 py-4 space-y-4">
         {statsLoading ? (
           <div className="grid grid-cols-2 gap-3">
-            {[1, 2, 3, 4].map(i => <Skeleton key={i} className="h-28 bg-white/5 rounded-2xl" />)}
+            {[1, 2, 3, 4].map(i => <Skeleton key={i} className="h-28 bg-white/8 rounded-2xl" />)}
           </div>
         ) : (
           <div className="grid grid-cols-2 gap-3">
@@ -71,7 +71,7 @@ export default function AdminDashboard() {
               const Icon = item.icon;
               return (
                 <Link key={item.href} href={item.href}>
-                  <div className="bg-white/5 border border-white/10 rounded-2xl p-4 text-center hover:border-yellow-400/30 hover:bg-yellow-400/5 transition cursor-pointer">
+                  <div className="bg-white/8 border border-white/10 rounded-2xl p-4 text-center hover:border-yellow-400/30 hover:bg-yellow-400/5 transition cursor-pointer">
                     <Icon size={22} className="text-yellow-400 mx-auto mb-2" />
                     <p className="font-bold text-sm">{item.label}</p>
                   </div>
@@ -85,18 +85,18 @@ export default function AdminDashboard() {
           <h2 className="text-sm font-bold text-gray-400 uppercase tracking-widest mb-3">{t.recentUsers}</h2>
           {usersLoading ? (
             <div className="space-y-2">
-              {[1, 2].map(i => <Skeleton key={i} className="h-12 bg-white/5 rounded-xl" />)}
+              {[1, 2].map(i => <Skeleton key={i} className="h-12 bg-white/8 rounded-xl" />)}
             </div>
           ) : (
             <div className="space-y-2">
               {users?.slice(0, 5).map((user) => (
-                <div key={user.id} className="bg-white/5 border border-white/10 rounded-xl px-4 py-3 flex items-center justify-between">
+                <div key={user.id} className="bg-white/8 border border-white/10 rounded-xl px-4 py-3 flex items-center justify-between">
                   <div>
                     <p className="font-bold text-sm">{user.name}</p>
                     <p className="text-xs text-gray-400">{user.email}</p>
                   </div>
                   <div className="flex items-center gap-2">
-                    <Badge className="text-xs bg-white/5 text-gray-400 border-white/10">{user.role}</Badge>
+                    <Badge className="text-xs bg-white/8 text-gray-400 border-white/10">{user.role}</Badge>
                     {user.isBanned && <Badge className="text-xs bg-red-500/20 text-red-400 border-red-500/40">{t.banned}</Badge>}
                   </div>
                 </div>

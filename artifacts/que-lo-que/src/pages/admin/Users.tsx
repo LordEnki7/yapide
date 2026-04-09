@@ -44,10 +44,10 @@ export default function AdminUsers() {
   };
 
   return (
-    <div className="min-h-screen bg-black text-white pb-24">
-      <div className="bg-black border-b border-yellow-400/20 px-4 py-4 flex items-center gap-3 sticky top-0 z-10">
+    <div className="min-h-screen bg-background text-white pb-24">
+      <div className="bg-background border-b border-yellow-400/20 px-4 py-4 flex items-center gap-3 sticky top-0 z-10">
         <Link href="/admin">
-          <button className="w-9 h-9 rounded-full bg-white/5 flex items-center justify-center hover:bg-white/10 transition">
+          <button className="w-9 h-9 rounded-full bg-white/8 flex items-center justify-center hover:bg-white/10 transition">
             <ArrowLeft size={18} />
           </button>
         </Link>
@@ -64,25 +64,25 @@ export default function AdminUsers() {
             placeholder={t.searchUsers}
             value={search}
             onChange={e => setSearch(e.target.value)}
-            className="pl-8 bg-white/5 border-white/10 text-white placeholder:text-gray-500 focus:border-yellow-400"
+            className="pl-8 bg-white/8 border-white/10 text-white placeholder:text-gray-500 focus:border-yellow-400"
           />
         </div>
 
         {isLoading ? (
           <div className="space-y-2">
-            {[1, 2, 3, 4].map(i => <Skeleton key={i} className="h-20 bg-white/5 rounded-xl" />)}
+            {[1, 2, 3, 4].map(i => <Skeleton key={i} className="h-20 bg-white/8 rounded-xl" />)}
           </div>
         ) : (
           <div className="space-y-2">
             {filtered?.map((user) => (
-              <div key={user.id} data-testid={`user-${user.id}`} className="bg-white/5 border border-white/10 rounded-xl p-3">
+              <div key={user.id} data-testid={`user-${user.id}`} className="bg-white/8 border border-white/10 rounded-xl p-3">
                 <div className="flex items-center justify-between gap-2">
                   <div className="min-w-0">
                     <p className="font-bold truncate">{user.name}</p>
                     <p className="text-xs text-gray-400 truncate">{user.email}</p>
                   </div>
                   <div className="flex items-center gap-2 flex-shrink-0">
-                    <Badge className={`text-xs border ${ROLE_COLORS[user.role] ?? "bg-white/5 text-gray-400 border-white/10"}`}>
+                    <Badge className={`text-xs border ${ROLE_COLORS[user.role] ?? "bg-white/8 text-gray-400 border-white/10"}`}>
                       {user.role}
                     </Badge>
                     <Button

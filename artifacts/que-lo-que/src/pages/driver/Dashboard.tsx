@@ -46,9 +46,9 @@ export default function DriverDashboard() {
   };
 
   if (driverLoading) return (
-    <div className="min-h-screen bg-black p-4 space-y-4">
-      <Skeleton className="h-32 bg-white/5 rounded-2xl" />
-      <Skeleton className="h-24 bg-white/5 rounded-2xl" />
+    <div className="min-h-screen bg-background p-4 space-y-4">
+      <Skeleton className="h-32 bg-white/8 rounded-2xl" />
+      <Skeleton className="h-24 bg-white/8 rounded-2xl" />
     </div>
   );
 
@@ -56,8 +56,8 @@ export default function DriverDashboard() {
   const cashLocked = (driver?.cashBalance ?? 0) >= CASH_LIMIT;
 
   return (
-    <div className="min-h-screen bg-black text-white pb-8">
-      <div className="bg-black border-b border-yellow-400/20 px-4 py-4">
+    <div className="min-h-screen bg-background text-white pb-8">
+      <div className="bg-background border-b border-yellow-400/20 px-4 py-4">
         <div className="flex items-center justify-between">
           <div>
             <p className="text-xs text-gray-400 uppercase tracking-widest">{t.driverTitle}</p>
@@ -91,7 +91,7 @@ export default function DriverDashboard() {
           </div>
         )}
 
-        <div className="bg-white/5 border border-white/10 rounded-2xl p-6 text-center">
+        <div className="bg-white/8 border border-white/10 rounded-2xl p-6 text-center">
           <p className="text-gray-400 text-sm mb-4">
             {driver?.isOnline ? t.receivingOrders : t.activateToReceive}
           </p>
@@ -101,7 +101,7 @@ export default function DriverDashboard() {
             className={`w-32 h-32 rounded-full border-4 font-black text-lg transition-all shadow-[0_0_30px] ${
               driver?.isOnline
                 ? "bg-green-400 border-green-300 text-black shadow-green-400/30 hover:bg-green-300"
-                : "bg-white/5 border-yellow-400/40 text-yellow-400 shadow-transparent hover:border-yellow-400 hover:shadow-yellow-400/20"
+                : "bg-white/8 border-yellow-400/40 text-yellow-400 shadow-transparent hover:border-yellow-400 hover:shadow-yellow-400/20"
             } disabled:opacity-50`}
           >
             {driver?.isOnline ? t.active : t.inactive}
@@ -109,7 +109,7 @@ export default function DriverDashboard() {
         </div>
 
         <div className="grid grid-cols-2 gap-3">
-          <div className="bg-white/5 border border-white/10 rounded-2xl p-4">
+          <div className="bg-white/8 border border-white/10 rounded-2xl p-4">
             <div className="flex items-center gap-2 mb-2">
               <TrendingUp size={16} className="text-yellow-400" />
               <span className="text-xs text-gray-400 font-bold uppercase">{t.today}</span>
@@ -117,7 +117,7 @@ export default function DriverDashboard() {
             <p className="text-2xl font-black text-yellow-400">{formatDOP(stats?.earningsToday ?? 0)}</p>
             <p className="text-xs text-gray-400">{stats?.deliveriesToday ?? 0} {t.deliveries}</p>
           </div>
-          <div className="bg-white/5 border border-white/10 rounded-2xl p-4">
+          <div className="bg-white/8 border border-white/10 rounded-2xl p-4">
             <div className="flex items-center gap-2 mb-2">
               <Wallet size={16} className="text-green-400" />
               <span className="text-xs text-gray-400 font-bold uppercase">{t.wallet}</span>
@@ -127,7 +127,7 @@ export default function DriverDashboard() {
           </div>
         </div>
 
-        <div className="bg-white/5 border border-white/10 rounded-2xl p-4">
+        <div className="bg-white/8 border border-white/10 rounded-2xl p-4">
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
               <Zap size={16} className="text-yellow-400" />
@@ -151,7 +151,7 @@ export default function DriverDashboard() {
             </div>
           </Link>
           <Link href="/driver/wallet">
-            <div className="bg-white/5 border border-white/10 rounded-2xl p-4 text-center hover:border-yellow-400/30 transition cursor-pointer">
+            <div className="bg-white/8 border border-white/10 rounded-2xl p-4 text-center hover:border-yellow-400/30 transition cursor-pointer">
               <Wallet size={24} className="text-gray-300 mx-auto mb-2" />
               <p className="font-bold text-gray-300 text-sm">{t.myWallet}</p>
             </div>

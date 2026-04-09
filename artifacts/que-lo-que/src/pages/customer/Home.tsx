@@ -40,12 +40,12 @@ export default function CustomerHome() {
   );
 
   return (
-    <div className="min-h-screen bg-black text-white">
-      <div className="bg-black border-b border-yellow-400/20 px-4 py-4 sticky top-0 z-10">
+    <div className="min-h-screen bg-background text-white">
+      <div className="bg-background border-b border-yellow-400/20 px-4 py-4 sticky top-0 z-10">
         <div className="flex items-center justify-between mb-3">
-          <div>
-            <p className="text-xs text-gray-400 uppercase tracking-widest">{t.appName}</p>
-            <h1 className="text-lg font-black text-yellow-400">
+          <div className="flex items-center gap-3">
+            <img src="/logo.png" alt="Que Lo Que" className="h-10 w-auto object-contain" />
+            <h1 className="text-base font-black text-yellow-400 leading-tight">
               {t.greeting(user?.name?.split(" ")[0] || (lang === "es" ? "bicho" : "friend"))}
             </h1>
           </div>
@@ -64,7 +64,7 @@ export default function CustomerHome() {
             placeholder={t.searchPlaceholder}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="pl-9 bg-white/5 border-white/10 text-white placeholder:text-gray-500 focus:border-yellow-400"
+            className="pl-9 bg-white/8 border-white/10 text-white placeholder:text-gray-500 focus:border-yellow-400"
           />
         </div>
       </div>
@@ -100,7 +100,7 @@ export default function CustomerHome() {
               className={`flex-shrink-0 flex flex-col items-center gap-1 px-4 py-3 rounded-xl font-bold text-sm transition-all ${
                 selectedCategory === cat.key
                   ? "bg-yellow-400 text-black shadow-[0_0_20px_rgba(255,215,0,0.4)]"
-                  : "bg-white/5 text-gray-300 border border-white/10 hover:border-yellow-400/40"
+                  : "bg-white/8 text-gray-300 border border-white/10 hover:border-yellow-400/40"
               }`}
             >
               <span className="text-xl">{cat.icon}</span>
@@ -116,7 +116,7 @@ export default function CustomerHome() {
         {isLoading ? (
           <div className="grid grid-cols-1 gap-4">
             {[1, 2, 3].map((i) => (
-              <Skeleton key={i} className="h-48 bg-white/5 rounded-2xl" />
+              <Skeleton key={i} className="h-48 bg-white/8 rounded-2xl" />
             ))}
           </div>
         ) : businesses?.length === 0 ? (
@@ -130,7 +130,7 @@ export default function CustomerHome() {
               <Link key={biz.id} href={`/customer/business/${biz.id}`}>
                 <div
                   data-testid={`business-card-${biz.id}`}
-                  className="bg-white/5 border border-white/10 rounded-2xl overflow-hidden hover:border-yellow-400/40 hover:shadow-[0_0_20px_rgba(255,215,0,0.1)] transition-all cursor-pointer group h-full"
+                  className="bg-white/8 border border-white/10 rounded-2xl overflow-hidden hover:border-yellow-400/40 hover:shadow-[0_0_20px_rgba(255,215,0,0.1)] transition-all cursor-pointer group h-full"
                 >
                   <div className="relative h-28 overflow-hidden bg-yellow-400/5">
                     {biz.imageUrl ? (

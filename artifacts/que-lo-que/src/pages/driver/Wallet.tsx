@@ -27,10 +27,10 @@ export default function DriverWallet() {
   };
 
   return (
-    <div className="min-h-screen bg-black text-white pb-8">
-      <div className="bg-black border-b border-yellow-400/20 px-4 py-4 flex items-center gap-3 sticky top-0 z-10">
+    <div className="min-h-screen bg-background text-white pb-8">
+      <div className="bg-background border-b border-yellow-400/20 px-4 py-4 flex items-center gap-3 sticky top-0 z-10">
         <Link href="/driver">
-          <button className="w-9 h-9 rounded-full bg-white/5 flex items-center justify-center hover:bg-white/10 transition">
+          <button className="w-9 h-9 rounded-full bg-white/8 flex items-center justify-center hover:bg-white/10 transition">
             <ArrowLeft size={18} />
           </button>
         </Link>
@@ -42,7 +42,7 @@ export default function DriverWallet() {
 
       <div className="px-4 py-4 space-y-4">
         {walletLoading ? (
-          <Skeleton className="h-40 bg-white/5 rounded-2xl" />
+          <Skeleton className="h-40 bg-white/8 rounded-2xl" />
         ) : (
           <>
             <div className="grid grid-cols-2 gap-3">
@@ -51,7 +51,7 @@ export default function DriverWallet() {
                 <p className="text-2xl font-black text-green-400">{formatDOP(wallet?.walletBalance ?? 0)}</p>
                 <p className="text-xs text-gray-500">{t.available}</p>
               </div>
-              <div className={`rounded-2xl p-4 text-center border ${cashLocked ? "bg-red-500/20 border-red-500/50" : cashOver80 ? "bg-yellow-400/10 border-yellow-400/40" : "bg-white/5 border-white/10"}`}>
+              <div className={`rounded-2xl p-4 text-center border ${cashLocked ? "bg-red-500/20 border-red-500/50" : cashOver80 ? "bg-yellow-400/10 border-yellow-400/40" : "bg-white/8 border-white/10"}`}>
                 <p className="text-xs text-gray-400 uppercase tracking-widest mb-1">{t.cashBalance}</p>
                 <p className={`text-2xl font-black ${cashLocked ? "text-red-400" : cashOver80 ? "text-yellow-400" : "text-white"}`}>
                   {formatDOP(wallet?.cashBalance ?? 0)}
@@ -75,12 +75,12 @@ export default function DriverWallet() {
             )}
 
             <div className="grid grid-cols-2 gap-3">
-              <div className="bg-white/5 border border-white/10 rounded-xl p-3">
+              <div className="bg-white/8 border border-white/10 rounded-xl p-3">
                 <p className="text-xs text-gray-400">{t.today}</p>
                 <p className="text-lg font-black text-yellow-400">{formatDOP(wallet?.totalEarningsToday ?? 0)}</p>
                 <p className="text-xs text-gray-500">{wallet?.deliveriesToday ?? 0} {t.deliveries}</p>
               </div>
-              <div className="bg-white/5 border border-white/10 rounded-xl p-3">
+              <div className="bg-white/8 border border-white/10 rounded-xl p-3">
                 <p className="text-xs text-gray-400">{t.thisWeek}</p>
                 <p className="text-lg font-black text-yellow-400">{formatDOP(wallet?.totalEarningsWeek ?? 0)}</p>
                 <p className="text-xs text-gray-500">{wallet?.deliveriesWeek ?? 0} {t.deliveries}</p>
@@ -93,7 +93,7 @@ export default function DriverWallet() {
           <h2 className="font-bold text-sm text-gray-400 uppercase tracking-widest mb-3">{t.history}</h2>
           {txnLoading ? (
             <div className="space-y-2">
-              {[1, 2, 3].map(i => <Skeleton key={i} className="h-16 bg-white/5 rounded-xl" />)}
+              {[1, 2, 3].map(i => <Skeleton key={i} className="h-16 bg-white/8 rounded-xl" />)}
             </div>
           ) : transactions?.length === 0 ? (
             <div className="text-center py-10 text-gray-400">
@@ -106,8 +106,8 @@ export default function DriverWallet() {
                 const config = TRANSACTION_CONFIG[txn.type] ?? TRANSACTION_CONFIG.adjustment;
                 const Icon = config.icon;
                 return (
-                  <div key={txn.id} data-testid={`transaction-${txn.id}`} className="bg-white/5 border border-white/10 rounded-xl p-3 flex items-center gap-3">
-                    <div className="w-9 h-9 rounded-full bg-white/5 flex items-center justify-center flex-shrink-0">
+                  <div key={txn.id} data-testid={`transaction-${txn.id}`} className="bg-white/8 border border-white/10 rounded-xl p-3 flex items-center gap-3">
+                    <div className="w-9 h-9 rounded-full bg-white/8 flex items-center justify-center flex-shrink-0">
                       <Icon size={16} className={config.colorClass} />
                     </div>
                     <div className="flex-1 min-w-0">

@@ -112,7 +112,7 @@ export default function CustomerCart() {
 
   if (items.length === 0) {
     return (
-      <div className="min-h-screen bg-black text-white flex flex-col items-center justify-center p-6">
+      <div className="min-h-screen bg-background text-white flex flex-col items-center justify-center p-6">
         <p className="text-5xl mb-4">🛒</p>
         <h2 className="text-xl font-black mb-2">{t.emptyCart}</h2>
         <p className="text-gray-400 mb-8">{t.emptyCartMsg}</p>
@@ -124,10 +124,10 @@ export default function CustomerCart() {
   }
 
   return (
-    <div className="min-h-screen bg-black text-white pb-32">
-      <div className="bg-black border-b border-yellow-400/20 px-4 py-4 flex items-center gap-3 sticky top-0 z-10">
+    <div className="min-h-screen bg-background text-white pb-32">
+      <div className="bg-background border-b border-yellow-400/20 px-4 py-4 flex items-center gap-3 sticky top-0 z-10">
         <Link href="/customer">
-          <button className="w-9 h-9 rounded-full bg-white/5 flex items-center justify-center hover:bg-white/10 transition">
+          <button className="w-9 h-9 rounded-full bg-white/8 flex items-center justify-center hover:bg-white/10 transition">
             <ArrowLeft size={18} />
           </button>
         </Link>
@@ -136,7 +136,7 @@ export default function CustomerCart() {
 
       <div className="px-4 py-4 space-y-4">
         {/* Items */}
-        <div className="bg-white/5 border border-white/10 rounded-2xl overflow-hidden">
+        <div className="bg-white/8 border border-white/10 rounded-2xl overflow-hidden">
           {items.map((item, idx) => {
             const customerPrice = parseFloat((item.product.price * (1 + MARKUP)).toFixed(2));
             return (
@@ -162,7 +162,7 @@ export default function CustomerCart() {
         </div>
 
         {/* Delivery Address */}
-        <div className="bg-white/5 border border-white/10 rounded-2xl p-4">
+        <div className="bg-white/8 border border-white/10 rounded-2xl p-4">
           <div className="flex items-center gap-2 mb-3">
             <MapPin size={16} className="text-yellow-400" />
             <h3 className="font-bold">{t.deliveryAddress}</h3>
@@ -183,7 +183,7 @@ export default function CustomerCart() {
                     <button
                       key={a.id}
                       onClick={() => handleSelectAddress(a)}
-                      className={`w-full flex items-center gap-3 px-3 py-2 rounded-xl border text-left text-sm transition ${address === a.address ? "border-yellow-400 bg-yellow-400/10" : "border-white/10 bg-white/5 hover:bg-white/10"}`}
+                      className={`w-full flex items-center gap-3 px-3 py-2 rounded-xl border text-left text-sm transition ${address === a.address ? "border-yellow-400 bg-yellow-400/10" : "border-white/10 bg-white/8 hover:bg-white/10"}`}
                     >
                       {address === a.address && <Check size={14} className="text-yellow-400 flex-shrink-0" />}
                       <div className="flex-1 min-w-0">
@@ -202,7 +202,7 @@ export default function CustomerCart() {
             placeholder={t.addressPlaceholder}
             value={address}
             onChange={(e) => setAddress(e.target.value)}
-            className="bg-white/5 border-white/10 text-white placeholder:text-gray-500 focus:border-yellow-400"
+            className="bg-white/8 border-white/10 text-white placeholder:text-gray-500 focus:border-yellow-400"
             data-testid="input-address"
           />
 
@@ -223,7 +223,7 @@ export default function CustomerCart() {
                   <button
                     key={l}
                     onClick={() => setAddressLabel(l)}
-                    className={`px-3 py-1 rounded-full text-xs font-bold border transition ${addressLabel === l ? "border-yellow-400 bg-yellow-400/20 text-yellow-400" : "border-white/10 bg-white/5 text-gray-400"}`}
+                    className={`px-3 py-1 rounded-full text-xs font-bold border transition ${addressLabel === l ? "border-yellow-400 bg-yellow-400/20 text-yellow-400" : "border-white/10 bg-white/8 text-gray-400"}`}
                   >
                     {l}
                   </button>
@@ -234,7 +234,7 @@ export default function CustomerCart() {
                   placeholder="Nombre de la dirección"
                   value={addressLabel === "Otro" ? "" : addressLabel}
                   onChange={(e) => setAddressLabel(e.target.value)}
-                  className="bg-white/5 border-white/10 text-white text-xs h-8"
+                  className="bg-white/8 border-white/10 text-white text-xs h-8"
                 />
               )}
               <div className="flex gap-2">
@@ -252,13 +252,13 @@ export default function CustomerCart() {
             placeholder={t.specialInstructions}
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
-            className="bg-white/5 border-white/10 text-white placeholder:text-gray-500 focus:border-yellow-400 mt-3 resize-none"
+            className="bg-white/8 border-white/10 text-white placeholder:text-gray-500 focus:border-yellow-400 mt-3 resize-none"
             rows={2}
           />
         </div>
 
         {/* Tip */}
-        <div className="bg-white/5 border border-white/10 rounded-2xl p-4">
+        <div className="bg-white/8 border border-white/10 rounded-2xl p-4">
           <div className="flex items-center gap-2 mb-3">
             <Star size={16} className="text-yellow-400" />
             <h3 className="font-bold">Propina al repartidor</h3>
@@ -269,7 +269,7 @@ export default function CustomerCart() {
               <button
                 key={p}
                 onClick={() => { setTip(p); setShowCustomTip(false); setCustomTip(""); }}
-                className={`py-2 rounded-xl text-sm font-bold border transition ${!showCustomTip && tip === p ? "border-yellow-400 bg-yellow-400/20 text-yellow-400" : "border-white/10 bg-white/5 text-gray-300 hover:bg-white/10"}`}
+                className={`py-2 rounded-xl text-sm font-bold border transition ${!showCustomTip && tip === p ? "border-yellow-400 bg-yellow-400/20 text-yellow-400" : "border-white/10 bg-white/8 text-gray-300 hover:bg-white/10"}`}
               >
                 {p === 0 ? "Sin propina" : formatDOP(p)}
               </button>
@@ -277,7 +277,7 @@ export default function CustomerCart() {
           </div>
           <button
             onClick={() => { setShowCustomTip(!showCustomTip); setTip(0); }}
-            className={`mt-2 w-full py-2 rounded-xl text-sm font-bold border transition ${showCustomTip ? "border-yellow-400 bg-yellow-400/20 text-yellow-400" : "border-white/10 bg-white/5 text-gray-300 hover:bg-white/10"}`}
+            className={`mt-2 w-full py-2 rounded-xl text-sm font-bold border transition ${showCustomTip ? "border-yellow-400 bg-yellow-400/20 text-yellow-400" : "border-white/10 bg-white/8 text-gray-300 hover:bg-white/10"}`}
           >
             Otra cantidad
           </button>
@@ -289,14 +289,14 @@ export default function CustomerCart() {
                 placeholder="0"
                 value={customTip}
                 onChange={(e) => setCustomTip(e.target.value)}
-                className="bg-white/5 border-white/10 text-white placeholder:text-gray-500 focus:border-yellow-400 h-9"
+                className="bg-white/8 border-white/10 text-white placeholder:text-gray-500 focus:border-yellow-400 h-9"
               />
             </div>
           )}
         </div>
 
         {/* Payment */}
-        <div className="bg-white/5 border border-white/10 rounded-2xl p-4">
+        <div className="bg-white/8 border border-white/10 rounded-2xl p-4">
           <div className="flex items-center gap-3">
             <Banknote size={20} className="text-yellow-400 flex-shrink-0" />
             <div>
@@ -307,7 +307,7 @@ export default function CustomerCart() {
         </div>
 
         {/* Order Summary */}
-        <div className="bg-white/5 border border-white/10 rounded-2xl p-4 space-y-2">
+        <div className="bg-white/8 border border-white/10 rounded-2xl p-4 space-y-2">
           <div className="flex justify-between text-sm text-gray-300">
             <span>{t.subtotal}</span>
             <span>{formatDOP(markedUpTotal)}</span>
@@ -329,7 +329,7 @@ export default function CustomerCart() {
         </div>
       </div>
 
-      <div className="fixed bottom-0 left-0 right-0 p-4 bg-black border-t border-yellow-400/20 z-20">
+      <div className="fixed bottom-0 left-0 right-0 p-4 bg-background border-t border-yellow-400/20 z-20">
         <Button
           className="w-full bg-yellow-400 text-black font-black text-lg h-14 hover:bg-yellow-300 shadow-[0_0_30px_rgba(255,215,0,0.3)] disabled:opacity-50"
           onClick={handleOrder}

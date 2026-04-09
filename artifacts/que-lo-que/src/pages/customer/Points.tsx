@@ -47,10 +47,10 @@ export default function CustomerPoints() {
   const canRedeem = (data?.points ?? 0) >= (data?.nextRewardAt ?? 500);
 
   return (
-    <div className="min-h-screen bg-black text-white pb-28">
-      <div className="bg-black border-b border-yellow-400/20 px-4 py-4 flex items-center gap-3 sticky top-0 z-10">
+    <div className="min-h-screen bg-background text-white pb-28">
+      <div className="bg-background border-b border-yellow-400/20 px-4 py-4 flex items-center gap-3 sticky top-0 z-10">
         <Link href="/customer">
-          <button className="w-9 h-9 rounded-full bg-white/5 flex items-center justify-center hover:bg-white/10 transition">
+          <button className="w-9 h-9 rounded-full bg-white/8 flex items-center justify-center hover:bg-white/10 transition">
             <ArrowLeft size={18} />
           </button>
         </Link>
@@ -63,8 +63,8 @@ export default function CustomerPoints() {
       <div className="px-4 py-4 space-y-4">
         {isLoading ? (
           <>
-            <Skeleton className="h-44 bg-white/5 rounded-2xl" />
-            <Skeleton className="h-24 bg-white/5 rounded-2xl" />
+            <Skeleton className="h-44 bg-white/8 rounded-2xl" />
+            <Skeleton className="h-24 bg-white/8 rounded-2xl" />
           </>
         ) : isError ? (
           <div className="space-y-4">
@@ -78,7 +78,7 @@ export default function CustomerPoints() {
                 </Button>
               </Link>
             </div>
-            <div className="bg-white/5 border border-white/10 rounded-2xl p-4">
+            <div className="bg-white/8 border border-white/10 rounded-2xl p-4">
               <div className="flex items-center gap-2 mb-3">
                 <Info size={16} className="text-yellow-400" />
                 <h3 className="font-bold text-sm text-gray-300">{t.howItWorks}</h3>
@@ -96,7 +96,7 @@ export default function CustomerPoints() {
         ) : (
           <>
             <div className={`relative overflow-hidden rounded-2xl bg-gradient-to-br ${tier === "platinum" ? TIER_COLORS.platinum : tier === "gold" ? TIER_COLORS.gold : TIER_COLORS.silver} p-1`}>
-              <div className="bg-black rounded-xl p-5">
+              <div className="bg-background rounded-xl p-5">
                 <div className="flex items-start justify-between mb-5">
                   <div>
                     <p className="text-xs text-gray-400 uppercase tracking-widest mb-1">{t.pointsBalance}</p>
@@ -148,7 +148,7 @@ export default function CustomerPoints() {
                 </Button>
               </div>
             ) : (
-              <div className="bg-white/5 border border-white/10 rounded-2xl p-4">
+              <div className="bg-white/8 border border-white/10 rounded-2xl p-4">
                 <div className="flex items-center gap-2 mb-3">
                   <Info size={16} className="text-yellow-400" />
                   <h3 className="font-bold text-sm text-gray-300">{t.howItWorks}</h3>
@@ -182,7 +182,7 @@ export default function CustomerPoints() {
                   {data?.transactions.map((txn) => {
                     const isEarn = txn.amount > 0;
                     return (
-                      <div key={txn.id} className="bg-white/5 border border-white/10 rounded-xl p-3 flex items-center gap-3">
+                      <div key={txn.id} className="bg-white/8 border border-white/10 rounded-xl p-3 flex items-center gap-3">
                         <div className={`w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 ${isEarn ? "bg-green-400/20" : "bg-yellow-400/20"}`}>
                           {isEarn ? <ArrowUpRight size={16} className="text-green-400" /> : <ArrowDownLeft size={16} className="text-yellow-400" />}
                         </div>

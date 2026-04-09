@@ -137,10 +137,10 @@ export default function AdminBusinessMenu() {
   }, {});
 
   return (
-    <div className="min-h-screen bg-black text-white pb-24">
-      <div className="bg-black border-b border-yellow-400/20 px-4 py-4 flex items-center gap-3 sticky top-0 z-10">
+    <div className="min-h-screen bg-background text-white pb-24">
+      <div className="bg-background border-b border-yellow-400/20 px-4 py-4 flex items-center gap-3 sticky top-0 z-10">
         <Link href="/admin/businesses">
-          <button className="w-9 h-9 rounded-full bg-white/5 flex items-center justify-center hover:bg-white/10 transition">
+          <button className="w-9 h-9 rounded-full bg-white/8 flex items-center justify-center hover:bg-white/10 transition">
             <ArrowLeft size={18} />
           </button>
         </Link>
@@ -164,7 +164,7 @@ export default function AdminBusinessMenu() {
       </div>
 
       {showForm && (
-        <div className="mx-4 mt-4 bg-white/5 border border-yellow-400/30 rounded-2xl p-4">
+        <div className="mx-4 mt-4 bg-white/8 border border-yellow-400/30 rounded-2xl p-4">
           <div className="flex items-center justify-between mb-4">
             <h2 className="font-black text-yellow-400">{editingId ? t.editProduct : t.newProduct}</h2>
             <button onClick={() => { setShowForm(false); setEditingId(null); setForm(DEFAULT_FORM); }}>
@@ -176,13 +176,13 @@ export default function AdminBusinessMenu() {
               placeholder={t.productName}
               value={form.name}
               onChange={e => setForm(p => ({ ...p, name: e.target.value }))}
-              className="bg-white/5 border-white/10 text-white placeholder:text-gray-500 focus:border-yellow-400"
+              className="bg-white/8 border-white/10 text-white placeholder:text-gray-500 focus:border-yellow-400"
             />
             <Textarea
               placeholder={t.description}
               value={form.description}
               onChange={e => setForm(p => ({ ...p, description: e.target.value }))}
-              className="bg-white/5 border-white/10 text-white placeholder:text-gray-500 focus:border-yellow-400 resize-none"
+              className="bg-white/8 border-white/10 text-white placeholder:text-gray-500 focus:border-yellow-400 resize-none"
               rows={2}
             />
             <div className="grid grid-cols-2 gap-2">
@@ -192,7 +192,7 @@ export default function AdminBusinessMenu() {
                   placeholder={t.price}
                   value={form.price}
                   onChange={e => setForm(p => ({ ...p, price: e.target.value }))}
-                  className="bg-white/5 border-white/10 text-white placeholder:text-gray-500 focus:border-yellow-400"
+                  className="bg-white/8 border-white/10 text-white placeholder:text-gray-500 focus:border-yellow-400"
                 />
                 {form.price && (
                   <p className="text-xs text-yellow-400/60 mt-1 px-1">
@@ -204,14 +204,14 @@ export default function AdminBusinessMenu() {
                 placeholder={t.category}
                 value={form.category}
                 onChange={e => setForm(p => ({ ...p, category: e.target.value }))}
-                className="bg-white/5 border-white/10 text-white placeholder:text-gray-500 focus:border-yellow-400"
+                className="bg-white/8 border-white/10 text-white placeholder:text-gray-500 focus:border-yellow-400"
               />
             </div>
             <Input
               placeholder={t.imageUrl}
               value={form.imageUrl}
               onChange={e => setForm(p => ({ ...p, imageUrl: e.target.value }))}
-              className="bg-white/5 border-white/10 text-white placeholder:text-gray-500 focus:border-yellow-400"
+              className="bg-white/8 border-white/10 text-white placeholder:text-gray-500 focus:border-yellow-400"
             />
             <div className="flex items-center gap-3">
               <Switch checked={form.isAvailable} onCheckedChange={v => setForm(p => ({ ...p, isAvailable: v }))} />
@@ -233,12 +233,12 @@ export default function AdminBusinessMenu() {
           placeholder="Buscar producto o categoría..."
           value={search}
           onChange={e => setSearch(e.target.value)}
-          className="mb-4 bg-white/5 border-white/10 text-white placeholder:text-gray-500 focus:border-yellow-400"
+          className="mb-4 bg-white/8 border-white/10 text-white placeholder:text-gray-500 focus:border-yellow-400"
         />
 
         {loading ? (
           <div className="space-y-3">
-            {[1, 2, 3].map(i => <Skeleton key={i} className="h-20 bg-white/5 rounded-xl" />)}
+            {[1, 2, 3].map(i => <Skeleton key={i} className="h-20 bg-white/8 rounded-xl" />)}
           </div>
         ) : Object.keys(grouped).length === 0 ? (
           <div className="text-center py-20">
@@ -260,7 +260,7 @@ export default function AdminBusinessMenu() {
                 </h2>
                 <div className="space-y-2">
                   {prods.map(product => (
-                    <div key={product.id} className="bg-white/5 border border-white/10 rounded-xl p-3 flex gap-3">
+                    <div key={product.id} className="bg-white/8 border border-white/10 rounded-xl p-3 flex gap-3">
                       {product.imageUrl && (
                         <img src={product.imageUrl} alt={product.name} className="w-14 h-14 object-cover rounded-lg flex-shrink-0" />
                       )}
@@ -275,7 +275,7 @@ export default function AdminBusinessMenu() {
                           <div className="flex items-center gap-1 flex-shrink-0">
                             <button
                               onClick={() => openEdit(product)}
-                              className="w-7 h-7 rounded-lg bg-white/5 flex items-center justify-center hover:bg-white/10 transition"
+                              className="w-7 h-7 rounded-lg bg-white/8 flex items-center justify-center hover:bg-white/10 transition"
                             >
                               <Pencil size={11} className="text-gray-400" />
                             </button>

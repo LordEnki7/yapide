@@ -34,14 +34,14 @@ export default function BusinessDashboard() {
   });
 
   if (bizLoading) return (
-    <div className="min-h-screen bg-black p-4 space-y-4">
-      <Skeleton className="h-32 bg-white/5 rounded-2xl" />
-      <Skeleton className="h-24 bg-white/5 rounded-2xl" />
+    <div className="min-h-screen bg-background p-4 space-y-4">
+      <Skeleton className="h-32 bg-white/8 rounded-2xl" />
+      <Skeleton className="h-24 bg-white/8 rounded-2xl" />
     </div>
   );
 
   return (
-    <div className="min-h-screen bg-black text-white pb-24">
+    <div className="min-h-screen bg-background text-white pb-24">
       {business?.imageUrl && (
         <div className="relative h-44">
           <img src={business.imageUrl} alt={business.name} className="w-full h-full object-cover" />
@@ -63,7 +63,7 @@ export default function BusinessDashboard() {
           </div>
         )}
 
-        <div className="bg-white/5 border border-white/10 rounded-2xl p-4 mb-4">
+        <div className="bg-white/8 border border-white/10 rounded-2xl p-4 mb-4">
           <div className="flex items-center justify-between">
             <div>
               {business?.imageUrl && <h1 className="text-2xl font-black text-white mb-1">{business.name}</h1>}
@@ -87,21 +87,21 @@ export default function BusinessDashboard() {
         </div>
 
         <div className="grid grid-cols-3 gap-3 mb-4">
-          <div className="bg-white/5 border border-white/10 rounded-2xl p-3 text-center">
+          <div className="bg-white/8 border border-white/10 rounded-2xl p-3 text-center">
             <p className="text-xl font-black text-yellow-400">{formatDOP(stats?.salesToday ?? 0)}</p>
             <p className="text-xs text-gray-400 mt-1">{t.salesToday}</p>
           </div>
-          <div className="bg-white/5 border border-white/10 rounded-2xl p-3 text-center">
+          <div className="bg-white/8 border border-white/10 rounded-2xl p-3 text-center">
             <p className="text-xl font-black text-yellow-400">{stats?.ordersToday ?? 0}</p>
             <p className="text-xs text-gray-400 mt-1">{t.ordersToday}</p>
           </div>
-          <div className="bg-white/5 border border-white/10 rounded-2xl p-3 text-center">
+          <div className="bg-white/8 border border-white/10 rounded-2xl p-3 text-center">
             <p className="text-xl font-black text-yellow-400">⭐{business?.rating?.toFixed(1) ?? "—"}</p>
             <p className="text-xs text-gray-400 mt-1">{t.rating}</p>
           </div>
         </div>
 
-        <div className="bg-white/5 border border-white/10 rounded-2xl p-4 mb-4">
+        <div className="bg-white/8 border border-white/10 rounded-2xl p-4 mb-4">
           <div className="flex items-center gap-2 mb-2">
             <TrendingUp size={14} className="text-yellow-400" />
             <span className="text-xs font-bold text-gray-400 uppercase tracking-widest">{t.thisWeekSales}</span>
@@ -120,7 +120,7 @@ export default function BusinessDashboard() {
             </div>
           </Link>
           <Link href="/business/menu">
-            <div className="bg-white/5 border border-white/10 rounded-2xl p-4 text-center hover:border-yellow-400/30 transition cursor-pointer">
+            <div className="bg-white/8 border border-white/10 rounded-2xl p-4 text-center hover:border-yellow-400/30 transition cursor-pointer">
               <ChefHat size={24} className="text-gray-300 mx-auto mb-2" />
               <p className="font-bold text-gray-300 text-sm">{t.menu}</p>
             </div>

@@ -67,59 +67,59 @@
 }
 
 :root, .dark {
-  --button-outline: rgba(255,255,255, .10);
-  --badge-outline: rgba(255,255,255, .05);
+  --button-outline: rgba(255,255,255, .12);
+  --badge-outline: rgba(255,255,255, .07);
   --opaque-button-border-intensity: 9;
 
-  --elevate-1: rgba(255,255,255, .04);
-  --elevate-2: rgba(255,255,255, .09);
+  --elevate-1: rgba(255,255,255, .05);
+  --elevate-2: rgba(255,255,255, .10);
 
-  /* Black background */
-  --background: 0 0% 4%;
+  /* Deep navy blue background (from logo) */
+  --background: 228 83% 9%;
   /* White text */
   --foreground: 0 0% 98%;
 
-  --border: 0 0% 15%;
+  --border: 226 60% 25%;
   
-  /* Cards are slightly lighter black */
-  --card: 0 0% 7%;
+  /* Cards: slightly lighter navy */
+  --card: 226 74% 14%;
   --card-foreground: 0 0% 98%;
-  --card-border: 0 0% 15%;
+  --card-border: 226 60% 25%;
 
   /* Popovers */
-  --popover: 0 0% 7%;
+  --popover: 226 74% 14%;
   --popover-foreground: 0 0% 98%;
-  --popover-border: 0 0% 15%;
+  --popover-border: 226 60% 25%;
 
-  /* Primary: Electric Yellow #FFD700 -> HSL: 50.6, 100%, 50% */
+  /* Primary: Electric Yellow #FFD700 */
   --primary: 51 100% 50%;
-  --primary-foreground: 0 0% 4%; /* Black text on yellow */
+  --primary-foreground: 228 83% 9%;
 
-  /* Secondary: Dark grey */
-  --secondary: 0 0% 15%;
+  /* Secondary: Mid navy */
+  --secondary: 226 65% 20%;
   --secondary-foreground: 0 0% 98%;
 
   /* Muted */
-  --muted: 0 0% 12%;
-  --muted-foreground: 0 0% 65%;
+  --muted: 226 60% 17%;
+  --muted-foreground: 220 30% 70%;
 
   /* Accent */
   --accent: 51 100% 50%;
-  --accent-foreground: 0 0% 4%;
+  --accent-foreground: 228 83% 9%;
 
   /* Destructive */
   --destructive: 0 84% 60%;
   --destructive-foreground: 0 0% 98%;
 
-  --input: 0 0% 20%;
+  --input: 226 60% 22%;
   --ring: 51 100% 50%;
 
-  --sidebar: 0 0% 4%;
+  --sidebar: 228 83% 9%;
   --sidebar-foreground: 0 0% 98%;
-  --sidebar-border: 0 0% 15%;
+  --sidebar-border: 226 60% 25%;
   --sidebar-primary: 51 100% 50%;
-  --sidebar-primary-foreground: 0 0% 4%;
-  --sidebar-accent: 0 0% 15%;
+  --sidebar-primary-foreground: 228 83% 9%;
+  --sidebar-accent: 226 65% 20%;
   --sidebar-accent-foreground: 0 0% 98%;
   --sidebar-ring: 51 100% 50%;
 
