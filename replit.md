@@ -3,10 +3,10 @@
 ## Overview
 
 "Que Lo Que" — a Dominican delivery app (like Uber Eats for the DR) with bold street energy.
-Brand: black & yellow (#FFD700), bold, gritty, urban. NOT corporate.
+Brand: deep royal blue background (`228 83% 9%`), electric yellow (#FFD700), white text.
 Tagline: "Que lo que… ¿qué tú quieres?"
 Four distinct user modes: customer, driver, business, admin.
-Logo: motorcycle with lightning bolt.
+Logo: motorcycle with lightning bolt (`/public/logo.png`, transparent PNG).
 
 pnpm workspace monorepo using TypeScript.
 

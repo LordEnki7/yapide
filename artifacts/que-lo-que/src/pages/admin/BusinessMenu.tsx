@@ -11,6 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ArrowLeft, Plus, X, Pencil, Trash2, Store } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import ImageUploader from "@/components/ImageUploader";
 
 interface Product {
   id: number;
@@ -207,11 +208,10 @@ export default function AdminBusinessMenu() {
                 className="bg-white/8 border-white/10 text-white placeholder:text-gray-500 focus:border-yellow-400"
               />
             </div>
-            <Input
-              placeholder={t.imageUrl}
+            <ImageUploader
               value={form.imageUrl}
-              onChange={e => setForm(p => ({ ...p, imageUrl: e.target.value }))}
-              className="bg-white/8 border-white/10 text-white placeholder:text-gray-500 focus:border-yellow-400"
+              onChange={v => setForm(p => ({ ...p, imageUrl: v }))}
+              label={t.imageUrl ?? "Foto del producto"}
             />
             <div className="flex items-center gap-3">
               <Switch checked={form.isAvailable} onCheckedChange={v => setForm(p => ({ ...p, isAvailable: v }))} />

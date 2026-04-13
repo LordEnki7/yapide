@@ -9,6 +9,7 @@ import adminRouter from "./admin";
 import statsRouter from "./stats";
 import pointsRouter from "./points";
 import addressesRouter from "./addresses";
+import storageRouter from "./storage";
 
 const router: IRouter = Router();
 
@@ -22,5 +23,6 @@ router.use(adminRouter);
 router.use(statsRouter);
 router.use(pointsRouter);
 router.use(addressesRouter);
+router.use(storageRouter);
 
 export default router;

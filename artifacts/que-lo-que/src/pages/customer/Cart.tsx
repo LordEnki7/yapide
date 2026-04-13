@@ -8,8 +8,9 @@ import { useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { ArrowLeft, Trash2, MapPin, Banknote, Plus, Star, ChevronDown, ChevronUp, Check } from "lucide-react";
+import { ArrowLeft, Trash2, MapPin, Banknote, Plus, Star, ChevronDown, ChevronUp, Check, Navigation, Loader2, FileText } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { requestGPS } from "@/lib/gps";
 
 const MARKUP = 0.15;
 const DELIVERY_FEE = 150;
@@ -35,6 +36,7 @@ export default function CustomerCart() {
   const [showAddressDropdown, setShowAddressDropdown] = useState(false);
   const [saveAddress, setSaveAddress] = useState(false);
   const [showSaveForm, setShowSaveForm] = useState(false);
+  const [gpsLoading, setGpsLoading] = useState(false);
   const [, navigate] = useLocation();
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -76,6 +78,19 @@ export default function CustomerCart() {
       setSavedAddresses(prev => [...prev, saved]);
       setShowSaveForm(false);
       toast({ title: "✅ Dirección guardada", description: `"${addressLabel}" guardada para próximas veces` });
+    }
+  };
+
+  const handleGPS = async () => {
+    setGpsLoading(true);
+    try {
+      const loc = await requestGPS();
+      if (loc.address) setAddress(loc.address);
+      toast({ title: "📍 Ubicación detectada", description: loc.address });
+    } catch (err: unknown) {
+      toast({ title: "No se pudo obtener ubicación", description: err instanceof Error ? err.message : "Intenta de nuevo", variant: "destructive" });
+    } finally {
+      setGpsLoading(false);
     }
   };
 
@@ -198,13 +213,24 @@ export default function CustomerCart() {
             </div>
           )}
 
-          <Input
-            placeholder={t.addressPlaceholder}
-            value={address}
-            onChange={(e) => setAddress(e.target.value)}
-            className="bg-white/8 border-white/10 text-white placeholder:text-gray-500 focus:border-yellow-400"
-            data-testid="input-address"
-          />
+          <div className="flex gap-2">
+            <Input
+              placeholder={t.addressPlaceholder}
+              value={address}
+              onChange={(e) => setAddress(e.target.value)}
+              className="bg-white/8 border-white/10 text-white placeholder:text-gray-500 focus:border-yellow-400 flex-1"
+              data-testid="input-address"
+            />
+            <button
+              type="button"
+              onClick={handleGPS}
+              disabled={gpsLoading}
+              title="Usar mi ubicación"
+              className="px-3 rounded-xl bg-yellow-400/10 border border-yellow-400/30 text-yellow-400 hover:bg-yellow-400/20 transition disabled:opacity-50 flex items-center"
+            >
+              {gpsLoading ? <Loader2 size={16} className="animate-spin" /> : <Navigation size={16} />}
+            </button>
+          </div>
 
           {user && !showSaveForm && (
             <button
@@ -248,13 +274,19 @@ export default function CustomerCart() {
             </div>
           )}
 
-          <Textarea
-            placeholder={t.specialInstructions}
-            value={notes}
-            onChange={(e) => setNotes(e.target.value)}
-            className="bg-white/8 border-white/10 text-white placeholder:text-gray-500 focus:border-yellow-400 mt-3 resize-none"
-            rows={2}
-          />
+          <div className="mt-4 space-y-1">
+            <div className="flex items-center gap-2">
+              <FileText size={13} className="text-yellow-400/70" />
+              <span className="text-xs font-bold text-yellow-400/70 uppercase tracking-wider">Notas para el negocio</span>
+            </div>
+            <Textarea
+              placeholder={t.specialInstructions}
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
+              className="bg-white/8 border-white/10 text-white placeholder:text-gray-500 focus:border-yellow-400 resize-none"
+              rows={2}
+            />
+          </div>
         </div>
 
         {/* Tip */}
