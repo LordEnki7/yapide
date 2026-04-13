@@ -1,10 +1,12 @@
-import { Link } from "wouter";
+import { Link, useLocation } from "wouter";
 import { useListOrders, getListOrdersQueryKey } from "@workspace/api-client-react";
 import { formatDOP } from "@/lib/auth";
 import { useLang } from "@/lib/lang";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Clock, ArrowLeft } from "lucide-react";
+import { Clock, ArrowLeft, RotateCcw } from "lucide-react";
+import { useCart } from "@/lib/cart";
+import { useToast } from "@/hooks/use-toast";
 
 export default function CustomerOrders() {
   const { data: orders, isLoading } = useListOrders(
@@ -12,6 +14,25 @@ export default function CustomerOrders() {
     { query: { queryKey: getListOrdersQueryKey({}) } }
   );
   const { t } = useLang();
+  const { addItem, clearCart, businessId: cartBizId } = useCart();
+  const { toast } = useToast();
+  const [, navigate] = useLocation();
+
+  const handleReorder = (order: typeof orders extends (infer T)[] | undefined ? T : never) => {
+    const items = order?.items ?? [];
+    if (!items.length) return;
+    if (cartBizId && cartBizId !== order?.businessId) {
+      clearCart();
+    }
+    items.forEach((item: any) => {
+      addItem(
+        { id: item.productId, name: item.name, price: item.price, businessId: order?.businessId } as any,
+        item.quantity
+      );
+    });
+    toast({ title: "🛒 ¡Listo!", description: "Productos agregados al carrito" });
+    navigate("/customer/cart");
+  };
 
   const statusConfig = {
     pending: { label: t.statusPending, color: "bg-yellow-400/20 text-yellow-400 border-yellow-400/40", step: 1 },
@@ -64,7 +85,18 @@ export default function CustomerOrders() {
                     </div>
                     <div className="flex items-center justify-between">
                       <p className="text-gray-400 text-sm">{t.items(order.items?.length ?? 0)}</p>
-                      <p className="text-yellow-400 font-black">{formatDOP(order.totalAmount)}</p>
+                      <div className="flex items-center gap-2">
+                        <p className="text-yellow-400 font-black">{formatDOP(order.totalAmount)}</p>
+                        {order.status === "delivered" && (
+                          <button
+                            onClick={e => { e.preventDefault(); handleReorder(order); }}
+                            className="flex items-center gap-1 px-2 py-1 rounded-lg bg-yellow-400/10 border border-yellow-400/30 text-yellow-400 text-xs font-bold hover:bg-yellow-400/20 transition"
+                          >
+                            <RotateCcw size={11} />
+                            Pedir de nuevo
+                          </button>
+                        )}
+                      </div>
                     </div>
                     {order.status !== "cancelled" && (
                       <div className="mt-3 flex items-center gap-1">

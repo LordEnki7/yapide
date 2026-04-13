@@ -15,6 +15,7 @@ export const businessesTable = pgTable("businesses", {
   lat: real("lat"),
   lng: real("lng"),
   isActive: boolean("is_active").notNull().default(true),
+  isOpen: boolean("is_open").notNull().default(true),
   rating: real("rating").notNull().default(5.0),
   totalOrders: integer("total_orders").notNull().default(0),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),

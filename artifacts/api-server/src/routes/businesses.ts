@@ -18,6 +18,7 @@ function formatBusiness(b: typeof businessesTable.$inferSelect) {
     lat: b.lat,
     lng: b.lng,
     isActive: b.isActive,
+    isOpen: b.isOpen,
     rating: b.rating,
     totalOrders: b.totalOrders,
     createdAt: b.createdAt,

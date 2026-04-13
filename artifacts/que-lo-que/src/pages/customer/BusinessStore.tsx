@@ -106,6 +106,17 @@ export default function BusinessStore() {
       </div>
 
       <div className="px-4 -mt-6 relative">
+        {/* Closed banner */}
+        {business?.isOpen === false && (
+          <div className="mb-4 flex items-center gap-3 bg-gray-800/80 border border-white/20 rounded-2xl p-4">
+            <span className="text-2xl">🔒</span>
+            <div>
+              <p className="font-black text-white">Este negocio está cerrado ahora</p>
+              <p className="text-gray-400 text-xs mt-0.5">Puedes ver el menú pero no se pueden hacer pedidos en este momento.</p>
+            </div>
+          </div>
+        )}
+
         {/* Business Info */}
         <div className="bg-white/8 border border-white/10 rounded-2xl p-4 mb-6">
           <div className="flex items-start justify-between">
@@ -113,9 +124,16 @@ export default function BusinessStore() {
               <h1 className="text-2xl font-black text-white">{business?.name}</h1>
               <p className="text-gray-400 text-sm mt-1">{business?.description}</p>
             </div>
-            <div className="flex items-center gap-1 text-yellow-400 bg-yellow-400/10 px-2 py-1 rounded-lg flex-shrink-0">
-              <Star size={14} fill="currentColor" />
-              <span className="font-bold text-sm">{business?.rating?.toFixed(1)}</span>
+            <div className="flex flex-col items-end gap-1">
+              <div className="flex items-center gap-1 text-yellow-400 bg-yellow-400/10 px-2 py-1 rounded-lg">
+                <Star size={14} fill="currentColor" />
+                <span className="font-bold text-sm">{business?.rating?.toFixed(1)}</span>
+              </div>
+              {business && (
+                <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${business.isOpen !== false ? "bg-green-400/20 text-green-400" : "bg-gray-500/30 text-gray-400"}`}>
+                  {business.isOpen !== false ? "● Abierto" : "● Cerrado"}
+                </span>
+              )}
             </div>
           </div>
           <p className="text-gray-500 text-xs mt-2">📍 {business?.address}</p>
@@ -183,7 +201,8 @@ export default function BusinessStore() {
                           </span>
                           <button
                             onClick={e => { e.stopPropagation(); handleAddQuick(product); }}
-                            className="w-8 h-8 rounded-full bg-yellow-400 flex items-center justify-center hover:bg-yellow-300 transition shadow-[0_0_12px_rgba(255,215,0,0.4)]"
+                            disabled={business?.isOpen === false}
+                            className="w-8 h-8 rounded-full bg-yellow-400 flex items-center justify-center hover:bg-yellow-300 transition shadow-[0_0_12px_rgba(255,215,0,0.4)] disabled:opacity-30 disabled:cursor-not-allowed"
                           >
                             <Plus size={16} className="text-black" />
                           </button>
@@ -287,8 +306,9 @@ export default function BusinessStore() {
                 </button>
               </div>
               <Button
-                className="w-full bg-yellow-400 text-black font-black text-base h-14 hover:bg-yellow-300 shadow-[0_0_24px_rgba(255,215,0,0.3)] gap-2"
+                className="w-full bg-yellow-400 text-black font-black text-base h-14 hover:bg-yellow-300 shadow-[0_0_24px_rgba(255,215,0,0.3)] gap-2 disabled:opacity-40"
                 onClick={handleAddFromSheet}
+                disabled={business?.isOpen === false}
               >
                 <ShoppingBag size={18} />
                 {t.addToCart} · {formatDOP(customerPrice(selectedProduct.price) * sheetQty)}

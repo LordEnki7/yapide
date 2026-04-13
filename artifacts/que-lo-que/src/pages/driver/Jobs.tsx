@@ -7,7 +7,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, MapPin, Banknote, CreditCard, Clock } from "lucide-react";
+import { ArrowLeft, MapPin, Banknote, CreditCard, Clock, Navigation } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 export default function DriverJobs() {
@@ -83,11 +83,33 @@ export default function DriverJobs() {
                 <div className="space-y-2 mb-4">
                   <div className="flex items-start gap-2 text-sm text-gray-300">
                     <MapPin size={14} className="text-yellow-400 flex-shrink-0 mt-0.5" />
-                    <span>{job.deliveryAddress}</span>
+                    <span className="flex-1">{job.deliveryAddress}</span>
                   </div>
-                  <div className="flex items-center gap-2 text-sm text-gray-400">
-                    <Clock size={12} />
-                    <span>~25 min</span>
+                  <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-1 text-sm text-gray-400 flex-1">
+                      <Clock size={12} />
+                      <span>~25 min</span>
+                    </div>
+                    <a
+                      href={`https://maps.google.com/?q=${encodeURIComponent(job.deliveryAddress ?? "")}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      onClick={e => e.stopPropagation()}
+                      className="flex items-center gap-1 px-2 py-1 rounded-lg bg-blue-500/10 border border-blue-500/30 text-blue-400 text-xs font-bold hover:bg-blue-500/20 transition"
+                    >
+                      <Navigation size={11} />
+                      Maps
+                    </a>
+                    <a
+                      href={`https://waze.com/ul?q=${encodeURIComponent(job.deliveryAddress ?? "")}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      onClick={e => e.stopPropagation()}
+                      className="flex items-center gap-1 px-2 py-1 rounded-lg bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 text-xs font-bold hover:bg-cyan-500/20 transition"
+                    >
+                      <Navigation size={11} />
+                      Waze
+                    </a>
                   </div>
                 </div>
 

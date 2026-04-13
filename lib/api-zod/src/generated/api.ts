@@ -81,6 +81,7 @@ export const ListBusinessesResponseItem = zod.object({
   lat: zod.number().optional(),
   lng: zod.number().optional(),
   isActive: zod.boolean(),
+  isOpen: zod.boolean().optional(),
   rating: zod.number().optional(),
   totalOrders: zod.number().optional(),
   createdAt: zod.string(),
@@ -120,6 +121,7 @@ export const GetBusinessResponse = zod.object({
   lat: zod.number().optional(),
   lng: zod.number().optional(),
   isActive: zod.boolean(),
+  isOpen: zod.boolean().optional(),
   rating: zod.number().optional(),
   totalOrders: zod.number().optional(),
   createdAt: zod.string(),
@@ -139,6 +141,7 @@ export const UpdateBusinessBody = zod.object({
   phone: zod.string().optional(),
   imageUrl: zod.string().optional(),
   isActive: zod.boolean().optional(),
+  isOpen: zod.boolean().optional(),
 });
 
 export const UpdateBusinessResponse = zod.object({
@@ -153,6 +156,7 @@ export const UpdateBusinessResponse = zod.object({
   lat: zod.number().optional(),
   lng: zod.number().optional(),
   isActive: zod.boolean(),
+  isOpen: zod.boolean().optional(),
   rating: zod.number().optional(),
   totalOrders: zod.number().optional(),
   createdAt: zod.string(),
@@ -173,6 +177,7 @@ export const GetMyBusinessResponse = zod.object({
   lat: zod.number().optional(),
   lng: zod.number().optional(),
   isActive: zod.boolean(),
+  isOpen: zod.boolean().optional(),
   rating: zod.number().optional(),
   totalOrders: zod.number().optional(),
   createdAt: zod.string(),

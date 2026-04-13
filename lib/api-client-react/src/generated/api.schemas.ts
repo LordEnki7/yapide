@@ -77,6 +77,7 @@ export interface Business {
   lat?: number;
   lng?: number;
   isActive: boolean;
+  isOpen?: boolean;
   rating?: number;
   totalOrders?: number;
   createdAt: string;
@@ -110,6 +111,7 @@ export interface UpdateBusinessBody {
   phone?: string;
   imageUrl?: string;
   isActive?: boolean;
+  isOpen?: boolean;
 }
 
 export interface Product {

@@ -134,7 +134,7 @@ export default function CustomerHome() {
                 >
                   <div className="relative h-28 overflow-hidden bg-yellow-400/5">
                     {biz.imageUrl ? (
-                      <img src={biz.imageUrl} alt={biz.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                      <img src={biz.imageUrl} alt={biz.name} className={`w-full h-full object-cover group-hover:scale-105 transition-transform duration-300 ${biz.isOpen === false ? "grayscale opacity-60" : ""}`} />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center text-3xl">🍽️</div>
                     )}
@@ -142,6 +142,11 @@ export default function CustomerHome() {
                     <Badge className="absolute top-2 left-2 bg-yellow-400 text-black font-bold text-[10px] px-1.5 py-0.5">
                       {CATEGORY_LABELS[biz.category] ?? biz.category}
                     </Badge>
+                    {biz.isOpen === false && (
+                      <div className="absolute top-2 right-2 bg-black/80 text-gray-300 text-[10px] font-black px-2 py-0.5 rounded-full border border-white/20">
+                        CERRADO
+                      </div>
+                    )}
                   </div>
                   <div className="p-3">
                     <h3 className="font-black text-sm text-white line-clamp-1">{biz.name}</h3>
