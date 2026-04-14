@@ -105,8 +105,9 @@ export default function CustomerCart() {
       onSuccess: (order) => {
         clearCart();
         queryClient.invalidateQueries({ queryKey: getListOrdersQueryKey() });
+        const etaMins = (order as any).estimatedMinutes ?? 40;
+        toast({ title: "✅ ¡Pedido enviado!", description: `Tiempo estimado: ~${etaMins} min` });
         navigate(`/customer/orders/${order.id}`);
-        toast({ title: t.orderSent, description: t.orderOnWay });
       },
       onError: () => {
         toast({ title: t.error, description: t.orderError, variant: "destructive" });

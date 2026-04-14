@@ -4,8 +4,8 @@ import { formatDOP } from "@/lib/auth";
 import { useLang } from "@/lib/lang";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ArrowLeft, Star, MessageCircle, Share2 } from "lucide-react";
-import { useState } from "react";
+import { ArrowLeft, Star, MessageCircle, Share2, Clock } from "lucide-react";
+import { useState, useEffect, useRef } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { useQueryClient, useMutation } from "@tanstack/react-query";
 import { XCircle, Loader2 } from "lucide-react";
@@ -66,6 +66,34 @@ export default function CustomerOrderDetail() {
   const isCancelled = order?.status === "cancelled";
   const isPending = order?.status === "pending";
 
+  const [countdown, setCountdown] = useState<string | null>(null);
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  useEffect(() => {
+    if (!order || isDelivered || isCancelled) {
+      if (timerRef.current) clearInterval(timerRef.current);
+      setCountdown(null);
+      return;
+    }
+    const estimatedMinutes: number = (order as any).estimatedMinutes ?? 40;
+    const createdAt = new Date((order as any).createdAt).getTime();
+    const etaMs = createdAt + estimatedMinutes * 60 * 1000;
+    const tick = () => {
+      const remaining = Math.max(0, etaMs - Date.now());
+      const mins = Math.floor(remaining / 60000);
+      const secs = Math.floor((remaining % 60000) / 1000);
+      if (remaining <= 0) {
+        setCountdown("¡Ya llega!");
+        if (timerRef.current) clearInterval(timerRef.current);
+      } else {
+        setCountdown(`${mins}:${secs.toString().padStart(2, "0")}`);
+      }
+    };
+    tick();
+    timerRef.current = setInterval(tick, 1000);
+    return () => { if (timerRef.current) clearInterval(timerRef.current); };
+  }, [order?.id, order?.status]);
+
   if (isLoading) return (
     <div className="min-h-screen bg-background p-4 space-y-3">
       <Skeleton className="h-48 bg-white/8 rounded-2xl" />
@@ -88,6 +116,29 @@ export default function CustomerOrderDetail() {
       </div>
 
       <div className="px-4 py-4 space-y-4">
+        {/* ETA Banner */}
+        {countdown && !isCancelled && !isDelivered && (
+          <div className="rounded-2xl px-5 py-4 bg-yellow-400/10 border border-yellow-400/30 flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-full bg-yellow-400/20 flex items-center justify-center flex-shrink-0">
+                <Clock size={20} className="text-yellow-400" />
+              </div>
+              <div>
+                <p className="text-xs text-yellow-400/70 font-bold uppercase tracking-wider">Tiempo estimado</p>
+                <p className="text-sm text-white font-bold">
+                  {(order as any)?.estimatedMinutes
+                    ? `~${(order as any).estimatedMinutes} min · Prep ${(order as any).business?.prepTimeMinutes ?? 20} min + entrega 20 min`
+                    : "~40 min estimados"}
+                </p>
+              </div>
+            </div>
+            <div className="text-right">
+              <p className="text-2xl font-black text-yellow-400 tabular-nums">{countdown}</p>
+              <p className="text-[10px] text-gray-500 mt-0.5">restantes</p>
+            </div>
+          </div>
+        )}
+
         <div className={`border rounded-2xl p-4 ${isCancelled ? "bg-red-400/5 border-red-400/30" : "bg-white/8 border-white/10"}`}>
           <h2 className="font-bold text-sm text-gray-400 mb-4 uppercase tracking-widest">{t.orderStatus}</h2>
           {isCancelled ? (

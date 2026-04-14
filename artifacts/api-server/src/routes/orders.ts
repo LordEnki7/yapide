@@ -50,6 +50,7 @@ async function formatOrder(order: typeof ordersTable.$inferSelect) {
       quantity: i.quantity,
       price: i.price,
     })),
+    estimatedMinutes: business ? ((business.prepTimeMinutes ?? 20) + 20) : 40,
     business: business ? {
       id: business.id,
       userId: business.userId,
@@ -65,6 +66,7 @@ async function formatOrder(order: typeof ordersTable.$inferSelect) {
       rating: business.rating,
       totalOrders: business.totalOrders,
       createdAt: business.createdAt,
+      prepTimeMinutes: business.prepTimeMinutes,
     } : null,
     customer: customer ? {
       id: customer.id,
