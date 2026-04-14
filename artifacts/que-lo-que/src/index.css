@@ -138,3 +138,33 @@
     @apply font-sans antialiased bg-background text-foreground selection:bg-primary selection:text-primary-foreground;
   }
 }
+
+/* Phone frame — makes the app look like a mobile device in the browser preview */
+html, body {
+  background: #01060f;
+  min-height: 100dvh;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+#root {
+  width: 100%;
+  max-width: 430px;
+  min-height: 100dvh;
+  background: hsl(228 83% 9%);
+  box-shadow: 0 0 0 1px hsl(226 60% 18%), 0 8px 80px rgba(0,0,0,0.8), inset 0 0 0 1px hsl(226 60% 22%);
+  border-radius: 0;
+  position: relative;
+  overflow-x: hidden;
+}
+
+@media (min-width: 500px) {
+  #root {
+    border-radius: 40px;
+    margin: 12px auto;
+    min-height: calc(100dvh - 24px);
+    max-height: calc(100dvh - 24px);
+    overflow-y: auto;
+  }
+}
