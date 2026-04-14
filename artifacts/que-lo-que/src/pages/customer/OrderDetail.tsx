@@ -68,6 +68,31 @@ export default function CustomerOrderDetail() {
 
   const [countdown, setCountdown] = useState<string | null>(null);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const prevStatusRef = useRef<string | null>(null);
+
+  const STATUS_CONFIG: Record<string, { emoji: string; headline: string; sub: string; color: string; bg: string; border: string }> = {
+    pending:   { emoji: "⏳", headline: "Esperando confirmación", sub: "El negocio está revisando tu pedido ahora mismo...", color: "text-gray-300", bg: "bg-white/5", border: "border-white/10" },
+    accepted:  { emoji: "👨‍🍳", headline: "¡Tu pedido está siendo preparado!", sub: "El negocio ya lo confirmó y está cocinando para ti.", color: "text-white", bg: "bg-yellow-400/8", border: "border-yellow-400/25" },
+    picked_up: { emoji: "🛵", headline: "¡Tu driver está en camino!", sub: "El repartidor ya recogió tu pedido. ¡Ya casi llega!", color: "text-white", bg: "bg-green-400/8", border: "border-green-400/25" },
+    delivered: { emoji: "🎉", headline: "¡Pedido entregado!", sub: "¡Buen provecho! Gracias por usar YaPide.", color: "text-white", bg: "bg-yellow-400/8", border: "border-yellow-400/25" },
+  };
+
+  const STATUS_TOASTS: Record<string, { title: string; description: string }> = {
+    accepted:  { title: "👨‍🍳 ¡Pedido confirmado!", description: "El negocio está preparando tu pedido." },
+    picked_up: { title: "🛵 ¡En camino!", description: "Tu driver ya recogió el pedido." },
+    delivered: { title: "🎉 ¡Entregado!", description: "¡Buen provecho!" },
+    cancelled: { title: "❌ Pedido cancelado", description: "Tu pedido fue cancelado." },
+  };
+
+  useEffect(() => {
+    if (!order?.status) return;
+    const prev = prevStatusRef.current;
+    if (prev !== null && prev !== order.status) {
+      const t = STATUS_TOASTS[order.status];
+      if (t) toast({ title: t.title, description: t.description });
+    }
+    prevStatusRef.current = order.status;
+  }, [order?.status]);
 
   useEffect(() => {
     if (!order || isDelivered || isCancelled) {
@@ -135,6 +160,19 @@ export default function CustomerOrderDetail() {
             <div className="text-right">
               <p className="text-2xl font-black text-yellow-400 tabular-nums">{countdown}</p>
               <p className="text-[10px] text-gray-500 mt-0.5">restantes</p>
+            </div>
+          </div>
+        )}
+
+        {/* Live status card */}
+        {order?.status && STATUS_CONFIG[order.status] && (
+          <div className={`border rounded-2xl px-4 py-4 flex items-center gap-4 transition-all ${STATUS_CONFIG[order.status].bg} ${STATUS_CONFIG[order.status].border}`}>
+            <span className="text-3xl flex-shrink-0">{STATUS_CONFIG[order.status].emoji}</span>
+            <div>
+              <p className={`font-black text-base leading-tight ${STATUS_CONFIG[order.status].color}`}>
+                {STATUS_CONFIG[order.status].headline}
+              </p>
+              <p className="text-xs text-gray-400 mt-0.5">{STATUS_CONFIG[order.status].sub}</p>
             </div>
           </div>
         )}
