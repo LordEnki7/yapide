@@ -7,7 +7,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { ArrowLeft, Star, MessageCircle, Share2 } from "lucide-react";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
-import { useQueryClient } from "@tanstack/react-query";
+import { useQueryClient, useMutation } from "@tanstack/react-query";
+import { XCircle, Loader2 } from "lucide-react";
 
 export default function CustomerOrderDetail() {
   const { id } = useParams<{ id: string }>();
@@ -39,8 +40,31 @@ export default function CustomerOrderDetail() {
     },
   });
 
+  const cancelMutation = useMutation({
+    mutationFn: async () => {
+      const res = await fetch(`/api/orders/${orderId}/cancel`, {
+        method: "POST",
+        credentials: "include",
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.error ?? "Error al cancelar");
+      }
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: getGetOrderQueryKey(orderId) });
+      toast({ title: "Pedido cancelado", description: "Tu pedido fue cancelado exitosamente." });
+    },
+    onError: (err: any) => {
+      toast({ title: "No se pudo cancelar", description: err.message, variant: "destructive" });
+    },
+  });
+
   const currentStep = STEPS.findIndex(s => s.key === order?.status);
   const isDelivered = order?.status === "delivered";
+  const isCancelled = order?.status === "cancelled";
+  const isPending = order?.status === "pending";
 
   if (isLoading) return (
     <div className="min-h-screen bg-background p-4 space-y-3">
@@ -64,29 +88,55 @@ export default function CustomerOrderDetail() {
       </div>
 
       <div className="px-4 py-4 space-y-4">
-        <div className="bg-white/8 border border-white/10 rounded-2xl p-4">
+        <div className={`border rounded-2xl p-4 ${isCancelled ? "bg-red-400/5 border-red-400/30" : "bg-white/8 border-white/10"}`}>
           <h2 className="font-bold text-sm text-gray-400 mb-4 uppercase tracking-widest">{t.orderStatus}</h2>
-          <div className="space-y-3">
-            {STEPS.map((step, i) => {
-              const isCompleted = currentStep >= i;
-              const isCurrent = currentStep === i;
-              return (
-                <div key={step.key} className="flex items-center gap-3">
-                  <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0 transition-all ${
-                    isCompleted ? "bg-yellow-400 text-black shadow-[0_0_10px_rgba(255,215,0,0.5)]" : "bg-white/10 text-gray-500"
-                  }`}>
-                    {isCompleted ? "✓" : i + 1}
+          {isCancelled ? (
+            <div className="flex items-center gap-3 py-2">
+              <div className="w-8 h-8 rounded-full bg-red-400/20 flex items-center justify-center flex-shrink-0">
+                <XCircle size={18} className="text-red-400" />
+              </div>
+              <div>
+                <p className="font-black text-red-400">Pedido cancelado</p>
+                <p className="text-xs text-gray-400">Este pedido fue cancelado.</p>
+              </div>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {STEPS.map((step, i) => {
+                const isCompleted = currentStep >= i;
+                const isCurrent = currentStep === i;
+                return (
+                  <div key={step.key} className="flex items-center gap-3">
+                    <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0 transition-all ${
+                      isCompleted ? "bg-yellow-400 text-black shadow-[0_0_10px_rgba(255,215,0,0.5)]" : "bg-white/10 text-gray-500"
+                    }`}>
+                      {isCompleted ? "✓" : i + 1}
+                    </div>
+                    <span className={`font-bold text-sm ${isCurrent ? "text-yellow-400" : isCompleted ? "text-white" : "text-gray-500"}`}>
+                      {step.label}
+                    </span>
+                    {isCurrent && order?.status !== "delivered" && (
+                      <span className="text-xs text-gray-400 bg-white/8 px-2 py-0.5 rounded-full ml-auto animate-pulse">...</span>
+                    )}
                   </div>
-                  <span className={`font-bold text-sm ${isCurrent ? "text-yellow-400" : isCompleted ? "text-white" : "text-gray-500"}`}>
-                    {step.label}
-                  </span>
-                  {isCurrent && order?.status !== "delivered" && (
-                    <span className="text-xs text-gray-400 bg-white/8 px-2 py-0.5 rounded-full ml-auto animate-pulse">...</span>
-                  )}
-                </div>
-              );
-            })}
-          </div>
+                );
+              })}
+            </div>
+          )}
+          {isPending && !isCancelled && (
+            <Button
+              variant="outline"
+              size="sm"
+              className="mt-4 w-full border-red-400/30 text-red-400 hover:bg-red-400/10 hover:border-red-400/60 font-bold"
+              onClick={() => {
+                if (confirm("¿Seguro que quieres cancelar este pedido?")) cancelMutation.mutate();
+              }}
+              disabled={cancelMutation.isPending}
+            >
+              {cancelMutation.isPending ? <Loader2 size={14} className="animate-spin mr-2" /> : <XCircle size={14} className="mr-2" />}
+              Cancelar pedido
+            </Button>
+          )}
         </div>
 
         {(order?.business as any)?.phone && (

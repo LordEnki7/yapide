@@ -5,7 +5,7 @@ import { useLang } from "@/lib/lang";
 import LangToggle from "@/components/LangToggle";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Users, Package, Bike, TrendingUp } from "lucide-react";
+import { Users, Package, Bike, TrendingUp, Tag } from "lucide-react";
 
 export default function AdminDashboard() {
   const { t } = useLang();
@@ -67,6 +67,7 @@ export default function AdminDashboard() {
               { href: "/admin/drivers", label: t.drivers, icon: Bike },
               { href: "/admin/businesses", label: t.businesses, icon: TrendingUp },
               { href: "/admin/orders", label: t.allOrders, icon: Package },
+              { href: "/admin/promo-codes", label: "Códigos Promo", icon: Tag },
             ].map((item) => {
               const Icon = item.icon;
               return (

@@ -1,8 +1,9 @@
 import { Router, type IRouter } from "express";
-import { eq, and, desc, inArray } from "drizzle-orm";
-import { db, driversTable, usersTable, ordersTable, orderItemsTable, walletTransactionsTable } from "@workspace/db";
+import { eq, and, desc, inArray, isNull } from "drizzle-orm";
+import { db, driversTable, usersTable, ordersTable, orderItemsTable, walletTransactionsTable, businessesTable } from "@workspace/db";
 import { RegisterDriverBody, UpdateDriverStatusBody, UpdateDriverLocationBody } from "@workspace/api-zod";
 import { CASH_LIMIT } from "../lib/dispatch";
+import { sendPushToUser } from "../lib/push";
 
 const router: IRouter = Router();
 
@@ -135,24 +136,36 @@ router.get("/drivers/me/wallet/transactions", async (req, res): Promise<void> =>
 router.get("/drivers/available-jobs", async (req, res): Promise<void> => {
   const sessionUserId = (req.session as any)?.userId;
   if (!sessionUserId) { res.status(401).json({ error: "Unauthorized" }); return; }
-  const pendingOrders = await db.select().from(ordersTable).where(eq(ordersTable.status, "pending"));
-  res.json(pendingOrders.map(o => ({
-    id: o.id,
-    customerId: o.customerId,
-    businessId: o.businessId,
-    driverId: o.driverId,
-    status: o.status,
-    totalAmount: o.totalAmount,
-    deliveryFee: o.deliveryFee,
-    commission: o.commission,
-    driverEarnings: o.driverEarnings,
-    paymentMethod: o.paymentMethod,
-    isPaid: o.isPaid,
-    deliveryAddress: o.deliveryAddress,
-    notes: o.notes,
-    createdAt: o.createdAt,
-    items: [],
-  })));
+  const availableOrders = await db
+    .select()
+    .from(ordersTable)
+    .where(and(eq(ordersTable.status, "accepted"), isNull(ordersTable.driverId)));
+  const withBiz = await Promise.all(availableOrders.map(async (o) => {
+    const [biz] = await db.select({ name: businessesTable.name, address: businessesTable.address, phone: businessesTable.phone })
+      .from(businessesTable).where(eq(businessesTable.id, o.businessId));
+    return {
+      id: o.id,
+      customerId: o.customerId,
+      businessId: o.businessId,
+      businessName: biz?.name ?? null,
+      businessAddress: biz?.address ?? null,
+      businessPhone: biz?.phone ?? null,
+      driverId: o.driverId,
+      status: o.status,
+      totalAmount: o.totalAmount,
+      deliveryFee: o.deliveryFee,
+      commission: o.commission,
+      driverEarnings: o.driverEarnings,
+      tip: o.tip,
+      paymentMethod: o.paymentMethod,
+      isPaid: o.isPaid,
+      deliveryAddress: o.deliveryAddress,
+      notes: o.notes,
+      createdAt: o.createdAt,
+      items: [],
+    };
+  }));
+  res.json(withBiz);
 });
 
 router.post("/drivers/jobs/:orderId/accept", async (req, res): Promise<void> => {
@@ -164,13 +177,32 @@ router.post("/drivers/jobs/:orderId/accept", async (req, res): Promise<void> => 
   const [driver] = await db.select().from(driversTable).where(eq(driversTable.userId, sessionUserId));
   if (!driver) { res.status(404).json({ error: "Driver not found" }); return; }
   if (driver.isLocked) { res.status(403).json({ error: "Driver is locked" }); return; }
-  const [order] = await db.update(ordersTable).set({ driverId: driver.id, status: "accepted" }).where(and(eq(ordersTable.id, orderId), eq(ordersTable.status, "pending"))).returning();
+  const [driverUser] = await db.select().from(usersTable).where(eq(usersTable.id, sessionUserId));
+
+  const [order] = await db
+    .update(ordersTable)
+    .set({ driverId: driver.id })
+    .where(and(eq(ordersTable.id, orderId), eq(ordersTable.status, "accepted"), isNull(ordersTable.driverId)))
+    .returning();
   if (!order) { res.status(409).json({ error: "Order no longer available" }); return; }
+
+  const [biz] = await db.select({ name: businessesTable.name, address: businessesTable.address })
+    .from(businessesTable).where(eq(businessesTable.id, order.businessId));
+
+  sendPushToUser(
+    order.customerId,
+    "🛵 Delivery asignado",
+    `${driverUser?.name ?? "Un conductor"} está de camino a recoger tu pedido #${order.id}`,
+    `/customer/orders/${order.id}`
+  ).catch(() => {});
+
   const allItems = await db.select().from(orderItemsTable).where(eq(orderItemsTable.orderId, orderId));
   res.json({
     id: order.id,
     customerId: order.customerId,
     businessId: order.businessId,
+    businessName: biz?.name ?? null,
+    businessAddress: biz?.address ?? null,
     driverId: order.driverId,
     status: order.status,
     totalAmount: order.totalAmount,
@@ -200,17 +232,24 @@ router.get("/driver/active-orders", async (req, res): Promise<void> => {
   const activeOrders = await db.select().from(ordersTable)
     .where(and(eq(ordersTable.driverId, driver.id), inArray(ordersTable.status, ["accepted", "picked_up"])))
     .orderBy(desc(ordersTable.createdAt));
-  const formatted = activeOrders.map(o => ({
-    id: o.id,
-    status: o.status,
-    deliveryAddress: o.deliveryAddress,
-    totalAmount: o.totalAmount,
-    deliveryFee: o.deliveryFee,
-    driverEarnings: o.driverEarnings,
-    tip: o.tip,
-    paymentMethod: o.paymentMethod,
-    notes: o.notes,
-    deliveryPhotoPath: o.deliveryPhotoPath,
+  const formatted = await Promise.all(activeOrders.map(async (o) => {
+    const [biz] = await db.select({ name: businessesTable.name, address: businessesTable.address, phone: businessesTable.phone })
+      .from(businessesTable).where(eq(businessesTable.id, o.businessId));
+    return {
+      id: o.id,
+      status: o.status,
+      deliveryAddress: o.deliveryAddress,
+      totalAmount: o.totalAmount,
+      deliveryFee: o.deliveryFee,
+      driverEarnings: o.driverEarnings,
+      tip: o.tip,
+      paymentMethod: o.paymentMethod,
+      notes: o.notes,
+      deliveryPhotoPath: o.deliveryPhotoPath,
+      businessName: biz?.name ?? null,
+      businessAddress: biz?.address ?? null,
+      businessPhone: biz?.phone ?? null,
+    };
   }));
   res.json(formatted);
 });

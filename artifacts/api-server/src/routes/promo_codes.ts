@@ -71,4 +71,25 @@ router.get("/promo-codes", async (req, res): Promise<void> => {
   res.json(promos);
 });
 
+router.patch("/promo-codes/:id", async (req, res): Promise<void> => {
+  const sessionUserId = (req.session as any)?.userId;
+  if (!sessionUserId) { res.status(401).json({ error: "Unauthorized" }); return; }
+  const id = parseInt(req.params.id as string, 10);
+  if (isNaN(id)) { res.status(400).json({ error: "Invalid id" }); return; }
+  const { isActive } = req.body as { isActive?: boolean };
+  if (typeof isActive !== "boolean") { res.status(400).json({ error: "Missing isActive" }); return; }
+  const [updated] = await db.update(promoCodesTable).set({ isActive }).where(eq(promoCodesTable.id, id)).returning();
+  if (!updated) { res.status(404).json({ error: "Not found" }); return; }
+  res.json(updated);
+});
+
+router.delete("/promo-codes/:id", async (req, res): Promise<void> => {
+  const sessionUserId = (req.session as any)?.userId;
+  if (!sessionUserId) { res.status(401).json({ error: "Unauthorized" }); return; }
+  const id = parseInt(req.params.id as string, 10);
+  if (isNaN(id)) { res.status(400).json({ error: "Invalid id" }); return; }
+  await db.delete(promoCodesTable).where(eq(promoCodesTable.id, id));
+  res.json({ ok: true });
+});
+
 export default router;

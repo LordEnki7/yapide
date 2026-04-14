@@ -78,6 +78,18 @@ pnpm workspace monorepo using TypeScript.
 | `/admin/drivers` | Driver Management | admin |
 | `/admin/businesses` | Business Management | admin |
 | `/admin/orders` | All Orders | admin |
+| `/admin/promo-codes` | Promo Code Management | admin |
+| `/business/onboarding` | Business Setup Onboarding | business |
+| `/driver/onboarding` | Driver Setup Onboarding | driver |
+
+## Pre-Launch Fixes (implemented)
+- **Driver job flow**: pending → business accepts → `accepted (no driver)` → driver claims → `accepted (with driverId)` → picked_up → delivered. Available-jobs shows `accepted + driverId IS NULL`. Active orders show step-by-step nav: pickup from business then delivery address.
+- **Admin promo code UI**: `/admin/promo-codes` — list, create, toggle active, delete codes. Usage progress bars. `PATCH /api/promo-codes/:id` and `DELETE /api/promo-codes/:id` added.
+- **Order cancellation**: Customer can cancel their own pending orders via `POST /api/orders/:id/cancel` (ownership-checked). OrderDetail shows cancelled state with red banner.
+- **Card payment UX**: Payment toggle (cash/card) in Cart. Card shows "Próximamente 🔒" message and disables checkout button.
+- **Self-registration onboarding**: After registering as business → `/business/onboarding` (creates business profile). After registering as driver → `/driver/onboarding` (creates driver profile with vehicle type/plate).
+- **Business order rejection**: Already wired — business Orders page has reject button → sets `cancelled` status + push to customer.
+- **Push improvements**: Drivers get push when business accepts an order. Customers get push for all status changes including cancelled. Driver gets "delivery asignado" push when driver claims job.
 
 ## Demo Credentials
 All seeded in the database:

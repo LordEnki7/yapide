@@ -8,7 +8,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, MapPin, Banknote, CreditCard, Clock, Navigation, Camera, CheckCircle2, Package, Loader2 } from "lucide-react";
+import { ArrowLeft, MapPin, Banknote, CreditCard, Clock, Navigation, Camera, CheckCircle2, Package, Loader2, Store } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 interface ActiveOrder {
@@ -21,6 +21,31 @@ interface ActiveOrder {
   tip: number;
   paymentMethod: string;
   notes?: string | null;
+  businessName?: string | null;
+  businessAddress?: string | null;
+  businessPhone?: string | null;
+}
+
+function NavLinks({ address, label }: { address: string; label: string }) {
+  return (
+    <div className="space-y-2">
+      <div className="flex items-start gap-2 text-sm text-gray-300">
+        <MapPin size={14} className="text-yellow-400 flex-shrink-0 mt-0.5" />
+        <span className="flex-1">{address}</span>
+      </div>
+      <div className="flex gap-2">
+        <a href={`https://maps.google.com/?q=${encodeURIComponent(address)}`} target="_blank" rel="noopener noreferrer" onClick={e => e.stopPropagation()}
+          className="flex items-center gap-1 px-2 py-1 rounded-lg bg-blue-500/10 border border-blue-500/30 text-blue-400 text-xs font-bold hover:bg-blue-500/20 transition">
+          <Navigation size={11} /> Maps
+        </a>
+        <a href={`https://waze.com/ul?q=${encodeURIComponent(address)}`} target="_blank" rel="noopener noreferrer" onClick={e => e.stopPropagation()}
+          className="flex items-center gap-1 px-2 py-1 rounded-lg bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 text-xs font-bold hover:bg-cyan-500/20 transition">
+          <Navigation size={11} /> Waze
+        </a>
+        <span className="text-xs text-gray-500 self-center">{label}</span>
+      </div>
+    </div>
+  );
 }
 
 export default function DriverJobs() {
@@ -69,9 +94,12 @@ export default function DriverJobs() {
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: getGetAvailableJobsQueryKey() });
         fetchActiveOrders();
-        toast({ title: t.orderSent, description: "🛵💨" });
+        toast({ title: "¡Pedido aceptado!", description: "Ve a recoger el pedido en el negocio 🛵" });
       },
-      onError: () => toast({ title: t.error, description: t.error, variant: "destructive" }),
+      onError: (err: any) => {
+        const msg = err?.response?.data?.error ?? t.error;
+        toast({ title: "Error", description: msg, variant: "destructive" });
+      },
     }
   });
 
@@ -103,15 +131,12 @@ export default function DriverJobs() {
           await fetch(uploadURL, { method: "PUT", body: photo, headers: { "Content-Type": photo.type } });
           deliveryPhotoPath = objectPath;
         }
-      } catch (err) {
+      } catch {
         toast({ title: "No se pudo subir la foto", description: "Se marcará entregado sin foto", variant: "destructive" });
       }
     }
 
-    updateStatus.mutate({
-      orderId,
-      data: { status: "delivered", deliveryPhotoPath } as any,
-    });
+    updateStatus.mutate({ orderId, data: { status: "delivered", deliveryPhotoPath } as any });
     setUploadingId(null);
   };
 
@@ -133,6 +158,8 @@ export default function DriverJobs() {
       </div>
 
       <div className="px-4 py-4 space-y-6">
+
+        {/* ─── ACTIVE ORDERS ─── */}
         {activeOrders.length > 0 && (
           <div>
             <p className="text-xs text-yellow-400 uppercase tracking-widest font-bold mb-3">🛵 En curso</p>
@@ -142,29 +169,42 @@ export default function DriverJobs() {
                   <div className="flex items-start justify-between mb-3">
                     <div>
                       <p className="text-xs text-gray-400 uppercase tracking-widest mb-1">#{order.id}</p>
-                      <p className="font-black text-xl text-yellow-400">{formatDOP(order.driverEarnings)}</p>
-                      <p className="text-xs text-gray-400">tu ganancia</p>
+                      <p className="font-black text-xl text-yellow-400">{formatDOP(order.driverEarnings + (order.tip ?? 0))}</p>
+                      <p className="text-xs text-gray-400">tu ganancia{order.tip > 0 ? ` + RD$${order.tip} propina` : ""}</p>
                     </div>
-                    <Badge className={`border ${order.status === "accepted" ? "bg-blue-400/20 text-blue-400 border-blue-400/40" : "bg-green-400/20 text-green-400 border-green-400/40"}`}>
-                      {order.status === "accepted" ? <Package size={12} className="mr-1 inline" /> : <CheckCircle2 size={12} className="mr-1 inline" />}
-                      {order.status === "accepted" ? "Aceptado" : "Recogido"}
+                    <Badge className={`border ${order.status === "accepted" ? "bg-blue-400/20 text-blue-400 border-blue-400/40" : "bg-purple-400/20 text-purple-400 border-purple-400/40"}`}>
+                      {order.status === "accepted"
+                        ? <><Store size={12} className="mr-1 inline" /> Ve a recoger</>
+                        : <><CheckCircle2 size={12} className="mr-1 inline" /> En camino</>}
                     </Badge>
                   </div>
 
-                  <div className="flex items-start gap-2 text-sm text-gray-300 mb-3">
-                    <MapPin size={14} className="text-yellow-400 flex-shrink-0 mt-0.5" />
-                    <span className="flex-1">{order.deliveryAddress}</span>
-                  </div>
-                  <div className="flex gap-2 mb-3">
-                    <a href={`https://maps.google.com/?q=${encodeURIComponent(order.deliveryAddress ?? "")}`} target="_blank" rel="noopener noreferrer"
-                      className="flex items-center gap-1 px-2 py-1 rounded-lg bg-blue-500/10 border border-blue-500/30 text-blue-400 text-xs font-bold hover:bg-blue-500/20 transition">
-                      <Navigation size={11} /> Maps
-                    </a>
-                    <a href={`https://waze.com/ul?q=${encodeURIComponent(order.deliveryAddress ?? "")}`} target="_blank" rel="noopener noreferrer"
-                      className="flex items-center gap-1 px-2 py-1 rounded-lg bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 text-xs font-bold hover:bg-cyan-500/20 transition">
-                      <Navigation size={11} /> Waze
-                    </a>
-                  </div>
+                  {/* Step-aware navigation */}
+                  {order.status === "accepted" ? (
+                    <div className="space-y-3 mb-3">
+                      <div>
+                        <p className="text-xs text-yellow-400 font-bold uppercase tracking-wide mb-1">📦 Paso 1 — Recoger en el negocio</p>
+                        {order.businessAddress
+                          ? <NavLinks address={order.businessAddress} label={order.businessName ?? ""} />
+                          : <p className="text-sm text-gray-400">{order.businessName}</p>}
+                      </div>
+                      <div className="border-t border-white/5 pt-3">
+                        <p className="text-xs text-gray-500 font-bold uppercase tracking-wide mb-1">📍 Paso 2 — Entregar luego en</p>
+                        <p className="text-sm text-gray-400">{order.deliveryAddress}</p>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="space-y-3 mb-3">
+                      <div>
+                        <p className="text-xs text-yellow-400 font-bold uppercase tracking-wide mb-1">🏠 Paso 2 — Entregar ahora en</p>
+                        <NavLinks address={order.deliveryAddress} label="destino" />
+                      </div>
+                    </div>
+                  )}
+
+                  {order.notes && (
+                    <p className="text-xs text-gray-400 bg-white/5 rounded-lg px-3 py-2 mb-3 italic">"{order.notes}"</p>
+                  )}
 
                   {order.status === "picked_up" && (
                     <div className="mb-3">
@@ -186,7 +226,7 @@ export default function DriverJobs() {
                           {deliveryPhoto[order.id] ? "Cambiar foto" : "Tomar foto"}
                         </button>
                         {deliveryPhoto[order.id] && (
-                          <span className="text-xs text-green-400 font-bold">✓ {deliveryPhoto[order.id]!.name.slice(0, 20)}</span>
+                          <span className="text-xs text-green-400 font-bold">✓ foto lista</span>
                         )}
                       </div>
                     </div>
@@ -199,7 +239,7 @@ export default function DriverJobs() {
                       disabled={updateStatus.isPending}
                     >
                       <Package size={16} className="mr-2" />
-                      Marcar Recogido
+                      ✅ Ya recogí el pedido
                     </Button>
                   ) : (
                     <Button
@@ -208,7 +248,7 @@ export default function DriverJobs() {
                       disabled={updateStatus.isPending || uploadingId === order.id}
                     >
                       {uploadingId === order.id ? <Loader2 size={16} className="mr-2 animate-spin" /> : <CheckCircle2 size={16} className="mr-2" />}
-                      Marcar Entregado
+                      ✅ Marcar como entregado
                     </Button>
                   )}
                 </div>
@@ -217,13 +257,14 @@ export default function DriverJobs() {
           </div>
         )}
 
+        {/* ─── AVAILABLE JOBS ─── */}
         <div>
           {activeOrders.length > 0 && (
             <p className="text-xs text-gray-400 uppercase tracking-widest font-bold mb-3">Nuevos trabajos</p>
           )}
           {isLoading ? (
             <div className="space-y-3">
-              {[1, 2].map(i => <Skeleton key={i} className="h-44 bg-white/8 rounded-2xl" />)}
+              {[1, 2].map(i => <Skeleton key={i} className="h-52 bg-white/8 rounded-2xl" />)}
             </div>
           ) : jobs?.length === 0 && activeOrders.length === 0 ? (
             <div className="text-center py-20">
@@ -237,40 +278,47 @@ export default function DriverJobs() {
             </div>
           ) : (
             <div className="space-y-4">
-              {jobs?.map((job) => (
+              {jobs?.map((job: any) => (
                 <div key={job.id} data-testid={`job-card-${job.id}`} className="bg-white/8 border border-yellow-400/20 rounded-2xl p-4 shadow-[0_0_20px_rgba(255,215,0,0.05)]">
                   <div className="flex items-start justify-between mb-3">
                     <div>
                       <p className="text-xs text-gray-400 mb-1 uppercase tracking-widest">#{job.id}</p>
-                      <p className="font-black text-xl text-yellow-400">{formatDOP(job.driverEarnings)}</p>
-                      <p className="text-xs text-gray-400">{t.yourEarning}</p>
+                      <p className="font-black text-xl text-yellow-400">{formatDOP(job.driverEarnings + (job.tip ?? 0))}</p>
+                      <p className="text-xs text-gray-400">{t.yourEarning}{job.tip > 0 ? ` + RD$${job.tip} propina` : ""}</p>
                     </div>
-                    <Badge className={`border ${job.paymentMethod === "cash" ? "bg-green-400/20 text-green-400 border-green-400/40" : "bg-blue-400/20 text-blue-400 border-blue-400/40"}`}>
-                      {job.paymentMethod === "cash" ? <Banknote size={12} className="mr-1 inline" /> : <CreditCard size={12} className="mr-1 inline" />}
-                      {job.paymentMethod === "cash" ? t.cash : t.card}
-                    </Badge>
-                  </div>
-
-                  <div className="space-y-2 mb-4">
-                    <div className="flex items-start gap-2 text-sm text-gray-300">
-                      <MapPin size={14} className="text-yellow-400 flex-shrink-0 mt-0.5" />
-                      <span className="flex-1">{job.deliveryAddress}</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <div className="flex items-center gap-1 text-sm text-gray-400 flex-1">
-                        <Clock size={12} />
+                    <div className="flex flex-col items-end gap-1">
+                      <Badge className={`border ${job.paymentMethod === "cash" ? "bg-green-400/20 text-green-400 border-green-400/40" : "bg-blue-400/20 text-blue-400 border-blue-400/40"}`}>
+                        {job.paymentMethod === "cash" ? <Banknote size={12} className="mr-1 inline" /> : <CreditCard size={12} className="mr-1 inline" />}
+                        {job.paymentMethod === "cash" ? t.cash : t.card}
+                      </Badge>
+                      <div className="flex items-center gap-1 text-xs text-gray-400">
+                        <Clock size={10} />
                         <span>~25 min</span>
                       </div>
-                      <a href={`https://maps.google.com/?q=${encodeURIComponent(job.deliveryAddress ?? "")}`} target="_blank" rel="noopener noreferrer" onClick={e => e.stopPropagation()}
-                        className="flex items-center gap-1 px-2 py-1 rounded-lg bg-blue-500/10 border border-blue-500/30 text-blue-400 text-xs font-bold hover:bg-blue-500/20 transition">
-                        <Navigation size={11} /> Maps
-                      </a>
-                      <a href={`https://waze.com/ul?q=${encodeURIComponent(job.deliveryAddress ?? "")}`} target="_blank" rel="noopener noreferrer" onClick={e => e.stopPropagation()}
-                        className="flex items-center gap-1 px-2 py-1 rounded-lg bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 text-xs font-bold hover:bg-cyan-500/20 transition">
-                        <Navigation size={11} /> Waze
-                      </a>
                     </div>
                   </div>
+
+                  <div className="space-y-3 mb-4">
+                    <div>
+                      <p className="text-xs text-yellow-400 font-bold uppercase tracking-wide mb-1">
+                        <Store size={10} className="inline mr-1" />Recoger en
+                      </p>
+                      {job.businessName && <p className="text-sm font-bold text-white mb-1">{job.businessName}</p>}
+                      {job.businessAddress
+                        ? <NavLinks address={job.businessAddress} label="negocio" />
+                        : <p className="text-xs text-gray-500">Dirección no disponible</p>}
+                    </div>
+                    <div className="border-t border-white/5 pt-3">
+                      <p className="text-xs text-gray-400 font-bold uppercase tracking-wide mb-1">
+                        <MapPin size={10} className="inline mr-1" />Entregar en
+                      </p>
+                      <p className="text-sm text-gray-300">{job.deliveryAddress}</p>
+                    </div>
+                  </div>
+
+                  {job.notes && (
+                    <p className="text-xs text-gray-400 bg-white/5 rounded-lg px-3 py-2 mb-3 italic">"{job.notes}"</p>
+                  )}
 
                   <div className="border-t border-white/10 pt-3 flex items-center justify-between mb-3">
                     <span className="text-sm text-gray-400">{t.total}</span>
@@ -291,6 +339,7 @@ export default function DriverJobs() {
                       disabled={accept.isPending}
                       data-testid={`button-accept-${job.id}`}
                     >
+                      {accept.isPending ? <Loader2 size={14} className="animate-spin mr-1" /> : null}
                       {t.accept}
                     </Button>
                   </div>

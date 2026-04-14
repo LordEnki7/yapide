@@ -257,16 +257,43 @@ router.patch("/orders/:orderId/status", async (req, res): Promise<void> => {
   }
 
   const statusPushMap: Record<string, { title: string; body: string; url: string }> = {
-    accepted: { title: "✅ Pedido aceptado", body: `Tu pedido #${order.id} fue aceptado. ¡En camino!`, url: `/customer/orders/${order.id}` },
+    accepted: { title: "✅ Pedido confirmado", body: `Tu pedido #${order.id} fue confirmado. Buscando delivery…`, url: `/customer/orders/${order.id}` },
     picked_up: { title: "🛵 Pedido recogido", body: `Tu pedido #${order.id} está en camino. ¡Ya llegó!`, url: `/customer/orders/${order.id}` },
     delivered: { title: "🎉 ¡Pedido entregado!", body: `Tu pedido #${order.id} fue entregado. ¡Buen provecho!`, url: `/customer/orders/${order.id}` },
+    cancelled: { title: "❌ Pedido cancelado", body: `Tu pedido #${order.id} fue cancelado.`, url: `/customer/orders/${order.id}` },
   };
   const pushInfo = statusPushMap[parsed.data.status];
   if (pushInfo) {
     sendPushToUser(order.customerId, pushInfo.title, pushInfo.body, pushInfo.url).catch(() => {});
   }
 
+  if (parsed.data.status === "accepted") {
+    const [biz] = await db.select({ name: businessesTable.name }).from(businessesTable).where(eq(businessesTable.id, order.businessId));
+    const onlineDrivers = await db.select({ userId: driversTable.userId }).from(driversTable).where(eq(driversTable.isOnline, true));
+    onlineDrivers.forEach(d => {
+      sendPushToUser(d.userId, "🛍️ Nuevo delivery disponible", `${biz?.name ?? "Un negocio"} tiene un pedido listo para recoger`, "/driver/jobs").catch(() => {});
+    });
+  }
+
   res.json(await formatOrder(order));
+});
+
+router.post("/orders/:orderId/cancel", async (req, res): Promise<void> => {
+  const sessionUserId = (req.session as any)?.userId;
+  if (!sessionUserId) { res.status(401).json({ error: "Unauthorized" }); return; }
+  const raw = Array.isArray(req.params.orderId) ? req.params.orderId[0] : req.params.orderId;
+  const id = parseInt(raw, 10);
+  if (isNaN(id)) { res.status(400).json({ error: "Invalid orderId" }); return; }
+  const [order] = await db.select().from(ordersTable).where(eq(ordersTable.id, id));
+  if (!order) { res.status(404).json({ error: "Order not found" }); return; }
+  if (order.customerId !== sessionUserId) { res.status(403).json({ error: "Forbidden" }); return; }
+  if (order.status !== "pending") {
+    res.status(409).json({ error: "Solo puedes cancelar pedidos pendientes" });
+    return;
+  }
+  const [updated] = await db.update(ordersTable).set({ status: "cancelled" }).where(eq(ordersTable.id, id)).returning();
+  sendPushToUser(order.customerId, "❌ Pedido cancelado", `Tu pedido #${order.id} fue cancelado.`, `/customer/orders/${order.id}`).catch(() => {});
+  res.json(await formatOrder(updated));
 });
 
 router.post("/orders/:orderId/rate", async (req, res): Promise<void> => {

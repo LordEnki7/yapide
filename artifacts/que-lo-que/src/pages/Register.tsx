@@ -38,7 +38,13 @@ export default function Register() {
           role: data.user.role,
           isBanned: data.user.isBanned,
         });
-        navigate(`/${data.user.role}`);
+        if (data.user.role === "business") {
+          navigate("/business/onboarding");
+        } else if (data.user.role === "driver") {
+          navigate("/driver/onboarding");
+        } else {
+          navigate(`/${data.user.role}`);
+        }
       },
       onError: (err: any) => {
         const msg = err?.response?.data?.error ?? t.error;

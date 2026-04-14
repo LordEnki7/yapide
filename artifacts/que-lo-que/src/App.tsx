@@ -33,6 +33,9 @@ import AdminDrivers from "@/pages/admin/Drivers";
 import AdminBusinesses from "@/pages/admin/Businesses";
 import AdminBusinessMenu from "@/pages/admin/BusinessMenu";
 import AdminOrders from "@/pages/admin/Orders";
+import AdminPromoCodes from "@/pages/admin/PromoCodes";
+import BusinessOnboarding from "@/pages/business/Onboarding";
+import DriverOnboarding from "@/pages/driver/Onboarding";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -57,6 +60,8 @@ function Router() {
         <Route path="/customer/orders/:id" component={CustomerOrderDetail} />
         <Route path="/customer/points" component={CustomerPoints} />
         <Route path="/customer/profile" component={CustomerProfile} />
+        <Route path="/business/onboarding" component={BusinessOnboarding} />
+        <Route path="/driver/onboarding" component={DriverOnboarding} />
         <Route path="/driver" component={DriverDashboard} />
         <Route path="/driver/jobs" component={DriverJobs} />
         <Route path="/driver/wallet" component={DriverWallet} />
@@ -70,6 +75,7 @@ function Router() {
         <Route path="/admin/businesses" component={AdminBusinesses} />
         <Route path="/admin/businesses/:id/menu" component={AdminBusinessMenu} />
         <Route path="/admin/orders" component={AdminOrders} />
+        <Route path="/admin/promo-codes" component={AdminPromoCodes} />
         <Route component={NotFound} />
       </Switch>
       <BottomNav />

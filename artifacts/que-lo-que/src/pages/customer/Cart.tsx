@@ -8,7 +8,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { ArrowLeft, Trash2, MapPin, Banknote, Plus, Star, ChevronDown, ChevronUp, Check, Navigation, Loader2, FileText, Tag, X } from "lucide-react";
+import { ArrowLeft, Trash2, MapPin, Banknote, Plus, Star, ChevronDown, ChevronUp, Check, Navigation, Loader2, FileText, Tag, X, CreditCard, Lock } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { requestGPS } from "@/lib/gps";
 
@@ -28,7 +28,7 @@ export default function CustomerCart() {
   const [address, setAddress] = useState("");
   const [addressLabel, setAddressLabel] = useState("Casa");
   const [notes, setNotes] = useState("");
-  const paymentMethod: "cash" | "card" = "cash";
+  const [paymentMethod, setPaymentMethod] = useState<"cash" | "card">("cash");
   const [tip, setTip] = useState(0);
   const [customTip, setCustomTip] = useState("");
   const [showCustomTip, setShowCustomTip] = useState(false);
@@ -401,13 +401,35 @@ export default function CustomerCart() {
 
         {/* Payment */}
         <div className="bg-white/8 border border-white/10 rounded-2xl p-4">
-          <div className="flex items-center gap-3">
-            <Banknote size={20} className="text-yellow-400 flex-shrink-0" />
-            <div>
-              <p className="font-bold text-sm">{t.paymentMethod}</p>
-              <p className="text-gray-400 text-xs mt-0.5">Pago en efectivo al repartidor · No se almacena información de tarjetas</p>
-            </div>
+          <p className="font-bold text-sm mb-3">{t.paymentMethod}</p>
+          <div className="grid grid-cols-2 gap-2">
+            <button
+              onClick={() => setPaymentMethod("cash")}
+              className={`flex items-center gap-2 px-3 py-3 rounded-xl border text-sm font-bold transition ${paymentMethod === "cash" ? "bg-green-400/15 border-green-400/50 text-green-400" : "bg-white/5 border-white/15 text-gray-400 hover:border-white/30"}`}
+            >
+              <Banknote size={16} />
+              Efectivo
+            </button>
+            <button
+              onClick={() => setPaymentMethod("card")}
+              className={`flex items-center gap-2 px-3 py-3 rounded-xl border text-sm font-bold transition ${paymentMethod === "card" ? "bg-blue-400/15 border-blue-400/50 text-blue-400" : "bg-white/5 border-white/15 text-gray-400 hover:border-white/30"}`}
+            >
+              <CreditCard size={16} />
+              Tarjeta
+            </button>
           </div>
+          {paymentMethod === "cash" && (
+            <p className="text-xs text-gray-500 mt-2">Paga al repartidor en efectivo cuando llegue tu pedido.</p>
+          )}
+          {paymentMethod === "card" && (
+            <div className="mt-3 flex items-start gap-2 bg-blue-400/8 border border-blue-400/20 rounded-xl px-3 py-2.5">
+              <Lock size={14} className="text-blue-400 flex-shrink-0 mt-0.5" />
+              <div>
+                <p className="text-xs font-black text-blue-400">Próximamente 🔒</p>
+                <p className="text-xs text-gray-400 mt-0.5">El pago con tarjeta estará disponible muy pronto. Por ahora elige efectivo para completar tu pedido.</p>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Order Summary */}
@@ -443,10 +465,10 @@ export default function CustomerCart() {
         <Button
           className="w-full bg-yellow-400 text-black font-black text-lg h-14 hover:bg-yellow-300 shadow-[0_0_30px_rgba(255,215,0,0.3)] disabled:opacity-50"
           onClick={handleOrder}
-          disabled={createOrder.isPending}
+          disabled={createOrder.isPending || paymentMethod === "card"}
           data-testid="button-place-order"
         >
-          {createOrder.isPending ? t.placing : t.orderNow(formatDOP(grandTotal))}
+          {createOrder.isPending ? t.placing : paymentMethod === "card" ? "🔒 Pago con tarjeta no disponible" : t.orderNow(formatDOP(grandTotal))}
         </Button>
       </div>
     </div>
