@@ -10,6 +10,7 @@ import statsRouter from "./stats";
 import pointsRouter from "./points";
 import addressesRouter from "./addresses";
 import storageRouter from "./storage";
+import promoCodesRouter from "./promo_codes";
 
 const router: IRouter = Router();
 
@@ -24,5 +25,6 @@ router.use(statsRouter);
 router.use(pointsRouter);
 router.use(addressesRouter);
 router.use(storageRouter);
+router.use(promoCodesRouter);
 
 export default router;

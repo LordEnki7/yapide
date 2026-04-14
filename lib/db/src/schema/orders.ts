@@ -23,6 +23,9 @@ export const ordersTable = pgTable("orders", {
   customerRating: integer("customer_rating"),
   driverRating: integer("driver_rating"),
   businessRating: integer("business_rating"),
+  deliveryPhotoPath: text("delivery_photo_path"),
+  promoCode: text("promo_code"),
+  promoDiscount: real("promo_discount").notNull().default(0),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow().$onUpdate(() => new Date()),
 });

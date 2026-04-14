@@ -127,11 +127,29 @@ export default function CustomerOrderDetail() {
             <span>{t.delivery}</span>
             <span className="text-yellow-400">{formatDOP(order?.deliveryFee ?? 0)}</span>
           </div>
+          {(order as any)?.promoDiscount > 0 && (
+            <div className="flex justify-between text-sm text-green-400 font-bold mt-1">
+              <span>🎟 {(order as any).promoCode}</span>
+              <span>-{formatDOP((order as any).promoDiscount)}</span>
+            </div>
+          )}
           <div className="flex justify-between font-black text-lg mt-1">
             <span>{t.total}</span>
             <span className="text-yellow-400">{formatDOP((order?.totalAmount ?? 0) + (order?.deliveryFee ?? 0))}</span>
           </div>
         </div>
+
+        {(order as any)?.deliveryPhotoPath && (
+          <div className="bg-white/8 border border-white/10 rounded-2xl p-4">
+            <h2 className="font-bold text-sm text-gray-400 mb-3 uppercase tracking-widest">📸 Foto de entrega</h2>
+            <img
+              src={`/api/storage${(order as any).deliveryPhotoPath}`}
+              alt="Foto de entrega"
+              className="w-full rounded-xl object-cover max-h-60"
+              onError={e => { (e.target as HTMLImageElement).style.display = "none"; }}
+            />
+          </div>
+        )}
 
         {isDelivered && !order?.driverRating && (
           <div className="bg-yellow-400/5 border border-yellow-400/20 rounded-2xl p-4">

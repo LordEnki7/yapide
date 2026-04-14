@@ -1,5 +1,5 @@
 import { Router, type IRouter } from "express";
-import { eq, and, desc } from "drizzle-orm";
+import { eq, and, desc, inArray } from "drizzle-orm";
 import { db, driversTable, usersTable, ordersTable, orderItemsTable, walletTransactionsTable } from "@workspace/db";
 import { RegisterDriverBody, UpdateDriverStatusBody, UpdateDriverLocationBody } from "@workspace/api-zod";
 import { CASH_LIMIT } from "../lib/dispatch";
@@ -190,6 +190,29 @@ router.post("/drivers/jobs/:orderId/decline", async (req, res): Promise<void> =>
   const sessionUserId = (req.session as any)?.userId;
   if (!sessionUserId) { res.status(401).json({ error: "Unauthorized" }); return; }
   res.json({ success: true });
+});
+
+router.get("/driver/active-orders", async (req, res): Promise<void> => {
+  const sessionUserId = (req.session as any)?.userId;
+  if (!sessionUserId) { res.status(401).json({ error: "Unauthorized" }); return; }
+  const [driver] = await db.select().from(driversTable).where(eq(driversTable.userId, sessionUserId));
+  if (!driver) { res.status(404).json({ error: "Driver not found" }); return; }
+  const activeOrders = await db.select().from(ordersTable)
+    .where(and(eq(ordersTable.driverId, driver.id), inArray(ordersTable.status, ["accepted", "picked_up"])))
+    .orderBy(desc(ordersTable.createdAt));
+  const formatted = activeOrders.map(o => ({
+    id: o.id,
+    status: o.status,
+    deliveryAddress: o.deliveryAddress,
+    totalAmount: o.totalAmount,
+    deliveryFee: o.deliveryFee,
+    driverEarnings: o.driverEarnings,
+    tip: o.tip,
+    paymentMethod: o.paymentMethod,
+    notes: o.notes,
+    deliveryPhotoPath: o.deliveryPhotoPath,
+  }));
+  res.json(formatted);
 });
 
 export default router;

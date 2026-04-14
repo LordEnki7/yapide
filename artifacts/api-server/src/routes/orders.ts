@@ -35,6 +35,9 @@ async function formatOrder(order: typeof ordersTable.$inferSelect) {
     customerRating: order.customerRating,
     driverRating: order.driverRating,
     businessRating: order.businessRating,
+    deliveryPhotoPath: order.deliveryPhotoPath,
+    promoCode: order.promoCode,
+    promoDiscount: order.promoDiscount,
     createdAt: order.createdAt,
     items: items.map(i => ({
       id: i.id,
@@ -190,7 +193,11 @@ router.patch("/orders/:orderId/status", async (req, res): Promise<void> => {
   const parsed = UpdateOrderStatusBody.safeParse(req.body);
   if (!parsed.success) { res.status(400).json({ error: parsed.error.message }); return; }
 
-  const [order] = await db.update(ordersTable).set({ status: parsed.data.status }).where(eq(ordersTable.id, id)).returning();
+  const updateData: Partial<typeof ordersTable.$inferInsert> = { status: parsed.data.status };
+  if (parsed.data.status === "delivered" && (parsed.data as any).deliveryPhotoPath) {
+    updateData.deliveryPhotoPath = (parsed.data as any).deliveryPhotoPath;
+  }
+  const [order] = await db.update(ordersTable).set(updateData).where(eq(ordersTable.id, id)).returning();
   if (!order) { res.status(404).json({ error: "Order not found" }); return; }
 
   if (parsed.data.status === "delivered" && order.driverId) {

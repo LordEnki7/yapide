@@ -126,6 +126,17 @@ export default function BusinessDashboard() {
             </div>
           </Link>
         </div>
+
+        <Link href="/business/analytics">
+          <div className="bg-white/8 border border-white/10 rounded-2xl p-4 flex items-center gap-3 hover:border-yellow-400/30 transition cursor-pointer mt-3">
+            <TrendingUp size={20} className="text-yellow-400 flex-shrink-0" />
+            <div>
+              <p className="font-bold text-sm">Analíticas</p>
+              <p className="text-xs text-gray-400">Ingresos, pedidos y top productos</p>
+            </div>
+            <span className="ml-auto text-gray-500 text-lg">›</span>
+          </div>
+        </Link>
       </div>
     </div>
   );

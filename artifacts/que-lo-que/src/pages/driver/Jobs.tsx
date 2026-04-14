@@ -1,5 +1,6 @@
+import { useState, useEffect, useRef } from "react";
 import { Link } from "wouter";
-import { useGetAvailableJobs, getGetAvailableJobsQueryKey, useAcceptJob, useDeclineJob } from "@workspace/api-client-react";
+import { useGetAvailableJobs, getGetAvailableJobsQueryKey, useAcceptJob, useDeclineJob, useUpdateOrderStatus, getListOrdersQueryKey } from "@workspace/api-client-react";
 import { formatDOP } from "@/lib/auth";
 import { useLang } from "@/lib/lang";
 import LangToggle from "@/components/LangToggle";
@@ -7,21 +8,67 @@ import { useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, MapPin, Banknote, CreditCard, Clock, Navigation } from "lucide-react";
+import { ArrowLeft, MapPin, Banknote, CreditCard, Clock, Navigation, Camera, CheckCircle2, Package, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+
+interface ActiveOrder {
+  id: number;
+  status: string;
+  deliveryAddress: string;
+  totalAmount: number;
+  deliveryFee: number;
+  driverEarnings: number;
+  tip: number;
+  paymentMethod: string;
+  notes?: string | null;
+}
 
 export default function DriverJobs() {
   const { data: jobs, isLoading } = useGetAvailableJobs({
-    query: { queryKey: getGetAvailableJobsQueryKey() }
+    query: { queryKey: getGetAvailableJobsQueryKey(), refetchInterval: 10000 }
   });
+  const [activeOrders, setActiveOrders] = useState<ActiveOrder[]>([]);
+  const [activeLoading, setActiveLoading] = useState(true);
+  const [deliveryPhoto, setDeliveryPhoto] = useState<{ [orderId: number]: File | null }>({});
+  const [uploadingId, setUploadingId] = useState<number | null>(null);
+  const fileRefs = useRef<{ [key: number]: HTMLInputElement | null }>({});
+
   const queryClient = useQueryClient();
   const { toast } = useToast();
   const { t } = useLang();
+
+  const fetchActiveOrders = async () => {
+    try {
+      const res = await fetch("/api/driver/active-orders", { credentials: "include" });
+      if (res.ok) setActiveOrders(await res.json());
+    } catch {
+    } finally {
+      setActiveLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchActiveOrders();
+    const interval = setInterval(fetchActiveOrders, 10000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const updateStatus = useUpdateOrderStatus({
+    mutation: {
+      onSuccess: () => {
+        fetchActiveOrders();
+        queryClient.invalidateQueries({ queryKey: getGetAvailableJobsQueryKey() });
+        queryClient.invalidateQueries({ queryKey: getListOrdersQueryKey() });
+      },
+      onError: () => toast({ title: t.error, description: t.error, variant: "destructive" }),
+    }
+  });
 
   const accept = useAcceptJob({
     mutation: {
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: getGetAvailableJobsQueryKey() });
+        fetchActiveOrders();
         toast({ title: t.orderSent, description: "🛵💨" });
       },
       onError: () => toast({ title: t.error, description: t.error, variant: "destructive" }),
@@ -30,11 +77,43 @@ export default function DriverJobs() {
 
   const decline = useDeclineJob({
     mutation: {
-      onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: getGetAvailableJobsQueryKey() });
-      }
+      onSuccess: () => queryClient.invalidateQueries({ queryKey: getGetAvailableJobsQueryKey() }),
     }
   });
+
+  const handleMarkPickedUp = (orderId: number) => {
+    updateStatus.mutate({ orderId, data: { status: "picked_up" } });
+  };
+
+  const handleMarkDelivered = async (orderId: number) => {
+    const photo = deliveryPhoto[orderId];
+    setUploadingId(orderId);
+    let deliveryPhotoPath: string | undefined;
+
+    if (photo) {
+      try {
+        const urlRes = await fetch("/api/storage/uploads/request-url", {
+          method: "POST",
+          credentials: "include",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ name: photo.name, size: photo.size, contentType: photo.type }),
+        });
+        if (urlRes.ok) {
+          const { uploadURL, objectPath } = await urlRes.json();
+          await fetch(uploadURL, { method: "PUT", body: photo, headers: { "Content-Type": photo.type } });
+          deliveryPhotoPath = objectPath;
+        }
+      } catch (err) {
+        toast({ title: "No se pudo subir la foto", description: "Se marcará entregado sin foto", variant: "destructive" });
+      }
+    }
+
+    updateStatus.mutate({
+      orderId,
+      data: { status: "delivered", deliveryPhotoPath } as any,
+    });
+    setUploadingId(null);
+  };
 
   return (
     <div className="min-h-screen bg-background text-white">
@@ -53,93 +132,173 @@ export default function DriverJobs() {
         </div>
       </div>
 
-      <div className="px-4 py-4">
-        {isLoading ? (
-          <div className="space-y-3">
-            {[1, 2].map(i => <Skeleton key={i} className="h-44 bg-white/8 rounded-2xl" />)}
-          </div>
-        ) : jobs?.length === 0 ? (
-          <div className="text-center py-20">
-            <p className="text-5xl mb-3">😴</p>
-            <p className="text-xl font-black text-white mb-2">{t.noJobs}</p>
-            <p className="text-gray-400">{t.noJobsMsg}</p>
-          </div>
-        ) : (
-          <div className="space-y-4">
-            {jobs?.map((job) => (
-              <div key={job.id} data-testid={`job-card-${job.id}`} className="bg-white/8 border border-yellow-400/20 rounded-2xl p-4 shadow-[0_0_20px_rgba(255,215,0,0.05)]">
-                <div className="flex items-start justify-between mb-3">
-                  <div>
-                    <p className="text-xs text-gray-400 mb-1 uppercase tracking-widest">#{job.id}</p>
-                    <p className="font-black text-xl text-yellow-400">{formatDOP(job.driverEarnings)}</p>
-                    <p className="text-xs text-gray-400">{t.yourEarning}</p>
-                  </div>
-                  <Badge className={`border ${job.paymentMethod === "cash" ? "bg-green-400/20 text-green-400 border-green-400/40" : "bg-blue-400/20 text-blue-400 border-blue-400/40"}`}>
-                    {job.paymentMethod === "cash" ? <Banknote size={12} className="mr-1 inline" /> : <CreditCard size={12} className="mr-1 inline" />}
-                    {job.paymentMethod === "cash" ? t.cash : t.card}
-                  </Badge>
-                </div>
-
-                <div className="space-y-2 mb-4">
-                  <div className="flex items-start gap-2 text-sm text-gray-300">
-                    <MapPin size={14} className="text-yellow-400 flex-shrink-0 mt-0.5" />
-                    <span className="flex-1">{job.deliveryAddress}</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <div className="flex items-center gap-1 text-sm text-gray-400 flex-1">
-                      <Clock size={12} />
-                      <span>~25 min</span>
+      <div className="px-4 py-4 space-y-6">
+        {activeOrders.length > 0 && (
+          <div>
+            <p className="text-xs text-yellow-400 uppercase tracking-widest font-bold mb-3">🛵 En curso</p>
+            <div className="space-y-4">
+              {activeOrders.map((order) => (
+                <div key={order.id} className="bg-yellow-400/5 border border-yellow-400/40 rounded-2xl p-4 shadow-[0_0_20px_rgba(255,215,0,0.1)]">
+                  <div className="flex items-start justify-between mb-3">
+                    <div>
+                      <p className="text-xs text-gray-400 uppercase tracking-widest mb-1">#{order.id}</p>
+                      <p className="font-black text-xl text-yellow-400">{formatDOP(order.driverEarnings)}</p>
+                      <p className="text-xs text-gray-400">tu ganancia</p>
                     </div>
-                    <a
-                      href={`https://maps.google.com/?q=${encodeURIComponent(job.deliveryAddress ?? "")}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      onClick={e => e.stopPropagation()}
-                      className="flex items-center gap-1 px-2 py-1 rounded-lg bg-blue-500/10 border border-blue-500/30 text-blue-400 text-xs font-bold hover:bg-blue-500/20 transition"
-                    >
-                      <Navigation size={11} />
-                      Maps
+                    <Badge className={`border ${order.status === "accepted" ? "bg-blue-400/20 text-blue-400 border-blue-400/40" : "bg-green-400/20 text-green-400 border-green-400/40"}`}>
+                      {order.status === "accepted" ? <Package size={12} className="mr-1 inline" /> : <CheckCircle2 size={12} className="mr-1 inline" />}
+                      {order.status === "accepted" ? "Aceptado" : "Recogido"}
+                    </Badge>
+                  </div>
+
+                  <div className="flex items-start gap-2 text-sm text-gray-300 mb-3">
+                    <MapPin size={14} className="text-yellow-400 flex-shrink-0 mt-0.5" />
+                    <span className="flex-1">{order.deliveryAddress}</span>
+                  </div>
+                  <div className="flex gap-2 mb-3">
+                    <a href={`https://maps.google.com/?q=${encodeURIComponent(order.deliveryAddress ?? "")}`} target="_blank" rel="noopener noreferrer"
+                      className="flex items-center gap-1 px-2 py-1 rounded-lg bg-blue-500/10 border border-blue-500/30 text-blue-400 text-xs font-bold hover:bg-blue-500/20 transition">
+                      <Navigation size={11} /> Maps
                     </a>
-                    <a
-                      href={`https://waze.com/ul?q=${encodeURIComponent(job.deliveryAddress ?? "")}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      onClick={e => e.stopPropagation()}
-                      className="flex items-center gap-1 px-2 py-1 rounded-lg bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 text-xs font-bold hover:bg-cyan-500/20 transition"
-                    >
-                      <Navigation size={11} />
-                      Waze
+                    <a href={`https://waze.com/ul?q=${encodeURIComponent(order.deliveryAddress ?? "")}`} target="_blank" rel="noopener noreferrer"
+                      className="flex items-center gap-1 px-2 py-1 rounded-lg bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 text-xs font-bold hover:bg-cyan-500/20 transition">
+                      <Navigation size={11} /> Waze
                     </a>
                   </div>
-                </div>
 
-                <div className="border-t border-white/10 pt-3 flex items-center justify-between mb-3">
-                  <span className="text-sm text-gray-400">{t.total}</span>
-                  <span className="font-bold text-white">{formatDOP(job.totalAmount + job.deliveryFee)}</span>
-                </div>
+                  {order.status === "picked_up" && (
+                    <div className="mb-3">
+                      <p className="text-xs text-gray-400 mb-2 font-bold">📸 Foto de entrega (opcional)</p>
+                      <input
+                        ref={el => { fileRefs.current[order.id] = el; }}
+                        type="file"
+                        accept="image/*"
+                        capture="environment"
+                        className="hidden"
+                        onChange={e => setDeliveryPhoto(prev => ({ ...prev, [order.id]: e.target.files?.[0] ?? null }))}
+                      />
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => fileRefs.current[order.id]?.click()}
+                          className="flex items-center gap-2 px-3 py-2 rounded-xl bg-white/8 border border-white/20 text-sm text-gray-300 hover:bg-white/12 transition"
+                        >
+                          <Camera size={14} className="text-yellow-400" />
+                          {deliveryPhoto[order.id] ? "Cambiar foto" : "Tomar foto"}
+                        </button>
+                        {deliveryPhoto[order.id] && (
+                          <span className="text-xs text-green-400 font-bold">✓ {deliveryPhoto[order.id]!.name.slice(0, 20)}</span>
+                        )}
+                      </div>
+                    </div>
+                  )}
 
-                <div className="flex gap-3">
-                  <Button
-                    variant="outline"
-                    className="flex-1 border-white/20 text-gray-400 hover:border-red-400/50 hover:text-red-400 font-bold"
-                    onClick={() => decline.mutate({ orderId: job.id })}
-                    disabled={decline.isPending}
-                  >
-                    {t.decline}
-                  </Button>
-                  <Button
-                    className="flex-2 flex-grow-[2] bg-yellow-400 text-black font-black hover:bg-yellow-300 shadow-[0_0_20px_rgba(255,215,0,0.3)]"
-                    onClick={() => accept.mutate({ orderId: job.id })}
-                    disabled={accept.isPending}
-                    data-testid={`button-accept-${job.id}`}
-                  >
-                    {t.accept}
-                  </Button>
+                  {order.status === "accepted" ? (
+                    <Button
+                      className="w-full bg-blue-500 hover:bg-blue-400 text-white font-black h-12"
+                      onClick={() => handleMarkPickedUp(order.id)}
+                      disabled={updateStatus.isPending}
+                    >
+                      <Package size={16} className="mr-2" />
+                      Marcar Recogido
+                    </Button>
+                  ) : (
+                    <Button
+                      className="w-full bg-yellow-400 hover:bg-yellow-300 text-black font-black h-12 shadow-[0_0_20px_rgba(255,215,0,0.3)]"
+                      onClick={() => handleMarkDelivered(order.id)}
+                      disabled={updateStatus.isPending || uploadingId === order.id}
+                    >
+                      {uploadingId === order.id ? <Loader2 size={16} className="mr-2 animate-spin" /> : <CheckCircle2 size={16} className="mr-2" />}
+                      Marcar Entregado
+                    </Button>
+                  )}
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         )}
+
+        <div>
+          {activeOrders.length > 0 && (
+            <p className="text-xs text-gray-400 uppercase tracking-widest font-bold mb-3">Nuevos trabajos</p>
+          )}
+          {isLoading ? (
+            <div className="space-y-3">
+              {[1, 2].map(i => <Skeleton key={i} className="h-44 bg-white/8 rounded-2xl" />)}
+            </div>
+          ) : jobs?.length === 0 && activeOrders.length === 0 ? (
+            <div className="text-center py-20">
+              <p className="text-5xl mb-3">😴</p>
+              <p className="text-xl font-black text-white mb-2">{t.noJobs}</p>
+              <p className="text-gray-400">{t.noJobsMsg}</p>
+            </div>
+          ) : jobs?.length === 0 ? (
+            <div className="text-center py-8">
+              <p className="text-gray-400 text-sm">No hay nuevos pedidos disponibles ahora mismo</p>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {jobs?.map((job) => (
+                <div key={job.id} data-testid={`job-card-${job.id}`} className="bg-white/8 border border-yellow-400/20 rounded-2xl p-4 shadow-[0_0_20px_rgba(255,215,0,0.05)]">
+                  <div className="flex items-start justify-between mb-3">
+                    <div>
+                      <p className="text-xs text-gray-400 mb-1 uppercase tracking-widest">#{job.id}</p>
+                      <p className="font-black text-xl text-yellow-400">{formatDOP(job.driverEarnings)}</p>
+                      <p className="text-xs text-gray-400">{t.yourEarning}</p>
+                    </div>
+                    <Badge className={`border ${job.paymentMethod === "cash" ? "bg-green-400/20 text-green-400 border-green-400/40" : "bg-blue-400/20 text-blue-400 border-blue-400/40"}`}>
+                      {job.paymentMethod === "cash" ? <Banknote size={12} className="mr-1 inline" /> : <CreditCard size={12} className="mr-1 inline" />}
+                      {job.paymentMethod === "cash" ? t.cash : t.card}
+                    </Badge>
+                  </div>
+
+                  <div className="space-y-2 mb-4">
+                    <div className="flex items-start gap-2 text-sm text-gray-300">
+                      <MapPin size={14} className="text-yellow-400 flex-shrink-0 mt-0.5" />
+                      <span className="flex-1">{job.deliveryAddress}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-1 text-sm text-gray-400 flex-1">
+                        <Clock size={12} />
+                        <span>~25 min</span>
+                      </div>
+                      <a href={`https://maps.google.com/?q=${encodeURIComponent(job.deliveryAddress ?? "")}`} target="_blank" rel="noopener noreferrer" onClick={e => e.stopPropagation()}
+                        className="flex items-center gap-1 px-2 py-1 rounded-lg bg-blue-500/10 border border-blue-500/30 text-blue-400 text-xs font-bold hover:bg-blue-500/20 transition">
+                        <Navigation size={11} /> Maps
+                      </a>
+                      <a href={`https://waze.com/ul?q=${encodeURIComponent(job.deliveryAddress ?? "")}`} target="_blank" rel="noopener noreferrer" onClick={e => e.stopPropagation()}
+                        className="flex items-center gap-1 px-2 py-1 rounded-lg bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 text-xs font-bold hover:bg-cyan-500/20 transition">
+                        <Navigation size={11} /> Waze
+                      </a>
+                    </div>
+                  </div>
+
+                  <div className="border-t border-white/10 pt-3 flex items-center justify-between mb-3">
+                    <span className="text-sm text-gray-400">{t.total}</span>
+                    <span className="font-bold text-white">{formatDOP(job.totalAmount + job.deliveryFee)}</span>
+                  </div>
+
+                  <div className="flex gap-3">
+                    <Button variant="outline"
+                      className="flex-1 border-white/20 text-gray-400 hover:border-red-400/50 hover:text-red-400 font-bold"
+                      onClick={() => decline.mutate({ orderId: job.id })}
+                      disabled={decline.isPending}
+                    >
+                      {t.decline}
+                    </Button>
+                    <Button
+                      className="flex-2 flex-grow-[2] bg-yellow-400 text-black font-black hover:bg-yellow-300 shadow-[0_0_20px_rgba(255,215,0,0.3)]"
+                      onClick={() => accept.mutate({ orderId: job.id })}
+                      disabled={accept.isPending}
+                      data-testid={`button-accept-${job.id}`}
+                    >
+                      {t.accept}
+                    </Button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

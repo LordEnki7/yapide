@@ -208,7 +208,42 @@ export interface Order {
   customerRating?: number;
   driverRating?: number;
   businessRating?: number;
+  deliveryPhotoPath?: string;
+  promoCode?: string;
+  promoDiscount?: number;
   createdAt: string;
+}
+
+export interface ValidatePromoCodeBody {
+  code: string;
+  orderTotal?: number;
+}
+
+export interface ValidatePromoCodeResponse {
+  code: string;
+  discountType: string;
+  discountValue: number;
+  discountAmount: number;
+}
+
+export interface BusinessAnalyticsDayStat {
+  date: string;
+  revenue: number;
+  orders: number;
+}
+
+export interface BusinessAnalyticsTopProduct {
+  productName: string;
+  quantity: number;
+  revenue: number;
+}
+
+export interface BusinessAnalytics {
+  totalRevenue: number;
+  totalOrders: number;
+  avgOrderValue: number;
+  dailyStats: BusinessAnalyticsDayStat[];
+  topProducts: BusinessAnalyticsTopProduct[];
 }
 
 export type CreateOrderBodyPaymentMethod =

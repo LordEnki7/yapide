@@ -8,7 +8,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { ArrowLeft, Trash2, MapPin, Banknote, Plus, Star, ChevronDown, ChevronUp, Check, Navigation, Loader2, FileText } from "lucide-react";
+import { ArrowLeft, Trash2, MapPin, Banknote, Plus, Star, ChevronDown, ChevronUp, Check, Navigation, Loader2, FileText, Tag, X } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { requestGPS } from "@/lib/gps";
 
@@ -42,9 +42,15 @@ export default function CustomerCart() {
   const queryClient = useQueryClient();
   const { t } = useLang();
 
+  const [promoInput, setPromoInput] = useState("");
+  const [appliedPromo, setAppliedPromo] = useState<{ code: string; discountAmount: number; discountType: string; discountValue: number } | null>(null);
+  const [promoLoading, setPromoLoading] = useState(false);
+  const [promoError, setPromoError] = useState("");
+
   const markedUpTotal = parseFloat((totalAmount * (1 + MARKUP)).toFixed(2));
   const activeTip = showCustomTip && customTip ? parseFloat(customTip) || 0 : tip;
-  const grandTotal = markedUpTotal + DELIVERY_FEE + activeTip;
+  const promoDiscount = appliedPromo?.discountAmount ?? 0;
+  const grandTotal = markedUpTotal + DELIVERY_FEE + activeTip - promoDiscount;
 
   const user = getStoredUser();
 
@@ -108,6 +114,31 @@ export default function CustomerCart() {
     },
   });
 
+  const handleApplyPromo = async () => {
+    if (!promoInput.trim()) return;
+    setPromoLoading(true);
+    setPromoError("");
+    try {
+      const res = await fetch("/api/promo-codes/validate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code: promoInput.trim(), orderTotal: markedUpTotal + DELIVERY_FEE }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setPromoError(data.error ?? "Código inválido");
+      } else {
+        setAppliedPromo(data);
+        setPromoInput("");
+        toast({ title: "✅ Código aplicado", description: `Descuento de ${formatDOP(data.discountAmount)}` });
+      }
+    } catch {
+      setPromoError("Error al validar el código");
+    } finally {
+      setPromoLoading(false);
+    }
+  };
+
   const handleOrder = () => {
     if (!address.trim()) {
       toast({ title: t.missingAddress, description: t.addressRequired, variant: "destructive" });
@@ -122,6 +153,8 @@ export default function CustomerCart() {
       notes: notes || undefined,
       tip: activeTip,
       items: items.map(i => ({ productId: i.productId!, quantity: i.quantity })),
+      promoCode: appliedPromo?.code,
+      promoDiscount,
     });
   };
 
@@ -327,6 +360,45 @@ export default function CustomerCart() {
           )}
         </div>
 
+        {/* Promo Code */}
+        <div className="bg-white/8 border border-white/10 rounded-2xl p-4">
+          <div className="flex items-center gap-2 mb-3">
+            <Tag size={16} className="text-yellow-400" />
+            <h3 className="font-bold">¿Tienes un código?</h3>
+          </div>
+          {appliedPromo ? (
+            <div className="flex items-center justify-between bg-green-400/10 border border-green-400/30 rounded-xl px-3 py-2">
+              <div>
+                <p className="text-green-400 font-bold text-sm">✅ {appliedPromo.code}</p>
+                <p className="text-xs text-green-400/70">Descuento: {formatDOP(appliedPromo.discountAmount)}</p>
+              </div>
+              <button onClick={() => setAppliedPromo(null)} className="text-gray-400 hover:text-white transition">
+                <X size={16} />
+              </button>
+            </div>
+          ) : (
+            <div className="space-y-2">
+              <div className="flex gap-2">
+                <Input
+                  placeholder="CODIGO"
+                  value={promoInput}
+                  onChange={e => { setPromoInput(e.target.value.toUpperCase()); setPromoError(""); }}
+                  onKeyDown={e => e.key === "Enter" && handleApplyPromo()}
+                  className="bg-white/8 border-white/10 text-white placeholder:text-gray-500 focus:border-yellow-400 uppercase font-bold tracking-widest"
+                />
+                <Button
+                  onClick={handleApplyPromo}
+                  disabled={promoLoading || !promoInput.trim()}
+                  className="bg-yellow-400 text-black font-bold hover:bg-yellow-300 flex-shrink-0"
+                >
+                  {promoLoading ? <Loader2 size={14} className="animate-spin" /> : "Aplicar"}
+                </Button>
+              </div>
+              {promoError && <p className="text-xs text-red-400 font-bold">{promoError}</p>}
+            </div>
+          )}
+        </div>
+
         {/* Payment */}
         <div className="bg-white/8 border border-white/10 rounded-2xl p-4">
           <div className="flex items-center gap-3">
@@ -354,9 +426,15 @@ export default function CustomerCart() {
               <span>{formatDOP(activeTip)}</span>
             </div>
           )}
+          {promoDiscount > 0 && (
+            <div className="flex justify-between text-sm text-green-400 font-bold">
+              <span>🎟 {appliedPromo?.code}</span>
+              <span>-{formatDOP(promoDiscount)}</span>
+            </div>
+          )}
           <div className="border-t border-white/10 pt-2 flex justify-between font-black text-lg">
             <span>{t.total}</span>
-            <span className="text-yellow-400">{formatDOP(grandTotal)}</span>
+            <span className="text-yellow-400">{formatDOP(Math.max(grandTotal, 0))}</span>
           </div>
         </div>
       </div>

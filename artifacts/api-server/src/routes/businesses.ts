@@ -1,6 +1,6 @@
 import { Router, type IRouter } from "express";
-import { eq, ilike, and } from "drizzle-orm";
-import { db, businessesTable, usersTable } from "@workspace/db";
+import { eq, ilike, and, gte, desc } from "drizzle-orm";
+import { db, businessesTable, usersTable, ordersTable, orderItemsTable } from "@workspace/db";
 import { CreateBusinessBody, UpdateBusinessBody, ListBusinessesQueryParams, GetBusinessParams, UpdateBusinessParams } from "@workspace/api-zod";
 
 const router: IRouter = Router();
@@ -80,6 +80,65 @@ router.patch("/businesses/:businessId", async (req, res): Promise<void> => {
   const [business] = await db.update(businessesTable).set(parsed.data).where(eq(businessesTable.id, id)).returning();
   if (!business) { res.status(404).json({ error: "Business not found" }); return; }
   res.json(formatBusiness(business));
+});
+
+router.get("/businesses/mine/analytics", async (req, res): Promise<void> => {
+  const sessionUserId = (req.session as any)?.userId;
+  if (!sessionUserId) { res.status(401).json({ error: "Unauthorized" }); return; }
+  const [business] = await db.select().from(businessesTable).where(eq(businessesTable.userId, sessionUserId));
+  if (!business) { res.status(404).json({ error: "No business found" }); return; }
+
+  const sevenDaysAgo = new Date();
+  sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+
+  const orders = await db.select().from(ordersTable)
+    .where(and(eq(ordersTable.businessId, business.id), gte(ordersTable.createdAt, sevenDaysAgo)))
+    .orderBy(desc(ordersTable.createdAt));
+
+  const totalRevenue = orders.reduce((sum, o) => sum + o.totalAmount, 0);
+  const totalOrders = orders.length;
+  const avgOrderValue = totalOrders > 0 ? totalRevenue / totalOrders : 0;
+
+  const dayMap: Record<string, { revenue: number; orders: number }> = {};
+  for (let i = 6; i >= 0; i--) {
+    const d = new Date();
+    d.setDate(d.getDate() - i);
+    const key = d.toISOString().slice(0, 10);
+    dayMap[key] = { revenue: 0, orders: 0 };
+  }
+  for (const o of orders) {
+    const key = new Date(o.createdAt).toISOString().slice(0, 10);
+    if (dayMap[key]) {
+      dayMap[key].revenue += o.totalAmount;
+      dayMap[key].orders += 1;
+    }
+  }
+  const dailyStats = Object.entries(dayMap).map(([date, v]) => ({ date, ...v }));
+
+  const orderIds = orders.map(o => o.id);
+  let topProducts: { productName: string; quantity: number; revenue: number }[] = [];
+  if (orderIds.length > 0) {
+    const items = await db.select().from(orderItemsTable)
+      .where(eq(orderItemsTable.orderId, orderIds[0]))
+      .then(async () => {
+        const all = await Promise.all(orderIds.map(id =>
+          db.select().from(orderItemsTable).where(eq(orderItemsTable.orderId, id))
+        ));
+        return all.flat();
+      });
+    const prodMap: Record<string, { quantity: number; revenue: number }> = {};
+    for (const item of items) {
+      if (!prodMap[item.productName]) prodMap[item.productName] = { quantity: 0, revenue: 0 };
+      prodMap[item.productName].quantity += item.quantity;
+      prodMap[item.productName].revenue += item.price * item.quantity;
+    }
+    topProducts = Object.entries(prodMap)
+      .map(([productName, v]) => ({ productName, ...v }))
+      .sort((a, b) => b.revenue - a.revenue)
+      .slice(0, 5);
+  }
+
+  res.json({ totalRevenue, totalOrders, avgOrderValue, dailyStats, topProducts });
 });
 
 export default router;

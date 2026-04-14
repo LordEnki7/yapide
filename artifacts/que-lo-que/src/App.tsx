@@ -25,6 +25,7 @@ import DriverWallet from "@/pages/driver/Wallet";
 import BusinessDashboard from "@/pages/business/Dashboard";
 import BusinessOrders from "@/pages/business/Orders";
 import BusinessMenu from "@/pages/business/Menu";
+import BusinessAnalytics from "@/pages/business/Analytics";
 
 import AdminDashboard from "@/pages/admin/Dashboard";
 import AdminUsers from "@/pages/admin/Users";
@@ -62,6 +63,7 @@ function Router() {
         <Route path="/business" component={BusinessDashboard} />
         <Route path="/business/orders" component={BusinessOrders} />
         <Route path="/business/menu" component={BusinessMenu} />
+        <Route path="/business/analytics" component={BusinessAnalytics} />
         <Route path="/admin" component={AdminDashboard} />
         <Route path="/admin/users" component={AdminUsers} />
         <Route path="/admin/drivers" component={AdminDrivers} />

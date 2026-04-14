@@ -72,6 +72,7 @@ pnpm workspace monorepo using TypeScript.
 | `/business` | Business Dashboard | business |
 | `/business/orders` | Order Management | business |
 | `/business/menu` | Menu Management | business |
+| `/business/analytics` | Sales Analytics | business |
 | `/admin` | Admin Control Panel | admin |
 | `/admin/users` | User Management | admin |
 | `/admin/drivers` | Driver Management | admin |
@@ -89,6 +90,16 @@ All seeded in the database:
 - 4 businesses: Pollo Rey (food), Supermercados Nacional (supermarket), Farmacia Carol (pharmacy), La Cava del Rey (liquor)
 - 14 products across businesses
 - 3 sample orders, wallet transactions
+
+## Wave 2 Features (implemented)
+- **Proof of delivery**: Driver uploads a photo when marking order as delivered. Photo stored via object storage, shown in customer OrderDetail. Active order card in driver Jobs page with "Mark Picked Up" → "Mark Delivered" + photo flow.
+- **Business analytics**: `GET /api/businesses/mine/analytics` — 7-day stats (revenue, orders, avg). Bar chart + top 5 products. Accessible from business dashboard.
+- **Promo codes**: `promo_codes` DB table (code, discountType, discountValue, minOrder, maxUses, expiresAt). `POST /api/promo-codes/validate` validates codes. Cart has a promo code entry box; discount shown in order summary and stored on order.
+- **PWA installable**: `manifest.json` + PWA meta tags in `index.html`. App is installable on mobile.
+
+## DB Tables
+- `users`, `businesses`, `products`, `drivers`, `orders`, `order_items`, `wallet_transactions`, `points_transactions`, `addresses`, `promo_codes`
+- `orders` has: `deliveryPhotoPath`, `promoCode`, `promoDiscount` columns
 
 ## Business Logic
 - Delivery fee: 100 DOP base + 25/km

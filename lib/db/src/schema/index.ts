@@ -6,3 +6,4 @@ export * from "./orders";
 export * from "./wallets";
 export * from "./points";
 export * from "./addresses";
+export * from "./promo_codes";

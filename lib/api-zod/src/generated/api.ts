@@ -477,6 +477,9 @@ export const GetOrderResponse = zod.object({
   customerRating: zod.number().optional(),
   driverRating: zod.number().optional(),
   businessRating: zod.number().optional(),
+  deliveryPhotoPath: zod.string().optional(),
+  promoCode: zod.string().optional(),
+  promoDiscount: zod.number().optional(),
   createdAt: zod.string(),
 });
 
@@ -489,6 +492,7 @@ export const UpdateOrderStatusParams = zod.object({
 
 export const UpdateOrderStatusBody = zod.object({
   status: zod.enum(["accepted", "picked_up", "delivered", "cancelled"]),
+  deliveryPhotoPath: zod.string().optional(),
 });
 
 export const UpdateOrderStatusResponse = zod.object({
