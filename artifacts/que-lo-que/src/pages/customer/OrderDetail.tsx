@@ -4,7 +4,7 @@ import { formatDOP } from "@/lib/auth";
 import { useLang } from "@/lib/lang";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ArrowLeft, Star, MessageCircle } from "lucide-react";
+import { ArrowLeft, Star, MessageCircle, Share2 } from "lucide-react";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { useQueryClient } from "@tanstack/react-query";
@@ -88,6 +88,37 @@ export default function CustomerOrderDetail() {
             })}
           </div>
         </div>
+
+        {(order?.business as any)?.phone && (
+          <div className="bg-white/8 border border-white/10 rounded-2xl p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="font-bold text-sm text-gray-400 uppercase tracking-widest">Negocio</h2>
+                <p className="font-black text-white mt-1">{order?.business?.name}</p>
+              </div>
+              <div className="flex items-center gap-2">
+                <a
+                  href={`https://wa.me/${(order?.business as any)?.phone?.replace(/\D/g, "")}?text=${encodeURIComponent(`Hola, tengo una pregunta sobre mi pedido #${orderId} 🛵`)}`}
+                  target="_blank" rel="noreferrer"
+                >
+                  <Button size="sm" className="bg-green-500 hover:bg-green-400 text-white font-bold gap-2">
+                    <MessageCircle size={14} />
+                    Chat
+                  </Button>
+                </a>
+                <a
+                  href={`https://wa.me/?text=${encodeURIComponent(`¡Mi pedido de ${order?.business?.name} está en camino! 🛵 Pedido #${orderId} — ${formatDOP((order?.totalAmount ?? 0) + (order?.deliveryFee ?? 0))}`)}`}
+                  target="_blank" rel="noreferrer"
+                >
+                  <Button size="sm" variant="outline" className="border-white/20 text-white font-bold gap-2 hover:bg-white/10">
+                    <Share2 size={14} />
+                    Compartir
+                  </Button>
+                </a>
+              </div>
+            </div>
+          </div>
+        )}
 
         {order?.driver && (
           <div className="bg-white/8 border border-white/10 rounded-2xl p-4">

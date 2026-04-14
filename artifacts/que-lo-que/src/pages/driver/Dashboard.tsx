@@ -3,6 +3,7 @@ import { useGetMyDriver, getGetMyDriverQueryKey, useUpdateDriverStatus, useGetDr
 import { getStoredUser, formatDOP } from "@/lib/auth";
 import { useLang } from "@/lib/lang";
 import LangToggle from "@/components/LangToggle";
+import NotificationBell from "@/components/NotificationBell";
 import { useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -64,6 +65,7 @@ export default function DriverDashboard() {
             <h1 className="text-2xl font-black text-yellow-400">Que Lo Que 🛵</h1>
           </div>
           <div className="flex items-center gap-3">
+            <NotificationBell />
             <LangToggle />
             <div className="text-right">
               <p className="text-xs text-gray-400">{user?.name}</p>

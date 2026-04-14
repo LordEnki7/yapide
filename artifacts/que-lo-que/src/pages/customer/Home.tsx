@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Search, Star, Clock } from "lucide-react";
+import NotificationBell from "@/components/NotificationBell";
 
 export default function CustomerHome() {
   const user = getStoredUser();
@@ -50,6 +51,7 @@ export default function CustomerHome() {
             </h1>
           </div>
           <div className="flex items-center gap-2">
+            <NotificationBell />
             <LangToggle />
             <Link href="/customer/orders">
               <div className="w-10 h-10 rounded-full bg-yellow-400/10 border border-yellow-400/30 flex items-center justify-center cursor-pointer hover:bg-yellow-400/20 transition">

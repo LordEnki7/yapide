@@ -7,3 +7,5 @@ export * from "./wallets";
 export * from "./points";
 export * from "./addresses";
 export * from "./promo_codes";
+export * from "./push_subscriptions";
+export * from "./settings";

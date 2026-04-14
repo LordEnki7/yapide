@@ -3,6 +3,7 @@ import { useGetMyBusiness, getGetMyBusinessQueryKey, useUpdateBusiness, useGetBu
 import { formatDOP, getStoredUser } from "@/lib/auth";
 import { useLang } from "@/lib/lang";
 import LangToggle from "@/components/LangToggle";
+import NotificationBell from "@/components/NotificationBell";
 import { useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -46,7 +47,8 @@ export default function BusinessDashboard() {
         <div className="relative h-44">
           <img src={business.imageUrl} alt={business.name} className="w-full h-full object-cover" />
           <div className="absolute inset-0 bg-gradient-to-t from-black to-black/30" />
-          <div className="absolute top-4 right-4">
+          <div className="absolute top-4 right-4 flex items-center gap-2">
+            <NotificationBell />
             <LangToggle />
           </div>
         </div>
@@ -59,7 +61,10 @@ export default function BusinessDashboard() {
               <p className="text-xs text-gray-400 uppercase tracking-widest">{t.businessPanel}</p>
               <h1 className="text-xl font-black text-yellow-400">{business?.name}</h1>
             </div>
-            <LangToggle />
+            <div className="flex items-center gap-2">
+              <NotificationBell />
+              <LangToggle />
+            </div>
           </div>
         )}
 

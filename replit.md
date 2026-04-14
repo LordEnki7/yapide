@@ -91,6 +91,12 @@ All seeded in the database:
 - 14 products across businesses
 - 3 sample orders, wallet transactions
 
+## Wave 3 Features (implemented)
+- **Web Push Notifications**: VAPID keys auto-generated and stored in `settings` DB table. Service worker at `/sw.js` handles push events and shows OS-level notifications. `NotificationBell` component in all three role dashboards. Push sent when: order created (→ business owner), order accepted/picked_up/delivered (→ customer). Users can subscribe/unsubscribe with one click.
+  - API: `GET /api/push/vapid-public-key`, `POST /api/push/subscribe`, `DELETE /api/push/unsubscribe`
+  - DB: `push_subscriptions`, `settings` tables
+- **WhatsApp Integration**: Order Detail page has a "Negocio" card with two buttons: "Chat" (opens WhatsApp with pre-filled message to business) and "Compartir" (creates a WhatsApp share of order details). Driver WhatsApp contact already existed. All deep-linked via `wa.me` (no API key needed).
+
 ## Wave 2 Features (implemented)
 - **Proof of delivery**: Driver uploads a photo when marking order as delivered. Photo stored via object storage, shown in customer OrderDetail. Active order card in driver Jobs page with "Mark Picked Up" → "Mark Delivered" + photo flow.
 - **Business analytics**: `GET /api/businesses/mine/analytics` — 7-day stats (revenue, orders, avg). Bar chart + top 5 products. Accessible from business dashboard.

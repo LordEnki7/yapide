@@ -3,6 +3,9 @@ import { eq, and, desc } from "drizzle-orm";
 import { db, ordersTable, orderItemsTable, businessesTable, usersTable, driversTable, productsTable, walletTransactionsTable, pointsTransactionsTable } from "@workspace/db";
 import { CreateOrderBody, UpdateOrderStatusBody, RateOrderBody, ListOrdersQueryParams } from "@workspace/api-zod";
 import { calculateFees, CASH_LIMIT } from "../lib/dispatch";
+import { sendPushToUser } from "../lib/push";
+
+const formatDOP = (n: number) => `RD$ ${Math.round(n).toLocaleString("es-DO")}`;
 
 const router: IRouter = Router();
 
@@ -181,7 +184,14 @@ router.post("/orders", async (req, res): Promise<void> => {
     });
   }
 
-  res.status(201).json(await formatOrder(order));
+  const formatted = await formatOrder(order);
+
+  const [biz] = await db.select({ userId: businessesTable.userId, name: businessesTable.name }).from(businessesTable).where(eq(businessesTable.id, businessId));
+  if (biz) {
+    sendPushToUser(biz.userId, "🛍️ Nuevo pedido", `Pedido #${order.id} — ${formatDOP(order.totalAmount)}`, "/business/orders").catch(() => {});
+  }
+
+  res.status(201).json(formatted);
 });
 
 router.patch("/orders/:orderId/status", async (req, res): Promise<void> => {
@@ -244,6 +254,16 @@ router.patch("/orders/:orderId/status", async (req, res): Promise<void> => {
         });
       }
     }
+  }
+
+  const statusPushMap: Record<string, { title: string; body: string; url: string }> = {
+    accepted: { title: "✅ Pedido aceptado", body: `Tu pedido #${order.id} fue aceptado. ¡En camino!`, url: `/customer/orders/${order.id}` },
+    picked_up: { title: "🛵 Pedido recogido", body: `Tu pedido #${order.id} está en camino. ¡Ya llegó!`, url: `/customer/orders/${order.id}` },
+    delivered: { title: "🎉 ¡Pedido entregado!", body: `Tu pedido #${order.id} fue entregado. ¡Buen provecho!`, url: `/customer/orders/${order.id}` },
+  };
+  const pushInfo = statusPushMap[parsed.data.status];
+  if (pushInfo) {
+    sendPushToUser(order.customerId, pushInfo.title, pushInfo.body, pushInfo.url).catch(() => {});
   }
 
   res.json(await formatOrder(order));

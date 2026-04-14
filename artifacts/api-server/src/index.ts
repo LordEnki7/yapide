@@ -1,5 +1,6 @@
 import app from "./app";
 import { logger } from "./lib/logger";
+import { initPush } from "./lib/push";
 
 const rawPort = process.env["PORT"];
 
@@ -14,6 +15,8 @@ const port = Number(rawPort);
 if (Number.isNaN(port) || port <= 0) {
   throw new Error(`Invalid PORT value: "${rawPort}"`);
 }
+
+initPush().catch((err) => logger.warn({ err }, "Push init failed — continuing without push"));
 
 app.listen(port, (err) => {
   if (err) {
