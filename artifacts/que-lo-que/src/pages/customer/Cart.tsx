@@ -36,7 +36,8 @@ const STEPS = [
 ];
 
 export default function CustomerCart() {
-  const { items, removeItem, updateQuantity, clearCart, totalAmount, businessId } = useCart();
+  const { items, removeItem, updateQuantity, clearCart, totalAmount, businessId, businessCategory } = useCart();
+  const isLaundry = businessCategory === "laundry";
   const [step, setStep] = useState<Step>(1);
   const [notes, setNotes] = useState("");
   const [address, setAddress] = useState("");
@@ -48,6 +49,7 @@ export default function CustomerCart() {
   const [savedAddresses, setSavedAddresses] = useState<SavedAddress[]>([]);
   const [showAddressDropdown, setShowAddressDropdown] = useState(false);
   const [showSaveForm, setShowSaveForm] = useState(false);
+  const [pickupAddress, setPickupAddress] = useState("");
   const [gpsLoading, setGpsLoading] = useState(false);
   const [, navigate] = useLocation();
   const { toast } = useToast();
@@ -156,6 +158,10 @@ export default function CustomerCart() {
       toast({ title: t.missingAddress, description: t.addressRequired, variant: "destructive" });
       return;
     }
+    if (isLaundry && !pickupAddress.trim()) {
+      toast({ title: "Dirección de recogida requerida", description: "Indica dónde recoger tu ropa", variant: "destructive" });
+      return;
+    }
     if (!businessId) return;
     (createOrder.mutate as any)({
       businessId,
@@ -166,6 +172,8 @@ export default function CustomerCart() {
       items: items.map(i => ({ productId: i.productId!, quantity: i.quantity })),
       promoCode: appliedPromo?.code,
       promoDiscount,
+      orderType: isLaundry ? "laundry" : "delivery",
+      pickupAddress: isLaundry ? pickupAddress : undefined,
     });
   };
 
@@ -204,7 +212,7 @@ export default function CustomerCart() {
           <h1 className="text-base font-black text-yellow-400">
             {step === 1 && t.yourOrder}
             {step === 2 && "Notas al negocio"}
-            {step === 3 && t.deliveryAddress}
+            {step === 3 && (isLaundry ? "Direcciones de recogida" : t.deliveryAddress)}
             {step === 4 && t.paymentMethod}
           </h1>
         </div>
@@ -334,10 +342,55 @@ export default function CustomerCart() {
         {/* ── STEP 3: Address ── */}
         {step === 3 && (
           <div className="px-4 py-6 space-y-4">
-            <div className="text-center mb-2">
-              <p className="text-3xl mb-2">📍</p>
-              <h2 className="text-xl font-black">¿A dónde te lo llevamos?</h2>
-            </div>
+            {isLaundry ? (
+              <div className="text-center mb-2">
+                <p className="text-3xl mb-2">👕</p>
+                <h2 className="text-xl font-black">Recogida y entrega</h2>
+                <p className="text-sm text-gray-400 mt-1">Indicamos al driver dónde pasar por tu ropa y dónde llevarla</p>
+              </div>
+            ) : (
+              <div className="text-center mb-2">
+                <p className="text-3xl mb-2">📍</p>
+                <h2 className="text-xl font-black">¿A dónde te lo llevamos?</h2>
+              </div>
+            )}
+
+            {/* Laundry: pickup address */}
+            {isLaundry && (
+              <div className="space-y-2">
+                <p className="text-xs font-black text-yellow-400 uppercase tracking-widest flex items-center gap-1.5">
+                  <span>📤</span> ¿Dónde recogemos la ropa?
+                </p>
+                <div className="flex gap-2">
+                  <Input
+                    placeholder="Ej: Calle Beller #22, Santiago"
+                    value={pickupAddress}
+                    onChange={(e) => setPickupAddress(e.target.value)}
+                    className="bg-white/8 border-white/10 text-white placeholder:text-gray-500 focus:border-yellow-400 flex-1 text-base"
+                    autoFocus
+                  />
+                  <button
+                    type="button"
+                    onClick={async () => {
+                      setGpsLoading(true);
+                      try {
+                        const loc = await requestGPS();
+                        if (loc.address) setPickupAddress(loc.address);
+                      } catch { }
+                      finally { setGpsLoading(false); }
+                    }}
+                    disabled={gpsLoading}
+                    className="px-4 rounded-xl bg-yellow-400/10 border border-yellow-400/30 text-yellow-400 hover:bg-yellow-400/20 transition disabled:opacity-50 flex items-center"
+                  >
+                    {gpsLoading ? <Loader2 size={16} className="animate-spin" /> : <Navigation size={16} />}
+                  </button>
+                </div>
+                <div className="my-1 border-t border-white/5" />
+                <p className="text-xs font-black text-yellow-400 uppercase tracking-widest flex items-center gap-1.5">
+                  <span>📥</span> ¿A dónde entregamos limpia?
+                </p>
+              </div>
+            )}
 
             {savedAddresses.length > 0 && (
               <div>
@@ -562,9 +615,15 @@ export default function CustomerCart() {
               </div>
               {/* Address + notes summary */}
               <div className="border-t border-white/5 pt-2 space-y-1 mt-1">
+                {isLaundry && pickupAddress && (
+                  <div className="flex items-start gap-2">
+                    <span className="text-[10px] flex-shrink-0 mt-0.5">📤</span>
+                    <p className="text-xs text-gray-500 leading-snug">Recogida: {pickupAddress}</p>
+                  </div>
+                )}
                 <div className="flex items-start gap-2">
                   <MapPin size={12} className="text-yellow-400/60 mt-0.5 flex-shrink-0" />
-                  <p className="text-xs text-gray-500 leading-snug">{address}</p>
+                  <p className="text-xs text-gray-500 leading-snug">{isLaundry ? `Entrega: ${address}` : address}</p>
                 </div>
                 {notes && (
                   <div className="flex items-start gap-2">
@@ -586,6 +645,10 @@ export default function CustomerCart() {
             onClick={() => {
               if (step === 3 && !address.trim()) {
                 toast({ title: t.missingAddress, description: t.addressRequired, variant: "destructive" });
+                return;
+              }
+              if (step === 3 && isLaundry && !pickupAddress.trim()) {
+                toast({ title: "Dirección de recogida requerida", description: "Indica dónde recoger tu ropa", variant: "destructive" });
                 return;
               }
               setStep((step + 1) as Step);

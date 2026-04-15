@@ -45,7 +45,7 @@ export default function BusinessStore() {
     if (existing) {
       updateQuantity(product.id, existing.quantity + 1);
     } else {
-      addItem(product, 1);
+      addItem(product, 1, business?.category ?? undefined);
     }
   };
 
@@ -93,7 +93,7 @@ export default function BusinessStore() {
     if (existing) {
       updateQuantity(selectedProduct.id, sheetQty);
     } else {
-      addItem(selectedProduct, sheetQty);
+      addItem(selectedProduct, sheetQty, business?.category ?? undefined);
     }
     closeSheet();
   };

@@ -8,7 +8,8 @@ type CartItem = OrderItemInput & {
 interface CartContextType {
   items: CartItem[];
   businessId: number | null;
-  addItem: (product: Product, quantity: number) => void;
+  businessCategory: string | null;
+  addItem: (product: Product, quantity: number, category?: string) => void;
   removeItem: (productId: number) => void;
   updateQuantity: (productId: number, quantity: number) => void;
   clearCart: () => void;
@@ -36,6 +37,14 @@ export function CartProvider({ children }: { children: ReactNode }) {
     }
   });
 
+  const [businessCategory, setBusinessCategory] = useState<string | null>(() => {
+    try {
+      return localStorage.getItem("qlq_cart_category") ?? null;
+    } catch {
+      return null;
+    }
+  });
+
   useEffect(() => {
     localStorage.setItem("qlq_cart", JSON.stringify(items));
     if (businessId) {
@@ -43,17 +52,23 @@ export function CartProvider({ children }: { children: ReactNode }) {
     } else {
       localStorage.removeItem("qlq_cart_business");
     }
-  }, [items, businessId]);
+    if (businessCategory) {
+      localStorage.setItem("qlq_cart_category", businessCategory);
+    } else {
+      localStorage.removeItem("qlq_cart_category");
+    }
+  }, [items, businessId, businessCategory]);
 
-  const addItem = (product: Product, quantity: number) => {
+  const addItem = (product: Product, quantity: number, category?: string) => {
     setItems((current) => {
       if (businessId !== null && businessId !== product.businessId) {
-        // Reset cart if adding from a different business
         setBusinessId(product.businessId);
+        setBusinessCategory(category ?? null);
         return [{ productId: product.id, quantity, product }];
       }
 
       setBusinessId(product.businessId);
+      if (category) setBusinessCategory(category);
       const existing = current.find((item) => item.productId === product.id);
       if (existing) {
         return current.map((item) =>
@@ -89,6 +104,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const clearCart = () => {
     setItems([]);
     setBusinessId(null);
+    setBusinessCategory(null);
   };
 
   const totalAmount = items.reduce(
@@ -101,6 +117,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
       value={{
         items,
         businessId,
+        businessCategory,
         addItem,
         removeItem,
         updateQuantity,

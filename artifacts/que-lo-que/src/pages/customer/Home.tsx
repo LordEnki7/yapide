@@ -34,6 +34,12 @@ const CATEGORIES = [
     labelEn: "Liquor Store",
     photo: "https://images.unsplash.com/photo-1569529465841-dfecdab7503b?w=700&q=80",
   },
+  {
+    key: "laundry",
+    label: "Lavandería",
+    labelEn: "Laundry",
+    photo: "https://images.unsplash.com/photo-1582735689369-4fe89db7114c?w=700&q=80",
+  },
 ];
 
 export default function CustomerHome() {

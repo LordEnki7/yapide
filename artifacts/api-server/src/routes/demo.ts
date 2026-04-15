@@ -175,6 +175,25 @@ router.post("/demo/seed", async (_req, res): Promise<void> => {
           { name: "Café con leche", description: "Café dominicano caliente", price: 85, category: "Bebidas" },
         ],
       },
+      {
+        name: "Lavandería El Brillo",
+        category: "laundry",
+        address: "Calle Beller #18, Santiago",
+        phone: "809-971-4488",
+        imageUrl: "https://images.unsplash.com/photo-1582735689369-4fe89db7114c?w=800&q=80",
+        rating: 4.9,
+        isOpen: true,
+        prepTimeMinutes: 120,
+        products: [
+          { name: "Lavado Normal (hasta 5lb)", description: "Ropa casual, lavado y secado", price: 350, category: "Lavado" },
+          { name: "Lavado Delicado (hasta 5lb)", description: "Ropa delicada, ciclo suave", price: 420, category: "Lavado" },
+          { name: "Lavado XL (hasta 10lb)", description: "Colchas, cobijas, ropa en cantidad", price: 620, category: "Lavado" },
+          { name: "Planchado (hasta 5 prendas)", description: "Planchado profesional a vapor", price: 280, category: "Planchado" },
+          { name: "Lavado + Planchado (hasta 5lb)", description: "Paquete completo ropa casual", price: 580, category: "Paquetes" },
+          { name: "Traje o Vestido Formal", description: "Limpieza en seco con entrega en funda", price: 750, category: "En Seco" },
+          { name: "Uniforme Escolar x3", description: "Lavado, secado y planchado de uniforme", price: 390, category: "Especiales" },
+        ],
+      },
     ];
 
     const createdBusinesses: typeof businessesTable.$inferSelect[] = [];
@@ -207,7 +226,7 @@ router.post("/demo/seed", async (_req, res): Promise<void> => {
       createdBusinesses.push(bizRecord);
     }
 
-    const [pollosBiz, colmadoBiz, farmaciaBiz, pizzaBiz, panaderaBiz] = createdBusinesses;
+    const [pollosBiz, colmadoBiz, farmaciaBiz, pizzaBiz, panaderaBiz, _laundryBiz] = createdBusinesses;
 
     // Seed orders only if none exist for demo customer
     const existingOrders = await db.select().from(ordersTable).where(eq(ordersTable.customerId, customerUser.id));

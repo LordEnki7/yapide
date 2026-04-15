@@ -41,6 +41,8 @@ async function formatOrder(order: typeof ordersTable.$inferSelect) {
     deliveryPhotoPath: order.deliveryPhotoPath,
     promoCode: order.promoCode,
     promoDiscount: order.promoDiscount,
+    orderType: order.orderType,
+    pickupAddress: order.pickupAddress,
     createdAt: order.createdAt,
     items: items.map(i => ({
       id: i.id,
@@ -134,7 +136,7 @@ router.post("/orders", async (req, res): Promise<void> => {
   const parsed = CreateOrderBody.safeParse(req.body);
   if (!parsed.success) { res.status(400).json({ error: parsed.error.message }); return; }
 
-  const { businessId, paymentMethod, deliveryAddress, notes, items, tip = 0 } = parsed.data as any;
+  const { businessId, paymentMethod, deliveryAddress, notes, items, tip = 0, orderType = "delivery", pickupAddress } = parsed.data as any;
 
   let baseAmount = 0;
   const itemDetails: Array<{ productId: number; productName: string; quantity: number; price: number }> = [];
@@ -166,6 +168,8 @@ router.post("/orders", async (req, res): Promise<void> => {
     tip: tip ?? 0,
     status: "pending",
     isPaid: paymentMethod === "card",
+    orderType: orderType ?? "delivery",
+    pickupAddress: pickupAddress ?? null,
   }).returning();
 
   for (const item of itemDetails) {

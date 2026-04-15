@@ -370,6 +370,8 @@ export const CreateOrderBody = zod.object({
   deliveryAddress: zod.string(),
   notes: zod.string().optional(),
   tip: zod.number().optional(),
+  orderType: zod.enum(["delivery", "laundry"]).optional(),
+  pickupAddress: zod.string().optional(),
   items: zod.array(
     zod.object({
       productId: zod.number(),

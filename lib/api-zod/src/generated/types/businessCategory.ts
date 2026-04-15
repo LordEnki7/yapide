@@ -14,4 +14,5 @@ export const BusinessCategory = {
   supermarket: "supermarket",
   pharmacy: "pharmacy",
   liquor: "liquor",
+  laundry: "laundry",
 } as const;

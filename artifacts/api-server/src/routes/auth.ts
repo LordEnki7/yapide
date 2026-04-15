@@ -95,6 +95,17 @@ router.put("/auth/me", async (req, res): Promise<void> => {
   res.json(formatUser(updated));
 });
 
+router.delete("/auth/me", async (req, res): Promise<void> => {
+  const sessionUserId = (req.session as any)?.userId;
+  if (!sessionUserId) {
+    res.status(401).json({ error: "Not authenticated" });
+    return;
+  }
+  await db.delete(usersTable).where(eq(usersTable.id, sessionUserId));
+  (req.session as any).userId = undefined;
+  res.json({ success: true });
+});
+
 router.post("/auth/logout", async (req, res): Promise<void> => {
   (req.session as any).userId = undefined;
   res.json({ success: true });

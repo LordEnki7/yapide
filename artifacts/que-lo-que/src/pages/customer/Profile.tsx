@@ -10,7 +10,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
 import { useQueryClient } from "@tanstack/react-query";
 import RoleSwitcher from "@/components/RoleSwitcher";
-import { ArrowLeft, User, Phone, Mail, MapPin, LogOut, Edit2, Check, X, Trash2, Star } from "lucide-react";
+import { ArrowLeft, User, Phone, Mail, MapPin, LogOut, Edit2, Check, X, Trash2, Star, AlertTriangle } from "lucide-react";
 
 interface SavedAddress {
   id: number;
@@ -31,6 +31,8 @@ export default function CustomerProfile() {
   const [saving, setSaving] = useState(false);
   const [addresses, setAddresses] = useState<SavedAddress[]>([]);
   const [deletingId, setDeletingId] = useState<number | null>(null);
+  const [showDeleteAccount, setShowDeleteAccount] = useState(false);
+  const [deletingAccount, setDeletingAccount] = useState(false);
 
   useEffect(() => {
     fetch("/api/customer/addresses", { credentials: "include" })
@@ -111,6 +113,18 @@ export default function CustomerProfile() {
   const handleLogout = () => {
     clearStoredUser();
     window.location.href = "/";
+  };
+
+  const handleDeleteAccount = async () => {
+    setDeletingAccount(true);
+    try {
+      await fetch("/api/auth/me", { method: "DELETE", credentials: "include" });
+      clearStoredUser();
+      window.location.href = "/";
+    } catch {
+      toast({ title: "Error al eliminar cuenta", variant: "destructive" });
+      setDeletingAccount(false);
+    }
   };
 
   const displayName = me?.name ?? storedUser?.name ?? "—";
@@ -306,6 +320,40 @@ export default function CustomerProfile() {
           <LogOut size={16} />
           Cerrar sesión
         </Button>
+
+        {/* Delete account */}
+        {!showDeleteAccount ? (
+          <button
+            onClick={() => setShowDeleteAccount(true)}
+            className="w-full text-xs text-gray-600 hover:text-red-400 transition text-center py-2"
+          >
+            Eliminar mi cuenta
+          </button>
+        ) : (
+          <div className="bg-red-500/10 border border-red-500/30 rounded-2xl p-4 space-y-3">
+            <div className="flex items-center gap-2">
+              <AlertTriangle size={16} className="text-red-400 flex-shrink-0" />
+              <p className="text-sm font-bold text-red-400">¿Eliminar cuenta permanentemente?</p>
+            </div>
+            <p className="text-xs text-gray-400">Esta acción no se puede deshacer. Se eliminarán todos tus datos.</p>
+            <div className="flex gap-2">
+              <Button
+                onClick={handleDeleteAccount}
+                disabled={deletingAccount}
+                className="flex-1 bg-red-500 hover:bg-red-600 text-white font-bold h-10 text-sm"
+              >
+                {deletingAccount ? "Eliminando..." : "Sí, eliminar"}
+              </Button>
+              <Button
+                onClick={() => setShowDeleteAccount(false)}
+                variant="outline"
+                className="flex-1 border-white/20 text-gray-300 font-bold h-10 text-sm"
+              >
+                Cancelar
+              </Button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
