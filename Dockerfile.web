@@ -23,7 +23,7 @@ RUN pnpm --filter @workspace/que-lo-que run build
 
 FROM nginx:alpine AS runner
 
-COPY --from=base /app/artifacts/que-lo-que/dist /usr/share/nginx/html
+COPY --from=base /app/artifacts/que-lo-que/dist/public /usr/share/nginx/html
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 
 EXPOSE 80
