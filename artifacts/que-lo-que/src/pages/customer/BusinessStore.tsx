@@ -7,7 +7,7 @@ import { useLang } from "@/lib/lang";
 import LangToggle from "@/components/LangToggle";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ArrowLeft, Star, ShoppingCart, Plus, Minus, X, ShoppingBag } from "lucide-react";
+import { ArrowLeft, Star, ShoppingCart, Plus, Minus, X, ShoppingBag, Scale, Package, Check } from "lucide-react";
 
 const MARKUP = 0.15;
 
@@ -34,6 +34,21 @@ export default function BusinessStore() {
     businessId,
     { query: { enabled: !!businessId, queryKey: getListProductsQueryKey(businessId) } }
   );
+
+  const isLaundry = business?.category === "laundry";
+  const [laundryMode, setLaundryMode] = useState<"bolsa" | "libra">("bolsa");
+  const [selectedService, setSelectedService] = useState<any>(null);
+  const [libras, setLibras] = useState(3);
+
+  const bolsaProducts = useMemo(() => (products ?? []).filter(p => p.category === "Por Bolsa" && p.isAvailable), [products]);
+  const libraProducts = useMemo(() => (products ?? []).filter(p => p.category === "Por Libra" && p.isAvailable), [products]);
+
+  const handleAddLibras = () => {
+    if (!selectedService) return;
+    addItem({ ...selectedService, businessId: businessId } as any, libras, business?.category ?? undefined);
+    setSelectedService(null);
+    setLibras(3);
+  };
 
   const cartCount = items.reduce((s, i) => s + i.quantity, 0);
   const cartTotal = parseFloat((totalAmount * (1 + MARKUP)).toFixed(2));
@@ -158,6 +173,209 @@ export default function BusinessStore() {
         </div>
       )}
 
+      {/* ── LAUNDRY MODE TOGGLE ── */}
+      {isLaundry && !prodsLoading && (
+        <div className="px-4 pt-4 pb-2">
+          <div className="flex gap-2 bg-white/5 border border-white/10 rounded-2xl p-1.5">
+            <button
+              onClick={() => { setLaundryMode("bolsa"); setSelectedService(null); }}
+              className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl font-black text-sm transition-all ${
+                laundryMode === "bolsa"
+                  ? "bg-yellow-400 text-black shadow-[0_0_16px_rgba(255,215,0,0.3)]"
+                  : "text-gray-400 hover:text-white"
+              }`}
+            >
+              <Package size={16} />
+              Por Bolsa
+            </button>
+            <button
+              onClick={() => { setLaundryMode("libra"); setSelectedService(null); }}
+              className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl font-black text-sm transition-all ${
+                laundryMode === "libra"
+                  ? "bg-yellow-400 text-black shadow-[0_0_16px_rgba(255,215,0,0.3)]"
+                  : "text-gray-400 hover:text-white"
+              }`}
+            >
+              <Scale size={16} />
+              Por Libra
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* ── LAUNDRY: POR BOLSA ── */}
+      {isLaundry && laundryMode === "bolsa" && (
+        <div className="px-4 pt-2 pb-4 space-y-3">
+          <p className="text-xs text-gray-500 text-center">Precio fijo — incluye lavado, secado y doblado</p>
+          {prodsLoading ? (
+            [1,2,3].map(i => <Skeleton key={i} className="h-28 bg-white/8 rounded-2xl" />)
+          ) : bolsaProducts.map(product => {
+            const cartItem = getCartItem(product.id);
+            const inCart = !!cartItem;
+            return (
+              <div
+                key={product.id}
+                className={`rounded-2xl border-2 transition-all p-4 ${
+                  inCart
+                    ? "border-yellow-400 bg-yellow-400/10 shadow-[0_0_20px_rgba(255,215,0,0.15)]"
+                    : "border-white/10 bg-white/5 hover:border-white/20"
+                }`}
+              >
+                <div className="flex items-center gap-4">
+                  <div className="w-14 h-14 rounded-xl bg-yellow-400/10 border border-yellow-400/20 flex items-center justify-center flex-shrink-0 text-2xl">
+                    🛍️
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className={`font-black text-base leading-tight ${inCart ? "text-yellow-400" : "text-white"}`}>{product.name}</p>
+                    {product.description && (
+                      <p className="text-gray-400 text-xs mt-0.5 line-clamp-2">{product.description}</p>
+                    )}
+                    <p className={`font-black text-lg mt-1 ${inCart ? "text-yellow-400" : "text-white"}`}>
+                      {formatDOP(customerPrice(product.price))}
+                    </p>
+                  </div>
+                  <div className="flex-shrink-0" onClick={e => e.stopPropagation()}>
+                    {inCart ? (
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => handleRemove(product.id)}
+                          disabled={business?.isOpen === false}
+                          className="w-9 h-9 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition disabled:opacity-30"
+                        >
+                          <Minus size={14} />
+                        </button>
+                        <span className="text-sm font-black text-yellow-400 w-5 text-center">{cartItem.quantity}</span>
+                        <button
+                          onClick={() => handleAdd(product)}
+                          disabled={business?.isOpen === false}
+                          className="w-9 h-9 rounded-full bg-yellow-400 flex items-center justify-center hover:bg-yellow-300 transition shadow-[0_0_10px_rgba(255,215,0,0.4)] disabled:opacity-30"
+                        >
+                          <Plus size={14} className="text-black" />
+                        </button>
+                      </div>
+                    ) : (
+                      <button
+                        onClick={() => handleAdd(product)}
+                        disabled={business?.isOpen === false}
+                        className="w-10 h-10 rounded-full bg-yellow-400 flex items-center justify-center hover:bg-yellow-300 transition shadow-[0_0_14px_rgba(255,215,0,0.4)] disabled:opacity-30"
+                      >
+                        <Plus size={18} className="text-black" />
+                      </button>
+                    )}
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      {/* ── LAUNDRY: POR LIBRA ── */}
+      {isLaundry && laundryMode === "libra" && (
+        <div className="px-4 pt-2 pb-4 space-y-4">
+          <p className="text-xs text-gray-500 text-center">Selecciona el servicio y estima cuántas libras tienes</p>
+
+          {/* Service selector grid */}
+          {prodsLoading ? (
+            <div className="grid grid-cols-2 gap-3">
+              {[1,2,3,4].map(i => <Skeleton key={i} className="h-24 bg-white/8 rounded-2xl" />)}
+            </div>
+          ) : (
+            <div className="grid grid-cols-2 gap-3">
+              {libraProducts.map(product => {
+                const isSelected = selectedService?.id === product.id;
+                return (
+                  <button
+                    key={product.id}
+                    onClick={() => setSelectedService(isSelected ? null : product)}
+                    className={`rounded-2xl border-2 p-4 text-left transition-all ${
+                      isSelected
+                        ? "border-yellow-400 bg-yellow-400/10 shadow-[0_0_16px_rgba(255,215,0,0.2)]"
+                        : "border-white/10 bg-white/5 hover:border-white/25"
+                    }`}
+                  >
+                    <div className="flex items-start justify-between gap-1 mb-1.5">
+                      <p className={`font-black text-sm leading-tight ${isSelected ? "text-yellow-400" : "text-white"}`}>
+                        {product.name.replace(" /lb", "")}
+                      </p>
+                      {isSelected && <Check size={14} className="text-yellow-400 flex-shrink-0 mt-0.5" />}
+                    </div>
+                    <p className={`font-black text-base ${isSelected ? "text-yellow-400" : "text-white"}`}>
+                      {formatDOP(customerPrice(product.price))}<span className="text-xs font-bold text-gray-400">/lb</span>
+                    </p>
+                  </button>
+                );
+              })}
+            </div>
+          )}
+
+          {/* Libra stepper — only show when a service is selected */}
+          {selectedService && (
+            <div className="bg-white/5 border border-yellow-400/30 rounded-2xl p-4 space-y-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="font-black text-white text-sm">{selectedService.name.replace(" /lb", "")}</p>
+                  <p className="text-xs text-gray-400">{formatDOP(customerPrice(selectedService.price))} × {libras} lb</p>
+                </div>
+                <p className="font-black text-yellow-400 text-xl">
+                  {formatDOP(customerPrice(selectedService.price) * libras)}
+                </p>
+              </div>
+
+              {/* Stepper */}
+              <div>
+                <p className="text-xs text-gray-400 text-center mb-2">¿Cuántas libras estimas?</p>
+                <div className="flex items-center justify-center gap-4">
+                  <button
+                    onClick={() => setLibras(l => Math.max(1, l - 1))}
+                    className="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition font-black text-xl"
+                  >
+                    −
+                  </button>
+                  <div className="text-center">
+                    <p className="text-4xl font-black text-white w-16">{libras}</p>
+                    <p className="text-xs text-gray-500">libras</p>
+                  </div>
+                  <button
+                    onClick={() => setLibras(l => l + 1)}
+                    className="w-12 h-12 rounded-full bg-yellow-400 flex items-center justify-center hover:bg-yellow-300 transition shadow-[0_0_16px_rgba(255,215,0,0.4)]"
+                  >
+                    <Plus size={22} className="text-black" />
+                  </button>
+                </div>
+                {/* Quick libra buttons */}
+                <div className="flex gap-2 justify-center mt-3">
+                  {[3, 5, 8, 10, 15].map(n => (
+                    <button
+                      key={n}
+                      onClick={() => setLibras(n)}
+                      className={`px-3 py-1 rounded-full text-xs font-black border transition ${
+                        libras === n
+                          ? "bg-yellow-400 text-black border-yellow-400"
+                          : "border-white/20 bg-white/5 text-gray-400 hover:border-yellow-400/40"
+                      }`}
+                    >
+                      {n} lb
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <Button
+                onClick={handleAddLibras}
+                disabled={business?.isOpen === false}
+                className="w-full bg-yellow-400 text-black font-black h-13 hover:bg-yellow-300 shadow-[0_0_24px_rgba(255,215,0,0.3)] gap-2 text-base disabled:opacity-40"
+              >
+                <ShoppingBag size={18} />
+                Agregar {libras} lb · {formatDOP(customerPrice(selectedService.price) * libras)}
+              </Button>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* ── REGULAR (non-laundry): category chips + product list ── */}
+      {!isLaundry && <>
       {/* Category chip scroll */}
       {!prodsLoading && categories.length > 1 && (
         <div className="flex gap-2 overflow-x-auto px-4 py-3 scrollbar-none border-b border-white/5">
@@ -276,6 +494,7 @@ export default function BusinessStore() {
           </div>
         )}
       </div>
+      </>}
 
       {/* Sticky View Order button */}
       {cartCount > 0 && (

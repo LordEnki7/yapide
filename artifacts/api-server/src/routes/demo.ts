@@ -185,13 +185,13 @@ router.post("/demo/seed", async (_req, res): Promise<void> => {
         isOpen: true,
         prepTimeMinutes: 120,
         products: [
-          { name: "Lavado Normal (hasta 5lb)", description: "Ropa casual, lavado y secado", price: 350, category: "Lavado" },
-          { name: "Lavado Delicado (hasta 5lb)", description: "Ropa delicada, ciclo suave", price: 420, category: "Lavado" },
-          { name: "Lavado XL (hasta 10lb)", description: "Colchas, cobijas, ropa en cantidad", price: 620, category: "Lavado" },
-          { name: "Planchado (hasta 5 prendas)", description: "Planchado profesional a vapor", price: 280, category: "Planchado" },
-          { name: "Lavado + Planchado (hasta 5lb)", description: "Paquete completo ropa casual", price: 580, category: "Paquetes" },
-          { name: "Traje o Vestido Formal", description: "Limpieza en seco con entrega en funda", price: 750, category: "En Seco" },
-          { name: "Uniforme Escolar x3", description: "Lavado, secado y planchado de uniforme", price: 390, category: "Especiales" },
+          { name: "Bolsa Pequeña (~3 lb)", description: "Ideal para ropa de 2–3 días. Lavado, secado y doblado incluido.", price: 420, category: "Por Bolsa" },
+          { name: "Bolsa Mediana (~6 lb)", description: "Perfecta para una semana de ropa casual.", price: 780, category: "Por Bolsa" },
+          { name: "Bolsa Grande (~10+ lb)", description: "Colchas, cobijas, uniformes o ropa de toda la semana.", price: 1150, category: "Por Bolsa" },
+          { name: "Lavado Normal /lb", description: "Ropa casual — lavado, secado y doblado. Precio por libra.", price: 65, category: "Por Libra" },
+          { name: "Lavado Delicado /lb", description: "Ropa fina, ciclo suave y temperatura controlada.", price: 85, category: "Por Libra" },
+          { name: "Lavado en Seco /lb", description: "Limpieza en seco profesional, entrega en funda.", price: 145, category: "Por Libra" },
+          { name: "Planchado /lb", description: "Planchado a vapor profesional para una presentación impecable.", price: 55, category: "Por Libra" },
         ],
       },
     ];
@@ -204,6 +204,17 @@ router.post("/demo/seed", async (_req, res): Promise<void> => {
       let bizRecord: typeof businessesTable.$inferSelect;
       if (existing) {
         bizRecord = existing;
+        // For laundry: refresh products if they're the old format (no "Por Bolsa" category)
+        if (biz.category === "laundry") {
+          const existingProds = await db.select().from(productsTable).where(eq(productsTable.businessId, bizRecord.id));
+          const hasNewFormat = existingProds.some(p => p.category === "Por Bolsa");
+          if (!hasNewFormat) {
+            await db.delete(productsTable).where(eq(productsTable.businessId, bizRecord.id));
+            for (const p of biz.products) {
+              await db.insert(productsTable).values({ businessId: bizRecord.id, ...p, isAvailable: true });
+            }
+          }
+        }
       } else {
         const { products: _p, ...bizData } = biz;
         const [created] = await db.insert(businessesTable).values({
