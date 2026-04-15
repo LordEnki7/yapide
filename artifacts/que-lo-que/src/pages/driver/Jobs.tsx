@@ -321,7 +321,7 @@ export default function DriverJobs() {
                   )}
 
                   <div className="border-t border-white/10 pt-3 flex items-center justify-between mb-3">
-                    <span className="text-sm text-gray-400">{t.total}</span>
+                    <span className="text-sm text-gray-400">{t.earningsTotal}</span>
                     <span className="font-bold text-white">{formatDOP(job.totalAmount + job.deliveryFee)}</span>
                   </div>
 
@@ -340,7 +340,7 @@ export default function DriverJobs() {
                       data-testid={`button-accept-${job.id}`}
                     >
                       {accept.isPending ? <Loader2 size={14} className="animate-spin mr-1" /> : null}
-                      {t.accept}
+                      {t.acceptJob}
                     </Button>
                   </div>
                 </div>

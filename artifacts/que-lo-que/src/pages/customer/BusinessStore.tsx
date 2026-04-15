@@ -186,7 +186,7 @@ export default function BusinessStore() {
         ) : categories.length === 0 ? (
           <div className="text-center py-12">
             <p className="text-3xl mb-2">🤷</p>
-            <p className="text-gray-400">{t.noProducts}</p>
+            <p className="text-gray-400">{t.storeNoProducts}</p>
           </div>
         ) : (
           <div className="space-y-6">

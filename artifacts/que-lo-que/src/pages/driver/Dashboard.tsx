@@ -184,7 +184,7 @@ export default function DriverDashboard() {
                 : "bg-white/8 border-yellow-400/40 text-yellow-400 shadow-transparent hover:border-yellow-400 hover:shadow-yellow-400/20"
             } disabled:opacity-50`}
           >
-            {driver?.isOnline ? t.active : t.inactive}
+            {driver?.isOnline ? t.active : t.driverInactive}
           </button>
         </div>
 
@@ -203,7 +203,7 @@ export default function DriverDashboard() {
               <span className="text-xs text-gray-400 font-bold uppercase">{t.wallet}</span>
             </div>
             <p className="text-2xl font-black text-green-400">{formatDOP(driver?.walletBalance ?? 0)}</p>
-            <p className="text-xs text-gray-400">{t.available}</p>
+            <p className="text-xs text-gray-400">{t.walletBalance}</p>
           </div>
         </div>
 
@@ -214,7 +214,7 @@ export default function DriverDashboard() {
               <span className="text-sm font-bold text-white">{t.deliveryStreak}</span>
             </div>
             <Badge className="bg-yellow-400/20 text-yellow-400 border-yellow-400/40 text-xs">
-              {driver?.totalDeliveries ?? 0} {t.total}
+              {driver?.totalDeliveries ?? 0} {t.earningsTotal}
             </Badge>
           </div>
           <Progress value={stats?.bonusProgress ?? 0} className="h-3 mb-2 bg-white/10" />

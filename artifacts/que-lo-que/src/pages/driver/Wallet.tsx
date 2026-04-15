@@ -19,7 +19,7 @@ export default function DriverWallet() {
   const cashLocked = (wallet?.cashBalance ?? 0) >= 10000;
 
   const TRANSACTION_CONFIG: Record<string, { icon: typeof Wallet; label: string; colorClass: string; sign: string }> = {
-    earning: { icon: ArrowUpRight, label: t.earnType, colorClass: "text-green-400", sign: "+" },
+    earning: { icon: ArrowUpRight, label: t.driverEarnType, colorClass: "text-green-400", sign: "+" },
     cash_collected: { icon: ArrowDownRight, label: t.cashType, colorClass: "text-red-400", sign: "-" },
     bonus: { icon: Gift, label: t.bonusType, colorClass: "text-yellow-400", sign: "+" },
     adjustment: { icon: Wallet, label: t.adjustType, colorClass: "text-blue-400", sign: "±" },
@@ -49,7 +49,7 @@ export default function DriverWallet() {
               <div className="bg-green-400/10 border border-green-400/30 rounded-2xl p-4 text-center">
                 <p className="text-xs text-gray-400 uppercase tracking-widest mb-1">{t.wallet}</p>
                 <p className="text-2xl font-black text-green-400">{formatDOP(wallet?.walletBalance ?? 0)}</p>
-                <p className="text-xs text-gray-500">{t.available}</p>
+                <p className="text-xs text-gray-500">{t.walletBalance}</p>
               </div>
               <div className={`rounded-2xl p-4 text-center border ${cashLocked ? "bg-red-500/20 border-red-500/50" : cashOver80 ? "bg-yellow-400/10 border-yellow-400/40" : "bg-white/8 border-white/10"}`}>
                 <p className="text-xs text-gray-400 uppercase tracking-widest mb-1">{t.cashBalance}</p>
