@@ -4,17 +4,31 @@ export default function LangToggle({ className = "" }: { className?: string }) {
   const { lang, setLang } = useLang();
 
   return (
-    <button
-      onClick={() => setLang(lang === "es" ? "en" : "es")}
-      className={`flex items-center gap-0 rounded-lg overflow-hidden border border-yellow-400/30 text-xs font-black transition-all hover:border-yellow-400/60 ${className}`}
-      title={lang === "es" ? "Switch to English" : "Cambiar a Español"}
+    <div
+      className={`flex items-center gap-0 rounded-lg overflow-hidden border border-yellow-400/30 text-xs font-black ${className}`}
     >
-      <span className={`px-2 py-1 transition-colors ${lang === "es" ? "bg-yellow-400 text-black" : "bg-transparent text-gray-400"}`}>
+      <button
+        onClick={() => setLang("es")}
+        className={`px-2 py-1 transition-colors ${
+          lang === "es"
+            ? "bg-yellow-400 text-black"
+            : "bg-transparent text-gray-400 hover:text-gray-200"
+        }`}
+        title="Cambiar a Español"
+      >
         ES
-      </span>
-      <span className={`px-2 py-1 transition-colors ${lang === "en" ? "bg-yellow-400 text-black" : "bg-transparent text-gray-400"}`}>
+      </button>
+      <button
+        onClick={() => setLang("en")}
+        className={`px-2 py-1 transition-colors ${
+          lang === "en"
+            ? "bg-yellow-400 text-black"
+            : "bg-transparent text-gray-400 hover:text-gray-200"
+        }`}
+        title="Switch to English"
+      >
         EN
-      </span>
-    </button>
+      </button>
+    </div>
   );
 }
