@@ -19,25 +19,61 @@ import { requestGPS } from "@/lib/gps";
 const MARKUP = 0.15;
 const DELIVERY_FEE = 150;
 
-function getCashOptions(total: number) {
-  const rounded = Math.ceil(total);
+type CashCurrency = "DOP" | "USD" | "EUR";
+
+const EXCHANGE_RATES: Record<CashCurrency, number> = {
+  DOP: 1,
+  USD: 1 / 60,   // 1 USD ≈ 60 DOP
+  EUR: 1 / 65,   // 1 EUR ≈ 65 DOP
+};
+
+const CURRENCY_BILLS: Record<CashCurrency, number[]> = {
+  DOP: [100, 200, 500, 1000, 2000, 5000],
+  USD: [1, 5, 10, 20, 50, 100],
+  EUR: [5, 10, 20, 50, 100, 200],
+};
+
+const CURRENCY_META: Record<CashCurrency, { flag: string; label: string; symbol: string; decimals: number }> = {
+  DOP: { flag: "🇩🇴", label: "Pesos", symbol: "RD$", decimals: 0 },
+  USD: { flag: "🇺🇸", label: "Dólares", symbol: "$", decimals: 2 },
+  EUR: { flag: "🇪🇺", label: "Euros", symbol: "€", decimals: 2 },
+};
+
+function formatCurrencyAmount(amount: number, currency: CashCurrency) {
+  const { symbol, decimals } = CURRENCY_META[currency];
+  return `${symbol}${amount.toFixed(decimals).replace(/\B(?=(\d{3})+(?!\d))/g, ",")}`;
+}
+
+function getCashOptions(totalDOP: number, currency: CashCurrency) {
+  const rate = EXCHANGE_RATES[currency];
+  const totalInCurrency = totalDOP * rate;
+  const bills = CURRENCY_BILLS[currency];
+  const decimals = CURRENCY_META[currency].decimals;
+
+  // Round up to currency precision
+  const factor = Math.pow(10, decimals);
+  const exactAmount = Math.ceil(totalInCurrency * factor) / factor;
+
   const options: { amount: number; change: number; isExact: boolean }[] = [
-    { amount: rounded, change: 0, isExact: true },
+    { amount: exactAmount, change: 0, isExact: true },
   ];
-  // DR peso bill denominations
-  const bills = [100, 200, 500, 1000, 2000, 5000];
+
   for (const bill of bills) {
-    const needed = Math.ceil(rounded / bill) * bill;
-    if (needed > rounded && !options.find(o => o.amount === needed)) {
-      options.push({ amount: needed, change: needed - rounded, isExact: false });
+    const needed = Math.ceil(exactAmount / bill) * bill;
+    const roundedNeeded = Math.round(needed * factor) / factor;
+    if (roundedNeeded > exactAmount && !options.find(o => Math.abs(o.amount - roundedNeeded) < 0.001)) {
+      options.push({ amount: roundedNeeded, change: Math.round((roundedNeeded - exactAmount) * factor) / factor, isExact: false });
     }
   }
-  // Always include 1000, 2000 if they cover the total and aren't already there
-  for (const big of [1000, 2000, 5000]) {
-    if (big > rounded && !options.find(o => o.amount === big)) {
-      options.push({ amount: big, change: big - rounded, isExact: false });
+
+  // Ensure big useful denominations are included
+  const bigBills = currency === "DOP" ? [1000, 2000] : currency === "USD" ? [20, 50, 100] : [20, 50, 100];
+  for (const big of bigBills) {
+    if (big > exactAmount && !options.find(o => Math.abs(o.amount - big) < 0.001)) {
+      options.push({ amount: big, change: Math.round((big - exactAmount) * factor) / factor, isExact: false });
     }
   }
+
   return options.sort((a, b) => a.amount - b.amount).slice(0, 5);
 }
 
@@ -80,6 +116,7 @@ export default function CustomerCart() {
   const user = getStoredUser();
 
   const [showCutleryModal, setShowCutleryModal] = useState(false);
+  const [cashCurrency, setCashCurrency] = useState<CashCurrency>("DOP");
   const [cashPrepared, setCashPrepared] = useState<number | null>(null);
 
   const [promoInput, setPromoInput] = useState("");
@@ -189,10 +226,10 @@ export default function CustomerCart() {
     }
     if (!businessId) return;
     const cutleryLine = withCutlery === true ? "🍴 Cubiertos: Sí" : withCutlery === false ? "🍴 Cubiertos: No" : "";
-    const cashLine = paymentMethod === "cash" && cashPrepared
-      ? cashPrepared === Math.ceil(grandTotal)
-        ? `💵 Paga con: monto exacto`
-        : `💵 Paga con: ${formatDOP(cashPrepared)} (cambio: ${formatDOP(cashPrepared - grandTotal)})`
+    const cashLine = paymentMethod === "cash" && cashPrepared !== null
+      ? cashPrepared === getCashOptions(grandTotal, cashCurrency)[0]?.amount
+        ? `💵 Paga con: monto exacto en ${CURRENCY_META[cashCurrency].label} (${formatCurrencyAmount(cashPrepared, cashCurrency)})`
+        : `💵 Paga con: ${formatCurrencyAmount(cashPrepared, cashCurrency)} ${CURRENCY_META[cashCurrency].label} — cambio: ${formatCurrencyAmount(cashPrepared - getCashOptions(grandTotal, cashCurrency)[0]?.amount, cashCurrency)}`
       : "";
     const fullNotes = [notes, cutleryLine, cashLine].filter(Boolean).join("\n") || undefined;
     (createOrder.mutate as any)({
@@ -558,59 +595,102 @@ export default function CustomerCart() {
             </div>
 
             {/* Cash change calculator */}
-            {paymentMethod === "cash" && (
-              <div className="rounded-2xl border border-yellow-400/20 bg-yellow-400/5 p-4 space-y-3">
-                <div>
-                  <p className="font-black text-white text-sm">💵 ¿Con cuánto vas a pagar?</p>
-                  <p className="text-xs text-gray-400 mt-0.5">El driver llevará el cambio exacto</p>
-                </div>
-                <div className="space-y-2">
-                  {getCashOptions(grandTotal).map(opt => (
-                    <button
-                      key={opt.amount}
-                      onClick={() => setCashPrepared(opt.amount)}
-                      className={`w-full flex items-center justify-between px-4 py-3 rounded-xl border-2 transition ${
-                        cashPrepared === opt.amount
-                          ? "border-yellow-400 bg-yellow-400/15"
-                          : "border-white/10 bg-white/5 hover:border-yellow-400/40"
-                      }`}
-                    >
-                      <div className="flex items-center gap-2">
-                        <span className="text-sm font-black text-white">
-                          {opt.isExact ? "Monto exacto" : formatDOP(opt.amount)}
-                        </span>
-                        {opt.isExact && (
-                          <span className="text-[10px] font-bold bg-green-500/20 text-green-400 border border-green-500/30 rounded-full px-2 py-0.5">
-                            Exacto
-                          </span>
-                        )}
-                      </div>
-                      <div className="text-right">
-                        {opt.isExact ? (
-                          <span className="text-xs text-green-400 font-bold">{formatDOP(grandTotal)}</span>
-                        ) : (
-                          <div>
-                            <p className="text-xs text-gray-400">Cambio</p>
-                            <p className="text-sm font-black text-yellow-400">{formatDOP(opt.change)}</p>
-                          </div>
-                        )}
-                      </div>
-                      {cashPrepared === opt.amount && (
-                        <Check size={16} className="text-yellow-400 ml-2 flex-shrink-0" />
-                      )}
-                    </button>
-                  ))}
-                </div>
-                {cashPrepared && cashPrepared > grandTotal && (
-                  <div className="flex items-center gap-2 bg-green-500/10 border border-green-500/20 rounded-xl px-3 py-2">
-                    <span className="text-lg">🔄</span>
-                    <p className="text-sm text-green-400 font-bold">
-                      El driver te dará <span className="text-white">{formatDOP(cashPrepared - grandTotal)}</span> de cambio
-                    </p>
+            {paymentMethod === "cash" && (() => {
+              const opts = getCashOptions(grandTotal, cashCurrency);
+              const meta = CURRENCY_META[cashCurrency];
+              const exactOpt = opts[0];
+              return (
+                <div className="rounded-2xl border border-yellow-400/20 bg-yellow-400/5 p-4 space-y-4">
+                  <div>
+                    <p className="font-black text-white text-sm">💵 ¿En qué moneda vas a pagar?</p>
+                    <p className="text-xs text-gray-400 mt-0.5">El driver llevará el cambio exacto</p>
                   </div>
-                )}
-              </div>
-            )}
+
+                  {/* Currency tabs */}
+                  <div className="grid grid-cols-3 gap-2">
+                    {(["DOP", "USD", "EUR"] as CashCurrency[]).map(cur => {
+                      const m = CURRENCY_META[cur];
+                      return (
+                        <button
+                          key={cur}
+                          onClick={() => { setCashCurrency(cur); setCashPrepared(null); }}
+                          className={`flex flex-col items-center gap-1 py-3 rounded-xl border-2 transition font-black text-xs ${
+                            cashCurrency === cur
+                              ? "border-yellow-400 bg-yellow-400/15 text-yellow-400"
+                              : "border-white/10 bg-white/5 text-gray-400 hover:border-yellow-400/30"
+                          }`}
+                        >
+                          <span className="text-xl">{m.flag}</span>
+                          <span>{m.label}</span>
+                          <span className="text-[10px] opacity-60">{m.symbol}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  {/* Rate note for foreign currencies */}
+                  {cashCurrency !== "DOP" && (
+                    <div className="flex items-center gap-2 bg-white/5 border border-white/10 rounded-xl px-3 py-2">
+                      <span className="text-sm">ℹ️</span>
+                      <p className="text-xs text-gray-400">
+                        Tasa aprox: 1 {cashCurrency} = {cashCurrency === "USD" ? "60" : "65"} RD$ · Total en pesos: <span className="text-white font-bold">{formatDOP(grandTotal)}</span>
+                      </p>
+                    </div>
+                  )}
+
+                  {/* Bill options */}
+                  <div className="space-y-2">
+                    {opts.map(opt => (
+                      <button
+                        key={opt.amount}
+                        onClick={() => setCashPrepared(opt.amount)}
+                        className={`w-full flex items-center justify-between px-4 py-3 rounded-xl border-2 transition ${
+                          cashPrepared === opt.amount
+                            ? "border-yellow-400 bg-yellow-400/15"
+                            : "border-white/10 bg-white/5 hover:border-yellow-400/40"
+                        }`}
+                      >
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm font-black text-white">
+                            {opt.isExact ? "Monto exacto" : formatCurrencyAmount(opt.amount, cashCurrency)}
+                          </span>
+                          {opt.isExact && (
+                            <span className="text-[10px] font-bold bg-green-500/20 text-green-400 border border-green-500/30 rounded-full px-2 py-0.5">
+                              Exacto
+                            </span>
+                          )}
+                        </div>
+                        <div className="text-right">
+                          {opt.isExact ? (
+                            <span className="text-xs text-green-400 font-bold">{formatCurrencyAmount(exactOpt.amount, cashCurrency)}</span>
+                          ) : (
+                            <div>
+                              <p className="text-xs text-gray-400">Cambio</p>
+                              <p className="text-sm font-black text-yellow-400">{formatCurrencyAmount(opt.change, cashCurrency)}</p>
+                            </div>
+                          )}
+                        </div>
+                        {cashPrepared === opt.amount && (
+                          <Check size={16} className="text-yellow-400 ml-2 flex-shrink-0" />
+                        )}
+                      </button>
+                    ))}
+                  </div>
+
+                  {/* Change confirmation banner */}
+                  {cashPrepared !== null && cashPrepared > exactOpt.amount && (
+                    <div className="flex items-center gap-2 bg-green-500/10 border border-green-500/20 rounded-xl px-3 py-2">
+                      <span className="text-lg">🔄</span>
+                      <p className="text-sm text-green-400 font-bold">
+                        El driver te dará{" "}
+                        <span className="text-white">{formatCurrencyAmount(cashPrepared - exactOpt.amount, cashCurrency)}</span>
+                        {" "}de cambio {cashCurrency !== "DOP" && <span className="text-gray-400 font-normal text-xs">en {meta.label}</span>}
+                      </p>
+                    </div>
+                  )}
+                </div>
+              );
+            })()}
 
             {/* Tip */}
             <div className="rounded-2xl p-4 border border-yellow-400/20 bg-yellow-400/5">
