@@ -1,0 +1,73 @@
+name: Promote Android to Production
+
+on:
+  workflow_dispatch:
+    inputs:
+      version_code:
+        description: 'Version code of the internal-track release to promote to production'
+        required: true
+        type: string
+
+jobs:
+  promote:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Verify required secrets
+        env:
+          GOOGLE_PLAY_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_PLAY_SERVICE_ACCOUNT_JSON }}
+          ANDROID_PACKAGE_NAME: ${{ secrets.ANDROID_PACKAGE_NAME }}
+        run: |
+          missing=()
+          [ -z "$GOOGLE_PLAY_SERVICE_ACCOUNT_JSON" ] && missing+=("GOOGLE_PLAY_SERVICE_ACCOUNT_JSON")
+          [ -z "$ANDROID_PACKAGE_NAME" ]             && missing+=("ANDROID_PACKAGE_NAME")
+
+          if [ ${#missing[@]} -gt 0 ]; then
+            echo "::error::The following required secrets are missing or empty:"
+            for s in "${missing[@]}"; do
+              echo "::error::  - $s"
+            done
+            echo "::error::See docs/ci-secrets.md for setup instructions."
+            exit 1
+          fi
+
+          echo "All required secrets are present."
+
+      # Required secrets for this step:
+      #   GOOGLE_PLAY_SERVICE_ACCOUNT_JSON – Google service account JSON with
+      #     the "Release Manager" role on the Google Play Developer API.
+      #   ANDROID_PACKAGE_NAME – e.g. com.yapide.app
+      - name: Promote internal release to production
+        id: promote
+        uses: r0adkll/upload-google-play@v1
+        with:
+          serviceAccountJsonPlainText: ${{ secrets.GOOGLE_PLAY_SERVICE_ACCOUNT_JSON }}
+          packageName: ${{ secrets.ANDROID_PACKAGE_NAME }}
+          track: production
+          fromTrack: internal
+          versionCodes: ${{ github.event.inputs.version_code }}
+          status: completed
+
+      # Required secret:
+      #   SLACK_WEBHOOK_URL – Slack incoming webhook URL for the target channel.
+      - name: Notify Slack – promotion succeeded
+        if: steps.promote.outcome == 'success'
+        uses: slackapi/slack-github-action@v2.0.0
+        with:
+          webhook: ${{ secrets.SLACK_WEBHOOK_URL }}
+          webhook-type: incoming-webhook
+          payload: |
+            {
+              "text": ":rocket: *Android version `${{ github.event.inputs.version_code }}` promoted from internal to production on Google Play*\n• Triggered by: `${{ github.actor }}`\n• <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|View run>"
+            }
+
+      - name: Notify Slack – promotion failed
+        if: always() && steps.promote.outcome == 'failure'
+        uses: slackapi/slack-github-action@v2.0.0
+        with:
+          webhook: ${{ secrets.SLACK_WEBHOOK_URL }}
+          webhook-type: incoming-webhook
+          payload: |
+            {
+              "text": ":x: *Failed to promote Android version `${{ github.event.inputs.version_code }}` to production on Google Play*\n• Triggered by: `${{ github.actor }}`\n• <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|View run>"
+            }
