@@ -10,6 +10,10 @@ export const usersTable = pgTable("users", {
   passwordHash: text("password_hash").notNull(),
   pinHash: text("pin_hash"),
   role: text("role").notNull().default("customer"),
+  // Admin sub-role: "owner" | "master" | "staff"
+  adminRole: text("admin_role"),
+  // JSON array of permission keys granted to this staff member
+  adminPermissions: text("admin_permissions"),
   isBanned: boolean("is_banned").notNull().default(false),
   points: integer("points").notNull().default(0),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),

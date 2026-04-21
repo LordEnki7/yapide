@@ -14,6 +14,7 @@ import storageRouter from "./storage";
 import promoCodesRouter from "./promo_codes";
 import pushRouter from "./push";
 import agentsRouter from "./agents";
+import staffRouter from "./staff";
 import { authLimiter, orderLimiter, supportLimiter } from "../lib/rate-limiters";
 
 const router: IRouter = Router();
@@ -45,5 +46,6 @@ router.use(pushRouter);
 // Support chat rate limiting
 router.post("/agents/support/ask", supportLimiter);
 router.use(agentsRouter);
+router.use(staffRouter);
 
 export default router;

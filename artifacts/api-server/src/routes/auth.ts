@@ -13,6 +13,8 @@ function formatUser(user: typeof usersTable.$inferSelect) {
     email: user.email,
     phone: user.phone,
     role: user.role,
+    adminRole: user.adminRole ?? null,
+    adminPermissions: user.adminPermissions ? JSON.parse(user.adminPermissions) : null,
     isBanned: user.isBanned,
     createdAt: user.createdAt,
   };
