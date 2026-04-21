@@ -101,6 +101,11 @@ The iOS workflow (`build-ios.yml`) installs an Apple Distribution certificate an
    | `IOS_BUILD_CERTIFICATE_BASE64` | Base64 string from step 6 |
    | `IOS_P12_PASSWORD` | The export password from step 5 |
 
+> **Set a calendar reminder for expiry.**
+> Apple Distribution certificates are valid for **one year**. The day you create the certificate, open your calendar app and add a reminder for **11 months from now** (or earlier) with the note "Renew iOS Distribution Certificate". If the certificate expires silently, iOS builds will fail with a cryptic signing error until the certificate is regenerated and the secret is rotated.
+>
+> The `check-ios-cert-expiry` GitHub Actions workflow (`.github/workflows/check-ios-cert-expiry.yml`) runs every Monday and will open a GitHub issue automatically when fewer than 30 days remain, but the calendar reminder is an important safety net for teams that do not watch CI notifications closely.
+
 ### Step-by-step: Download the provisioning profile
 
 1. Go to [developer.apple.com](https://developer.apple.com) → **Certificates, IDs & Profiles → Profiles**.
