@@ -43,7 +43,6 @@ async function formatOrder(order: typeof ordersTable.$inferSelect) {
     promoDiscount: order.promoDiscount,
     orderType: order.orderType,
     pickupAddress: order.pickupAddress,
-    verificationPin: order.verificationPin,
     createdAt: order.createdAt,
     items: items.map(i => ({
       id: i.id,
@@ -116,7 +115,13 @@ router.get("/orders", async (req, res): Promise<void> => {
     allOrders = allOrders.slice(0, params.data.limit);
   }
 
-  const formatted = await Promise.all(allOrders.map(formatOrder));
+  const isCustomer = user.role === "customer";
+  const formatted = await Promise.all(
+    allOrders.map(async o => {
+      const f = await formatOrder(o);
+      return isCustomer ? { ...f, verificationPin: o.verificationPin } : f;
+    })
+  );
   res.json(formatted);
 });
 
@@ -128,7 +133,10 @@ router.get("/orders/:orderId", async (req, res): Promise<void> => {
   if (isNaN(id)) { res.status(400).json({ error: "Invalid orderId" }); return; }
   const [order] = await db.select().from(ordersTable).where(eq(ordersTable.id, id));
   if (!order) { res.status(404).json({ error: "Order not found" }); return; }
-  res.json(await formatOrder(order));
+  const [viewer] = await db.select({ role: usersTable.role }).from(usersTable).where(eq(usersTable.id, sessionUserId));
+  const formatted = await formatOrder(order);
+  const isOwner = viewer?.role === "customer" && order.customerId === sessionUserId;
+  res.json(isOwner ? { ...formatted, verificationPin: order.verificationPin } : formatted);
 });
 
 router.post("/orders", async (req, res): Promise<void> => {
