@@ -48,6 +48,10 @@ localPort = 8086
 externalPort = 8008
 
 [[ports]]
+localPort = 8087
+externalPort = 8080
+
+[[ports]]
 localPort = 21512
 externalPort = 3000
 
