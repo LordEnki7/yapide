@@ -2,11 +2,24 @@ import express, { type Express, type Request, type Response, type NextFunction }
 import cors from "cors";
 import pinoHttp from "pino-http";
 import session from "express-session";
+import helmet from "helmet";
 import router from "./routes";
 import { logger } from "./lib/logger";
+import { generalLimiter } from "./lib/rate-limiters";
 
 const app: Express = express();
 
+const isProd = process.env.NODE_ENV === "production";
+
+// ─── Security headers ────────────────────────────────────────────────────────
+app.use(
+  helmet({
+    contentSecurityPolicy: false,
+    crossOriginEmbedderPolicy: false,
+  }),
+);
+
+// ─── Logging ─────────────────────────────────────────────────────────────────
 app.use(
   pinoHttp({
     logger,
@@ -26,13 +39,20 @@ app.use(
     },
   }),
 );
-app.use(cors({ origin: true, credentials: true }));
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
 
+// ─── CORS ─────────────────────────────────────────────────────────────────────
+const allowedOrigins: cors.CorsOptions["origin"] = isProd
+  ? ["https://yapide.app", "https://www.yapide.app", /\.replit\.app$/]
+  : true;
+
+app.use(cors({ origin: allowedOrigins, credentials: true }));
+
+// ─── Body parsing (with size limits to prevent payload attacks) ───────────────
+app.use(express.json({ limit: "2mb" }));
+app.use(express.urlencoded({ extended: true, limit: "2mb" }));
+
+// ─── Sessions ─────────────────────────────────────────────────────────────────
 const sessionSecret = process.env.SESSION_SECRET ?? "qlq-super-secret-2024";
-
-const isProd = process.env.NODE_ENV === "production";
 
 app.use(
   session({
@@ -43,18 +63,24 @@ app.use(
       secure: isProd,
       httpOnly: true,
       sameSite: isProd ? "none" : "lax",
-      domain: isProd ? ".yapida.app" : undefined,
+      domain: isProd ? ".yapide.app" : undefined,
       maxAge: 7 * 24 * 60 * 60 * 1000,
     },
   }),
 );
 
+// ─── General rate limiter ─────────────────────────────────────────────────────
+app.use("/api", generalLimiter);
+
+// ─── Routes ───────────────────────────────────────────────────────────────────
 app.use("/api", router);
 
+// ─── 404 ─────────────────────────────────────────────────────────────────────
 app.use((req: Request, res: Response) => {
   res.status(404).json({ error: "Not found", path: req.path });
 });
 
+// ─── Error handler ────────────────────────────────────────────────────────────
 app.use((err: unknown, req: Request, res: Response, _next: NextFunction) => {
   const status = (err as any)?.status ?? (err as any)?.statusCode ?? 500;
   const message =

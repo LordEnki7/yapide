@@ -9,3 +9,5 @@ export * from "./addresses";
 export * from "./promo_codes";
 export * from "./push_subscriptions";
 export * from "./settings";
+export * from "./conversations";
+export * from "./messages";

@@ -1,21 +1,27 @@
 import { Router, type IRouter } from "express";
-import { eq, desc, gte, and, isNull, lt } from "drizzle-orm";
+import { eq, desc, gte, and, isNull } from "drizzle-orm";
 import { db, ordersTable, driversTable, usersTable, businessesTable, orderItemsTable, productsTable } from "@workspace/db";
+import { openai } from "@workspace/integrations-openai-ai-server";
 
 const router: IRouter = Router();
 
-function requireAdmin(req: any, res: any): boolean {
-  if (!(req.session as any)?.userId) {
+async function requireAdmin(req: any, res: any): Promise<boolean> {
+  const sessionUserId = (req.session as any)?.userId;
+  if (!sessionUserId) {
     res.status(401).json({ error: "Unauthorized" });
+    return false;
+  }
+  const [user] = await db.select().from(usersTable).where(eq(usersTable.id, sessionUserId));
+  if (!user || user.role !== "admin") {
+    res.status(403).json({ error: "Forbidden" });
     return false;
   }
   return true;
 }
 
 // ─── 1. DISPATCH AGENT ──────────────────────────────────────────────────────
-// Find best available driver for unassigned accepted orders
 router.get("/agents/dispatch/status", async (req, res): Promise<void> => {
-  if (!requireAdmin(req, res)) return;
+  if (!(await requireAdmin(req, res))) return;
 
   const unassigned = await db.select().from(ordersTable)
     .where(and(eq(ordersTable.status, "accepted"), isNull(ordersTable.driverId)));
@@ -27,7 +33,6 @@ router.get("/agents/dispatch/status", async (req, res): Promise<void> => {
 
   for (const order of unassigned) {
     if (onlineDrivers.length === 0) break;
-    const [business] = await db.select().from(businessesTable).where(eq(businessesTable.id, order.businessId));
     let bestDriver = onlineDrivers[0];
     let bestScore = -1;
     for (const d of onlineDrivers) {
@@ -49,7 +54,7 @@ router.get("/agents/dispatch/status", async (req, res): Promise<void> => {
 
 // Execute dispatch — auto-assign best driver to an unassigned order
 router.post("/agents/dispatch/run", async (req, res): Promise<void> => {
-  if (!requireAdmin(req, res)) return;
+  if (!(await requireAdmin(req, res))) return;
 
   const unassigned = await db.select().from(ordersTable)
     .where(and(eq(ordersTable.status, "accepted"), isNull(ordersTable.driverId)));
@@ -76,7 +81,7 @@ router.post("/agents/dispatch/run", async (req, res): Promise<void> => {
 
 // ─── 2. FRAUD DETECTION AGENT ────────────────────────────────────────────────
 router.get("/agents/fraud/status", async (req, res): Promise<void> => {
-  if (!requireAdmin(req, res)) return;
+  if (!(await requireAdmin(req, res))) return;
 
   const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
   const allOrders = await db.select().from(ordersTable).where(gte(ordersTable.createdAt, sevenDaysAgo));
@@ -98,7 +103,7 @@ router.get("/agents/fraud/status", async (req, res): Promise<void> => {
     }
   }
 
-  // Promo code abuse: same customer with multiple promo orders
+  // Promo code abuse
   const promoByCustomer: Record<number, number> = {};
   for (const o of allOrders) {
     if ((o as any).promoCode) {
@@ -112,7 +117,7 @@ router.get("/agents/fraud/status", async (req, res): Promise<void> => {
     }
   }
 
-  // High-value orders from new accounts (< 7 days old)
+  // High-value orders from new accounts
   for (const o of allOrders) {
     if (o.totalAmount > 3000) {
       const user = allUsers.find(u => u.id === o.customerId);
@@ -140,7 +145,7 @@ router.get("/agents/fraud/status", async (req, res): Promise<void> => {
 
 // ─── 3. SURGE PRICING AGENT ──────────────────────────────────────────────────
 router.get("/agents/surge/status", async (req, res): Promise<void> => {
-  if (!requireAdmin(req, res)) return;
+  if (!(await requireAdmin(req, res))) return;
 
   const [pending, active, onlineDrivers] = await Promise.all([
     db.select().from(ordersTable).where(eq(ordersTable.status, "pending")),
@@ -173,7 +178,7 @@ router.get("/agents/surge/status", async (req, res): Promise<void> => {
 
 // ─── 4. ETA AGENT ────────────────────────────────────────────────────────────
 router.get("/agents/eta/status", async (req, res): Promise<void> => {
-  if (!requireAdmin(req, res)) return;
+  if (!(await requireAdmin(req, res))) return;
 
   const recentDelivered = await db.select().from(ordersTable)
     .where(and(eq(ordersTable.status, "delivered"), gte(ordersTable.createdAt, new Date(Date.now() - 7 * 24 * 60 * 60 * 1000))));
@@ -205,7 +210,7 @@ router.get("/agents/eta/status", async (req, res): Promise<void> => {
 
 // ─── 5. MENU OPTIMIZER AGENT ─────────────────────────────────────────────────
 router.get("/agents/menu-optimizer/status", async (req, res): Promise<void> => {
-  if (!requireAdmin(req, res)) return;
+  if (!(await requireAdmin(req, res))) return;
 
   const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
   const allItems = await db.select().from(orderItemsTable);
@@ -252,61 +257,90 @@ router.get("/agents/menu-optimizer/status", async (req, res): Promise<void> => {
   });
 });
 
-// ─── 6. CUSTOMER SUPPORT AGENT ───────────────────────────────────────────────
+// ─── 6. CUSTOMER SUPPORT AGENT (AI-powered) ──────────────────────────────────
 router.post("/agents/support/ask", async (req, res): Promise<void> => {
-  const { question, orderId, userId } = req.body ?? {};
+  const { question, orderId, userId, history } = req.body ?? {};
   if (!question) { res.status(400).json({ error: "question required" }); return; }
 
-  const q = question.toLowerCase();
-  let answer = "";
+  let orderContext = "";
   let orderInfo: any = null;
 
-  if ((q.includes("pedido") || q.includes("order") || q.includes("estado") || q.includes("dónde")) && orderId) {
+  // Fetch order context if an order ID was provided
+  if (orderId) {
     const id = parseInt(orderId, 10);
     if (!isNaN(id)) {
       const [order] = await db.select().from(ordersTable).where(eq(ordersTable.id, id));
       if (order) {
         const statusLabels: Record<string, string> = {
           pending: "pendiente — esperando confirmación del negocio",
-          accepted: "confirmado — siendo preparado 👨‍🍳",
-          picked_up: "en camino con tu driver 🛵",
-          delivered: "entregado ✅",
-          cancelled: "cancelado ❌",
+          accepted: "confirmado — siendo preparado",
+          picked_up: "en camino con el driver",
+          delivered: "entregado",
+          cancelled: "cancelado",
         };
         orderInfo = { id: order.id, status: order.status, statusLabel: statusLabels[order.status] ?? order.status };
-        answer = `Tu pedido #${order.id} está ${statusLabels[order.status] ?? order.status}.`;
-      } else {
-        answer = "No encontré ese pedido. Verifica el número e intenta de nuevo.";
+        orderContext = `El cliente está preguntando sobre su pedido #${order.id}. Estado actual: ${statusLabels[order.status] ?? order.status}. Monto total: RD$${Math.round(order.totalAmount + order.deliveryFee)}.`;
       }
     }
-  } else if (q.includes("cancelar") || q.includes("cancel")) {
-    answer = "Puedes cancelar tu pedido solo si está en estado 'pendiente'. Ve a Mis Pedidos → toca el pedido → botón Cancelar. Si ya fue confirmado, contáctanos por WhatsApp.";
-  } else if (q.includes("tiempo") || q.includes("cuánto") || q.includes("demora") || q.includes("eta")) {
-    answer = "El tiempo estimado depende del tiempo de preparación del negocio (visible en la pantalla de tracking) más ~20 min de entrega. Normalmente entre 30–60 minutos.";
-  } else if (q.includes("precio") || q.includes("costo") || q.includes("cargo") || q.includes("delivery fee")) {
-    answer = "El costo de delivery es RD$150. Puedes ver el desglose completo en tu carrito antes de confirmar.";
-  } else if (q.includes("pago") || q.includes("efectivo") || q.includes("tarjeta")) {
-    answer = "Actualmente aceptamos efectivo. El pago con tarjeta estará disponible muy pronto. El monto exacto lo verás en tu carrito antes de ordenar.";
-  } else if (q.includes("punto") || q.includes("puntos") || q.includes("recompensa")) {
-    answer = "Ganas 1 punto por cada RD$10 que gastas. Los puntos se pueden canjear por descuentos en próximas órdenes. Ve a tu perfil para ver tu saldo.";
-  } else if (q.includes("driver") || q.includes("repartidor") || q.includes("coro")) {
-    answer = "Nuestros drivers son verificados e independientes. Puedes chatear con tu driver por WhatsApp directamente desde la pantalla de tracking de tu pedido.";
-  } else if (q.includes("negocio") || q.includes("restaurante") || q.includes("horario")) {
-    answer = "Los negocios aparecen en el app cuando están activos. Si un negocio no aparece, puede estar cerrado temporalmente. Intenta más tarde o prueba otro negocio.";
-  } else if (q.includes("promo") || q.includes("código") || q.includes("descuento")) {
-    answer = "Los códigos promo se aplican en el carrito, en la sección '¿Tienes un código?'. Si tu código no funciona, puede estar expirado o ya usaste el límite permitido.";
-  } else if (q.includes("hola") || q.includes("hello") || q.includes("hi") || q.includes("buenas")) {
-    answer = "¡Hola! 👋 Soy el asistente de YaPide. Puedo ayudarte con el estado de tu pedido, precios, cancelaciones, tiempos de entrega y más. ¿En qué te puedo ayudar?";
-  } else {
-    answer = "No estoy seguro de cómo ayudarte con eso. Para soporte directo, contáctanos por WhatsApp. También puedes preguntarme sobre: el estado de tu pedido, cancelaciones, tiempos de entrega, pagos o puntos.";
   }
 
-  res.json({ answer, orderInfo, escalate: answer.includes("WhatsApp") });
+  // Build conversation history for context
+  const chatHistory: Array<{ role: "user" | "assistant"; content: string }> = [];
+  if (Array.isArray(history)) {
+    for (const msg of history.slice(-6)) {
+      if (msg.role === "user" || msg.role === "assistant") {
+        chatHistory.push({ role: msg.role, content: String(msg.content) });
+      }
+    }
+  }
+
+  const systemPrompt = `Eres el asistente virtual de YaPide, una app dominicana de delivery. Tu nombre es "YaBot".
+
+Información clave sobre YaPide:
+- Operamos en 5 ciudades dominicanas: Santo Domingo, Santiago, La Romana, San Pedro de Macorís, Puerto Plata
+- Costo de delivery: RD$150
+- Tiempo estimado: 30–60 minutos (preparación + entrega)
+- Pagamos con efectivo. Tarjeta próximamente.
+- Los clientes ganan 1 punto por cada RD$10 gastados, canjeables por descuentos
+- Solo se puede cancelar un pedido si está en estado "pendiente"
+- Para soporte urgente: WhatsApp +1-809-000-0000
+
+${orderContext ? `\nContexto del pedido del cliente:\n${orderContext}` : ""}
+
+Responde siempre en español dominicano, de manera amable, directa y breve (máximo 3 oraciones). Si el cliente escribe en inglés, responde en inglés. Si no puedes resolver su problema, ofrece el WhatsApp de soporte.`;
+
+  try {
+    const completion = await openai.chat.completions.create({
+      model: "gpt-4o-mini",
+      messages: [
+        { role: "system", content: systemPrompt },
+        ...chatHistory,
+        { role: "user", content: question },
+      ],
+      max_tokens: 300,
+    });
+
+    const rawAnswer = completion.choices[0]?.message?.content;
+    const answer = rawAnswer && rawAnswer.trim()
+      ? rawAnswer.trim()
+      : "No pude procesar tu pregunta. Por favor intenta de nuevo o contáctanos por WhatsApp.";
+    const escalate = answer.toLowerCase().includes("whatsapp") || answer.toLowerCase().includes("soporte");
+
+    res.json({ answer, orderInfo, escalate });
+  } catch (err: any) {
+    console.error("Support AI error:", err?.message ?? err);
+    // Fallback to a basic response if AI fails
+    res.json({
+      answer: "Estoy teniendo dificultades técnicas. Para ayuda inmediata, contáctanos por WhatsApp +1-809-000-0000.",
+      orderInfo,
+      escalate: true,
+    });
+  }
 });
 
 // ─── MONITORING OVERVIEW ──────────────────────────────────────────────────────
 router.get("/agents/overview", async (req, res): Promise<void> => {
-  if (!requireAdmin(req, res)) return;
+  if (!(await requireAdmin(req, res))) return;
 
   const now = new Date();
   const todayStart = new Date(now); todayStart.setHours(0, 0, 0, 0);
@@ -324,32 +358,26 @@ router.get("/agents/overview", async (req, res): Promise<void> => {
   const deliveredToday = todayOrders.filter(o => o.status === "delivered");
   const deliveredWeek = weekOrders.filter(o => o.status === "delivered");
 
-  // Revenue (platform commission = 15% markup already built in)
   const revenueToday = deliveredToday.reduce((s, o) => s + o.commission, 0);
   const revenueWeek = deliveredWeek.reduce((s, o) => s + o.commission, 0);
   const revenueTotal = allOrders.filter(o => o.status === "delivered").reduce((s, o) => s + o.commission, 0);
 
-  // GMV (gross)
   const gmvToday = deliveredToday.reduce((s, o) => s + o.totalAmount + o.deliveryFee, 0);
   const gmvWeek = deliveredWeek.reduce((s, o) => s + o.totalAmount + o.deliveryFee, 0);
 
-  // Driver health
   const onlineDrivers = allDrivers.filter(d => d.isOnline);
   const lockedDrivers = allDrivers.filter(d => d.isLocked);
 
-  // Live order pipeline
   const pipeline = {
     pending: allOrders.filter(o => o.status === "pending").length,
     accepted: allOrders.filter(o => o.status === "accepted").length,
     picked_up: allOrders.filter(o => o.status === "picked_up").length,
   };
 
-  // Growth: orders this week vs last week
   const prevWeekStart = new Date(weekAgo.getTime() - 7 * 24 * 60 * 60 * 1000);
   const prevWeekOrders = allOrders.filter(o => new Date(o.createdAt) >= prevWeekStart && new Date(o.createdAt) < weekAgo);
   const ordersGrowth = prevWeekOrders.length === 0 ? 100 : Math.round(((weekOrders.length - prevWeekOrders.length) / prevWeekOrders.length) * 100);
 
-  // 7-day daily breakdown
   const dailyStats: Array<{ date: string; orders: number; revenue: number }> = [];
   for (let i = 6; i >= 0; i--) {
     const day = new Date(now);
@@ -364,7 +392,6 @@ router.get("/agents/overview", async (req, res): Promise<void> => {
     });
   }
 
-  // Recent 10 orders
   const recentOrders = await Promise.all(allOrders.slice(0, 10).map(async o => {
     const [biz] = await db.select({ name: businessesTable.name }).from(businessesTable).where(eq(businessesTable.id, o.businessId));
     return { id: o.id, status: o.status, totalAmount: o.totalAmount, businessName: biz?.name, createdAt: o.createdAt };

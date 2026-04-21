@@ -48,10 +48,15 @@ export default function CustomerSupport() {
     setLoading(true);
 
     try {
+      const history = messages
+        .filter(m => m.role === "user" || m.role === "bot")
+        .slice(-6)
+        .map(m => ({ role: m.role === "bot" ? "assistant" : "user", content: m.text }));
+
       const res = await fetch("/api/agents/support/ask", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ question: text, orderId: orderId || undefined, userId: user?.id }),
+        body: JSON.stringify({ question: text, orderId: orderId || undefined, userId: user?.id, history }),
       });
       const data = await res.json();
       setMessages(prev => [...prev, {
