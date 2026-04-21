@@ -121,7 +121,7 @@ export default function DriverJobs() {
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: getGetAvailableJobsQueryKey() });
         fetchActiveOrders();
-        toast({ title: "¡Pedido aceptado!", description: "Ve a recoger el pedido en el negocio 🛵" });
+        toast({ title: t.jobAccepted, description: t.goPickUp });
       },
       onError: (err: any) => {
         const msg = err?.response?.data?.error ?? t.error;
@@ -159,7 +159,7 @@ export default function DriverJobs() {
           deliveryPhotoPath = objectPath;
         }
       } catch {
-        toast({ title: "No se pudo subir la foto", description: "Se marcará entregado sin foto", variant: "destructive" });
+        toast({ title: t.photoUploadError, description: t.deliveredWithoutPhoto, variant: "destructive" });
       }
     }
 
@@ -250,10 +250,10 @@ export default function DriverJobs() {
                           className="flex items-center gap-2 px-3 py-2 rounded-xl bg-white/8 border border-white/20 text-sm text-gray-300 hover:bg-white/12 transition"
                         >
                           <Camera size={14} className="text-yellow-400" />
-                          {deliveryPhoto[order.id] ? "Cambiar foto" : "Tomar foto"}
+                          {deliveryPhoto[order.id] ? t.changePhoto : t.takePhoto}
                         </button>
                         {deliveryPhoto[order.id] && (
-                          <span className="text-xs text-green-400 font-bold">✓ foto lista</span>
+                          <span className="text-xs text-green-400 font-bold">✓ {t.changePhoto.toLowerCase()}</span>
                         )}
                       </div>
                     </div>

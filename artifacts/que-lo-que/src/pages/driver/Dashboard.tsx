@@ -38,7 +38,7 @@ export default function DriverDashboard() {
     mutation: {
       onSuccess: (d) => {
         queryClient.invalidateQueries({ queryKey: getGetMyDriverQueryKey() });
-        toast({ title: d.isOnline ? "¡Online!" : "Offline" });
+        toast({ title: d.isOnline ? t.online : t.offline });
       },
       onError: () => {
         toast({ title: t.error, description: t.error, variant: "destructive" });

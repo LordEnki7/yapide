@@ -46,7 +46,7 @@ export default function CustomerProfile() {
     try {
       await fetch(`/api/customer/addresses/${id}`, { method: "DELETE", credentials: "include" });
       setAddresses(prev => prev.filter(a => a.id !== id));
-      toast({ title: "Dirección eliminada" });
+      toast({ title: t.addressDeleted });
     } catch {
       toast({ title: t.error, variant: "destructive" });
     } finally {
@@ -64,7 +64,7 @@ export default function CustomerProfile() {
       });
       const updated = await fetch("/api/customer/addresses", { credentials: "include" }).then(r => r.json());
       setAddresses(updated);
-      toast({ title: `"${addr.label}" marcada como predeterminada` });
+      toast({ title: t.markedDefault(addr.label) });
     } catch {}
   };
 
@@ -82,7 +82,7 @@ export default function CustomerProfile() {
 
   const saveProfile = async () => {
     if (!name.trim() || name.trim().length < 2) {
-      toast({ title: "Error", description: "El nombre debe tener al menos 2 caracteres", variant: "destructive" });
+      toast({ title: t.error, description: t.nameTooShort, variant: "destructive" });
       return;
     }
     setSaving(true);
@@ -102,9 +102,9 @@ export default function CustomerProfile() {
       }
       queryClient.invalidateQueries({ queryKey: getGetMeQueryKey() });
       setEditing(false);
-      toast({ title: "¡Listo!", description: "Perfil actualizado" });
+      toast({ title: t.success, description: t.profileUpdated });
     } catch {
-      toast({ title: "Error", description: "No se pudo actualizar el perfil", variant: "destructive" });
+      toast({ title: t.error, description: t.profileUpdateError, variant: "destructive" });
     } finally {
       setSaving(false);
     }
@@ -122,7 +122,7 @@ export default function CustomerProfile() {
       clearStoredUser();
       window.location.href = "/";
     } catch {
-      toast({ title: "Error al eliminar cuenta", variant: "destructive" });
+      toast({ title: t.deleteAccountError, variant: "destructive" });
       setDeletingAccount(false);
     }
   };
@@ -139,7 +139,7 @@ export default function CustomerProfile() {
             <ArrowLeft size={18} />
           </button>
         </Link>
-        <h1 className="text-xl font-black text-yellow-400">Mi Perfil</h1>
+        <h1 className="text-xl font-black text-yellow-400">{t.myProfile}</h1>
         <div className="ml-auto">
           <LangToggle />
         </div>
@@ -158,17 +158,17 @@ export default function CustomerProfile() {
             <p className="text-xl font-black text-white">{displayName}</p>
           )}
           <span className="text-xs text-yellow-400 bg-yellow-400/10 border border-yellow-400/20 px-3 py-1 rounded-full font-bold uppercase tracking-widest">
-            {storedUser?.role ?? "cliente"}
+            {storedUser?.role ?? t.customer}
           </span>
         </div>
 
         {/* Info Card */}
         <div className="bg-white/8 border border-white/10 rounded-2xl overflow-hidden">
           <div className="flex items-center justify-between px-4 pt-4 pb-2">
-            <h2 className="text-xs font-bold text-gray-400 uppercase tracking-widest">Información</h2>
+            <h2 className="text-xs font-bold text-gray-400 uppercase tracking-widest">{t.information}</h2>
             {!editing ? (
               <button onClick={startEdit} className="flex items-center gap-1 text-yellow-400 text-xs font-bold hover:text-yellow-300 transition">
-                <Edit2 size={12} /> Editar
+                <Edit2 size={12} /> {t.edit}
               </button>
             ) : (
               <div className="flex items-center gap-2">
@@ -180,7 +180,7 @@ export default function CustomerProfile() {
                   disabled={saving}
                   className="flex items-center gap-1 text-green-400 text-xs font-bold hover:text-green-300 transition"
                 >
-                  <Check size={14} /> {saving ? "Guardando..." : "Guardar"}
+                  <Check size={14} /> {saving ? t.saving : t.save}
                 </button>
               </div>
             )}
@@ -190,21 +190,21 @@ export default function CustomerProfile() {
             {editing ? (
               <>
                 <div>
-                  <label className="text-xs text-gray-400 mb-1 block">Nombre</label>
+                  <label className="text-xs text-gray-400 mb-1 block">{t.nameLabel}</label>
                   <Input
                     value={name}
                     onChange={e => setName(e.target.value)}
                     className="bg-white/8 border-white/10 text-white focus:border-yellow-400 h-10"
-                    placeholder="Tu nombre"
+                    placeholder={t.namePlaceholder2}
                   />
                 </div>
                 <div>
-                  <label className="text-xs text-gray-400 mb-1 block">Teléfono</label>
+                  <label className="text-xs text-gray-400 mb-1 block">{t.phoneLabel}</label>
                   <Input
                     value={phone}
                     onChange={e => setPhone(e.target.value)}
                     className="bg-white/8 border-white/10 text-white focus:border-yellow-400 h-10"
-                    placeholder="Ej: 809-555-1234"
+                    placeholder="809-555-1234"
                     type="tel"
                   />
                 </div>
@@ -216,7 +216,7 @@ export default function CustomerProfile() {
                     <User size={14} className="text-yellow-400" />
                   </div>
                   <div>
-                    <p className="text-xs text-gray-500">Nombre</p>
+                    <p className="text-xs text-gray-500">{t.nameLabel}</p>
                     <p className="text-sm font-bold text-white">{isLoading ? "—" : displayName}</p>
                   </div>
                 </div>
@@ -225,7 +225,7 @@ export default function CustomerProfile() {
                     <Mail size={14} className="text-yellow-400" />
                   </div>
                   <div>
-                    <p className="text-xs text-gray-500">Correo</p>
+                    <p className="text-xs text-gray-500">{t.emailLabel}</p>
                     <p className="text-sm font-bold text-white">{isLoading ? "—" : displayEmail}</p>
                   </div>
                 </div>
@@ -234,7 +234,7 @@ export default function CustomerProfile() {
                     <Phone size={14} className="text-yellow-400" />
                   </div>
                   <div>
-                    <p className="text-xs text-gray-500">Teléfono</p>
+                    <p className="text-xs text-gray-500">{t.phoneLabel}</p>
                     <p className="text-sm font-bold text-white">{isLoading ? "—" : displayPhone}</p>
                   </div>
                 </div>
@@ -247,19 +247,19 @@ export default function CustomerProfile() {
         <div className="bg-white/8 border border-white/10 rounded-2xl overflow-hidden divide-y divide-white/5">
           <Link href="/customer/orders">
             <div className="flex items-center justify-between px-4 py-3 hover:bg-white/5 transition cursor-pointer">
-              <span className="text-sm font-bold text-white">📦 Mis pedidos</span>
+              <span className="text-sm font-bold text-white">📦 {t.myOrders}</span>
               <span className="text-gray-500 text-xs">→</span>
             </div>
           </Link>
           <Link href="/customer/points">
             <div className="flex items-center justify-between px-4 py-3 hover:bg-white/5 transition cursor-pointer">
-              <span className="text-sm font-bold text-white">⭐ Mis puntos</span>
+              <span className="text-sm font-bold text-white">⭐ {t.pointsTitle}</span>
               <span className="text-gray-500 text-xs">→</span>
             </div>
           </Link>
           <Link href="/customer/support">
             <div className="flex items-center justify-between px-4 py-3 hover:bg-white/5 transition cursor-pointer">
-              <span className="text-sm font-bold text-white">🤖 Asistente / Soporte</span>
+              <span className="text-sm font-bold text-white">🤖 {t.supportLink}</span>
               <span className="text-gray-500 text-xs">→</span>
             </div>
           </Link>
@@ -270,7 +270,7 @@ export default function CustomerProfile() {
           <div className="bg-white/8 border border-white/10 rounded-2xl overflow-hidden">
             <div className="px-4 pt-4 pb-2 flex items-center gap-2">
               <MapPin size={14} className="text-yellow-400" />
-              <h2 className="text-xs font-bold text-gray-400 uppercase tracking-widest">Mis direcciones</h2>
+              <h2 className="text-xs font-bold text-gray-400 uppercase tracking-widest">{t.myAddresses}</h2>
             </div>
             <div className="divide-y divide-white/5">
               {addresses.map((addr) => (
@@ -279,7 +279,7 @@ export default function CustomerProfile() {
                     <div className="flex items-center gap-2">
                       <p className="text-sm font-bold text-white">{addr.label}</p>
                       {addr.isDefault && (
-                        <span className="text-[10px] bg-yellow-400/15 text-yellow-400 border border-yellow-400/30 px-1.5 py-0.5 rounded-full font-bold">predeterminada</span>
+                        <span className="text-[10px] bg-yellow-400/15 text-yellow-400 border border-yellow-400/30 px-1.5 py-0.5 rounded-full font-bold">{t.defaultBadge}</span>
                       )}
                     </div>
                     <p className="text-xs text-gray-400 truncate mt-0.5">{addr.address}</p>
@@ -289,7 +289,7 @@ export default function CustomerProfile() {
                       <button
                         onClick={() => handleSetDefault(addr)}
                         className="w-7 h-7 rounded-lg bg-yellow-400/10 flex items-center justify-center hover:bg-yellow-400/20 transition"
-                        title="Marcar como predeterminada"
+                        title={t.setDefault}
                       >
                         <Star size={12} className="text-yellow-400" />
                       </button>
@@ -318,7 +318,7 @@ export default function CustomerProfile() {
           onClick={handleLogout}
         >
           <LogOut size={16} />
-          Cerrar sesión
+          {t.logout}
         </Button>
 
         {/* Delete account */}
@@ -327,29 +327,29 @@ export default function CustomerProfile() {
             onClick={() => setShowDeleteAccount(true)}
             className="w-full text-xs text-gray-600 hover:text-red-400 transition text-center py-2"
           >
-            Eliminar mi cuenta
+            {t.deleteMyAccount}
           </button>
         ) : (
           <div className="bg-red-500/10 border border-red-500/30 rounded-2xl p-4 space-y-3">
             <div className="flex items-center gap-2">
               <AlertTriangle size={16} className="text-red-400 flex-shrink-0" />
-              <p className="text-sm font-bold text-red-400">¿Eliminar cuenta permanentemente?</p>
+              <p className="text-sm font-bold text-red-400">{t.deleteAccountConfirm}</p>
             </div>
-            <p className="text-xs text-gray-400">Esta acción no se puede deshacer. Se eliminarán todos tus datos.</p>
+            <p className="text-xs text-gray-400">{t.deleteAccountWarning}</p>
             <div className="flex gap-2">
               <Button
                 onClick={handleDeleteAccount}
                 disabled={deletingAccount}
                 className="flex-1 bg-red-500 hover:bg-red-600 text-white font-bold h-10 text-sm"
               >
-                {deletingAccount ? "Eliminando..." : "Sí, eliminar"}
+                {deletingAccount ? t.deleting : t.yesDelete}
               </Button>
               <Button
                 onClick={() => setShowDeleteAccount(false)}
                 variant="outline"
                 className="flex-1 border-white/20 text-gray-300 font-bold h-10 text-sm"
               >
-                Cancelar
+                {t.cancel}
               </Button>
             </div>
           </div>
