@@ -5,10 +5,12 @@ import { useLang } from "@/lib/lang";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ArrowLeft, Star, MessageCircle, Share2, Clock } from "lucide-react";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, lazy, Suspense } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { useQueryClient, useMutation } from "@tanstack/react-query";
 import { XCircle, Loader2 } from "lucide-react";
+
+const LiveDriverMap = lazy(() => import("@/components/LiveDriverMap"));
 
 export default function CustomerOrderDetail() {
   const { id } = useParams<{ id: string }>();
@@ -257,6 +259,12 @@ export default function CustomerOrderDetail() {
               </div>
             </div>
           </div>
+        )}
+
+        {order?.status === "picked_up" && order.deliveryAddress && (
+          <Suspense fallback={<div className="h-52 bg-white/8 rounded-2xl animate-pulse" />}>
+            <LiveDriverMap orderId={orderId} deliveryAddress={order.deliveryAddress} />
+          </Suspense>
         )}
 
         {order?.driver && (

@@ -284,6 +284,23 @@ router.patch("/orders/:orderId/status", async (req, res): Promise<void> => {
   res.json(await formatOrder(order));
 });
 
+router.get("/orders/:orderId/driver-location", async (req, res): Promise<void> => {
+  const sessionUserId = (req.session as any)?.userId;
+  if (!sessionUserId) { res.status(401).json({ error: "Unauthorized" }); return; }
+  const raw = Array.isArray(req.params.orderId) ? req.params.orderId[0] : req.params.orderId;
+  const id = parseInt(raw, 10);
+  if (isNaN(id)) { res.status(400).json({ error: "Invalid orderId" }); return; }
+  const [order] = await db.select().from(ordersTable).where(eq(ordersTable.id, id));
+  if (!order || order.customerId !== sessionUserId) { res.status(403).json({ error: "Forbidden" }); return; }
+  if (!order.driverId) { res.status(404).json({ error: "No driver assigned" }); return; }
+  const [driver] = await db.select({ currentLat: driversTable.currentLat, currentLng: driversTable.currentLng })
+    .from(driversTable).where(eq(driversTable.id, order.driverId));
+  if (!driver || driver.currentLat == null || driver.currentLng == null) {
+    res.status(404).json({ error: "Location unavailable" }); return;
+  }
+  res.json({ lat: driver.currentLat, lng: driver.currentLng });
+});
+
 router.post("/orders/:orderId/cancel", async (req, res): Promise<void> => {
   const sessionUserId = (req.session as any)?.userId;
   if (!sessionUserId) { res.status(401).json({ error: "Unauthorized" }); return; }

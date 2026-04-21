@@ -8,7 +8,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, MapPin, Banknote, CreditCard, Clock, Navigation, Camera, CheckCircle2, Package, Loader2, Store } from "lucide-react";
+import { ArrowLeft, MapPin, Banknote, CreditCard, Clock, Navigation, Camera, CheckCircle2, Package, Loader2, Store, MessageCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 interface ActiveOrder {
@@ -24,6 +24,8 @@ interface ActiveOrder {
   businessName?: string | null;
   businessAddress?: string | null;
   businessPhone?: string | null;
+  customerName?: string | null;
+  customerPhone?: string | null;
 }
 
 function NavLinks({ address, label }: { address: string; label: string }) {
@@ -77,6 +79,31 @@ export default function DriverJobs() {
     const interval = setInterval(fetchActiveOrders, 10000);
     return () => clearInterval(interval);
   }, []);
+
+  useEffect(() => {
+    if (!("geolocation" in navigator)) return;
+    const hasActivePickedUp = activeOrders.some(o => o.status === "picked_up");
+    if (!hasActivePickedUp) return;
+
+    const sendLocation = () => {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          fetch("/api/drivers/me/location", {
+            method: "PATCH",
+            credentials: "include",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
+          }).catch(() => {});
+        },
+        () => {},
+        { enableHighAccuracy: true, timeout: 8000 }
+      );
+    };
+
+    sendLocation();
+    const gpsInterval = setInterval(sendLocation, 10000);
+    return () => clearInterval(gpsInterval);
+  }, [activeOrders]);
 
   const updateStatus = useUpdateOrderStatus({
     mutation: {
@@ -230,6 +257,18 @@ export default function DriverJobs() {
                         )}
                       </div>
                     </div>
+                  )}
+
+                  {order.customerPhone && (
+                    <a
+                      href={`https://wa.me/1${order.customerPhone.replace(/\D/g, "")}?text=${encodeURIComponent(`Hola${order.customerName ? ` ${order.customerName.split(" ")[0]}` : ""}, soy tu delivery de YaPide 🛵 Pedido #${order.id}`)}`}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="flex items-center justify-center gap-2 w-full mb-3 py-2.5 rounded-xl bg-green-500/15 border border-green-500/40 text-green-400 text-sm font-bold hover:bg-green-500/25 transition"
+                    >
+                      <MessageCircle size={15} />
+                      Contactar a {order.customerName?.split(" ")[0] ?? "el cliente"} por WhatsApp
+                    </a>
                   )}
 
                   {order.status === "accepted" ? (

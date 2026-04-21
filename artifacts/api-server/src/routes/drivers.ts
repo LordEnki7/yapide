@@ -253,6 +253,8 @@ router.get("/driver/active-orders", async (req, res): Promise<void> => {
   const formatted = await Promise.all(activeOrders.map(async (o) => {
     const [biz] = await db.select({ name: businessesTable.name, address: businessesTable.address, phone: businessesTable.phone })
       .from(businessesTable).where(eq(businessesTable.id, o.businessId));
+    const [customer] = await db.select({ name: usersTable.name, phone: usersTable.phone })
+      .from(usersTable).where(eq(usersTable.id, o.customerId));
     return {
       id: o.id,
       status: o.status,
@@ -267,6 +269,8 @@ router.get("/driver/active-orders", async (req, res): Promise<void> => {
       businessName: biz?.name ?? null,
       businessAddress: biz?.address ?? null,
       businessPhone: biz?.phone ?? null,
+      customerName: customer?.name ?? null,
+      customerPhone: customer?.phone ?? null,
     };
   }));
   res.json(formatted);
