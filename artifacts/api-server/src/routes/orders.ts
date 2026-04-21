@@ -286,7 +286,7 @@ router.patch("/orders/:orderId/status", async (req, res): Promise<void> => {
     accepted: `✅ ¡Tu pedido #${order.id} fue confirmado! ${order.business ? `*${(order as any).business?.name}* está` : "El negocio está"} preparando tu pedido. Tiempo estimado: ~40 min. Sigue en vivo: yapide.app 🛵`,
     picked_up: `🛵 ¡Tu pedido #${order.id} está en camino! Tu driver ya recogió y va hacia ti. ¡Llega en ~20 min! Sigue en vivo: yapide.app`,
     delivered: `🎉 ¡Tu pedido #${order.id} fue entregado! ¡Buen provecho! Califica tu experiencia en la app. ¡Gracias por usar YaPide! 🙌`,
-    cancelled: `❌ Tu pedido #${order.id} fue cancelado. Si fue un error, puedes hacer un nuevo pedido en yapide.app. ¿Necesitas ayuda? WhatsApp: +1-809-000-0000`,
+    cancelled: `❌ Tu pedido #${order.id} fue cancelado. Si fue un error, puedes hacer un nuevo pedido en yapide.app. ¿Necesitas ayuda? WhatsApp: +1-809-000-0000 | Email: info@yapide.app`,
   };
 
   const waMsg = waMessages[parsed.data.status];

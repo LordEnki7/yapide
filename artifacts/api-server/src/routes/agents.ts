@@ -303,7 +303,7 @@ Información clave sobre YaPide:
 - Pagamos con efectivo. Tarjeta próximamente.
 - Los clientes ganan 1 punto por cada RD$10 gastados, canjeables por descuentos
 - Solo se puede cancelar un pedido si está en estado "pendiente"
-- Para soporte urgente: WhatsApp +1-809-000-0000
+- Para soporte urgente: WhatsApp +1-809-000-0000 o email info@yapide.app
 
 ${orderContext ? `\nContexto del pedido del cliente:\n${orderContext}` : ""}
 

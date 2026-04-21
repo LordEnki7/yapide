@@ -28,7 +28,7 @@ export async function getVapidKeys(): Promise<{ publicKey: string; privateKey: s
 
 export async function initPush(): Promise<void> {
   const keys = await getVapidKeys();
-  webpush.setVapidDetails("mailto:hola@queloqueapp.do", keys.publicKey, keys.privateKey);
+  webpush.setVapidDetails("mailto:info@yapide.app", keys.publicKey, keys.privateKey);
 }
 
 export async function sendPushToUser(
