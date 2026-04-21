@@ -4,7 +4,7 @@ import { formatDOP } from "@/lib/auth";
 import { useLang } from "@/lib/lang";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ArrowLeft, Star, MessageCircle, Share2, Clock } from "lucide-react";
+import { ArrowLeft, Star, MessageCircle, Share2, Clock, Phone } from "lucide-react";
 import { useState, useEffect, useRef, lazy, Suspense } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { useQueryClient, useMutation } from "@tanstack/react-query";
@@ -238,13 +238,19 @@ export default function CustomerOrderDetail() {
                 <p className="font-black text-white mt-1">{order?.business?.name}</p>
               </div>
               <div className="flex items-center gap-2">
+                <a href={`tel:${(order?.business as any)?.phone}`}>
+                  <Button size="sm" className="bg-blue-500 hover:bg-blue-400 text-white font-bold gap-2">
+                    <Phone size={14} />
+                    Llamar
+                  </Button>
+                </a>
                 <a
                   href={`https://wa.me/${(order?.business as any)?.phone?.replace(/\D/g, "")}?text=${encodeURIComponent(`Hola, tengo una pregunta sobre mi pedido #${orderId} 🛵`)}`}
                   target="_blank" rel="noreferrer"
                 >
                   <Button size="sm" className="bg-green-500 hover:bg-green-400 text-white font-bold gap-2">
                     <MessageCircle size={14} />
-                    Chat
+                    WhatsApp
                   </Button>
                 </a>
                 <a
@@ -253,7 +259,6 @@ export default function CustomerOrderDetail() {
                 >
                   <Button size="sm" variant="outline" className="border-white/20 text-white font-bold gap-2 hover:bg-white/10">
                     <Share2 size={14} />
-                    Compartir
                   </Button>
                 </a>
               </div>
@@ -291,12 +296,23 @@ export default function CustomerOrderDetail() {
                 </div>
               </div>
               {order.driver.user?.phone && (
-                <a href={`https://wa.me/1${order.driver.user.phone}?text=${orderId}`} target="_blank" rel="noreferrer">
-                  <Button size="sm" className="bg-green-500 hover:bg-green-400 text-white font-bold gap-2">
-                    <MessageCircle size={14} />
-                    {t.chat}
-                  </Button>
-                </a>
+                <div className="flex gap-2">
+                  <a href={`tel:${order.driver.user.phone}`}>
+                    <Button size="sm" className="bg-blue-500 hover:bg-blue-400 text-white font-bold gap-2">
+                      <Phone size={14} />
+                      Llamar
+                    </Button>
+                  </a>
+                  <a
+                    href={`https://wa.me/1${order.driver.user.phone.replace(/\D/g, "")}?text=${encodeURIComponent(`Hola, soy el cliente del pedido #${orderId} 🛵`)}`}
+                    target="_blank" rel="noreferrer"
+                  >
+                    <Button size="sm" className="bg-green-500 hover:bg-green-400 text-white font-bold gap-2">
+                      <MessageCircle size={14} />
+                      WhatsApp
+                    </Button>
+                  </a>
+                </div>
               )}
             </div>
           </div>

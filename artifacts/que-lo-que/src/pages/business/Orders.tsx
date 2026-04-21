@@ -7,7 +7,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ArrowLeft, Clock, Bell } from "lucide-react";
+import { ArrowLeft, Clock, Phone, MessageCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useEffect, useRef } from "react";
 
@@ -129,6 +129,35 @@ export default function BusinessOrders() {
                     <p className="text-xs text-gray-500">+{(order.items?.length ?? 0) - 3} más</p>
                   )}
                 </div>
+
+                {(order as any).customer?.phone && (
+                  <div className="bg-white/5 rounded-xl px-3 py-2.5 mb-3 flex items-center justify-between gap-3">
+                    <div className="min-w-0">
+                      <p className="text-xs text-gray-500 font-bold uppercase tracking-wider">Cliente</p>
+                      <p className="text-sm font-bold text-white truncate">{(order as any).customer?.name ?? "Cliente"}</p>
+                    </div>
+                    <div className="flex gap-2 flex-shrink-0">
+                      <a
+                        href={`tel:${(order as any).customer.phone}`}
+                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-500/15 border border-blue-500/30 text-blue-400 text-xs font-bold hover:bg-blue-500/25 transition"
+                        onClick={e => e.stopPropagation()}
+                      >
+                        <Phone size={12} />
+                        Llamar
+                      </a>
+                      <a
+                        href={`https://wa.me/1${(order as any).customer.phone.replace(/\D/g, "")}?text=${encodeURIComponent(`Hola, soy ${(order as any).business?.name ?? "el negocio"} — tengo una pregunta sobre tu pedido #${order.id} 🙏`)}`}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-green-500/15 border border-green-500/30 text-green-400 text-xs font-bold hover:bg-green-500/25 transition"
+                        onClick={e => e.stopPropagation()}
+                      >
+                        <MessageCircle size={12} />
+                        WhatsApp
+                      </a>
+                    </div>
+                  </div>
+                )}
 
                 <div className="flex items-center justify-between">
                   <span className="text-yellow-400 font-black">{formatDOP(order.totalAmount)}</span>
