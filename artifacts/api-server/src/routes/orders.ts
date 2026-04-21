@@ -326,6 +326,21 @@ router.get("/orders/:orderId/driver-location", async (req, res): Promise<void> =
   res.json({ lat: driver.currentLat, lng: driver.currentLng });
 });
 
+router.patch("/orders/:orderId/notes", async (req, res): Promise<void> => {
+  const sessionUserId = (req.session as any)?.userId;
+  if (!sessionUserId) { res.status(401).json({ error: "Unauthorized" }); return; }
+  const raw = Array.isArray(req.params.orderId) ? req.params.orderId[0] : req.params.orderId;
+  const id = parseInt(raw, 10);
+  if (isNaN(id)) { res.status(400).json({ error: "Invalid orderId" }); return; }
+  const [order] = await db.select().from(ordersTable).where(eq(ordersTable.id, id));
+  if (!order) { res.status(404).json({ error: "Order not found" }); return; }
+  if (order.customerId !== sessionUserId) { res.status(403).json({ error: "Forbidden" }); return; }
+  if (order.status !== "pending") { res.status(409).json({ error: "Solo puedes editar notas de pedidos pendientes" }); return; }
+  const { notes } = req.body as { notes: string };
+  const [updated] = await db.update(ordersTable).set({ notes: notes ?? null }).where(eq(ordersTable.id, id)).returning();
+  res.json(await formatOrder(updated));
+});
+
 router.post("/orders/:orderId/cancel", async (req, res): Promise<void> => {
   const sessionUserId = (req.session as any)?.userId;
   if (!sessionUserId) { res.status(401).json({ error: "Unauthorized" }); return; }

@@ -1,10 +1,11 @@
-import { useParams, Link } from "wouter";
+import { useParams, Link, useLocation } from "wouter";
 import { useGetOrder, getGetOrderQueryKey, useRateOrder } from "@workspace/api-client-react";
 import { formatDOP } from "@/lib/auth";
 import { useLang } from "@/lib/lang";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ArrowLeft, Star, MessageCircle, Share2, Clock, Phone, MessageSquare } from "lucide-react";
+import { Textarea } from "@/components/ui/textarea";
+import { ArrowLeft, Star, MessageCircle, Share2, Clock, Phone, MessageSquare, Pencil, Check, X } from "lucide-react";
 import { useState, useEffect, useRef, lazy, Suspense } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { useQueryClient, useMutation } from "@tanstack/react-query";
@@ -17,9 +18,12 @@ export default function CustomerOrderDetail() {
   const orderId = parseInt(id, 10);
   const [driverRating, setDriverRating] = useState(5);
   const [bizRating, setBizRating] = useState(5);
+  const [editingNotes, setEditingNotes] = useState(false);
+  const [notesValue, setNotesValue] = useState("");
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const { t } = useLang();
+  const [, navigate] = useLocation();
 
   const STEPS = [
     { key: "pending", label: t.pendingStep },
@@ -54,14 +58,46 @@ export default function CustomerOrderDetail() {
       }
       return res.json();
     },
-    onSuccess: () => {
+    onSuccess: (data: any) => {
       queryClient.invalidateQueries({ queryKey: getGetOrderQueryKey(orderId) });
       toast({ title: "Pedido cancelado", description: "Tu pedido fue cancelado exitosamente." });
+      const bizId = data?.businessId ?? (order as any)?.businessId;
+      if (bizId) navigate(`/customer/business/${bizId}`);
     },
     onError: (err: any) => {
       toast({ title: "No se pudo cancelar", description: err.message, variant: "destructive" });
     },
   });
+
+  const saveNotesMutation = useMutation({
+    mutationFn: async (notes: string) => {
+      const res = await fetch(`/api/orders/${orderId}/notes`, {
+        method: "PATCH",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ notes }),
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.error ?? "Error al guardar");
+      }
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: getGetOrderQueryKey(orderId) });
+      setEditingNotes(false);
+      toast({ title: "✅ Nota guardada", description: "El negocio verá tu nota." });
+    },
+    onError: (err: any) => {
+      toast({ title: "No se pudo guardar", description: err.message, variant: "destructive" });
+    },
+  });
+
+  useEffect(() => {
+    if (order && !editingNotes) {
+      setNotesValue((order as any).notes ?? "");
+    }
+  }, [order?.id, (order as any)?.notes]);
 
   const currentStep = STEPS.findIndex(s => s.key === order?.status);
   const isDelivered = order?.status === "delivered";
@@ -220,12 +256,12 @@ export default function CustomerOrderDetail() {
               size="sm"
               className="mt-4 w-full border-red-400/30 text-red-400 hover:bg-red-400/10 hover:border-red-400/60 font-bold"
               onClick={() => {
-                if (confirm("¿Seguro que quieres cancelar este pedido?")) cancelMutation.mutate();
+                if (confirm("¿Seguro que quieres cancelar? Regresarás al menú del negocio para pedir de nuevo.")) cancelMutation.mutate();
               }}
               disabled={cancelMutation.isPending}
             >
               {cancelMutation.isPending ? <Loader2 size={14} className="animate-spin mr-2" /> : <XCircle size={14} className="mr-2" />}
-              Cancelar pedido
+              Cancelar y pedir de nuevo
             </Button>
           )}
         </div>
@@ -353,6 +389,61 @@ export default function CustomerOrderDetail() {
             <span className="text-yellow-400">{formatDOP((order?.totalAmount ?? 0) + (order?.deliveryFee ?? 0))}</span>
           </div>
         </div>
+
+        {/* Notes card — editable when pending */}
+        {(isPending || (order as any)?.notes) && !isCancelled && (
+          <div className="bg-white/5 border border-white/10 rounded-2xl p-4">
+            <div className="flex items-center justify-between mb-3">
+              <h2 className="font-bold text-sm text-gray-400 uppercase tracking-widest">📝 Nota al negocio</h2>
+              {isPending && !editingNotes && (
+                <button
+                  onClick={() => { setNotesValue((order as any)?.notes ?? ""); setEditingNotes(true); }}
+                  className="flex items-center gap-1 text-xs text-yellow-400 hover:text-yellow-300 font-bold transition"
+                >
+                  <Pencil size={12} />
+                  {(order as any)?.notes ? "Editar" : "Agregar nota"}
+                </button>
+              )}
+            </div>
+            {editingNotes ? (
+              <div className="space-y-3">
+                <Textarea
+                  value={notesValue}
+                  onChange={e => setNotesValue(e.target.value)}
+                  placeholder="Sin cebolla, extra salsa, alergias..."
+                  className="bg-white/8 border-white/10 text-white placeholder:text-gray-500 focus:border-yellow-400 resize-none text-sm"
+                  rows={3}
+                  autoFocus
+                />
+                <div className="flex gap-2">
+                  <Button
+                    size="sm"
+                    className="bg-yellow-400 text-black font-bold hover:bg-yellow-300 gap-1.5"
+                    onClick={() => saveNotesMutation.mutate(notesValue)}
+                    disabled={saveNotesMutation.isPending}
+                  >
+                    {saveNotesMutation.isPending ? <Loader2 size={13} className="animate-spin" /> : <Check size={13} />}
+                    Guardar
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    className="text-gray-400 gap-1.5"
+                    onClick={() => setEditingNotes(false)}
+                    disabled={saveNotesMutation.isPending}
+                  >
+                    <X size={13} />
+                    Cancelar
+                  </Button>
+                </div>
+              </div>
+            ) : (
+              <p className="text-sm text-gray-300 leading-relaxed">
+                {(order as any)?.notes || <span className="text-gray-500 italic">Sin instrucciones especiales</span>}
+              </p>
+            )}
+          </div>
+        )}
 
         {(order as any)?.deliveryPhotoPath && (
           <div className="bg-white/8 border border-white/10 rounded-2xl p-4">

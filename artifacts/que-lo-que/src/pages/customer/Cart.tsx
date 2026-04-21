@@ -57,6 +57,8 @@ export default function CustomerCart() {
   const { t } = useLang();
   const user = getStoredUser();
 
+  const [showCutleryModal, setShowCutleryModal] = useState(false);
+
   const [promoInput, setPromoInput] = useState("");
   const [appliedPromo, setAppliedPromo] = useState<{ code: string; discountAmount: number; discountType: string; discountValue: number } | null>(null);
   const [promoLoading, setPromoLoading] = useState(false);
@@ -153,7 +155,7 @@ export default function CustomerCart() {
     }
   };
 
-  const handleOrder = () => {
+  const placeOrder = (withCutlery: boolean | null) => {
     if (!address.trim()) {
       toast({ title: t.missingAddress, description: t.addressRequired, variant: "destructive" });
       return;
@@ -163,11 +165,13 @@ export default function CustomerCart() {
       return;
     }
     if (!businessId) return;
+    const cutleryLine = withCutlery === true ? "🍴 Cubiertos: Sí" : withCutlery === false ? "🍴 Cubiertos: No" : "";
+    const fullNotes = [notes, cutleryLine].filter(Boolean).join("\n") || undefined;
     (createOrder.mutate as any)({
       businessId,
       paymentMethod,
       deliveryAddress: address,
-      notes: notes || undefined,
+      notes: fullNotes,
       tip: activeTip,
       items: items.map(i => ({ productId: i.productId!, quantity: i.quantity })),
       promoCode: appliedPromo?.code,
@@ -175,6 +179,19 @@ export default function CustomerCart() {
       orderType: isLaundry ? "laundry" : "delivery",
       pickupAddress: isLaundry ? pickupAddress : undefined,
     });
+    setShowCutleryModal(false);
+  };
+
+  const handleOrder = () => {
+    if (!address.trim()) {
+      toast({ title: t.missingAddress, description: t.addressRequired, variant: "destructive" });
+      return;
+    }
+    if (!isLaundry) {
+      setShowCutleryModal(true);
+    } else {
+      placeOrder(null);
+    }
   };
 
   if (items.length === 0) {
@@ -636,6 +653,46 @@ export default function CustomerCart() {
           </div>
         )}
       </div>
+
+      {/* Cutlery modal */}
+      {showCutleryModal && (
+        <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowCutleryModal(false)}>
+          <div
+            className="w-full max-w-md bg-[#0f1c2e] border border-yellow-400/20 rounded-t-3xl p-6 pb-10 space-y-5"
+            onClick={e => e.stopPropagation()}
+          >
+            <div className="text-center">
+              <p className="text-4xl mb-2">🍴</p>
+              <h2 className="text-xl font-black text-white">¿Necesitas cubiertos?</h2>
+              <p className="text-sm text-gray-400 mt-1">Cuchillo, tenedor y servilleta</p>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <button
+                onClick={() => placeOrder(true)}
+                disabled={createOrder.isPending}
+                className="flex flex-col items-center justify-center gap-2 py-5 rounded-2xl border-2 border-yellow-400 bg-yellow-400/10 hover:bg-yellow-400/20 transition disabled:opacity-50"
+              >
+                <span className="text-2xl">✅</span>
+                <span className="font-black text-yellow-400 text-sm">Sí, por favor</span>
+              </button>
+              <button
+                onClick={() => placeOrder(false)}
+                disabled={createOrder.isPending}
+                className="flex flex-col items-center justify-center gap-2 py-5 rounded-2xl border-2 border-white/15 bg-white/5 hover:bg-white/10 transition disabled:opacity-50"
+              >
+                <span className="text-2xl">🌿</span>
+                <span className="font-black text-gray-300 text-sm">No, gracias</span>
+              </button>
+            </div>
+            {createOrder.isPending && (
+              <div className="flex items-center justify-center gap-2 text-yellow-400 text-sm font-bold">
+                <Loader2 size={16} className="animate-spin" />
+                Enviando pedido...
+              </div>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* Bottom CTA */}
       <div className="fixed bottom-0 left-0 right-0 p-4 bg-background/95 backdrop-blur-sm border-t border-yellow-400/20 z-20">
