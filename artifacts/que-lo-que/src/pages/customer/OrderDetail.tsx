@@ -202,6 +202,29 @@ export default function CustomerOrderDetail() {
           </div>
         )}
 
+        {/* Delivery verification PIN — shown only while order is active */}
+        {(order as any)?.verificationPin && !isDelivered && !isCancelled && (
+          <div className="rounded-2xl border-2 border-yellow-400/50 bg-yellow-400/8 px-5 py-4">
+            <div className="flex items-center gap-2 mb-2">
+              <span className="text-base">🔐</span>
+              <p className="text-xs font-black text-yellow-400 uppercase tracking-widest">PIN de entrega</p>
+            </div>
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-4xl font-black text-white tracking-[0.25em] tabular-nums">
+                  {(order as any).verificationPin}
+                </p>
+                <p className="text-xs text-gray-400 mt-1">
+                  Díselo al driver cuando llegue para confirmar que eres tú
+                </p>
+              </div>
+              <div className="w-14 h-14 rounded-2xl bg-yellow-400/15 border border-yellow-400/30 flex items-center justify-center flex-shrink-0">
+                <span className="text-2xl">🛵</span>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Live status card */}
         {order?.status && STATUS_CONFIG[order.status] && (
           <div className={`border rounded-2xl px-4 py-4 flex items-center gap-4 transition-all ${STATUS_CONFIG[order.status].bg} ${STATUS_CONFIG[order.status].border}`}>

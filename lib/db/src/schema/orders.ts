@@ -24,6 +24,7 @@ export const ordersTable = pgTable("orders", {
   driverRating: integer("driver_rating"),
   businessRating: integer("business_rating"),
   deliveryPhotoPath: text("delivery_photo_path"),
+  verificationPin: text("verification_pin"),
   promoCode: text("promo_code"),
   promoDiscount: real("promo_discount").notNull().default(0),
   orderType: text("order_type").notNull().default("delivery"),

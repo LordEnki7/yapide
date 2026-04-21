@@ -8,7 +8,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, MapPin, Banknote, CreditCard, Clock, Navigation, Camera, CheckCircle2, Package, Loader2, Store, MessageCircle, MapPinned } from "lucide-react";
+import { ArrowLeft, MapPin, Banknote, CreditCard, Clock, Navigation, Camera, CheckCircle2, Package, Loader2, Store, MessageCircle, MapPinned, ShieldCheck } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import JobAlertModal from "@/components/JobAlertModal";
 
@@ -71,6 +71,8 @@ export default function DriverJobs() {
   const [uploadingId, setUploadingId] = useState<number | null>(null);
   const [arrivedIds, setArrivedIds] = useState<Set<number>>(new Set());
   const [alertJob, setAlertJob] = useState<any | null>(null);
+  const [pinModal, setPinModal] = useState<{ orderId: number } | null>(null);
+  const [pinInput, setPinInput] = useState("");
   const fileRefs = useRef<{ [key: number]: HTMLInputElement | null }>({});
   const seenJobIds = useRef<Set<number>>(new Set());
 
@@ -138,7 +140,11 @@ export default function DriverJobs() {
         queryClient.invalidateQueries({ queryKey: getGetAvailableJobsQueryKey() });
         queryClient.invalidateQueries({ queryKey: getListOrdersQueryKey() });
       },
-      onError: () => toast({ title: t.error, description: t.error, variant: "destructive" }),
+      onError: (err: any) => {
+        const msg = err?.response?.data?.error ?? t.error;
+        toast({ title: "❌ Error", description: msg, variant: "destructive" });
+        setPinModal(null);
+      },
     }
   });
 
@@ -172,7 +178,7 @@ export default function DriverJobs() {
     updateStatus.mutate({ orderId, data: { status: "picked_up" } });
   };
 
-  const handleMarkDelivered = async (orderId: number) => {
+  const handleMarkDelivered = async (orderId: number, verificationPin: string) => {
     const photo = deliveryPhoto[orderId];
     setUploadingId(orderId);
     let deliveryPhotoPath: string | undefined;
@@ -195,7 +201,7 @@ export default function DriverJobs() {
       }
     }
 
-    updateStatus.mutate({ orderId, data: { status: "delivered", deliveryPhotoPath } as any });
+    updateStatus.mutate({ orderId, data: { status: "delivered", deliveryPhotoPath, verificationPin } as any });
     setUploadingId(null);
   };
 
@@ -344,12 +350,12 @@ export default function DriverJobs() {
                     ) : (
                       <Button
                         className="w-full h-14 rounded-2xl bg-yellow-400 hover:bg-yellow-300 text-black font-black text-base shadow-[0_0_30px_rgba(255,215,0,0.5)] active:scale-95 transition-transform"
-                        onClick={() => handleMarkDelivered(order.id)}
+                        onClick={() => { setPinInput(""); setPinModal({ orderId: order.id }); }}
                         disabled={updateStatus.isPending || uploadingId === order.id}
                       >
                         {uploadingId === order.id
                           ? <Loader2 size={18} className="mr-2 animate-spin" />
-                          : <CheckCircle2 size={18} className="mr-2" />
+                          : <ShieldCheck size={18} className="mr-2" />
                         }
                         🎉 Marcar como entregado
                       </Button>
@@ -454,6 +460,57 @@ export default function DriverJobs() {
           )}
         </div>
       </div>
+
+      {/* PIN Verification Modal */}
+      {pinModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm px-6">
+          <div className="w-full max-w-sm bg-white rounded-2xl overflow-hidden shadow-2xl">
+            <div className="px-6 pt-6 pb-4 border-b border-gray-100 text-center">
+              <div className="w-14 h-14 rounded-full bg-yellow-50 border-2 border-yellow-400/30 flex items-center justify-center mx-auto mb-3">
+                <ShieldCheck size={26} className="text-yellow-500" />
+              </div>
+              <h2 className="text-lg font-black text-gray-900">Verificación de entrega</h2>
+              <p className="text-sm text-gray-500 mt-1">Pídele al cliente su PIN de 4 dígitos y escríbelo aquí</p>
+            </div>
+            <div className="px-6 py-5">
+              <input
+                type="number"
+                inputMode="numeric"
+                pattern="[0-9]*"
+                maxLength={4}
+                placeholder="_ _ _ _"
+                value={pinInput}
+                onChange={e => setPinInput(e.target.value.slice(0, 4))}
+                className="w-full text-center text-4xl font-black tracking-[0.4em] border-2 border-gray-200 rounded-xl py-4 outline-none focus:border-yellow-400 transition text-gray-900 bg-gray-50 placeholder:text-gray-300"
+                autoFocus
+              />
+            </div>
+            <div className="flex border-t border-gray-100">
+              <button
+                onClick={() => { setPinModal(null); setPinInput(""); }}
+                className="flex-1 py-4 text-base font-bold text-gray-500 hover:bg-gray-50 transition border-r border-gray-100"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={() => {
+                  if (pinInput.length !== 4) {
+                    toast({ title: "PIN incompleto", description: "El PIN debe tener 4 dígitos", variant: "destructive" });
+                    return;
+                  }
+                  handleMarkDelivered(pinModal.orderId, pinInput);
+                  setPinModal(null);
+                  setPinInput("");
+                }}
+                disabled={updateStatus.isPending || uploadingId === pinModal.orderId}
+                className="flex-1 py-4 text-base font-bold text-yellow-500 hover:bg-yellow-50 transition disabled:opacity-50"
+              >
+                {updateStatus.isPending ? <Loader2 size={18} className="animate-spin mx-auto" /> : "Confirmar"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

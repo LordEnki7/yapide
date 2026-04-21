@@ -43,6 +43,7 @@ async function formatOrder(order: typeof ordersTable.$inferSelect) {
     promoDiscount: order.promoDiscount,
     orderType: order.orderType,
     pickupAddress: order.pickupAddress,
+    verificationPin: order.verificationPin,
     createdAt: order.createdAt,
     items: items.map(i => ({
       id: i.id,
@@ -155,6 +156,8 @@ router.post("/orders", async (req, res): Promise<void> => {
 
   const { totalAmount, deliveryFee, commission, driverEarnings } = calculateFees(baseAmount, 3, tip ?? 0);
 
+  const verificationPin = String(Math.floor(1000 + Math.random() * 9000));
+
   const [order] = await db.insert(ordersTable).values({
     customerId: sessionUserId,
     businessId,
@@ -170,6 +173,7 @@ router.post("/orders", async (req, res): Promise<void> => {
     isPaid: paymentMethod === "card",
     orderType: orderType ?? "delivery",
     pickupAddress: pickupAddress ?? null,
+    verificationPin,
   }).returning();
 
   for (const item of itemDetails) {
@@ -208,6 +212,19 @@ router.patch("/orders/:orderId/status", async (req, res): Promise<void> => {
   if (isNaN(id)) { res.status(400).json({ error: "Invalid orderId" }); return; }
   const parsed = UpdateOrderStatusBody.safeParse(req.body);
   if (!parsed.success) { res.status(400).json({ error: parsed.error.message }); return; }
+
+  // PIN verification on delivery
+  if (parsed.data.status === "delivered") {
+    const [existing] = await db.select({ verificationPin: ordersTable.verificationPin }).from(ordersTable).where(eq(ordersTable.id, id));
+    if (!existing) { res.status(404).json({ error: "Order not found" }); return; }
+    if (existing.verificationPin) {
+      const submittedPin = (parsed.data as any).verificationPin as string | undefined;
+      if (!submittedPin || submittedPin.trim() !== existing.verificationPin) {
+        res.status(403).json({ error: "PIN incorrecto. Pídele al cliente su PIN de entrega." });
+        return;
+      }
+    }
+  }
 
   const updateData: Partial<typeof ordersTable.$inferInsert> = { status: parsed.data.status };
   if (parsed.data.status === "delivered" && (parsed.data as any).deliveryPhotoPath) {
