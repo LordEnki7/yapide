@@ -7,7 +7,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ArrowLeft, Clock, Phone, MessageCircle } from "lucide-react";
+import { ArrowLeft, Clock, Phone, MessageCircle, MessageSquare } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useEffect, useRef } from "react";
 
@@ -144,6 +144,14 @@ export default function BusinessOrders() {
                       >
                         <Phone size={12} />
                         Llamar
+                      </a>
+                      <a
+                        href={`sms:${(order as any).customer.phone}?body=${encodeURIComponent(`Hola, soy ${(order as any).business?.name ?? "el negocio"} — tengo una pregunta sobre tu pedido #${order.id}`)}`}
+                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-yellow-400/15 border border-yellow-400/30 text-yellow-400 text-xs font-bold hover:bg-yellow-400/25 transition"
+                        onClick={e => e.stopPropagation()}
+                      >
+                        <MessageSquare size={12} />
+                        Texto
                       </a>
                       <a
                         href={`https://wa.me/1${(order as any).customer.phone.replace(/\D/g, "")}?text=${encodeURIComponent(`Hola, soy ${(order as any).business?.name ?? "el negocio"} — tengo una pregunta sobre tu pedido #${order.id} 🙏`)}`}

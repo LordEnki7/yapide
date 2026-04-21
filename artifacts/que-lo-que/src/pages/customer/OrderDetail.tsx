@@ -4,7 +4,7 @@ import { formatDOP } from "@/lib/auth";
 import { useLang } from "@/lib/lang";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ArrowLeft, Star, MessageCircle, Share2, Clock, Phone } from "lucide-react";
+import { ArrowLeft, Star, MessageCircle, Share2, Clock, Phone, MessageSquare } from "lucide-react";
 import { useState, useEffect, useRef, lazy, Suspense } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { useQueryClient, useMutation } from "@tanstack/react-query";
@@ -244,6 +244,12 @@ export default function CustomerOrderDetail() {
                     Llamar
                   </Button>
                 </a>
+                <a href={`sms:${(order?.business as any)?.phone}?body=${encodeURIComponent(`Hola, tengo una pregunta sobre mi pedido #${orderId}`)}`}>
+                  <Button size="sm" className="bg-yellow-500 hover:bg-yellow-400 text-black font-bold gap-2">
+                    <MessageSquare size={14} />
+                    Texto
+                  </Button>
+                </a>
                 <a
                   href={`https://wa.me/${(order?.business as any)?.phone?.replace(/\D/g, "")}?text=${encodeURIComponent(`Hola, tengo una pregunta sobre mi pedido #${orderId} 🛵`)}`}
                   target="_blank" rel="noreferrer"
@@ -301,6 +307,12 @@ export default function CustomerOrderDetail() {
                     <Button size="sm" className="bg-blue-500 hover:bg-blue-400 text-white font-bold gap-2">
                       <Phone size={14} />
                       Llamar
+                    </Button>
+                  </a>
+                  <a href={`sms:${order.driver.user.phone}?body=${encodeURIComponent(`Hola, soy el cliente del pedido #${orderId}`)}`}>
+                    <Button size="sm" className="bg-yellow-500 hover:bg-yellow-400 text-black font-bold gap-2">
+                      <MessageSquare size={14} />
+                      Texto
                     </Button>
                   </a>
                   <a
