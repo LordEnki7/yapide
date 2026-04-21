@@ -80,22 +80,6 @@ export default function Landing() {
     }
   };
 
-  const handleAdmin = async () => {
-    setLoading("admin");
-    setError(null);
-    try {
-      await fetch(`${API}/api/demo/seed`, { method: "POST", credentials: "include" });
-      const res = await fetch(`${API}/api/demo/login?role=admin`, { method: "POST", credentials: "include" });
-      if (!res.ok) throw new Error("Error");
-      const { user } = await res.json();
-      setStoredUser(user);
-      window.location.href = "/admin";
-    } catch {
-      setError("Error al entrar como admin");
-    } finally {
-      setLoading(null);
-    }
-  };
 
   return (
     <div className="min-h-screen bg-background text-white flex flex-col">
@@ -179,15 +163,8 @@ export default function Landing() {
       </div>
 
       {/* Footer */}
-      <div className="px-5 pb-6 text-center space-y-1">
+      <div className="px-5 pb-6 text-center">
         <p className="text-xs text-gray-700">{t.demoDisclaimer}</p>
-        <button
-          onClick={handleAdmin}
-          disabled={!!loading}
-          className="text-xs text-gray-600 hover:text-gray-400 transition"
-        >
-          {loading === "admin" ? t.adminLoading : "⚙️ Admin"}
-        </button>
       </div>
     </div>
   );
