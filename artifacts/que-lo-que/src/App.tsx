@@ -1,3 +1,4 @@
+import { useState, useCallback } from "react";
 import { Switch, Route, Router as WouterRouter } from "wouter";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
@@ -9,6 +10,7 @@ import Register from "@/pages/Register";
 import { CartProvider } from "@/lib/cart";
 import { LangProvider } from "@/lib/lang";
 import BottomNav from "@/components/BottomNav";
+import SplashScreen from "@/components/SplashScreen";
 
 import CustomerHome from "@/pages/customer/Home";
 import BusinessStore from "@/pages/customer/BusinessStore";
@@ -96,11 +98,21 @@ function Router() {
 }
 
 function App() {
+  const [splashDone, setSplashDone] = useState(() => {
+    return sessionStorage.getItem("yapide_splash_shown") === "1";
+  });
+
+  const handleSplashDone = useCallback(() => {
+    sessionStorage.setItem("yapide_splash_shown", "1");
+    setSplashDone(true);
+  }, []);
+
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <LangProvider>
           <CartProvider>
+            {!splashDone && <SplashScreen onDone={handleSplashDone} />}
             <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
               <Router />
             </WouterRouter>
