@@ -14,6 +14,30 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Verify required secrets
+        env:
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: |
+          missing=()
+          [ -z "$ANDROID_KEYSTORE_BASE64" ]    && missing+=("ANDROID_KEYSTORE_BASE64")
+          [ -z "$ANDROID_KEYSTORE_PASSWORD" ]  && missing+=("ANDROID_KEYSTORE_PASSWORD")
+          [ -z "$ANDROID_KEY_ALIAS" ]          && missing+=("ANDROID_KEY_ALIAS")
+          [ -z "$ANDROID_KEY_PASSWORD" ]       && missing+=("ANDROID_KEY_PASSWORD")
+
+          if [ ${#missing[@]} -gt 0 ]; then
+            echo "::error::The following required secrets are missing or empty:"
+            for s in "${missing[@]}"; do
+              echo "::error::  - $s"
+            done
+            echo "::error::See docs/ci-secrets.md for setup instructions."
+            exit 1
+          fi
+
+          echo "All required secrets are present."
+
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
