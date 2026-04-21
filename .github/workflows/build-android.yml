@@ -112,6 +112,7 @@ jobs:
           releaseFiles: artifacts/que-lo-que/android/app/build/outputs/bundle/release/app-release.aab
           track: internal
           status: completed
+          whatsNewDirectory: whatsnew
 
       # Required secret:
       #   SLACK_WEBHOOK_URL – Slack incoming webhook URL for the target channel.

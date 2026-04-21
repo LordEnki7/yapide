@@ -178,6 +178,35 @@ This password is used only for the temporary keychain that exists during the CI 
 
 ---
 
+## Release notes (what's new text)
+
+Release notes for each submission are read from the `whatsnew/` directory at the repo root. Update these files before (or as part of) the commit that triggers a release build.
+
+### Android
+
+The `build-android.yml` workflow passes the entire `whatsnew/` directory to the Google Play upload action via the `whatsNewDirectory` parameter. Google Play reads one file per locale. File names must match the BCP 47 locale tag exactly:
+
+| File | Locale |
+|---|---|
+| `whatsnew/whatsnew-en-US` | English (US) |
+| `whatsnew/whatsnew-es-ES` | Spanish |
+
+Add more files for additional locales as needed. The maximum length per file is **500 characters**.
+
+### iOS (TestFlight)
+
+The `build-ios.yml` workflow runs `scripts/set-testflight-whats-new.js` after a successful TestFlight upload. The script reads `whatsnew/whatsnew-en-US`, generates an App Store Connect API JWT, polls until the build appears in App Store Connect, and then creates or updates the `en-US` beta build localization for that build.
+
+One additional secret is required:
+
+| Secret name | Format | Description |
+|---|---|---|
+| `ASC_APP_ID` | Plain text (numeric) | The numeric app ID shown in **App Store Connect → App Information → Apple ID** (e.g. `1234567890`) |
+
+The script reuses the `ASC_API_KEY_BASE64`, `ASC_API_KEY_ID`, and `ASC_ISSUER_ID` secrets already set up for the TestFlight upload step.
+
+---
+
 ## Quick reference: All secrets at a glance
 
 | Secret name | Workflow | Format |
@@ -191,3 +220,7 @@ This password is used only for the temporary keychain that exists during the CI 
 | `IOS_PROVISION_PROFILE_BASE64` | iOS | Base64-encoded `.mobileprovision` file |
 | `IOS_KEYCHAIN_PASSWORD` | iOS | Plain text password (any strong value) |
 | `IOS_EXPORT_OPTIONS_PLIST` | iOS | Base64-encoded `ExportOptions.plist` file |
+| `ASC_API_KEY_BASE64` | iOS | Base64-encoded `.p8` App Store Connect key |
+| `ASC_API_KEY_ID` | iOS | Plain text key ID |
+| `ASC_ISSUER_ID` | iOS | Plain text issuer UUID |
+| `ASC_APP_ID` | iOS | Plain text numeric app ID |

@@ -21,6 +21,10 @@ jobs:
           IOS_PROVISION_PROFILE_BASE64: ${{ secrets.IOS_PROVISION_PROFILE_BASE64 }}
           IOS_KEYCHAIN_PASSWORD: ${{ secrets.IOS_KEYCHAIN_PASSWORD }}
           IOS_EXPORT_OPTIONS_PLIST: ${{ secrets.IOS_EXPORT_OPTIONS_PLIST }}
+          ASC_API_KEY_BASE64: ${{ secrets.ASC_API_KEY_BASE64 }}
+          ASC_API_KEY_ID: ${{ secrets.ASC_API_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+          ASC_APP_ID: ${{ secrets.ASC_APP_ID }}
         run: |
           missing=()
           [ -z "$IOS_BUILD_CERTIFICATE_BASE64" ]  && missing+=("IOS_BUILD_CERTIFICATE_BASE64")
@@ -28,6 +32,10 @@ jobs:
           [ -z "$IOS_PROVISION_PROFILE_BASE64" ]  && missing+=("IOS_PROVISION_PROFILE_BASE64")
           [ -z "$IOS_KEYCHAIN_PASSWORD" ]         && missing+=("IOS_KEYCHAIN_PASSWORD")
           [ -z "$IOS_EXPORT_OPTIONS_PLIST" ]      && missing+=("IOS_EXPORT_OPTIONS_PLIST")
+          [ -z "$ASC_API_KEY_BASE64" ]            && missing+=("ASC_API_KEY_BASE64")
+          [ -z "$ASC_API_KEY_ID" ]                && missing+=("ASC_API_KEY_ID")
+          [ -z "$ASC_ISSUER_ID" ]                 && missing+=("ASC_ISSUER_ID")
+          [ -z "$ASC_APP_ID" ]                    && missing+=("ASC_APP_ID")
 
           if [ ${#missing[@]} -gt 0 ]; then
             echo "::error::The following required secrets are missing or empty:"
@@ -122,6 +130,18 @@ jobs:
           path: ${{ runner.temp }}/export/*.ipa
           retention-days: 30
 
+      - name: Extract IPA build metadata
+        id: ipa_meta
+        run: |
+          IPA_PATH=$(ls $RUNNER_TEMP/export/*.ipa | head -n 1)
+          unzip -p "$IPA_PATH" 'Payload/*.app/Info.plist' | \
+            plutil -convert json -o /tmp/ipa_info.json -
+          BUILD_NUMBER=$(python3 -c "import json; d=json.load(open('/tmp/ipa_info.json')); print(d['CFBundleVersion'])")
+          APP_VERSION=$(python3 -c "import json; d=json.load(open('/tmp/ipa_info.json')); print(d['CFBundleShortVersionString'])")
+          echo "build_number=$BUILD_NUMBER" >> $GITHUB_OUTPUT
+          echo "app_version=$APP_VERSION"   >> $GITHUB_OUTPUT
+          echo "IPA build number: $BUILD_NUMBER  version: $APP_VERSION"
+
       # Required secrets for the two steps below:
       #   ASC_API_KEY_BASE64 – base64-encoded App Store Connect .p8 private key
       #   ASC_API_KEY_ID     – key ID shown in App Store Connect → Users & Access → Keys
@@ -152,6 +172,23 @@ jobs:
             --apiKey "$ASC_API_KEY_ID" \
             --apiIssuer "$ASC_ISSUER_ID" \
             --verbose
+
+      # Required secrets for this step:
+      #   ASC_API_KEY_BASE64 – already used above for the altool upload
+      #   ASC_API_KEY_ID     – already used above
+      #   ASC_ISSUER_ID      – already used above
+      #   ASC_APP_ID         – numeric app ID from App Store Connect → App Information
+      - name: Update TestFlight what's new text
+        if: steps.testflight_submit.outcome == 'success'
+        env:
+          ASC_API_KEY_BASE64: ${{ secrets.ASC_API_KEY_BASE64 }}
+          ASC_API_KEY_ID: ${{ secrets.ASC_API_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+          ASC_APP_ID: ${{ secrets.ASC_APP_ID }}
+          CHANGELOG_FILE: whatsnew/whatsnew-en-US
+          IPA_BUILD_NUMBER: ${{ steps.ipa_meta.outputs.build_number }}
+          IPA_APP_VERSION: ${{ steps.ipa_meta.outputs.app_version }}
+        run: node scripts/set-testflight-whats-new.js
 
       # Required secret:
       #   SLACK_WEBHOOK_URL – Slack incoming webhook URL for the target channel.
