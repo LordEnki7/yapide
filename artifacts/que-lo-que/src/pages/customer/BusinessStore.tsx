@@ -125,13 +125,13 @@ export default function BusinessStore() {
     <div className="min-h-screen bg-background text-white pb-28">
 
       {/* Hero */}
-      <div className="relative h-48">
+      <div className="relative h-44">
         {business?.imageUrl ? (
           <img src={business.imageUrl} alt={business.name} className="w-full h-full object-cover" />
         ) : (
           <div className="w-full h-full bg-gradient-to-br from-yellow-400/20 to-transparent flex items-center justify-center text-6xl">🍽️</div>
         )}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent" />
         <Link href="/customer">
           <button className="absolute top-4 left-4 w-9 h-9 bg-black/60 rounded-full flex items-center justify-center hover:bg-black/80 transition">
             <ArrowLeft size={16} className="text-white" />
@@ -140,19 +140,28 @@ export default function BusinessStore() {
         <div className="absolute top-4 right-4">
           <LangToggle />
         </div>
-        {/* Business name over hero */}
-        <div className="absolute bottom-4 left-4 right-4">
-          <div className="flex items-end justify-between gap-3">
-            <div>
-              <h1 className="text-2xl font-black text-white drop-shadow-lg leading-tight">{business?.name}</h1>
-              {business?.description && (
-                <p className="text-gray-300 text-xs mt-0.5 line-clamp-1">{business?.description}</p>
-              )}
-            </div>
-            <div className="flex flex-col items-end gap-1 flex-shrink-0">
-              <div className="flex items-center gap-1 bg-yellow-400/20 border border-yellow-400/40 px-2 py-1 rounded-lg">
-                <Star size={12} fill="currentColor" className="text-yellow-400" />
-                <span className="font-black text-sm text-yellow-400">{business?.rating?.toFixed(1)}</span>
+        {/* Bottom strip: logo + name + badges */}
+        <div className="absolute bottom-0 left-0 right-0 px-4 pb-4 flex items-end gap-3">
+          {/* Logo bubble */}
+          <div className="w-16 h-16 rounded-2xl overflow-hidden border-2 border-white/20 bg-black flex-shrink-0 shadow-xl">
+            {business?.logoUrl ? (
+              <img src={business.logoUrl} alt={`${business.name} logo`} className="w-full h-full object-cover" />
+            ) : business?.imageUrl ? (
+              <img src={business.imageUrl} alt={business.name} className="w-full h-full object-cover" />
+            ) : (
+              <div className="w-full h-full bg-yellow-400/20 flex items-center justify-center text-2xl">🍽️</div>
+            )}
+          </div>
+          {/* Name + badges */}
+          <div className="flex-1 min-w-0">
+            <h1 className="text-xl font-black text-white drop-shadow-lg leading-tight line-clamp-1">{business?.name}</h1>
+            {business?.description && (
+              <p className="text-gray-300 text-xs mt-0.5 line-clamp-1">{business?.description}</p>
+            )}
+            <div className="flex items-center gap-2 mt-1">
+              <div className="flex items-center gap-1 bg-yellow-400/20 border border-yellow-400/30 px-2 py-0.5 rounded-lg">
+                <Star size={10} fill="currentColor" className="text-yellow-400" />
+                <span className="font-black text-xs text-yellow-400">{business?.rating?.toFixed(1)}</span>
               </div>
               <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${business?.isOpen !== false ? "bg-green-400/20 text-green-400" : "bg-gray-500/30 text-gray-400"}`}>
                 {business?.isOpen !== false ? "● Abierto" : "● Cerrado"}

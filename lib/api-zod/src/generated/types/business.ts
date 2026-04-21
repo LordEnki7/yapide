@@ -16,6 +16,7 @@ export interface Business {
   address: string;
   phone?: string;
   imageUrl?: string;
+  logoUrl?: string;
   lat?: number;
   lng?: number;
   isActive: boolean;

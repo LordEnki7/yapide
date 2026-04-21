@@ -6,10 +6,11 @@ interface Props {
   onUploaded: (objectPath: string) => void;
   shape?: "circle" | "square";
   label?: string;
-  size?: "sm" | "md" | "lg";
+  size?: "xs" | "sm" | "md" | "lg";
 }
 
 const SIZES = {
+  xs: "w-6 h-6",
   sm: "w-20 h-20",
   md: "w-28 h-28",
   lg: "w-36 h-36",
@@ -99,7 +100,7 @@ export default function ImageUpload({ currentUrl, onUploaded, shape = "square", 
         )}
       </button>
 
-      <p className="text-xs text-gray-500 font-bold">{uploading ? "Subiendo..." : label}</p>
+      {size !== "xs" && <p className="text-xs text-gray-500 font-bold">{uploading ? "Subiendo..." : label}</p>}
 
       <input
         ref={inputRef}

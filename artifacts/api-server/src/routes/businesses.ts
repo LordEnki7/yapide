@@ -16,6 +16,7 @@ function formatBusiness(b: typeof businessesTable.$inferSelect) {
     city: b.city,
     phone: b.phone,
     imageUrl: b.imageUrl,
+    logoUrl: b.logoUrl,
     lat: b.lat,
     lng: b.lng,
     isActive: b.isActive,
@@ -74,6 +75,16 @@ router.post("/businesses", async (req, res): Promise<void> => {
     approvalStatus: "pending",
   }).returning();
   res.status(201).json(formatBusiness(business));
+});
+
+router.patch("/businesses/mine/logo", async (req, res): Promise<void> => {
+  const sessionUserId = (req.session as any)?.userId;
+  if (!sessionUserId) { res.status(401).json({ error: "Unauthorized" }); return; }
+  const { logoUrl } = req.body;
+  if (typeof logoUrl !== "string" || !logoUrl) { res.status(400).json({ error: "logoUrl required" }); return; }
+  const [business] = await db.update(businessesTable).set({ logoUrl }).where(eq(businessesTable.userId, sessionUserId)).returning();
+  if (!business) { res.status(404).json({ error: "Business not found" }); return; }
+  res.json(formatBusiness(business));
 });
 
 router.patch("/businesses/mine/prep-time", async (req, res): Promise<void> => {

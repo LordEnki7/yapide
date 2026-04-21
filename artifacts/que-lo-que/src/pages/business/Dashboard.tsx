@@ -36,18 +36,31 @@ export default function BusinessDashboard() {
     }
   });
 
-  const updateLogo = useUpdateBusiness({
+  const updateBanner = useUpdateBusiness({
     mutation: {
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: getGetMyBusinessQueryKey() });
-        toast({ title: "¡Logo actualizado!" });
+        toast({ title: "¡Foto de portada actualizada!" });
       }
     }
   });
 
-  const handleLogoUploaded = (objectPath: string) => {
+  const handleBannerUploaded = (objectPath: string) => {
     if (!business) return;
-    updateLogo.mutate({ businessId: business.id, data: { imageUrl: `/api/storage/objects/${objectPath}` } });
+    updateBanner.mutate({ businessId: business.id, data: { imageUrl: `/api/storage/objects/${objectPath}` } });
+  };
+
+  const handleLogoUploaded = async (objectPath: string) => {
+    const res = await fetch("/api/businesses/mine/logo", {
+      method: "PATCH",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ logoUrl: `/api/storage/objects/${objectPath}` }),
+    });
+    if (res.ok) {
+      queryClient.invalidateQueries({ queryKey: getGetMyBusinessQueryKey() });
+      toast({ title: "¡Logo actualizado!" });
+    }
   };
 
   const [prepTime, setPrepTime] = useState<number | null>(null);
@@ -119,6 +132,8 @@ export default function BusinessDashboard() {
     </div>
   );
 
+  if (!business) return null;
+
   return (
     <div className="min-h-screen bg-background text-white pb-24">
       {business?.imageUrl && (
@@ -132,7 +147,7 @@ export default function BusinessDashboard() {
           <div className="absolute bottom-3 right-3">
             <ImageUpload
               currentUrl={undefined}
-              onUploaded={handleLogoUploaded}
+              onUploaded={handleBannerUploaded}
               shape="square"
               label=""
               size="sm"
@@ -146,7 +161,7 @@ export default function BusinessDashboard() {
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-3">
               <ImageUpload
-                currentUrl={undefined}
+                currentUrl={(business as any)?.logoUrl}
                 onUploaded={handleLogoUploaded}
                 shape="square"
                 label="Logo"
@@ -165,12 +180,34 @@ export default function BusinessDashboard() {
         )}
 
         <div className="bg-white/8 border border-white/10 rounded-2xl p-4 mb-4">
-          <div className="flex items-center justify-between">
-            <div>
-              {business?.imageUrl && <h1 className="text-2xl font-black text-white mb-1">{business.name}</h1>}
-              <p className="text-sm text-gray-400 font-bold">{t.businessPanel}</p>
-              <p className="text-xs text-gray-500">{business?.address}</p>
+          {/* Logo + name row */}
+          <div className="flex items-center gap-3 mb-3">
+            <div className="relative flex-shrink-0">
+              <div className="w-14 h-14 rounded-xl overflow-hidden border border-white/15 bg-white/5">
+                {(business as any)?.logoUrl ? (
+                  <img src={(business as any).logoUrl} alt="Logo" className="w-full h-full object-cover" />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center text-2xl">🏪</div>
+                )}
+              </div>
+              <div className="absolute -bottom-1 -right-1">
+                <ImageUpload
+                  currentUrl={(business as any)?.logoUrl}
+                  onUploaded={handleLogoUploaded}
+                  shape="square"
+                  label=""
+                  size="xs"
+                />
+              </div>
             </div>
+            <div className="flex-1 min-w-0">
+              {business?.imageUrl && <h1 className="text-xl font-black text-white leading-tight line-clamp-1">{business.name}</h1>}
+              {!business?.imageUrl && <h1 className="text-xl font-black text-white leading-tight">{business.name}</h1>}
+              <p className="text-xs text-gray-500 mt-0.5">{business?.address}</p>
+            </div>
+          </div>
+          <div className="flex items-center justify-between">
+            <div />
             <div className="flex flex-col items-end gap-2">
               <Badge className={`border text-sm font-bold px-3 py-1 ${business?.isOpen ? "bg-green-400/20 text-green-400 border-green-400/40" : "bg-gray-500/20 text-gray-400 border-gray-500/40"}`}>
                 {business?.isOpen ? t.open : t.closed}

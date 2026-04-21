@@ -13,6 +13,7 @@ export const businessesTable = pgTable("businesses", {
   city: text("city").notNull().default("Santiago"),
   phone: text("phone"),
   imageUrl: text("image_url"),
+  logoUrl: text("logo_url"),
   lat: real("lat"),
   lng: real("lng"),
   isActive: boolean("is_active").notNull().default(true),

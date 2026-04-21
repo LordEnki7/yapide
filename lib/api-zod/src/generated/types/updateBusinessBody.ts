@@ -12,5 +12,6 @@ export interface UpdateBusinessBody {
   address?: string;
   phone?: string;
   imageUrl?: string;
+  logoUrl?: string;
   isActive?: boolean;
 }
