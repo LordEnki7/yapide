@@ -140,6 +140,7 @@ jobs:
           echo "$ASC_API_KEY_BASE64" | base64 -D > ~/.private_keys/AuthKey_${ASC_API_KEY_ID}.p8
 
       - name: Submit IPA to TestFlight
+        id: testflight_submit
         env:
           ASC_API_KEY_ID: ${{ secrets.ASC_API_KEY_ID }}
           ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
@@ -151,6 +152,32 @@ jobs:
             --apiKey "$ASC_API_KEY_ID" \
             --apiIssuer "$ASC_ISSUER_ID" \
             --verbose
+
+      # Required secret:
+      #   SLACK_WEBHOOK_URL – Slack incoming webhook URL for the target channel.
+      #     Create one at https://api.slack.com/messaging/webhooks and store it
+      #     as a repository secret named SLACK_WEBHOOK_URL.
+      - name: Notify Slack – submission succeeded
+        if: steps.testflight_submit.outcome == 'success'
+        uses: slackapi/slack-github-action@v2.0.0
+        with:
+          webhook: ${{ secrets.SLACK_WEBHOOK_URL }}
+          webhook-type: incoming-webhook
+          payload: |
+            {
+              "text": ":white_check_mark: *iOS build submitted to TestFlight*\n• Branch: `${{ github.ref_name }}`\n• Commit: `${{ github.sha }}`\n• <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|View run>"
+            }
+
+      - name: Notify Slack – submission failed
+        if: always() && steps.testflight_submit.outcome == 'failure'
+        uses: slackapi/slack-github-action@v2.0.0
+        with:
+          webhook: ${{ secrets.SLACK_WEBHOOK_URL }}
+          webhook-type: incoming-webhook
+          payload: |
+            {
+              "text": ":x: *iOS build failed to submit to TestFlight*\n• Branch: `${{ github.ref_name }}`\n• Commit: `${{ github.sha }}`\n• <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|View run>"
+            }
 
       - name: Clean up keychain and provisioning profile
         if: always()

@@ -104,6 +104,7 @@ jobs:
       #     the "Release Manager" role on the Google Play Developer API.
       #   ANDROID_PACKAGE_NAME – e.g. com.yapide.app
       - name: Submit AAB to Google Play (internal track)
+        id: google_play_submit
         uses: r0adkll/upload-google-play@v1
         with:
           serviceAccountJsonPlainText: ${{ secrets.GOOGLE_PLAY_SERVICE_ACCOUNT_JSON }}
@@ -111,3 +112,29 @@ jobs:
           releaseFiles: artifacts/que-lo-que/android/app/build/outputs/bundle/release/app-release.aab
           track: internal
           status: completed
+
+      # Required secret:
+      #   SLACK_WEBHOOK_URL – Slack incoming webhook URL for the target channel.
+      #     Create one at https://api.slack.com/messaging/webhooks and store it
+      #     as a repository secret named SLACK_WEBHOOK_URL.
+      - name: Notify Slack – submission succeeded
+        if: steps.google_play_submit.outcome == 'success'
+        uses: slackapi/slack-github-action@v2.0.0
+        with:
+          webhook: ${{ secrets.SLACK_WEBHOOK_URL }}
+          webhook-type: incoming-webhook
+          payload: |
+            {
+              "text": ":white_check_mark: *Android build submitted to Google Play (internal track)*\n• Branch: `${{ github.ref_name }}`\n• Commit: `${{ github.sha }}`\n• <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|View run>"
+            }
+
+      - name: Notify Slack – submission failed
+        if: always() && steps.google_play_submit.outcome == 'failure'
+        uses: slackapi/slack-github-action@v2.0.0
+        with:
+          webhook: ${{ secrets.SLACK_WEBHOOK_URL }}
+          webhook-type: incoming-webhook
+          payload: |
+            {
+              "text": ":x: *Android build failed to submit to Google Play*\n• Branch: `${{ github.ref_name }}`\n• Commit: `${{ github.sha }}`\n• <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|View run>"
+            }
