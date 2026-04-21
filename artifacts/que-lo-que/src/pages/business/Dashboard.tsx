@@ -81,6 +81,44 @@ export default function BusinessDashboard() {
     </div>
   );
 
+  if (business && (business as any).approvalStatus === "pending") return (
+    <div className="min-h-screen bg-background text-white flex flex-col items-center justify-center p-6 text-center gap-6">
+      <div className="w-24 h-24 rounded-full bg-yellow-400/15 border-2 border-yellow-400/40 flex items-center justify-center text-5xl">🏪</div>
+      <div>
+        <h1 className="text-2xl font-black text-yellow-400 mb-2">Negocio en revisión</h1>
+        <p className="text-gray-400 text-sm leading-relaxed max-w-xs">
+          Tu negocio está siendo revisado por el equipo de YaPide. Recibirás una notificación cuando seas aprobado.
+        </p>
+      </div>
+      <div className="bg-white/5 border border-white/10 rounded-2xl p-4 w-full max-w-xs space-y-2 text-left">
+        <p className="text-xs font-black text-gray-400 uppercase tracking-widest">¿Qué sigue?</p>
+        <div className="flex items-start gap-2 text-sm text-gray-300">
+          <span className="text-yellow-400 flex-shrink-0">✓</span>
+          <span>Registro completado</span>
+        </div>
+        <div className="flex items-start gap-2 text-sm text-gray-400">
+          <span className="flex-shrink-0">⏳</span>
+          <span>Revisión del equipo (24–48h)</span>
+        </div>
+        <div className="flex items-start gap-2 text-sm text-gray-400">
+          <span className="flex-shrink-0">🚀</span>
+          <span>¡Empieza a recibir pedidos!</span>
+        </div>
+      </div>
+      <p className="text-xs text-gray-600">¿Preguntas? Escríbenos al WhatsApp 📱</p>
+    </div>
+  );
+
+  if (business && (business as any).approvalStatus === "rejected") return (
+    <div className="min-h-screen bg-background text-white flex flex-col items-center justify-center p-6 text-center gap-5">
+      <div className="w-20 h-20 rounded-full bg-red-500/15 border-2 border-red-500/40 flex items-center justify-center text-4xl">❌</div>
+      <div>
+        <h1 className="text-xl font-black text-red-400 mb-2">Solicitud rechazada</h1>
+        <p className="text-gray-400 text-sm max-w-xs">Tu negocio no fue aprobado en este momento. Contáctanos para más información.</p>
+      </div>
+    </div>
+  );
+
   return (
     <div className="min-h-screen bg-background text-white pb-24">
       {business?.imageUrl && (

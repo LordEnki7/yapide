@@ -11,8 +11,12 @@ function formatDriver(d: typeof driversTable.$inferSelect, user?: typeof usersTa
   return {
     id: d.id,
     userId: d.userId,
+    vehicleType: d.vehicleType,
+    vehiclePlate: d.vehiclePlate,
+    city: d.city,
     isOnline: d.isOnline,
     isLocked: d.isLocked,
+    approvalStatus: d.approvalStatus,
     rating: d.rating,
     acceptanceRate: d.acceptanceRate,
     currentLat: d.currentLat,
@@ -45,6 +49,8 @@ router.post("/drivers/register", async (req, res): Promise<void> => {
     userId: sessionUserId,
     vehicleType: parsed.data.vehicleType,
     vehiclePlate: parsed.data.vehiclePlate ?? null,
+    city: (parsed.data as any).city ?? "Santiago",
+    approvalStatus: "pending",
   }).returning();
   const [user] = await db.select().from(usersTable).where(eq(usersTable.id, sessionUserId));
   res.status(201).json(formatDriver(driver, user));

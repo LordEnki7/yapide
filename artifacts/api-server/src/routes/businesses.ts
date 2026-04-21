@@ -13,12 +13,14 @@ function formatBusiness(b: typeof businessesTable.$inferSelect) {
     category: b.category,
     description: b.description,
     address: b.address,
+    city: b.city,
     phone: b.phone,
     imageUrl: b.imageUrl,
     lat: b.lat,
     lng: b.lng,
     isActive: b.isActive,
     isOpen: b.isOpen,
+    approvalStatus: b.approvalStatus,
     rating: b.rating,
     totalOrders: b.totalOrders,
     prepTimeMinutes: b.prepTimeMinutes,
@@ -28,15 +30,18 @@ function formatBusiness(b: typeof businessesTable.$inferSelect) {
 
 router.get("/businesses", async (req, res): Promise<void> => {
   const params = ListBusinessesQueryParams.safeParse(req.query);
-  let query = db.select().from(businessesTable).where(eq(businessesTable.isActive, true));
   const businesses = await db.select().from(businessesTable).where(eq(businessesTable.isActive, true));
-  let filtered = businesses;
+  let filtered = businesses.filter(b => b.approvalStatus === "approved");
   if (params.success && params.data.category && params.data.category !== "all") {
     filtered = filtered.filter(b => b.category === params.data.category);
   }
   if (params.success && params.data.search) {
     const s = params.data.search.toLowerCase();
     filtered = filtered.filter(b => b.name.toLowerCase().includes(s));
+  }
+  const city = typeof req.query.city === "string" ? req.query.city : null;
+  if (city && city !== "all") {
+    filtered = filtered.filter(b => b.city === city);
   }
   res.json(filtered.map(formatBusiness));
 });
@@ -66,6 +71,7 @@ router.post("/businesses", async (req, res): Promise<void> => {
   const [business] = await db.insert(businessesTable).values({
     userId: sessionUserId,
     ...parsed.data,
+    approvalStatus: "pending",
   }).returning();
   res.status(201).json(formatBusiness(business));
 });

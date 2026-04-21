@@ -32,25 +32,13 @@ router.post("/admin/users/:userId/ban", async (req, res): Promise<void> => {
   res.json({ success: true });
 });
 
-router.get("/admin/drivers", async (req, res): Promise<void> => {
+router.post("/admin/drivers/:driverId/approve", async (req, res): Promise<void> => {
   if (!isAdmin(req)) { res.status(401).json({ error: "Unauthorized" }); return; }
-  const drivers = await db.select().from(driversTable).orderBy(desc(driversTable.createdAt));
-  const result = await Promise.all(drivers.map(async (d) => {
-    const [user] = await db.select().from(usersTable).where(eq(usersTable.id, d.userId));
-    return {
-      id: d.id,
-      userId: d.userId,
-      isOnline: d.isOnline,
-      isLocked: d.isLocked,
-      rating: d.rating,
-      acceptanceRate: d.acceptanceRate,
-      cashBalance: d.cashBalance,
-      walletBalance: d.walletBalance,
-      totalDeliveries: d.totalDeliveries,
-      user: user ? { id: user.id, name: user.name, email: user.email, phone: user.phone, role: user.role, isBanned: user.isBanned, createdAt: user.createdAt } : null,
-    };
-  }));
-  res.json(result);
+  const id = parseInt(Array.isArray(req.params.driverId) ? req.params.driverId[0] : req.params.driverId, 10);
+  if (isNaN(id)) { res.status(400).json({ error: "Invalid driverId" }); return; }
+  const status = req.body.status ?? "approved";
+  await db.update(driversTable).set({ approvalStatus: status }).where(eq(driversTable.id, id));
+  res.json({ success: true, status });
 });
 
 router.post("/admin/drivers/:driverId/lock", async (req, res): Promise<void> => {
@@ -80,9 +68,34 @@ router.get("/admin/businesses", async (req, res): Promise<void> => {
   const businesses = await db.select().from(businessesTable).orderBy(desc(businessesTable.createdAt));
   res.json(businesses.map(b => ({
     id: b.id, userId: b.userId, name: b.name, category: b.category, description: b.description,
-    address: b.address, phone: b.phone, imageUrl: b.imageUrl, lat: b.lat, lng: b.lng,
-    isActive: b.isActive, rating: b.rating, totalOrders: b.totalOrders, createdAt: b.createdAt,
+    address: b.address, city: b.city, phone: b.phone, imageUrl: b.imageUrl, lat: b.lat, lng: b.lng,
+    isActive: b.isActive, approvalStatus: b.approvalStatus, rating: b.rating, totalOrders: b.totalOrders, createdAt: b.createdAt,
   })));
+});
+
+router.post("/admin/businesses/:businessId/approve", async (req, res): Promise<void> => {
+  if (!isAdmin(req)) { res.status(401).json({ error: "Unauthorized" }); return; }
+  const id = parseInt(Array.isArray(req.params.businessId) ? req.params.businessId[0] : req.params.businessId, 10);
+  if (isNaN(id)) { res.status(400).json({ error: "Invalid businessId" }); return; }
+  const status = req.body.status ?? "approved";
+  await db.update(businessesTable).set({ approvalStatus: status }).where(eq(businessesTable.id, id));
+  res.json({ success: true, status });
+});
+
+router.get("/admin/drivers", async (req, res): Promise<void> => {
+  if (!isAdmin(req)) { res.status(401).json({ error: "Unauthorized" }); return; }
+  const drivers = await db.select().from(driversTable).orderBy(desc(driversTable.createdAt));
+  const result = await Promise.all(drivers.map(async (d) => {
+    const [user] = await db.select().from(usersTable).where(eq(usersTable.id, d.userId));
+    return {
+      id: d.id, userId: d.userId, vehicleType: d.vehicleType, vehiclePlate: d.vehiclePlate,
+      city: d.city, isOnline: d.isOnline, isLocked: d.isLocked, approvalStatus: d.approvalStatus,
+      rating: d.rating, acceptanceRate: d.acceptanceRate,
+      cashBalance: d.cashBalance, walletBalance: d.walletBalance, totalDeliveries: d.totalDeliveries,
+      user: user ? { id: user.id, name: user.name, email: user.email, phone: user.phone, role: user.role, isBanned: user.isBanned, createdAt: user.createdAt } : null,
+    };
+  }));
+  res.json(result);
 });
 
 router.post("/admin/businesses/:businessId/toggle", async (req, res): Promise<void> => {

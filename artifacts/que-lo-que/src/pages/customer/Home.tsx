@@ -6,8 +6,16 @@ import { useLang } from "@/lib/lang";
 import LangToggle from "@/components/LangToggle";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Search, Star, Clock, ChevronLeft } from "lucide-react";
+import { Search, Star, Clock, ChevronLeft, MapPin, ChevronDown } from "lucide-react";
 import NotificationBell from "@/components/NotificationBell";
+
+const CITIES = [
+  { value: "Santo Domingo", label: "Santo Domingo" },
+  { value: "Santiago", label: "Santiago" },
+  { value: "La Romana", label: "La Romana" },
+  { value: "San Pedro de Macorís", label: "San Pedro" },
+  { value: "San Francisco de Macorís", label: "San Francisco" },
+];
 
 const CATEGORIES = [
   {
@@ -42,11 +50,21 @@ const CATEGORIES = [
   },
 ];
 
+const CITY_STORAGE_KEY = "qlq_selected_city";
+
 export default function CustomerHome() {
   const user = getStoredUser();
   const { t, lang } = useLang();
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [search, setSearch] = useState("");
+  const [city, setCity] = useState<string>(() => localStorage.getItem(CITY_STORAGE_KEY) ?? "Santiago");
+  const [cityPickerOpen, setCityPickerOpen] = useState(false);
+
+  const changeCity = (newCity: string) => {
+    setCity(newCity);
+    localStorage.setItem(CITY_STORAGE_KEY, newCity);
+    setCityPickerOpen(false);
+  };
 
   const { data: pointsData } = useGetMyPoints({
     query: { queryKey: getGetMyPointsQueryKey() }
@@ -57,12 +75,14 @@ export default function CustomerHome() {
     {
       query: {
         enabled: !!selectedCategory || !!search,
-        queryKey: getListBusinessesQueryKey({ category: (selectedCategory ?? "all") as any, search: search || undefined })
+        queryKey: getListBusinessesQueryKey({ category: (selectedCategory ?? "all") as any, search: search || undefined }),
+        select: (data: any[]) => data.filter((b: any) => !b.city || b.city === city || city === "all"),
       }
     }
   );
 
   const currentCat = CATEGORIES.find(c => c.key === selectedCategory);
+  const currentCityLabel = CITIES.find(c => c.value === city)?.label ?? city;
 
   return (
     <div className="min-h-screen bg-background text-white">
@@ -101,20 +121,59 @@ export default function CustomerHome() {
           </div>
         </div>
 
-        {/* Search — always visible */}
-        <div className="relative">
-          <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-          <Input
-            placeholder={selectedCategory ? "Buscar en esta categoría..." : t.searchPlaceholder}
-            value={search}
-            onChange={(e) => {
-              setSearch(e.target.value);
-              if (e.target.value && !selectedCategory) setSelectedCategory("all");
-            }}
-            className="pl-9 bg-white/8 border-white/10 text-white placeholder:text-gray-500 focus:border-yellow-400 h-10 text-sm"
-          />
+        {/* City selector + Search row */}
+        <div className="flex gap-2">
+          <button
+            onClick={() => setCityPickerOpen(true)}
+            className="flex items-center gap-1.5 bg-white/8 border border-white/10 rounded-xl px-3 h-10 text-xs font-black text-yellow-400 whitespace-nowrap hover:bg-white/12 transition flex-shrink-0"
+          >
+            <MapPin size={12} />
+            {currentCityLabel}
+            <ChevronDown size={12} className="text-gray-400" />
+          </button>
+          <div className="relative flex-1">
+            <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+            <Input
+              placeholder={selectedCategory ? "Buscar..." : t.searchPlaceholder}
+              value={search}
+              onChange={(e) => {
+                setSearch(e.target.value);
+                if (e.target.value && !selectedCategory) setSelectedCategory("all");
+              }}
+              className="pl-9 bg-white/8 border-white/10 text-white placeholder:text-gray-500 focus:border-yellow-400 h-10 text-sm"
+            />
+          </div>
         </div>
       </div>
+
+      {/* City picker bottom sheet */}
+      {cityPickerOpen && (
+        <>
+          <div className="fixed inset-0 bg-black/60 z-30 backdrop-blur-sm" onClick={() => setCityPickerOpen(false)} />
+          <div className="fixed bottom-0 left-0 right-0 z-40 bg-card border-t border-yellow-400/30 rounded-t-3xl p-5 pb-8">
+            <div className="w-10 h-1 bg-white/20 rounded-full mx-auto mb-4" />
+            <p className="text-xs font-black text-gray-400 uppercase tracking-widest mb-4 text-center">
+              {lang === "es" ? "¿Dónde estás?" : "Where are you?"}
+            </p>
+            <div className="space-y-2">
+              {CITIES.map(c => (
+                <button
+                  key={c.value}
+                  onClick={() => changeCity(c.value)}
+                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-black text-sm transition-all ${
+                    city === c.value
+                      ? "bg-yellow-400 text-black shadow-[0_0_16px_rgba(255,215,0,0.3)]"
+                      : "bg-white/5 text-white hover:bg-white/10 border border-white/10"
+                  }`}
+                >
+                  <MapPin size={16} />
+                  {c.value}
+                </button>
+              ))}
+            </div>
+          </div>
+        </>
+      )}
 
       <div className="pb-8">
         {/* Points bar */}
