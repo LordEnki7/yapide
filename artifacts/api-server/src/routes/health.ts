@@ -5,7 +5,7 @@ import { sql } from "drizzle-orm";
 
 const router: IRouter = Router();
 
-router.get("/healthz", async (_req, res) => {
+router.get(["/health", "/healthz"], async (_req, res) => {
   const checks: Record<string, string> = {};
   let allOk = true;
 
