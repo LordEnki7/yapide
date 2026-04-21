@@ -134,7 +134,7 @@ export default function CustomerHome() {
           <div className="relative flex-1">
             <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
             <Input
-              placeholder={selectedCategory ? "Buscar..." : t.searchPlaceholder}
+              placeholder={selectedCategory ? t.search : t.searchPlaceholder}
               value={search}
               onChange={(e) => {
                 setSearch(e.target.value);

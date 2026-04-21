@@ -14,21 +14,21 @@ export default function BottomNav() {
     { icon: Home, label: t.home, href: "/customer" },
     { icon: Clock, label: t.myOrders, href: "/customer/orders" },
     { icon: Star, label: t.pointsTitle, href: "/customer/points" },
-    { icon: UserCircle, label: "Perfil", href: "/customer/profile" },
+    { icon: UserCircle, label: t.profile, href: "/customer/profile" },
   ];
 
   const DRIVER_NAV = [
     { icon: Home, label: t.home, href: "/driver" },
     { icon: Package, label: t.orders, href: "/driver/jobs" },
     { icon: Wallet, label: t.wallet, href: "/driver/wallet" },
-    { icon: UserCircle, label: "Perfil", href: "/driver/profile" },
+    { icon: UserCircle, label: t.profile, href: "/driver/profile" },
   ];
 
   const BUSINESS_NAV = [
     { icon: Home, label: t.home, href: "/business" },
     { icon: Package, label: t.orders, href: "/business/orders" },
     { icon: ChefHat, label: t.menu, href: "/business/menu" },
-    { icon: UserCircle, label: "Perfil", href: "/business/profile" },
+    { icon: UserCircle, label: t.profile, href: "/business/profile" },
   ];
 
   const ADMIN_NAV = [

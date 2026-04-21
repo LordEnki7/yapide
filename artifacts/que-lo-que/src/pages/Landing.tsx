@@ -50,7 +50,7 @@ const ROLES = [
 ];
 
 export default function Landing() {
-  const { lang } = useLang();
+  const { lang, t } = useLang();
   const [selected, setSelected] = useState<string | null>(null);
   const [loading, setLoading] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -113,13 +113,11 @@ export default function Landing() {
           className="w-44 object-contain drop-shadow-[0_0_40px_rgba(255,215,0,0.4)] mb-4"
         />
         <h1 className="text-3xl font-black text-white text-center leading-tight tracking-tight">
-          Entrega rápida
+          {t.heroLine1}
           <br />
-          <span className="text-yellow-400">&amp; económica</span>
+          <span className="text-yellow-400">{t.heroLine2}</span>
         </h1>
-        <p className="text-gray-400 text-sm mt-2 text-center">
-          {lang === "es" ? "¿Cómo quieres entrar hoy?" : "How do you want to enter today?"}
-        </p>
+        <p className="text-gray-400 text-sm mt-2 text-center">{t.howToEnter}</p>
       </div>
 
       {/* Role picker cards */}
@@ -182,13 +180,13 @@ export default function Landing() {
 
       {/* Footer */}
       <div className="px-5 pb-6 text-center space-y-1">
-        <p className="text-xs text-gray-700">Demo: datos ficticios, sin registro requerido</p>
+        <p className="text-xs text-gray-700">{t.demoDisclaimer}</p>
         <button
           onClick={handleAdmin}
           disabled={!!loading}
           className="text-xs text-gray-600 hover:text-gray-400 transition"
         >
-          {loading === "admin" ? "⏳ Entrando..." : "⚙️ Admin"}
+          {loading === "admin" ? t.adminLoading : "⚙️ Admin"}
         </button>
       </div>
     </div>

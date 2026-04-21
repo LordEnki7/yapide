@@ -11,12 +11,6 @@ import LangToggle from "@/components/LangToggle";
 
 const logo = "/logo.png";
 
-const ROLES = [
-  { value: "customer", label: "🍔 Cliente", sub: "Pide comida y más" },
-  { value: "driver", label: "🛵 Coro / Driver", sub: "Reparte y gana" },
-  { value: "business", label: "🏪 Negocio", sub: "Vende tu menú" },
-];
-
 export default function Register() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -27,6 +21,12 @@ export default function Register() {
   const [, navigate] = useLocation();
   const { toast } = useToast();
   const { t } = useLang();
+
+  const ROLES = [
+    { value: "customer", emoji: "🍔", label: t.roleCustomerLabel, sub: t.roleCustomerSub },
+    { value: "driver", emoji: "🛵", label: t.roleDriverLabel, sub: t.roleDriverSub },
+    { value: "business", emoji: "🏪", label: t.roleBusinessLabel, sub: t.roleBusinessSub },
+  ];
 
   const register = useRegisterUser({
     mutation: {
@@ -78,13 +78,13 @@ export default function Register() {
         <div className="w-full max-w-md">
           <div className="text-center mb-6">
             <img src={logo} alt="YaPide" className="w-28 mx-auto object-contain mb-2" />
-            <h1 className="text-2xl font-black text-yellow-400 uppercase">Crear cuenta</h1>
-            <p className="text-gray-400 text-sm mt-1">Únete a YaPide</p>
+            <h1 className="text-2xl font-black text-yellow-400 uppercase">{t.createAccountTitle}</h1>
+            <p className="text-gray-400 text-sm mt-1">{t.joinTagline}</p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-3">
             <Input
-              placeholder="Tu nombre completo"
+              placeholder={t.fullNamePlaceholder}
               value={name}
               onChange={e => setName(e.target.value)}
               className="bg-white/8 border-white/10 text-white placeholder:text-gray-500 focus:border-yellow-400 h-12"
@@ -100,7 +100,7 @@ export default function Register() {
             />
             <Input
               type="tel"
-              placeholder="Teléfono (opcional)"
+              placeholder={t.phonePlaceholder}
               value={phone}
               onChange={e => setPhone(e.target.value)}
               className="bg-white/8 border-white/10 text-white placeholder:text-gray-500 focus:border-yellow-400 h-12"
@@ -125,7 +125,7 @@ export default function Register() {
             </div>
 
             <div className="pt-1">
-              <p className="text-xs text-gray-400 uppercase tracking-widest mb-2">Entrar como</p>
+              <p className="text-xs text-gray-400 uppercase tracking-widest mb-2">{t.enterAs}</p>
               <div className="grid grid-cols-3 gap-2">
                 {ROLES.map(r => (
                   <button
@@ -138,8 +138,8 @@ export default function Register() {
                         : "bg-white/5 border-white/10 text-gray-400 hover:border-white/20"
                     }`}
                   >
-                    <div className="text-base leading-none mb-1">{r.label.split(" ")[0]}</div>
-                    <div className="text-xs font-bold">{r.label.split(" ").slice(1).join(" ")}</div>
+                    <div className="text-base leading-none mb-1">{r.emoji}</div>
+                    <div className="text-xs font-bold">{r.label}</div>
                     <div className="text-[10px] text-gray-500 mt-0.5 leading-tight">{r.sub}</div>
                   </button>
                 ))}
@@ -151,12 +151,12 @@ export default function Register() {
               className="w-full bg-yellow-400 text-black font-black text-lg h-12 hover:bg-yellow-300 shadow-[0_0_20px_rgba(255,215,0,0.3)] mt-2"
               disabled={register.isPending}
             >
-              {register.isPending ? "Creando cuenta..." : "Crear cuenta"}
+              {register.isPending ? t.creating : t.createAccount}
             </Button>
           </form>
 
           <p className="text-center text-sm text-gray-400 mt-6">
-            ¿Ya tienes cuenta?{" "}
+            {t.alreadyHaveAccount}{" "}
             <Link href="/login">
               <span className="text-yellow-400 font-bold hover:underline">{t.signIn}</span>
             </Link>

@@ -41,6 +41,21 @@ export const translations = {
     missingData: "Faltan datos",
     fillCredentials: "Pon tu email y contraseña",
 
+    // Register
+    createAccountTitle: "Crear cuenta",
+    joinTagline: "Únete a YaPide",
+    fullNamePlaceholder: "Tu nombre completo",
+    phonePlaceholder: "Teléfono (opcional)",
+    creating: "Creando cuenta...",
+    createAccount: "Crear cuenta",
+    alreadyHaveAccount: "¿Ya tienes cuenta?",
+    roleCustomerLabel: "Cliente",
+    roleCustomerSub: "Pide comida y más",
+    roleDriverLabel: "Coro / Driver",
+    roleDriverSub: "Reparte y gana",
+    roleBusinessLabel: "Negocio",
+    roleBusinessSub: "Vende tu menú",
+
     // Customer Home
     searchPlaceholder: "Busca lo que quieres...",
     allBusinesses: "Todos los negocios",
@@ -247,6 +262,14 @@ export const translations = {
     // Nav
     home: "Inicio",
     exit: "Salir",
+    profile: "Perfil",
+
+    // Landing
+    heroLine1: "Entrega rápida",
+    heroLine2: "& económica",
+    howToEnter: "¿Cómo quieres entrar hoy?",
+    demoDisclaimer: "Demo: datos ficticios, sin registro requerido",
+    adminLoading: "⏳ Entrando...",
   },
 
   en: {
@@ -288,6 +311,21 @@ export const translations = {
     wrongCredentials: "Wrong email or password",
     missingData: "Missing info",
     fillCredentials: "Please enter your email and password",
+
+    // Register
+    createAccountTitle: "Create account",
+    joinTagline: "Join YaPide",
+    fullNamePlaceholder: "Your full name",
+    phonePlaceholder: "Phone (optional)",
+    creating: "Creating account...",
+    createAccount: "Create account",
+    alreadyHaveAccount: "Already have an account?",
+    roleCustomerLabel: "Customer",
+    roleCustomerSub: "Order food & more",
+    roleDriverLabel: "Driver",
+    roleDriverSub: "Deliver & earn",
+    roleBusinessLabel: "Business",
+    roleBusinessSub: "Sell your menu",
 
     // Customer Home
     searchPlaceholder: "Search for anything...",
@@ -495,6 +533,14 @@ export const translations = {
     // Nav
     home: "Home",
     exit: "Exit",
+    profile: "Profile",
+
+    // Landing
+    heroLine1: "Fast & affordable",
+    heroLine2: "delivery",
+    howToEnter: "How do you want to enter today?",
+    demoDisclaimer: "Demo: fictional data, no registration required",
+    adminLoading: "⏳ Entering...",
   },
 } as const;
 
