@@ -4,7 +4,7 @@ import { formatDOP } from "@/lib/auth";
 import { useAdminLang } from "@/lib/lang";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Users, Package, Bike, TrendingUp, Tag, Bot } from "lucide-react";
+import { Users, Package, Bike, TrendingUp, Tag, Bot, Bell } from "lucide-react";
 
 export default function AdminDashboard() {
   const { t } = useAdminLang();
@@ -82,6 +82,7 @@ export default function AdminDashboard() {
               { href: "/admin/businesses", label: t.businesses, icon: TrendingUp },
               { href: "/admin/orders", label: t.allOrders, icon: Package },
               { href: "/admin/promo-codes", label: "Códigos Promo", icon: Tag },
+              { href: "/admin/notifications", label: "Notificaciones", icon: Bell },
             ].map((item) => {
               const Icon = item.icon;
               return (

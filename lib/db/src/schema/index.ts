@@ -11,3 +11,4 @@ export * from "./push_subscriptions";
 export * from "./settings";
 export * from "./conversations";
 export * from "./messages";
+export * from "./notifications";

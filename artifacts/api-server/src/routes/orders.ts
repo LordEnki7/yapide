@@ -1,6 +1,6 @@
 import { Router, type IRouter } from "express";
 import { eq, and, desc } from "drizzle-orm";
-import { db, ordersTable, orderItemsTable, businessesTable, usersTable, driversTable, productsTable, walletTransactionsTable, pointsTransactionsTable } from "@workspace/db";
+import { db, ordersTable, orderItemsTable, businessesTable, usersTable, driversTable, productsTable, walletTransactionsTable, pointsTransactionsTable, notificationsTable } from "@workspace/db";
 import { CreateOrderBody, UpdateOrderStatusBody, RateOrderBody, ListOrdersQueryParams } from "@workspace/api-zod";
 import { calculateFees, CASH_LIMIT } from "../lib/dispatch";
 import { sendPushToUser } from "../lib/push";
@@ -279,6 +279,31 @@ router.patch("/orders/:orderId/status", async (req, res): Promise<void> => {
     onlineDrivers.forEach(d => {
       sendPushToUser(d.userId, "🛍️ Nuevo delivery disponible", `${biz?.name ?? "Un negocio"} tiene un pedido listo para recoger`, "/driver/jobs").catch(() => {});
     });
+  }
+
+  // ─── WhatsApp notification log ───────────────────────────────────────────
+  const waMessages: Record<string, string> = {
+    accepted: `✅ ¡Tu pedido #${order.id} fue confirmado! ${order.business ? `*${(order as any).business?.name}* está` : "El negocio está"} preparando tu pedido. Tiempo estimado: ~40 min. Sigue en vivo: yapide.app 🛵`,
+    picked_up: `🛵 ¡Tu pedido #${order.id} está en camino! Tu driver ya recogió y va hacia ti. ¡Llega en ~20 min! Sigue en vivo: yapide.app`,
+    delivered: `🎉 ¡Tu pedido #${order.id} fue entregado! ¡Buen provecho! Califica tu experiencia en la app. ¡Gracias por usar YaPide! 🙌`,
+    cancelled: `❌ Tu pedido #${order.id} fue cancelado. Si fue un error, puedes hacer un nuevo pedido en yapide.app. ¿Necesitas ayuda? WhatsApp: +1-809-000-0000`,
+  };
+
+  const waMsg = waMessages[parsed.data.status];
+  if (waMsg) {
+    const [customer] = await db.select({ phone: usersTable.phone, name: usersTable.name }).from(usersTable).where(eq(usersTable.id, order.customerId));
+    if (customer) {
+      await db.insert(notificationsTable).values({
+        orderId: order.id,
+        channel: "whatsapp",
+        recipientPhone: customer.phone ?? null,
+        recipientName: customer.name,
+        recipientRole: "customer",
+        message: waMsg,
+        status: customer.phone ? "pending" : "no_phone",
+        sent: false,
+      }).catch(() => {});
+    }
   }
 
   res.json(await formatOrder(order));

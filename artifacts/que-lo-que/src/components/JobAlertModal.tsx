@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from "react";
 import { formatDOP } from "@/lib/auth";
-import { MapPin, Banknote, CreditCard, Store, X } from "lucide-react";
+import { MapPin, Banknote, CreditCard, Store, X, Volume2, VolumeX } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface Job {
@@ -26,12 +26,64 @@ interface Props {
 
 const COUNTDOWN = 30;
 
+function playAlertBeep() {
+  try {
+    const ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
+    const notes = [
+      { freq: 880, t: 0, dur: 0.1 },
+      { freq: 1100, t: 0.13, dur: 0.1 },
+      { freq: 880, t: 0.26, dur: 0.1 },
+      { freq: 1320, t: 0.39, dur: 0.22 },
+    ];
+    for (const n of notes) {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.type = "sine";
+      osc.frequency.value = n.freq;
+      gain.gain.setValueAtTime(0, ctx.currentTime + n.t);
+      gain.gain.linearRampToValueAtTime(0.35, ctx.currentTime + n.t + 0.02);
+      gain.gain.linearRampToValueAtTime(0, ctx.currentTime + n.t + n.dur);
+      osc.start(ctx.currentTime + n.t);
+      osc.stop(ctx.currentTime + n.t + n.dur + 0.05);
+    }
+  } catch { /* audio not supported */ }
+}
+
+function speakJob(job: Job) {
+  if (!("speechSynthesis" in window)) return;
+  window.speechSynthesis.cancel();
+  const earnings = new Intl.NumberFormat("es-DO", {
+    style: "currency", currency: "DOP", maximumFractionDigits: 0
+  }).format(job.driverEarnings + (job.tip ?? 0));
+  const txt = `Nueva entrega. Recoger en ${job.businessName ?? "el negocio"}. Ganancia: ${earnings}. Tienes ${COUNTDOWN} segundos.`;
+  const u = new SpeechSynthesisUtterance(txt);
+  u.lang = "es-DO";
+  u.rate = 1.05;
+  u.volume = 1;
+  const voices = window.speechSynthesis.getVoices();
+  const es = voices.find(v => v.lang.startsWith("es")) ?? null;
+  if (es) u.voice = es;
+  window.speechSynthesis.speak(u);
+}
+
 export default function JobAlertModal({ job, onAccept, onDecline, accepting, declining }: Props) {
   const [seconds, setSeconds] = useState(COUNTDOWN);
+  const [muted, setMuted] = useState(false);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const mutedRef = useRef(false);
 
   useEffect(() => {
     setSeconds(COUNTDOWN);
+    mutedRef.current = false;
+    setMuted(false);
+
+    playAlertBeep();
+    const speakTimer = setTimeout(() => {
+      if (!mutedRef.current) speakJob(job);
+    }, 700);
+
     timerRef.current = setInterval(() => {
       setSeconds(s => {
         if (s <= 1) {
@@ -42,8 +94,20 @@ export default function JobAlertModal({ job, onAccept, onDecline, accepting, dec
         return s - 1;
       });
     }, 1000);
-    return () => clearInterval(timerRef.current!);
+
+    return () => {
+      clearTimeout(speakTimer);
+      clearInterval(timerRef.current!);
+      if ("speechSynthesis" in window) window.speechSynthesis.cancel();
+    };
   }, [job.id]);
+
+  const toggleMute = () => {
+    const next = !muted;
+    setMuted(next);
+    mutedRef.current = next;
+    if (next && "speechSynthesis" in window) window.speechSynthesis.cancel();
+  };
 
   const pct = (seconds / COUNTDOWN) * 100;
   const urgent = seconds <= 10;
@@ -61,12 +125,24 @@ export default function JobAlertModal({ job, onAccept, onDecline, accepting, dec
               <span className="text-base text-gray-400 font-normal ml-1">tu ganancia</span>
             </p>
           </div>
-          <button
-            onClick={() => onDecline(job.id)}
-            className="w-9 h-9 rounded-full bg-white/8 flex items-center justify-center hover:bg-white/12 transition"
-          >
-            <X size={16} className="text-gray-400" />
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={toggleMute}
+              title={muted ? "Activar voz" : "Silenciar"}
+              className="w-9 h-9 rounded-full bg-white/8 flex items-center justify-center hover:bg-white/12 transition"
+            >
+              {muted
+                ? <VolumeX size={16} className="text-gray-500" />
+                : <Volume2 size={16} className="text-yellow-400" />
+              }
+            </button>
+            <button
+              onClick={() => onDecline(job.id)}
+              className="w-9 h-9 rounded-full bg-white/8 flex items-center justify-center hover:bg-white/12 transition"
+            >
+              <X size={16} className="text-gray-400" />
+            </button>
+          </div>
         </div>
 
         {/* Countdown ring */}

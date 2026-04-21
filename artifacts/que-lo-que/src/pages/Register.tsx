@@ -5,19 +5,31 @@ import { setStoredUser } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, Eye, EyeOff } from "lucide-react";
+import { ArrowLeft, Eye, EyeOff, Mail, Smartphone } from "lucide-react";
 import { useLang } from "@/lib/lang";
 import LangToggle from "@/components/LangToggle";
 
 const logo = "/logo.png";
 
 export default function Register() {
+  const [tab, setTab] = useState<"email" | "phone">("email");
+
+  // Email fields
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [role, setRole] = useState("customer");
+
+  // Phone fields
+  const [pName, setPName] = useState("");
+  const [pPhone, setPPhone] = useState("");
+  const [pPin, setPPin] = useState("");
+  const [pPinConfirm, setPPinConfirm] = useState("");
+  const [pRole, setPRole] = useState("customer");
+  const [pLoading, setPLoading] = useState(false);
+
   const [, navigate] = useLocation();
   const { toast } = useToast();
   const { t } = useLang();
@@ -38,13 +50,9 @@ export default function Register() {
           role: data.user.role,
           isBanned: data.user.isBanned,
         });
-        if (data.user.role === "business") {
-          navigate("/business/onboarding");
-        } else if (data.user.role === "driver") {
-          navigate("/driver/onboarding");
-        } else {
-          navigate(`/${data.user.role}`);
-        }
+        if (data.user.role === "business") navigate("/business/onboarding");
+        else if (data.user.role === "driver") navigate("/driver/onboarding");
+        else navigate(`/${data.user.role}`);
       },
       onError: (err: any) => {
         const msg = err?.response?.data?.error ?? t.error;
@@ -53,13 +61,59 @@ export default function Register() {
     },
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleEmailSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!name || !email || !password) {
       toast({ title: t.missingData, description: t.fillCredentials, variant: "destructive" });
       return;
     }
     register.mutate({ data: { name, email, password, role: role as any, phone: phone || undefined } });
+  };
+
+  const handlePhoneSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const digits = pPhone.replace(/\D/g, "");
+    if (pName.trim().length < 2) {
+      toast({ title: "Nombre requerido", description: "Escribe tu nombre completo", variant: "destructive" });
+      return;
+    }
+    if (digits.length < 10) {
+      toast({ title: "Número inválido", description: "Ingresa un número válido (10 dígitos)", variant: "destructive" });
+      return;
+    }
+    if (!/^\d{4,6}$/.test(pPin)) {
+      toast({ title: "PIN inválido", description: "El PIN debe ser 4–6 dígitos", variant: "destructive" });
+      return;
+    }
+    if (pPin !== pPinConfirm) {
+      toast({ title: "PINs no coinciden", description: "Los dos PINs deben ser iguales", variant: "destructive" });
+      return;
+    }
+    setPLoading(true);
+    try {
+      const res = await fetch("/api/auth/phone-register", {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: pName.trim(), phone: digits, pin: pPin, role: pRole }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error ?? "Error al registrarse");
+      setStoredUser({
+        id: data.user.id,
+        name: data.user.name,
+        email: data.user.email,
+        role: data.user.role,
+        isBanned: data.user.isBanned,
+      });
+      if (data.user.role === "business") navigate("/business/onboarding");
+      else if (data.user.role === "driver") navigate("/driver/onboarding");
+      else navigate(`/${data.user.role}`);
+    } catch (err: any) {
+      toast({ title: "Error", description: err.message ?? t.error, variant: "destructive" });
+    } finally {
+      setPLoading(false);
+    }
   };
 
   return (
@@ -82,78 +136,173 @@ export default function Register() {
             <p className="text-gray-400 text-sm mt-1">{t.joinTagline}</p>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-3">
-            <Input
-              placeholder={t.fullNamePlaceholder}
-              value={name}
-              onChange={e => setName(e.target.value)}
-              className="bg-white/8 border-white/10 text-white placeholder:text-gray-500 focus:border-yellow-400 h-12"
-              autoComplete="name"
-            />
-            <Input
-              type="email"
-              placeholder={t.emailPlaceholder}
-              value={email}
-              onChange={e => setEmail(e.target.value)}
-              className="bg-white/8 border-white/10 text-white placeholder:text-gray-500 focus:border-yellow-400 h-12"
-              autoComplete="email"
-            />
-            <Input
-              type="tel"
-              placeholder={t.phonePlaceholder}
-              value={phone}
-              onChange={e => setPhone(e.target.value)}
-              className="bg-white/8 border-white/10 text-white placeholder:text-gray-500 focus:border-yellow-400 h-12"
-              autoComplete="tel"
-            />
-            <div className="relative">
-              <Input
-                type={showPassword ? "text" : "password"}
-                placeholder={t.passwordPlaceholder}
-                value={password}
-                onChange={e => setPassword(e.target.value)}
-                className="bg-white/8 border-white/10 text-white placeholder:text-gray-500 focus:border-yellow-400 h-12 pr-10"
-                autoComplete="new-password"
-              />
-              <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white transition"
-              >
-                {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
-              </button>
-            </div>
-
-            <div className="pt-1">
-              <p className="text-xs text-gray-400 uppercase tracking-widest mb-2">{t.enterAs}</p>
-              <div className="grid grid-cols-3 gap-2">
-                {ROLES.map(r => (
-                  <button
-                    key={r.value}
-                    type="button"
-                    onClick={() => setRole(r.value)}
-                    className={`p-3 rounded-xl border text-left transition-all ${
-                      role === r.value
-                        ? "bg-yellow-400/15 border-yellow-400 text-yellow-400"
-                        : "bg-white/5 border-white/10 text-gray-400 hover:border-white/20"
-                    }`}
-                  >
-                    <div className="text-base leading-none mb-1">{r.emoji}</div>
-                    <div className="text-xs font-bold">{r.label}</div>
-                    <div className="text-[10px] text-gray-500 mt-0.5 leading-tight">{r.sub}</div>
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <Button
-              type="submit"
-              className="w-full bg-yellow-400 text-black font-black text-lg h-12 hover:bg-yellow-300 shadow-[0_0_20px_rgba(255,215,0,0.3)] mt-2"
-              disabled={register.isPending}
+          {/* Tab switcher */}
+          <div className="flex bg-white/5 rounded-2xl p-1 mb-5 border border-white/10">
+            <button
+              onClick={() => setTab("email")}
+              className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-bold transition-all ${
+                tab === "email" ? "bg-yellow-400 text-black shadow" : "text-gray-400 hover:text-white"
+              }`}
             >
-              {register.isPending ? t.creating : t.createAccount}
-            </Button>
-          </form>
+              <Mail size={15} /> Email
+            </button>
+            <button
+              onClick={() => setTab("phone")}
+              className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-bold transition-all ${
+                tab === "phone" ? "bg-yellow-400 text-black shadow" : "text-gray-400 hover:text-white"
+              }`}
+            >
+              <Smartphone size={15} /> Teléfono + PIN
+            </button>
+          </div>
+
+          {tab === "email" ? (
+            <form onSubmit={handleEmailSubmit} className="space-y-3">
+              <Input
+                placeholder={t.fullNamePlaceholder}
+                value={name}
+                onChange={e => setName(e.target.value)}
+                className="bg-white/8 border-white/10 text-white placeholder:text-gray-500 focus:border-yellow-400 h-12"
+                autoComplete="name"
+              />
+              <Input
+                type="email"
+                placeholder={t.emailPlaceholder}
+                value={email}
+                onChange={e => setEmail(e.target.value)}
+                className="bg-white/8 border-white/10 text-white placeholder:text-gray-500 focus:border-yellow-400 h-12"
+                autoComplete="email"
+              />
+              <Input
+                type="tel"
+                placeholder={t.phonePlaceholder}
+                value={phone}
+                onChange={e => setPhone(e.target.value)}
+                className="bg-white/8 border-white/10 text-white placeholder:text-gray-500 focus:border-yellow-400 h-12"
+                autoComplete="tel"
+              />
+              <div className="relative">
+                <Input
+                  type={showPassword ? "text" : "password"}
+                  placeholder={t.passwordPlaceholder}
+                  value={password}
+                  onChange={e => setPassword(e.target.value)}
+                  className="bg-white/8 border-white/10 text-white placeholder:text-gray-500 focus:border-yellow-400 h-12 pr-10"
+                  autoComplete="new-password"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white transition"
+                >
+                  {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                </button>
+              </div>
+
+              <div className="pt-1">
+                <p className="text-xs text-gray-400 uppercase tracking-widest mb-2">{t.enterAs}</p>
+                <div className="grid grid-cols-3 gap-2">
+                  {ROLES.map(r => (
+                    <button
+                      key={r.value}
+                      type="button"
+                      onClick={() => setRole(r.value)}
+                      className={`p-3 rounded-xl border text-left transition-all ${
+                        role === r.value
+                          ? "bg-yellow-400/15 border-yellow-400 text-yellow-400"
+                          : "bg-white/5 border-white/10 text-gray-400 hover:border-white/20"
+                      }`}
+                    >
+                      <div className="text-base leading-none mb-1">{r.emoji}</div>
+                      <div className="text-xs font-bold">{r.label}</div>
+                      <div className="text-[10px] text-gray-500 mt-0.5 leading-tight">{r.sub}</div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <Button
+                type="submit"
+                className="w-full bg-yellow-400 text-black font-black text-lg h-12 hover:bg-yellow-300 shadow-[0_0_20px_rgba(255,215,0,0.3)] mt-2"
+                disabled={register.isPending}
+              >
+                {register.isPending ? t.creating : t.createAccount}
+              </Button>
+            </form>
+          ) : (
+            <form onSubmit={handlePhoneSubmit} className="space-y-3">
+              <Input
+                placeholder="Nombre completo"
+                value={pName}
+                onChange={e => setPName(e.target.value)}
+                className="bg-white/8 border-white/10 text-white placeholder:text-gray-500 focus:border-yellow-400 h-12"
+                autoComplete="name"
+              />
+              <div className="relative">
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm font-bold">🇩🇴 +1</span>
+                <Input
+                  type="tel"
+                  placeholder="809-000-0000"
+                  value={pPhone}
+                  onChange={e => setPPhone(e.target.value)}
+                  className="bg-white/8 border-white/10 text-white placeholder:text-gray-500 focus:border-yellow-400 h-12 pl-14"
+                  autoComplete="tel"
+                  inputMode="numeric"
+                  maxLength={12}
+                />
+              </div>
+              <Input
+                type="password"
+                placeholder="Crear PIN (4–6 dígitos)"
+                value={pPin}
+                onChange={e => setPPin(e.target.value.replace(/\D/g, "").slice(0, 6))}
+                className="bg-white/8 border-white/10 text-white placeholder:text-gray-500 focus:border-yellow-400 h-12 tracking-widest text-lg text-center"
+                inputMode="numeric"
+                maxLength={6}
+              />
+              <Input
+                type="password"
+                placeholder="Confirmar PIN"
+                value={pPinConfirm}
+                onChange={e => setPPinConfirm(e.target.value.replace(/\D/g, "").slice(0, 6))}
+                className={`bg-white/8 border-white/10 text-white placeholder:text-gray-500 focus:border-yellow-400 h-12 tracking-widest text-lg text-center ${
+                  pPinConfirm && pPin !== pPinConfirm ? "border-red-400" : pPinConfirm && pPin === pPinConfirm ? "border-green-400" : ""
+                }`}
+                inputMode="numeric"
+                maxLength={6}
+              />
+
+              <div className="pt-1">
+                <p className="text-xs text-gray-400 uppercase tracking-widest mb-2">{t.enterAs}</p>
+                <div className="grid grid-cols-3 gap-2">
+                  {ROLES.map(r => (
+                    <button
+                      key={r.value}
+                      type="button"
+                      onClick={() => setPRole(r.value)}
+                      className={`p-3 rounded-xl border text-left transition-all ${
+                        pRole === r.value
+                          ? "bg-yellow-400/15 border-yellow-400 text-yellow-400"
+                          : "bg-white/5 border-white/10 text-gray-400 hover:border-white/20"
+                      }`}
+                    >
+                      <div className="text-base leading-none mb-1">{r.emoji}</div>
+                      <div className="text-xs font-bold">{r.label}</div>
+                      <div className="text-[10px] text-gray-500 mt-0.5 leading-tight">{r.sub}</div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <Button
+                type="submit"
+                className="w-full bg-yellow-400 text-black font-black text-lg h-12 hover:bg-yellow-300 shadow-[0_0_20px_rgba(255,215,0,0.3)] mt-2"
+                disabled={pLoading}
+              >
+                {pLoading ? "Creando cuenta..." : "Crear cuenta con PIN"}
+              </Button>
+            </form>
+          )}
 
           <p className="text-center text-sm text-gray-400 mt-6">
             {t.alreadyHaveAccount}{" "}

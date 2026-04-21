@@ -8,8 +8,9 @@ import { useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, MapPin, Banknote, CreditCard, Clock, Navigation, Camera, CheckCircle2, Package, Loader2, Store, MessageCircle } from "lucide-react";
+import { ArrowLeft, MapPin, Banknote, CreditCard, Clock, Navigation, Camera, CheckCircle2, Package, Loader2, Store, MessageCircle, MapPinned } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import JobAlertModal from "@/components/JobAlertModal";
 
 interface ActiveOrder {
   id: number;
@@ -36,12 +37,22 @@ function NavLinks({ address, label }: { address: string; label: string }) {
         <span className="flex-1">{address}</span>
       </div>
       <div className="flex gap-2">
-        <a href={`https://maps.google.com/?q=${encodeURIComponent(address)}`} target="_blank" rel="noopener noreferrer" onClick={e => e.stopPropagation()}
-          className="flex items-center gap-1 px-2 py-1 rounded-lg bg-blue-500/10 border border-blue-500/30 text-blue-400 text-xs font-bold hover:bg-blue-500/20 transition">
+        <a
+          href={`https://maps.google.com/?q=${encodeURIComponent(address)}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          onClick={e => e.stopPropagation()}
+          className="flex items-center gap-1 px-2 py-1 rounded-lg bg-blue-500/10 border border-blue-500/30 text-blue-400 text-xs font-bold hover:bg-blue-500/20 transition"
+        >
           <Navigation size={11} /> Maps
         </a>
-        <a href={`https://waze.com/ul?q=${encodeURIComponent(address)}`} target="_blank" rel="noopener noreferrer" onClick={e => e.stopPropagation()}
-          className="flex items-center gap-1 px-2 py-1 rounded-lg bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 text-xs font-bold hover:bg-cyan-500/20 transition">
+        <a
+          href={`https://waze.com/ul?q=${encodeURIComponent(address)}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          onClick={e => e.stopPropagation()}
+          className="flex items-center gap-1 px-2 py-1 rounded-lg bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 text-xs font-bold hover:bg-cyan-500/20 transition"
+        >
           <Navigation size={11} /> Waze
         </a>
         <span className="text-xs text-gray-500 self-center">{label}</span>
@@ -58,7 +69,10 @@ export default function DriverJobs() {
   const [activeLoading, setActiveLoading] = useState(true);
   const [deliveryPhoto, setDeliveryPhoto] = useState<{ [orderId: number]: File | null }>({});
   const [uploadingId, setUploadingId] = useState<number | null>(null);
+  const [arrivedIds, setArrivedIds] = useState<Set<number>>(new Set());
+  const [alertJob, setAlertJob] = useState<any | null>(null);
   const fileRefs = useRef<{ [key: number]: HTMLInputElement | null }>({});
+  const seenJobIds = useRef<Set<number>>(new Set());
 
   const queryClient = useQueryClient();
   const { toast } = useToast();
@@ -80,6 +94,18 @@ export default function DriverJobs() {
     return () => clearInterval(interval);
   }, []);
 
+  // Show alert modal for new jobs (first unseen job)
+  useEffect(() => {
+    if (!jobs || jobs.length === 0) return;
+    if (alertJob) return; // already showing one
+    const unseen = (jobs as any[]).find(j => !seenJobIds.current.has(j.id));
+    if (unseen) {
+      seenJobIds.current.add(unseen.id);
+      setAlertJob(unseen);
+    }
+  }, [jobs]);
+
+  // GPS tracking when on active picked_up delivery
   useEffect(() => {
     if (!("geolocation" in navigator)) return;
     const hasActivePickedUp = activeOrders.some(o => o.status === "picked_up");
@@ -121,22 +147,28 @@ export default function DriverJobs() {
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: getGetAvailableJobsQueryKey() });
         fetchActiveOrders();
+        setAlertJob(null);
         toast({ title: t.jobAccepted, description: t.goPickUp });
       },
       onError: (err: any) => {
         const msg = err?.response?.data?.error ?? t.error;
         toast({ title: "Error", description: msg, variant: "destructive" });
+        setAlertJob(null);
       },
     }
   });
 
   const decline = useDeclineJob({
     mutation: {
-      onSuccess: () => queryClient.invalidateQueries({ queryKey: getGetAvailableJobsQueryKey() }),
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: getGetAvailableJobsQueryKey() });
+        setAlertJob(null);
+      },
     }
   });
 
   const handleMarkPickedUp = (orderId: number) => {
+    setArrivedIds(prev => { const next = new Set(prev); next.delete(orderId); return next; });
     updateStatus.mutate({ orderId, data: { status: "picked_up" } });
   };
 
@@ -169,6 +201,17 @@ export default function DriverJobs() {
 
   return (
     <div className="min-h-screen bg-background text-white">
+      {/* Alert modal for new job */}
+      {alertJob && (
+        <JobAlertModal
+          job={alertJob}
+          onAccept={(id) => accept.mutate({ orderId: id })}
+          onDecline={(id) => { decline.mutate({ orderId: id }); setAlertJob(null); }}
+          accepting={accept.isPending}
+          declining={decline.isPending}
+        />
+      )}
+
       <div className="bg-background border-b border-yellow-400/20 px-4 py-4 flex items-center gap-3 sticky top-0 z-10">
         <Link href="/driver">
           <button className="w-9 h-9 rounded-full bg-white/8 flex items-center justify-center hover:bg-white/10 transition">
@@ -178,8 +221,8 @@ export default function DriverJobs() {
         <h1 className="text-xl font-black text-yellow-400">{t.availableJobs}</h1>
         <div className="ml-auto flex items-center gap-2">
           <LangToggle />
-          {jobs && jobs.length > 0 && (
-            <Badge className="bg-yellow-400 text-black font-bold">{jobs.length}</Badge>
+          {jobs && (jobs as any[]).length > 0 && (
+            <Badge className="bg-yellow-400 text-black font-bold">{(jobs as any[]).length}</Badge>
           )}
         </div>
       </div>
@@ -187,111 +230,133 @@ export default function DriverJobs() {
       <div className="px-4 py-4 space-y-6">
 
         {/* ─── ACTIVE ORDERS ─── */}
-        {activeOrders.length > 0 && (
+        {!activeLoading && activeOrders.length > 0 && (
           <div>
             <p className="text-xs text-yellow-400 uppercase tracking-widest font-bold mb-3">🛵 En curso</p>
             <div className="space-y-4">
-              {activeOrders.map((order) => (
-                <div key={order.id} className="bg-yellow-400/5 border border-yellow-400/40 rounded-2xl p-4 shadow-[0_0_20px_rgba(255,215,0,0.1)]">
-                  <div className="flex items-start justify-between mb-3">
-                    <div>
-                      <p className="text-xs text-gray-400 uppercase tracking-widest mb-1">#{order.id}</p>
-                      <p className="font-black text-xl text-yellow-400">{formatDOP(order.driverEarnings + (order.tip ?? 0))}</p>
-                      <p className="text-xs text-gray-400">tu ganancia{order.tip > 0 ? ` + RD$${order.tip} propina` : ""}</p>
-                    </div>
-                    <Badge className={`border ${order.status === "accepted" ? "bg-blue-400/20 text-blue-400 border-blue-400/40" : "bg-purple-400/20 text-purple-400 border-purple-400/40"}`}>
-                      {order.status === "accepted"
-                        ? <><Store size={12} className="mr-1 inline" /> Ve a recoger</>
-                        : <><CheckCircle2 size={12} className="mr-1 inline" /> En camino</>}
-                    </Badge>
-                  </div>
-
-                  {/* Step-aware navigation */}
-                  {order.status === "accepted" ? (
-                    <div className="space-y-3 mb-3">
+              {activeOrders.map((order) => {
+                const arrived = arrivedIds.has(order.id);
+                return (
+                  <div key={order.id} className="bg-yellow-400/5 border border-yellow-400/40 rounded-2xl p-4 shadow-[0_0_20px_rgba(255,215,0,0.1)]">
+                    <div className="flex items-start justify-between mb-3">
                       <div>
-                        <p className="text-xs text-yellow-400 font-bold uppercase tracking-wide mb-1">📦 Paso 1 — Recoger en el negocio</p>
-                        {order.businessAddress
-                          ? <NavLinks address={order.businessAddress} label={order.businessName ?? ""} />
-                          : <p className="text-sm text-gray-400">{order.businessName}</p>}
+                        <p className="text-xs text-gray-400 uppercase tracking-widest mb-1">#{order.id}</p>
+                        <p className="font-black text-xl text-yellow-400">{formatDOP(order.driverEarnings + (order.tip ?? 0))}</p>
+                        <p className="text-xs text-gray-400">tu ganancia{order.tip > 0 ? ` + RD$${order.tip} propina` : ""}</p>
                       </div>
-                      <div className="border-t border-white/5 pt-3">
-                        <p className="text-xs text-gray-500 font-bold uppercase tracking-wide mb-1">📍 Paso 2 — Entregar luego en</p>
-                        <p className="text-sm text-gray-400">{order.deliveryAddress}</p>
-                      </div>
+                      <Badge className={`border ${order.status === "accepted" ? "bg-blue-400/20 text-blue-400 border-blue-400/40" : "bg-purple-400/20 text-purple-400 border-purple-400/40"}`}>
+                        {order.status === "accepted"
+                          ? <><Store size={12} className="mr-1 inline" />{arrived ? "Esperando pedido" : "Ve a recoger"}</>
+                          : <><CheckCircle2 size={12} className="mr-1 inline" /> En camino</>}
+                      </Badge>
                     </div>
-                  ) : (
-                    <div className="space-y-3 mb-3">
-                      <div>
-                        <p className="text-xs text-yellow-400 font-bold uppercase tracking-wide mb-1">🏠 Paso 2 — Entregar ahora en</p>
-                        <NavLinks address={order.deliveryAddress} label="destino" />
+
+                    {/* Step-aware navigation */}
+                    {order.status === "accepted" ? (
+                      <div className="space-y-3 mb-3">
+                        <div>
+                          <p className="text-xs text-yellow-400 font-bold uppercase tracking-wide mb-1">📦 Paso 1 — Recoger en el negocio</p>
+                          {order.businessAddress
+                            ? <NavLinks address={order.businessAddress} label={order.businessName ?? ""} />
+                            : <p className="text-sm text-gray-400">{order.businessName}</p>}
+                        </div>
+                        <div className="border-t border-white/5 pt-3">
+                          <p className="text-xs text-gray-500 font-bold uppercase tracking-wide mb-1">
+                            <MapPinned size={10} className="inline mr-1" />Paso 2 — Entregar luego en
+                          </p>
+                          <p className="text-sm text-gray-400">{order.deliveryAddress}</p>
+                        </div>
                       </div>
-                    </div>
-                  )}
+                    ) : (
+                      <div className="space-y-3 mb-3">
+                        <div>
+                          <p className="text-xs text-yellow-400 font-bold uppercase tracking-wide mb-1">🏠 Paso 2 — Entregar ahora en</p>
+                          <NavLinks address={order.deliveryAddress} label="destino" />
+                        </div>
+                      </div>
+                    )}
 
-                  {order.notes && (
-                    <p className="text-xs text-gray-400 bg-white/5 rounded-lg px-3 py-2 mb-3 italic">"{order.notes}"</p>
-                  )}
+                    {order.notes && (
+                      <p className="text-xs text-gray-400 bg-white/5 rounded-lg px-3 py-2 mb-3 italic">"{order.notes}"</p>
+                    )}
 
-                  {order.status === "picked_up" && (
-                    <div className="mb-3">
-                      <p className="text-xs text-gray-400 mb-2 font-bold">📸 Foto de entrega (opcional)</p>
-                      <input
-                        ref={el => { fileRefs.current[order.id] = el; }}
-                        type="file"
-                        accept="image/*"
-                        capture="environment"
-                        className="hidden"
-                        onChange={e => setDeliveryPhoto(prev => ({ ...prev, [order.id]: e.target.files?.[0] ?? null }))}
-                      />
-                      <div className="flex items-center gap-2">
-                        <button
-                          onClick={() => fileRefs.current[order.id]?.click()}
-                          className="flex items-center gap-2 px-3 py-2 rounded-xl bg-white/8 border border-white/20 text-sm text-gray-300 hover:bg-white/12 transition"
-                        >
-                          <Camera size={14} className="text-yellow-400" />
-                          {deliveryPhoto[order.id] ? t.changePhoto : t.takePhoto}
-                        </button>
-                        {deliveryPhoto[order.id] && (
-                          <span className="text-xs text-green-400 font-bold">✓ {t.changePhoto.toLowerCase()}</span>
+                    {/* Photo upload for delivery */}
+                    {order.status === "picked_up" && (
+                      <div className="mb-3">
+                        <p className="text-xs text-gray-400 mb-2 font-bold">📸 Foto de entrega (opcional)</p>
+                        <input
+                          ref={el => { fileRefs.current[order.id] = el; }}
+                          type="file"
+                          accept="image/*"
+                          capture="environment"
+                          className="hidden"
+                          onChange={e => setDeliveryPhoto(prev => ({ ...prev, [order.id]: e.target.files?.[0] ?? null }))}
+                        />
+                        <div className="flex items-center gap-2">
+                          <button
+                            onClick={() => fileRefs.current[order.id]?.click()}
+                            className="flex items-center gap-2 px-3 py-2 rounded-xl bg-white/8 border border-white/20 text-sm text-gray-300 hover:bg-white/12 transition"
+                          >
+                            <Camera size={14} className="text-yellow-400" />
+                            {deliveryPhoto[order.id] ? t.changePhoto : t.takePhoto}
+                          </button>
+                          {deliveryPhoto[order.id] && (
+                            <span className="text-xs text-green-400 font-bold">✓ Lista</span>
+                          )}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* WhatsApp customer contact */}
+                    {order.customerPhone && (
+                      <a
+                        href={`https://wa.me/1${order.customerPhone.replace(/\D/g, "")}?text=${encodeURIComponent(`Hola${order.customerName ? ` ${order.customerName.split(" ")[0]}` : ""}, soy tu delivery de YaPide 🛵 Pedido #${order.id}`)}`}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="flex items-center justify-center gap-2 w-full mb-3 py-2.5 rounded-xl bg-green-500/15 border border-green-500/40 text-green-400 text-sm font-bold hover:bg-green-500/25 transition"
+                      >
+                        <MessageCircle size={15} />
+                        Contactar a {order.customerName?.split(" ")[0] ?? "el cliente"} por WhatsApp
+                      </a>
+                    )}
+
+                    {/* ─── QUICK-ACTION BAR ─── */}
+                    {order.status === "accepted" ? (
+                      <div className="space-y-2">
+                        {!arrived ? (
+                          <Button
+                            className="w-full h-14 rounded-2xl bg-orange-500 hover:bg-orange-400 text-white font-black text-base shadow-[0_0_20px_rgba(249,115,22,0.4)] active:scale-95 transition-transform"
+                            onClick={() => setArrivedIds(prev => new Set(prev).add(order.id))}
+                          >
+                            📍 Llegué al negocio
+                          </Button>
+                        ) : (
+                          <Button
+                            className="w-full h-14 rounded-2xl bg-blue-500 hover:bg-blue-400 text-white font-black text-base shadow-[0_0_20px_rgba(59,130,246,0.4)] active:scale-95 transition-transform"
+                            onClick={() => handleMarkPickedUp(order.id)}
+                            disabled={updateStatus.isPending}
+                          >
+                            <Package size={18} className="mr-2" />
+                            ✅ Ya recogí el pedido
+                          </Button>
                         )}
                       </div>
-                    </div>
-                  )}
-
-                  {order.customerPhone && (
-                    <a
-                      href={`https://wa.me/1${order.customerPhone.replace(/\D/g, "")}?text=${encodeURIComponent(`Hola${order.customerName ? ` ${order.customerName.split(" ")[0]}` : ""}, soy tu delivery de YaPide 🛵 Pedido #${order.id}`)}`}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="flex items-center justify-center gap-2 w-full mb-3 py-2.5 rounded-xl bg-green-500/15 border border-green-500/40 text-green-400 text-sm font-bold hover:bg-green-500/25 transition"
-                    >
-                      <MessageCircle size={15} />
-                      Contactar a {order.customerName?.split(" ")[0] ?? "el cliente"} por WhatsApp
-                    </a>
-                  )}
-
-                  {order.status === "accepted" ? (
-                    <Button
-                      className="w-full bg-blue-500 hover:bg-blue-400 text-white font-black h-12"
-                      onClick={() => handleMarkPickedUp(order.id)}
-                      disabled={updateStatus.isPending}
-                    >
-                      <Package size={16} className="mr-2" />
-                      ✅ Ya recogí el pedido
-                    </Button>
-                  ) : (
-                    <Button
-                      className="w-full bg-yellow-400 hover:bg-yellow-300 text-black font-black h-12 shadow-[0_0_20px_rgba(255,215,0,0.3)]"
-                      onClick={() => handleMarkDelivered(order.id)}
-                      disabled={updateStatus.isPending || uploadingId === order.id}
-                    >
-                      {uploadingId === order.id ? <Loader2 size={16} className="mr-2 animate-spin" /> : <CheckCircle2 size={16} className="mr-2" />}
-                      ✅ Marcar como entregado
-                    </Button>
-                  )}
-                </div>
-              ))}
+                    ) : (
+                      <Button
+                        className="w-full h-14 rounded-2xl bg-yellow-400 hover:bg-yellow-300 text-black font-black text-base shadow-[0_0_30px_rgba(255,215,0,0.5)] active:scale-95 transition-transform"
+                        onClick={() => handleMarkDelivered(order.id)}
+                        disabled={updateStatus.isPending || uploadingId === order.id}
+                      >
+                        {uploadingId === order.id
+                          ? <Loader2 size={18} className="mr-2 animate-spin" />
+                          : <CheckCircle2 size={18} className="mr-2" />
+                        }
+                        🎉 Marcar como entregado
+                      </Button>
+                    )}
+                  </div>
+                );
+              })}
             </div>
           </div>
         )}
@@ -305,19 +370,19 @@ export default function DriverJobs() {
             <div className="space-y-3">
               {[1, 2].map(i => <Skeleton key={i} className="h-52 bg-white/8 rounded-2xl" />)}
             </div>
-          ) : jobs?.length === 0 && activeOrders.length === 0 ? (
+          ) : (jobs as any[])?.length === 0 && activeOrders.length === 0 ? (
             <div className="text-center py-20">
               <p className="text-5xl mb-3">😴</p>
               <p className="text-xl font-black text-white mb-2">{t.noJobs}</p>
               <p className="text-gray-400">{t.noJobsMsg}</p>
             </div>
-          ) : jobs?.length === 0 ? (
+          ) : (jobs as any[])?.length === 0 ? (
             <div className="text-center py-8">
               <p className="text-gray-400 text-sm">No hay nuevos pedidos disponibles ahora mismo</p>
             </div>
           ) : (
             <div className="space-y-4">
-              {jobs?.map((job: any) => (
+              {(jobs as any[])?.map((job) => (
                 <div key={job.id} data-testid={`job-card-${job.id}`} className="bg-white/8 border border-yellow-400/20 rounded-2xl p-4 shadow-[0_0_20px_rgba(255,215,0,0.05)]">
                   <div className="flex items-start justify-between mb-3">
                     <div>
@@ -365,7 +430,8 @@ export default function DriverJobs() {
                   </div>
 
                   <div className="flex gap-3">
-                    <Button variant="outline"
+                    <Button
+                      variant="outline"
                       className="flex-1 border-white/20 text-gray-400 hover:border-red-400/50 hover:text-red-400 font-bold"
                       onClick={() => decline.mutate({ orderId: job.id })}
                       disabled={decline.isPending}
