@@ -19,6 +19,28 @@ import { requestGPS } from "@/lib/gps";
 const MARKUP = 0.15;
 const DELIVERY_FEE = 150;
 
+function getCashOptions(total: number) {
+  const rounded = Math.ceil(total);
+  const options: { amount: number; change: number; isExact: boolean }[] = [
+    { amount: rounded, change: 0, isExact: true },
+  ];
+  // DR peso bill denominations
+  const bills = [100, 200, 500, 1000, 2000, 5000];
+  for (const bill of bills) {
+    const needed = Math.ceil(rounded / bill) * bill;
+    if (needed > rounded && !options.find(o => o.amount === needed)) {
+      options.push({ amount: needed, change: needed - rounded, isExact: false });
+    }
+  }
+  // Always include 1000, 2000 if they cover the total and aren't already there
+  for (const big of [1000, 2000, 5000]) {
+    if (big > rounded && !options.find(o => o.amount === big)) {
+      options.push({ amount: big, change: big - rounded, isExact: false });
+    }
+  }
+  return options.sort((a, b) => a.amount - b.amount).slice(0, 5);
+}
+
 interface SavedAddress {
   id: number;
   label: string;
@@ -58,6 +80,7 @@ export default function CustomerCart() {
   const user = getStoredUser();
 
   const [showCutleryModal, setShowCutleryModal] = useState(false);
+  const [cashPrepared, setCashPrepared] = useState<number | null>(null);
 
   const [promoInput, setPromoInput] = useState("");
   const [appliedPromo, setAppliedPromo] = useState<{ code: string; discountAmount: number; discountType: string; discountValue: number } | null>(null);
@@ -166,7 +189,12 @@ export default function CustomerCart() {
     }
     if (!businessId) return;
     const cutleryLine = withCutlery === true ? "🍴 Cubiertos: Sí" : withCutlery === false ? "🍴 Cubiertos: No" : "";
-    const fullNotes = [notes, cutleryLine].filter(Boolean).join("\n") || undefined;
+    const cashLine = paymentMethod === "cash" && cashPrepared
+      ? cashPrepared === Math.ceil(grandTotal)
+        ? `💵 Paga con: monto exacto`
+        : `💵 Paga con: ${formatDOP(cashPrepared)} (cambio: ${formatDOP(cashPrepared - grandTotal)})`
+      : "";
+    const fullNotes = [notes, cutleryLine, cashLine].filter(Boolean).join("\n") || undefined;
     (createOrder.mutate as any)({
       businessId,
       paymentMethod,
@@ -528,6 +556,61 @@ export default function CustomerCart() {
                 </div>
               )}
             </div>
+
+            {/* Cash change calculator */}
+            {paymentMethod === "cash" && (
+              <div className="rounded-2xl border border-yellow-400/20 bg-yellow-400/5 p-4 space-y-3">
+                <div>
+                  <p className="font-black text-white text-sm">💵 ¿Con cuánto vas a pagar?</p>
+                  <p className="text-xs text-gray-400 mt-0.5">El driver llevará el cambio exacto</p>
+                </div>
+                <div className="space-y-2">
+                  {getCashOptions(grandTotal).map(opt => (
+                    <button
+                      key={opt.amount}
+                      onClick={() => setCashPrepared(opt.amount)}
+                      className={`w-full flex items-center justify-between px-4 py-3 rounded-xl border-2 transition ${
+                        cashPrepared === opt.amount
+                          ? "border-yellow-400 bg-yellow-400/15"
+                          : "border-white/10 bg-white/5 hover:border-yellow-400/40"
+                      }`}
+                    >
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm font-black text-white">
+                          {opt.isExact ? "Monto exacto" : formatDOP(opt.amount)}
+                        </span>
+                        {opt.isExact && (
+                          <span className="text-[10px] font-bold bg-green-500/20 text-green-400 border border-green-500/30 rounded-full px-2 py-0.5">
+                            Exacto
+                          </span>
+                        )}
+                      </div>
+                      <div className="text-right">
+                        {opt.isExact ? (
+                          <span className="text-xs text-green-400 font-bold">{formatDOP(grandTotal)}</span>
+                        ) : (
+                          <div>
+                            <p className="text-xs text-gray-400">Cambio</p>
+                            <p className="text-sm font-black text-yellow-400">{formatDOP(opt.change)}</p>
+                          </div>
+                        )}
+                      </div>
+                      {cashPrepared === opt.amount && (
+                        <Check size={16} className="text-yellow-400 ml-2 flex-shrink-0" />
+                      )}
+                    </button>
+                  ))}
+                </div>
+                {cashPrepared && cashPrepared > grandTotal && (
+                  <div className="flex items-center gap-2 bg-green-500/10 border border-green-500/20 rounded-xl px-3 py-2">
+                    <span className="text-lg">🔄</span>
+                    <p className="text-sm text-green-400 font-bold">
+                      El driver te dará <span className="text-white">{formatDOP(cashPrepared - grandTotal)}</span> de cambio
+                    </p>
+                  </div>
+                )}
+              </div>
+            )}
 
             {/* Tip */}
             <div className="rounded-2xl p-4 border border-yellow-400/20 bg-yellow-400/5">
