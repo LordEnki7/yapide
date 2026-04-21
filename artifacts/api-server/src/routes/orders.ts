@@ -218,7 +218,7 @@ router.patch("/orders/:orderId/status", async (req, res): Promise<void> => {
     const [existing] = await db.select({ verificationPin: ordersTable.verificationPin }).from(ordersTable).where(eq(ordersTable.id, id));
     if (!existing) { res.status(404).json({ error: "Order not found" }); return; }
     if (existing.verificationPin) {
-      const submittedPin = (parsed.data as any).verificationPin as string | undefined;
+      const submittedPin = typeof req.body?.verificationPin === "string" ? req.body.verificationPin : undefined;
       if (!submittedPin || submittedPin.trim() !== existing.verificationPin) {
         res.status(403).json({ error: "PIN incorrecto. Pídele al cliente su PIN de entrega." });
         return;
