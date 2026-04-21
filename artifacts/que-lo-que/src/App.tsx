@@ -39,6 +39,7 @@ import AdminPromoCodes from "@/pages/admin/PromoCodes";
 import AdminCommandCenter from "@/pages/admin/CommandCenter";
 import AdminNotifications from "@/pages/admin/Notifications";
 import AdminStaff from "@/pages/admin/Staff";
+import AdminDisputes from "@/pages/admin/Disputes";
 import CustomerSupport from "@/pages/customer/Support";
 import BusinessOnboarding from "@/pages/business/Onboarding";
 import DriverOnboarding from "@/pages/driver/Onboarding";
@@ -89,6 +90,7 @@ function Router() {
         <Route path="/admin/command-center" component={AdminCommandCenter} />
         <Route path="/admin/notifications" component={AdminNotifications} />
         <Route path="/admin/staff" component={AdminStaff} />
+        <Route path="/admin/disputes" component={AdminDisputes} />
         <Route path="/customer/support" component={CustomerSupport} />
         <Route component={NotFound} />
       </Switch>

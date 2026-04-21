@@ -1,6 +1,6 @@
 import { Router, type IRouter } from "express";
 import { eq, and, desc } from "drizzle-orm";
-import { db, ordersTable, orderItemsTable, businessesTable, usersTable, driversTable, productsTable, walletTransactionsTable, pointsTransactionsTable, notificationsTable } from "@workspace/db";
+import { db, ordersTable, orderItemsTable, businessesTable, usersTable, driversTable, productsTable, walletTransactionsTable, pointsTransactionsTable, notificationsTable, driverReportsTable, disputesTable } from "@workspace/db";
 import { CreateOrderBody, UpdateOrderStatusBody, RateOrderBody, ListOrdersQueryParams } from "@workspace/api-zod";
 import { calculateFees, CASH_LIMIT } from "../lib/dispatch";
 import { sendPushToUser } from "../lib/push";
@@ -392,6 +392,40 @@ router.post("/orders/:orderId/rate", async (req, res): Promise<void> => {
 
   if (!order) { res.status(404).json({ error: "Order not found" }); return; }
   res.json({ success: true });
+});
+
+router.post("/orders/:orderId/report-problem", async (req, res): Promise<void> => {
+  const sessionUserId = (req.session as any)?.userId;
+  if (!sessionUserId) { res.status(401).json({ error: "Unauthorized" }); return; }
+  const raw = Array.isArray(req.params.orderId) ? req.params.orderId[0] : req.params.orderId;
+  const id = parseInt(raw, 10);
+  if (isNaN(id)) { res.status(400).json({ error: "Invalid orderId" }); return; }
+  const { reason, notes } = req.body as { reason: string; notes?: string };
+  if (!reason) { res.status(400).json({ error: "reason is required" }); return; }
+  const [driver] = await db.select().from(driversTable).where(eq(driversTable.userId, sessionUserId));
+  if (!driver) { res.status(403).json({ error: "Driver only" }); return; }
+  const [order] = await db.select().from(ordersTable).where(eq(ordersTable.id, id));
+  if (!order) { res.status(404).json({ error: "Order not found" }); return; }
+  if (order.driverId !== driver.id) { res.status(403).json({ error: "Not your order" }); return; }
+  const [report] = await db.insert(driverReportsTable).values({ driverId: driver.id, orderId: id, reason, notes: notes ?? null }).returning();
+  res.status(201).json(report);
+});
+
+router.post("/orders/:orderId/dispute", async (req, res): Promise<void> => {
+  const sessionUserId = (req.session as any)?.userId;
+  if (!sessionUserId) { res.status(401).json({ error: "Unauthorized" }); return; }
+  const raw = Array.isArray(req.params.orderId) ? req.params.orderId[0] : req.params.orderId;
+  const id = parseInt(raw, 10);
+  if (isNaN(id)) { res.status(400).json({ error: "Invalid orderId" }); return; }
+  const { reason, description } = req.body as { reason: string; description?: string };
+  if (!reason) { res.status(400).json({ error: "reason is required" }); return; }
+  const [order] = await db.select().from(ordersTable).where(eq(ordersTable.id, id));
+  if (!order) { res.status(404).json({ error: "Order not found" }); return; }
+  if (order.customerId !== sessionUserId) { res.status(403).json({ error: "Not your order" }); return; }
+  const existing = await db.select().from(disputesTable).where(and(eq(disputesTable.orderId, id), eq(disputesTable.customerId, sessionUserId)));
+  if (existing.length) { res.status(409).json({ error: "Ya existe una disputa para este pedido" }); return; }
+  const [dispute] = await db.insert(disputesTable).values({ orderId: id, customerId: sessionUserId, reason, description: description ?? null }).returning();
+  res.status(201).json(dispute);
 });
 
 export default router;

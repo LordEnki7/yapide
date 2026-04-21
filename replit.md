@@ -113,6 +113,19 @@ All seeded in the database:
 - 14 products across businesses
 - 3 sample orders, wallet transactions
 
+## Wave 5 Features (implemented)
+- **Driver audio readout**: `JobAlertModal` plays a 4-note AudioContext beep + Web Speech API readout in `es-DO` voice. Mute toggle (Volume2/VolumeX icon). Fires on every new job popup via `seenJobIds` dedup logic in Jobs.tsx.
+- **Live driver map — fitBounds + destination pin**: `LiveDriverMap.tsx` geocodes the delivery address via Nominatim → places a green 📦 marker. `fitBounds` centers map to show driver + destination together. Legend bar below the map.
+- **Phone + PIN login**: `pinHash` column added to `users` table (bcrypt hashed, 4–6 digit PIN). `POST /api/auth/phone-register` + `/api/auth/phone-login`. Synthetic email `phone_DIGITS@yapide.internal`. Login.tsx + Register.tsx have Email | Teléfono+PIN tab switcher.
+- **WhatsApp notification log**: `notifications` table tracks every WhatsApp link sent (orderId, type, phone, deepLink, sentAt). Triggered in orders.ts on status change (accepted/picked_up/delivered/cancelled). Admin page `/admin/notifications` shows stats, filters, manual "Enviar" deep links. Bell icon added to admin dashboard grid.
+- **Driver GPS tracking + quick-action bar**: GPS position sent every 10 s when order is `picked_up` via `PATCH /api/drivers/location`. Three-stage action buttons: "📍 Llegué al negocio" (orange) → "✅ Ya recogí" (blue) → "🎉 Entregado" (yellow), all `h-14 rounded-2xl` for thumb-tap comfort on mobile.
+
+## Wave 4 Features (implemented)
+- **Favorites**: Heart button on every business card — customers can save/unsave restaurants. Persisted in `favorites` DB table. API: `GET /api/favorites`, `POST /api/favorites/:bizId`, `DELETE /api/favorites/:bizId`.
+- **Driver problem reporting**: "Reportar problema" link at bottom of every active order card. Bottom sheet with reason options (not home, wrong address, not answering, order issue, safety, other) + notes. Stored in `driver_reports` table via `POST /api/orders/:id/report-problem`.
+- **Admin disputes & refunds**: New page `/admin/disputes`. Customers open disputes via `POST /api/orders/:id/dispute`. Admin sees all disputes with reason, customer info, order amount. Can resolve (with optional refund amount + notes) or reject via `PATCH /api/admin/disputes/:id/resolve`. "Disputas" tile added to admin dashboard nav.
+- **Manual driver assignment**: Admin orders page now shows "Asignar driver" button on pending/accepted orders. Opens a bottom sheet listing all approved drivers with name/vehicle/city/rating/online status. Admin selects and confirms. API: `POST /api/admin/orders/:id/assign-driver`.
+
 ## Wave 3 Features (implemented)
 - **Web Push Notifications**: VAPID keys auto-generated and stored in `settings` DB table. Service worker at `/sw.js` handles push events and shows OS-level notifications. `NotificationBell` component in all three role dashboards. Push sent when: order created (→ business owner), order accepted/picked_up/delivered (→ customer). Users can subscribe/unsubscribe with one click.
   - API: `GET /api/push/vapid-public-key`, `POST /api/push/subscribe`, `DELETE /api/push/unsubscribe`
@@ -127,6 +140,9 @@ All seeded in the database:
 
 ## DB Tables
 - `users`, `businesses`, `products`, `drivers`, `orders`, `order_items`, `wallet_transactions`, `points_transactions`, `addresses`, `promo_codes`
+- `favorites` — customerId + businessId (customer saved restaurants)
+- `driver_reports` — driverId, orderId, reason, notes, status (driver flags problems mid-delivery)
+- `disputes` — orderId, customerId, reason, description, status, refundAmount, adminNotes, resolvedById
 - `orders` has: `deliveryPhotoPath`, `promoCode`, `promoDiscount` columns
 
 ## Business Logic

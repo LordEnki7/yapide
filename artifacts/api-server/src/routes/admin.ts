@@ -1,6 +1,6 @@
 import { Router, type IRouter } from "express";
-import { eq, desc } from "drizzle-orm";
-import { db, usersTable, driversTable, businessesTable, ordersTable, productsTable } from "@workspace/db";
+import { eq, desc, and } from "drizzle-orm";
+import { db, usersTable, driversTable, businessesTable, ordersTable, productsTable, disputesTable, orderItemsTable } from "@workspace/db";
 import { AdminListUsersQueryParams, AdminBanUserBody, AdminLockDriverBody } from "@workspace/api-zod";
 
 const router: IRouter = Router();
@@ -187,6 +187,56 @@ router.delete("/admin/businesses/:businessId/products/:productId", async (req, r
   if (isNaN(productId)) { res.status(400).json({ error: "Invalid productId" }); return; }
   await db.delete(productsTable).where(eq(productsTable.id, productId));
   res.json({ success: true });
+});
+
+router.get("/admin/disputes", async (req, res): Promise<void> => {
+  if (!isAdmin(req)) { res.status(401).json({ error: "Unauthorized" }); return; }
+  const disputes = await db.select().from(disputesTable).orderBy(desc(disputesTable.createdAt));
+  const result = await Promise.all(disputes.map(async (d) => {
+    const [customer] = await db.select().from(usersTable).where(eq(usersTable.id, d.customerId));
+    const [order] = await db.select().from(ordersTable).where(eq(ordersTable.id, d.orderId));
+    return {
+      id: d.id, orderId: d.orderId, reason: d.reason, description: d.description,
+      status: d.status, refundAmount: d.refundAmount, adminNotes: d.adminNotes,
+      resolvedAt: d.resolvedAt, createdAt: d.createdAt,
+      customer: customer ? { id: customer.id, name: customer.name, email: customer.email } : null,
+      order: order ? { id: order.id, totalAmount: order.totalAmount, paymentMethod: order.paymentMethod } : null,
+    };
+  }));
+  res.json(result);
+});
+
+router.patch("/admin/disputes/:disputeId/resolve", async (req, res): Promise<void> => {
+  if (!isAdmin(req)) { res.status(401).json({ error: "Unauthorized" }); return; }
+  const sessionUserId = (req.session as any)?.userId;
+  const id = parseInt(Array.isArray(req.params.disputeId) ? req.params.disputeId[0] : req.params.disputeId, 10);
+  if (isNaN(id)) { res.status(400).json({ error: "Invalid disputeId" }); return; }
+  const { status, refundAmount, adminNotes } = req.body as { status: string; refundAmount?: number; adminNotes?: string };
+  if (!status) { res.status(400).json({ error: "status is required" }); return; }
+  const [dispute] = await db.update(disputesTable).set({
+    status,
+    refundAmount: refundAmount ?? null,
+    adminNotes: adminNotes ?? null,
+    resolvedById: sessionUserId,
+    resolvedAt: new Date(),
+  }).where(eq(disputesTable.id, id)).returning();
+  if (!dispute) { res.status(404).json({ error: "Dispute not found" }); return; }
+  res.json(dispute);
+});
+
+router.post("/admin/orders/:orderId/assign-driver", async (req, res): Promise<void> => {
+  if (!isAdmin(req)) { res.status(401).json({ error: "Unauthorized" }); return; }
+  const orderId = parseInt(Array.isArray(req.params.orderId) ? req.params.orderId[0] : req.params.orderId, 10);
+  if (isNaN(orderId)) { res.status(400).json({ error: "Invalid orderId" }); return; }
+  const { driverId } = req.body as { driverId: number };
+  if (!driverId) { res.status(400).json({ error: "driverId is required" }); return; }
+  const [order] = await db.select().from(ordersTable).where(eq(ordersTable.id, orderId));
+  if (!order) { res.status(404).json({ error: "Order not found" }); return; }
+  const [driver] = await db.select().from(driversTable).where(eq(driversTable.id, driverId));
+  if (!driver) { res.status(404).json({ error: "Driver not found" }); return; }
+  const [updated] = await db.update(ordersTable).set({ driverId }).where(eq(ordersTable.id, orderId)).returning();
+  const items = await db.select().from(orderItemsTable).where(eq(orderItemsTable.orderId, orderId));
+  res.json({ ...updated, items });
 });
 
 export default router;

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "wouter";
 import { useListBusinesses, getListBusinessesQueryKey, useGetMyPoints, getGetMyPointsQueryKey } from "@workspace/api-client-react";
 import { getStoredUser } from "@/lib/auth";
@@ -6,7 +6,7 @@ import { useLang } from "@/lib/lang";
 import LangToggle from "@/components/LangToggle";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Search, Star, Clock, ChevronLeft, MapPin, ChevronDown } from "lucide-react";
+import { Search, Star, Clock, ChevronLeft, MapPin, ChevronDown, Heart } from "lucide-react";
 import NotificationBell from "@/components/NotificationBell";
 
 const CITIES = [
@@ -59,6 +59,38 @@ export default function CustomerHome() {
   const [search, setSearch] = useState("");
   const [city, setCity] = useState<string>(() => localStorage.getItem(CITY_STORAGE_KEY) ?? "Santiago");
   const [cityPickerOpen, setCityPickerOpen] = useState(false);
+  const [favoriteIds, setFavoriteIds] = useState<Set<number>>(new Set());
+  const [favLoading, setFavLoading] = useState<Set<number>>(new Set());
+
+  useEffect(() => {
+    fetch("/api/favorites", { credentials: "include" })
+      .then(r => r.ok ? r.json() : [])
+      .then((favs: { id: number }[]) => setFavoriteIds(new Set(favs.map(f => f.id))))
+      .catch(() => {});
+  }, []);
+
+  const toggleFavorite = async (e: React.MouseEvent, bizId: number) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (favLoading.has(bizId)) return;
+    setFavLoading(prev => new Set(prev).add(bizId));
+    const isFav = favoriteIds.has(bizId);
+    try {
+      const res = await fetch(`/api/favorites/${bizId}`, {
+        method: isFav ? "DELETE" : "POST",
+        credentials: "include",
+      });
+      if (res.ok) {
+        setFavoriteIds(prev => {
+          const next = new Set(prev);
+          isFav ? next.delete(bizId) : next.add(bizId);
+          return next;
+        });
+      }
+    } finally {
+      setFavLoading(prev => { const next = new Set(prev); next.delete(bizId); return next; });
+    }
+  };
 
   const changeCity = (newCity: string) => {
     setCity(newCity);
@@ -268,9 +300,20 @@ export default function CustomerHome() {
                       <div className="flex-1 min-w-0 py-0.5">
                         <div className="flex items-start justify-between gap-2">
                           <h3 className="font-black text-white text-base leading-tight line-clamp-1">{biz.name}</h3>
-                          <div className="flex items-center gap-1 bg-yellow-400/15 border border-yellow-400/30 px-2 py-0.5 rounded-lg flex-shrink-0">
-                            <Star size={10} className="text-yellow-400" fill="currentColor" />
-                            <span className="text-xs font-black text-yellow-400">{biz.rating?.toFixed(1)}</span>
+                          <div className="flex items-center gap-2 flex-shrink-0">
+                            <div className="flex items-center gap-1 bg-yellow-400/15 border border-yellow-400/30 px-2 py-0.5 rounded-lg">
+                              <Star size={10} className="text-yellow-400" fill="currentColor" />
+                              <span className="text-xs font-black text-yellow-400">{biz.rating?.toFixed(1)}</span>
+                            </div>
+                            <button
+                              onClick={e => toggleFavorite(e, biz.id)}
+                              className="w-7 h-7 rounded-full flex items-center justify-center hover:bg-red-400/10 transition"
+                            >
+                              <Heart
+                                size={16}
+                                className={favoriteIds.has(biz.id) ? "text-red-400 fill-red-400" : "text-gray-500"}
+                              />
+                            </button>
                           </div>
                         </div>
                         {biz.description && (

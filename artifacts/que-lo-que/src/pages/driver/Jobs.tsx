@@ -8,7 +8,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, MapPin, Banknote, CreditCard, Clock, Navigation, Camera, CheckCircle2, Package, Loader2, Store, MessageCircle, MapPinned, ShieldCheck } from "lucide-react";
+import { ArrowLeft, MapPin, Banknote, CreditCard, Clock, Navigation, Camera, CheckCircle2, Package, Loader2, Store, MessageCircle, MapPinned, ShieldCheck, AlertTriangle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import JobAlertModal from "@/components/JobAlertModal";
 
@@ -73,6 +73,10 @@ export default function DriverJobs() {
   const [alertJob, setAlertJob] = useState<any | null>(null);
   const [pinModal, setPinModal] = useState<{ orderId: number } | null>(null);
   const [pinInput, setPinInput] = useState("");
+  const [reportModal, setReportModal] = useState<{ orderId: number } | null>(null);
+  const [reportReason, setReportReason] = useState("");
+  const [reportNotes, setReportNotes] = useState("");
+  const [reportLoading, setReportLoading] = useState(false);
   const fileRefs = useRef<{ [key: number]: HTMLInputElement | null }>({});
   const seenJobIds = useRef<Set<number>>(new Set());
 
@@ -360,6 +364,13 @@ export default function DriverJobs() {
                         🎉 Marcar como entregado
                       </Button>
                     )}
+                    <button
+                      onClick={() => { setReportModal({ orderId: order.id }); setReportReason(""); setReportNotes(""); }}
+                      className="w-full mt-2 flex items-center justify-center gap-2 py-2 rounded-xl text-xs text-gray-500 hover:text-red-400 hover:bg-red-400/5 transition border border-transparent hover:border-red-400/20"
+                    >
+                      <AlertTriangle size={12} />
+                      Reportar problema con este pedido
+                    </button>
                   </div>
                 );
               })}
@@ -506,6 +517,96 @@ export default function DriverJobs() {
                 className="flex-1 py-4 text-base font-bold text-yellow-500 hover:bg-yellow-50 transition disabled:opacity-50"
               >
                 {updateStatus.isPending ? <Loader2 size={18} className="animate-spin mx-auto" /> : "Confirmar"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Problem Report Modal */}
+      {reportModal && (
+        <div className="fixed inset-0 z-50 flex items-end justify-center">
+          <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={() => setReportModal(null)} />
+          <div className="relative z-10 w-full max-w-lg bg-white rounded-t-3xl p-6 pb-8 space-y-4">
+            <div className="w-10 h-1 bg-gray-200 rounded-full mx-auto" />
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-full bg-red-50 flex items-center justify-center">
+                <AlertTriangle size={20} className="text-red-500" />
+              </div>
+              <div>
+                <h2 className="text-base font-black text-gray-900">Reportar problema</h2>
+                <p className="text-xs text-gray-500">Pedido #{reportModal.orderId}</p>
+              </div>
+            </div>
+            <div>
+              <p className="text-xs font-black text-gray-500 uppercase tracking-widest mb-2">¿Cuál es el problema?</p>
+              <div className="space-y-2">
+                {[
+                  { key: "customer_not_home", label: "El cliente no está en casa" },
+                  { key: "wrong_address", label: "Dirección incorrecta o no existe" },
+                  { key: "customer_not_answering", label: "El cliente no contesta" },
+                  { key: "order_issue", label: "Problema con el pedido del negocio" },
+                  { key: "safety", label: "Problema de seguridad" },
+                  { key: "other", label: "Otro" },
+                ].map(r => (
+                  <button
+                    key={r.key}
+                    onClick={() => setReportReason(r.key)}
+                    className={`w-full text-left px-4 py-3 rounded-xl text-sm font-bold transition ${
+                      reportReason === r.key
+                        ? "bg-red-500 text-white"
+                        : "bg-gray-50 text-gray-700 hover:bg-gray-100"
+                    }`}
+                  >
+                    {r.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div>
+              <p className="text-xs font-black text-gray-500 uppercase tracking-widest mb-1">Notas adicionales (opcional)</p>
+              <textarea
+                value={reportNotes}
+                onChange={e => setReportNotes(e.target.value)}
+                placeholder="Explica qué pasó..."
+                rows={3}
+                className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm text-gray-900 resize-none focus:outline-none focus:border-red-400"
+              />
+            </div>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setReportModal(null)}
+                className="flex-1 py-3 rounded-xl border border-gray-200 text-gray-500 font-bold text-sm"
+              >
+                Cancelar
+              </button>
+              <button
+                disabled={!reportReason || reportLoading}
+                onClick={async () => {
+                  if (!reportReason || reportLoading) return;
+                  setReportLoading(true);
+                  try {
+                    const res = await fetch(`/api/orders/${reportModal.orderId}/report-problem`, {
+                      method: "POST",
+                      credentials: "include",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({ reason: reportReason, notes: reportNotes || undefined }),
+                    });
+                    if (res.ok) {
+                      toast({ title: "✅ Reporte enviado", description: "El equipo de YaPide fue notificado." });
+                      setReportModal(null);
+                    } else {
+                      const err = await res.json().catch(() => ({}));
+                      toast({ title: "Error", description: err.error ?? "No se pudo enviar", variant: "destructive" });
+                    }
+                  } finally {
+                    setReportLoading(false);
+                  }
+                }}
+                className="flex-1 py-3 rounded-xl bg-red-500 text-white font-black text-sm disabled:opacity-50 flex items-center justify-center gap-2"
+              >
+                {reportLoading ? <Loader2 size={14} className="animate-spin" /> : <AlertTriangle size={14} />}
+                Enviar reporte
               </button>
             </div>
           </div>

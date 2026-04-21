@@ -15,6 +15,7 @@ import promoCodesRouter from "./promo_codes";
 import pushRouter from "./push";
 import agentsRouter from "./agents";
 import staffRouter from "./staff";
+import favoritesRouter from "./favorites";
 import { authLimiter, orderLimiter, supportLimiter } from "../lib/rate-limiters";
 
 const router: IRouter = Router();
@@ -47,5 +48,6 @@ router.use(pushRouter);
 router.post("/agents/support/ask", supportLimiter);
 router.use(agentsRouter);
 router.use(staffRouter);
+router.use(favoritesRouter);
 
 export default router;

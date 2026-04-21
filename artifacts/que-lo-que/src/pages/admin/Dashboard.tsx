@@ -5,7 +5,7 @@ import { formatDOP } from "@/lib/auth";
 import { useAdminLang } from "@/lib/lang";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Users, Package, Bike, TrendingUp, Tag, Bot, Bell, Shield, Crown, ShieldCheck } from "lucide-react";
+import { Users, Package, Bike, TrendingUp, Tag, Bot, Bell, Shield, Crown, ShieldCheck, AlertCircle } from "lucide-react";
 import { getEffectivePermissions, type Permission } from "@/lib/adminPermissions";
 
 interface AdminInfo {
@@ -60,6 +60,7 @@ export default function AdminDashboard() {
     { href: "/admin/promo-codes",     label: "Códigos Promo",  icon: Tag,         perm: "promo_codes" as Permission },
     { href: "/admin/notifications",   label: "Notificaciones", icon: Bell,        perm: "notifications" as Permission },
     { href: "/admin/staff",           label: "Staff",          icon: Shield,      perm: "staff" as Permission },
+    { href: "/admin/disputes",        label: "Disputas",       icon: AlertCircle, perm: "orders" as Permission },
   ].filter(item => can(item.perm));
 
   const roleCfg = ROLE_BADGE[adminInfo?.adminRole ?? "staff"] ?? ROLE_BADGE.staff;

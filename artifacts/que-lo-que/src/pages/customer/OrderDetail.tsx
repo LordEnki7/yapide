@@ -5,7 +5,7 @@ import { useLang } from "@/lib/lang";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
-import { ArrowLeft, Star, MessageCircle, Share2, Clock, Phone, MessageSquare, Pencil, Check, X } from "lucide-react";
+import { ArrowLeft, Star, MessageCircle, Share2, Clock, Phone, MessageSquare, Pencil, Check, X, AlertTriangle } from "lucide-react";
 import { useState, useEffect, useRef, lazy, Suspense } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { useQueryClient, useMutation } from "@tanstack/react-query";
@@ -20,6 +20,11 @@ export default function CustomerOrderDetail() {
   const [bizRating, setBizRating] = useState(5);
   const [editingNotes, setEditingNotes] = useState(false);
   const [notesValue, setNotesValue] = useState("");
+  const [disputeModal, setDisputeModal] = useState(false);
+  const [disputeReason, setDisputeReason] = useState("");
+  const [disputeDesc, setDisputeDesc] = useState("");
+  const [disputeLoading, setDisputeLoading] = useState(false);
+  const [disputeSubmitted, setDisputeSubmitted] = useState(false);
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const { t } = useLang();
@@ -514,7 +519,106 @@ export default function CustomerOrderDetail() {
             </div>
           </div>
         )}
+
+        {/* Dispute button — only for delivered orders without an open dispute */}
+        {isDelivered && !disputeSubmitted && (
+          <div className="text-center pt-2 pb-4">
+            <button
+              onClick={() => { setDisputeModal(true); setDisputeReason(""); setDisputeDesc(""); }}
+              className="flex items-center gap-2 mx-auto text-xs text-gray-500 hover:text-red-400 transition"
+            >
+              <AlertTriangle size={12} />
+              ¿Problema con tu pedido? Abrir disputa
+            </button>
+          </div>
+        )}
+        {isDelivered && disputeSubmitted && (
+          <div className="bg-green-400/10 border border-green-400/20 rounded-2xl p-4 text-center">
+            <p className="text-green-400 font-bold text-sm">✅ Disputa enviada — te contactaremos pronto</p>
+          </div>
+        )}
       </div>
+
+      {/* Dispute Modal */}
+      {disputeModal && (
+        <div className="fixed inset-0 z-50 flex items-end justify-center">
+          <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={() => setDisputeModal(false)} />
+          <div className="relative z-10 w-full max-w-lg bg-white rounded-t-3xl p-6 pb-8 space-y-4">
+            <div className="w-10 h-1 bg-gray-200 rounded-full mx-auto" />
+            <h2 className="text-base font-black text-gray-900">Abrir disputa — Pedido #{orderId}</h2>
+            <div>
+              <p className="text-xs font-black text-gray-500 uppercase tracking-widest mb-2">Motivo</p>
+              <div className="space-y-2">
+                {[
+                  { key: "not_delivered", label: "No fue entregado" },
+                  { key: "wrong_items", label: "Me llegaron productos incorrectos" },
+                  { key: "missing_items", label: "Faltan productos" },
+                  { key: "damaged", label: "Productos dañados" },
+                  { key: "quality", label: "Mala calidad" },
+                  { key: "other", label: "Otro" },
+                ].map(r => (
+                  <button
+                    key={r.key}
+                    onClick={() => setDisputeReason(r.key)}
+                    className={`w-full text-left px-4 py-3 rounded-xl text-sm font-bold transition ${
+                      disputeReason === r.key ? "bg-red-500 text-white" : "bg-gray-50 text-gray-700 hover:bg-gray-100"
+                    }`}
+                  >
+                    {r.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div>
+              <p className="text-xs font-black text-gray-500 uppercase tracking-widest mb-1">Descripción (opcional)</p>
+              <textarea
+                value={disputeDesc}
+                onChange={e => setDisputeDesc(e.target.value)}
+                placeholder="Cuéntanos qué pasó..."
+                rows={3}
+                className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm text-gray-900 resize-none focus:outline-none focus:border-red-400"
+              />
+            </div>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setDisputeModal(false)}
+                className="flex-1 py-3 rounded-xl border border-gray-200 text-gray-500 font-bold text-sm"
+              >
+                Cancelar
+              </button>
+              <button
+                disabled={!disputeReason || disputeLoading}
+                onClick={async () => {
+                  if (!disputeReason || disputeLoading) return;
+                  setDisputeLoading(true);
+                  try {
+                    const res = await fetch(`/api/orders/${orderId}/dispute`, {
+                      method: "POST",
+                      credentials: "include",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({ reason: disputeReason, description: disputeDesc || undefined }),
+                    });
+                    if (res.ok) {
+                      setDisputeModal(false);
+                      setDisputeSubmitted(true);
+                      toast({ title: "✅ Disputa enviada", description: "Revisaremos tu caso y te contactaremos." });
+                    } else {
+                      const err = await res.json().catch(() => ({}));
+                      toast({ title: "Error", description: err.error ?? "No se pudo enviar", variant: "destructive" });
+                    }
+                  } finally {
+                    setDisputeLoading(false);
+                  }
+                }}
+                className="flex-1 py-3 rounded-xl bg-red-500 text-white font-black text-sm disabled:opacity-50 flex items-center justify-center gap-2"
+              >
+                {disputeLoading ? <Loader2 size={14} className="animate-spin" /> : null}
+                Enviar disputa
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
