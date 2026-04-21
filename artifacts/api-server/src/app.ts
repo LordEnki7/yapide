@@ -42,7 +42,15 @@ app.use(
 
 // ─── CORS ─────────────────────────────────────────────────────────────────────
 const allowedOrigins: cors.CorsOptions["origin"] = isProd
-  ? ["https://yapide.app", "https://www.yapide.app", /\.replit\.app$/]
+  ? [
+      "https://yapide.app",
+      "https://www.yapide.app",
+      /\.replit\.app$/,
+      // Capacitor mobile app origins
+      "https://localhost",
+      "capacitor://localhost",
+      "ionic://localhost",
+    ]
   : true;
 
 app.use(cors({ origin: allowedOrigins, credentials: true }));
@@ -53,6 +61,7 @@ app.use(express.urlencoded({ extended: true, limit: "2mb" }));
 
 // ─── Sessions ─────────────────────────────────────────────────────────────────
 const sessionSecret = process.env.SESSION_SECRET ?? "qlq-super-secret-2024";
+const sessionCookieDomain = process.env.SESSION_COOKIE_DOMAIN ?? undefined;
 
 app.use(
   session({
@@ -63,7 +72,7 @@ app.use(
       secure: isProd,
       httpOnly: true,
       sameSite: isProd ? "none" : "lax",
-      domain: isProd ? ".yapide.app" : undefined,
+      domain: sessionCookieDomain,
       maxAge: 7 * 24 * 60 * 60 * 1000,
     },
   }),
