@@ -8,6 +8,8 @@ import { Clock, ArrowLeft, RotateCcw } from "lucide-react";
 import { useCart } from "@/lib/cart";
 import { useToast } from "@/hooks/use-toast";
 
+const MARKUP = 0.15;
+
 export default function CustomerOrders() {
   const { data: orders, isLoading } = useListOrders(
     {},
@@ -21,16 +23,22 @@ export default function CustomerOrders() {
   const handleReorder = (order: typeof orders extends (infer T)[] | undefined ? T : never) => {
     const items = order?.items ?? [];
     if (!items.length) return;
-    if (cartBizId && cartBizId !== order?.businessId) {
-      clearCart();
-    }
+    if (cartBizId && cartBizId !== order?.businessId) clearCart();
     items.forEach((item: any) => {
       addItem(
-        { id: item.productId, name: item.name, price: item.price, businessId: order?.businessId } as any,
+        {
+          id: item.productId,
+          name: item.productName,
+          price: Math.round(item.price / (1 + MARKUP)),
+          businessId: order?.businessId,
+        } as any,
         item.quantity
       );
     });
-    toast({ title: "🛒 ¡Listo!", description: "Productos agregados al carrito" });
+    toast({
+      title: "🛒 ¡Listo para pedir!",
+      description: `${items.length} producto${items.length > 1 ? "s" : ""} de ${(order as any)?.business?.name ?? "tu pedido anterior"} agregado${items.length > 1 ? "s" : ""} al carrito`,
+    });
     navigate("/customer/cart");
   };
 
@@ -71,42 +79,42 @@ export default function CustomerOrders() {
             {orders?.map((order) => {
               const status = statusConfig[order.status as keyof typeof statusConfig] ?? statusConfig.pending;
               return (
-                <Link key={order.id} href={`/customer/orders/${order.id}`}>
-                  <div data-testid={`order-card-${order.id}`} className="bg-white/8 border border-white/10 rounded-2xl p-4 hover:border-yellow-400/30 transition cursor-pointer">
-                    <div className="flex items-start justify-between mb-3">
-                      <div>
-                        <p className="font-black text-white">{order.business?.name ?? "Negocio"}</p>
-                        <p className="text-gray-400 text-xs mt-0.5 flex items-center gap-1">
-                          <Clock size={10} />
-                          {new Date(order.createdAt).toLocaleDateString()} · #{order.id}
-                        </p>
+                <div key={order.id} className="rounded-2xl overflow-hidden border border-white/10 hover:border-yellow-400/30 transition">
+                  <Link href={`/customer/orders/${order.id}`}>
+                    <div data-testid={`order-card-${order.id}`} className="bg-white/8 p-4 cursor-pointer">
+                      <div className="flex items-start justify-between mb-3">
+                        <div>
+                          <p className="font-black text-white">{order.business?.name ?? "Negocio"}</p>
+                          <p className="text-gray-400 text-xs mt-0.5 flex items-center gap-1">
+                            <Clock size={10} />
+                            {new Date(order.createdAt).toLocaleDateString()} · #{order.id}
+                          </p>
+                        </div>
+                        <Badge className={`border text-xs ${status.color}`}>{status.label}</Badge>
                       </div>
-                      <Badge className={`border text-xs ${status.color}`}>{status.label}</Badge>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <p className="text-gray-400 text-sm">{t.items(order.items?.length ?? 0)}</p>
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center justify-between">
+                        <p className="text-gray-400 text-sm">{t.items(order.items?.length ?? 0)}</p>
                         <p className="text-yellow-400 font-black">{formatDOP(order.totalAmount)}</p>
-                        {order.status === "delivered" && (
-                          <button
-                            onClick={e => { e.preventDefault(); handleReorder(order); }}
-                            className="flex items-center gap-1 px-2 py-1 rounded-lg bg-yellow-400/10 border border-yellow-400/30 text-yellow-400 text-xs font-bold hover:bg-yellow-400/20 transition"
-                          >
-                            <RotateCcw size={11} />
-                            Pedir de nuevo
-                          </button>
-                        )}
                       </div>
+                      {order.status !== "cancelled" && (
+                        <div className="mt-3 flex items-center gap-1">
+                          {["pending", "accepted", "picked_up", "delivered"].map((s, i) => (
+                            <div key={s} className={`flex-1 h-1 rounded-full transition-all ${status.step > i ? "bg-yellow-400" : "bg-white/10"}`} />
+                          ))}
+                        </div>
+                      )}
                     </div>
-                    {order.status !== "cancelled" && (
-                      <div className="mt-3 flex items-center gap-1">
-                        {["pending", "accepted", "picked_up", "delivered"].map((s, i) => (
-                          <div key={s} className={`flex-1 h-1 rounded-full transition-all ${status.step > i ? "bg-yellow-400" : "bg-white/10"}`} />
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                </Link>
+                  </Link>
+                  {order.status === "delivered" && (
+                    <button
+                      onClick={() => handleReorder(order)}
+                      className="w-full flex items-center justify-center gap-2 py-3 bg-yellow-400/10 border-t border-yellow-400/20 text-yellow-400 text-sm font-black hover:bg-yellow-400/20 active:bg-yellow-400/30 transition"
+                    >
+                      <RotateCcw size={14} />
+                      Pedir de nuevo
+                    </button>
+                  )}
+                </div>
               );
             })}
           </div>
