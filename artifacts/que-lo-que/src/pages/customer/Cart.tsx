@@ -116,8 +116,9 @@ export default function CustomerCart() {
   const user = getStoredUser();
 
   const [showCutleryModal, setShowCutleryModal] = useState(false);
+  const [showChangeModal, setShowChangeModal] = useState(false);
   const [cashCurrency, setCashCurrency] = useState<CashCurrency>("DOP");
-  const [cashPrepared, setCashPrepared] = useState<number | null>(null);
+  const [cashPrepared, setCashPrepared] = useState<number | null>(null); // null = exact / no change
 
   const [promoInput, setPromoInput] = useState("");
   const [appliedPromo, setAppliedPromo] = useState<{ code: string; discountAmount: number; discountType: string; discountValue: number } | null>(null);
@@ -252,6 +253,17 @@ export default function CustomerCart() {
       toast({ title: t.missingAddress, description: t.addressRequired, variant: "destructive" });
       return;
     }
+    if (paymentMethod === "cash") {
+      setShowChangeModal(true);
+    } else if (!isLaundry) {
+      setShowCutleryModal(true);
+    } else {
+      placeOrder(null);
+    }
+  };
+
+  const handleChangeConfirm = () => {
+    setShowChangeModal(false);
     if (!isLaundry) {
       setShowCutleryModal(true);
     } else {
@@ -594,103 +606,34 @@ export default function CustomerCart() {
               )}
             </div>
 
-            {/* Cash change calculator */}
-            {paymentMethod === "cash" && (() => {
-              const opts = getCashOptions(grandTotal, cashCurrency);
-              const meta = CURRENCY_META[cashCurrency];
-              const exactOpt = opts[0];
-              return (
-                <div className="rounded-2xl border border-yellow-400/20 bg-yellow-400/5 p-4 space-y-4">
-                  <div>
-                    <p className="font-black text-white text-sm">💵 ¿En qué moneda vas a pagar?</p>
-                    <p className="text-xs text-gray-400 mt-0.5">El driver llevará el cambio exacto</p>
-                  </div>
-
-                  {/* Currency tabs */}
-                  <div className="grid grid-cols-3 gap-2">
-                    {(["DOP", "USD", "EUR"] as CashCurrency[]).map(cur => {
-                      const m = CURRENCY_META[cur];
-                      return (
-                        <button
-                          key={cur}
-                          onClick={() => { setCashCurrency(cur); setCashPrepared(null); }}
-                          className={`flex flex-col items-center gap-1 py-3 rounded-xl border-2 transition font-black text-xs ${
-                            cashCurrency === cur
-                              ? "border-yellow-400 bg-yellow-400/15 text-yellow-400"
-                              : "border-white/10 bg-white/5 text-gray-400 hover:border-yellow-400/30"
-                          }`}
-                        >
-                          <span className="text-xl">{m.flag}</span>
-                          <span>{m.label}</span>
-                          <span className="text-[10px] opacity-60">{m.symbol}</span>
-                        </button>
-                      );
-                    })}
-                  </div>
-
-                  {/* Rate note for foreign currencies */}
-                  {cashCurrency !== "DOP" && (
-                    <div className="flex items-center gap-2 bg-white/5 border border-white/10 rounded-xl px-3 py-2">
-                      <span className="text-sm">ℹ️</span>
-                      <p className="text-xs text-gray-400">
-                        Tasa aprox: 1 {cashCurrency} = {cashCurrency === "USD" ? "60" : "65"} RD$ · Total en pesos: <span className="text-white font-bold">{formatDOP(grandTotal)}</span>
-                      </p>
-                    </div>
-                  )}
-
-                  {/* Bill options */}
-                  <div className="space-y-2">
-                    {opts.map(opt => (
+            {/* Currency selector (compact) — shown when cash selected */}
+            {paymentMethod === "cash" && (
+              <div className="rounded-2xl border border-yellow-400/20 bg-yellow-400/5 p-4 space-y-3">
+                <p className="text-sm font-black text-white">💵 ¿En qué moneda vas a pagar?</p>
+                <div className="grid grid-cols-3 gap-2">
+                  {(["DOP", "USD", "EUR"] as CashCurrency[]).map(cur => {
+                    const m = CURRENCY_META[cur];
+                    return (
                       <button
-                        key={opt.amount}
-                        onClick={() => setCashPrepared(opt.amount)}
-                        className={`w-full flex items-center justify-between px-4 py-3 rounded-xl border-2 transition ${
-                          cashPrepared === opt.amount
-                            ? "border-yellow-400 bg-yellow-400/15"
-                            : "border-white/10 bg-white/5 hover:border-yellow-400/40"
+                        key={cur}
+                        onClick={() => { setCashCurrency(cur); setCashPrepared(null); }}
+                        className={`flex items-center justify-center gap-2 py-2.5 rounded-xl border-2 transition text-sm font-black ${
+                          cashCurrency === cur
+                            ? "border-yellow-400 bg-yellow-400/15 text-yellow-400"
+                            : "border-white/10 bg-white/5 text-gray-400 hover:border-yellow-400/30"
                         }`}
                       >
-                        <div className="flex items-center gap-2">
-                          <span className="text-sm font-black text-white">
-                            {opt.isExact ? "Monto exacto" : formatCurrencyAmount(opt.amount, cashCurrency)}
-                          </span>
-                          {opt.isExact && (
-                            <span className="text-[10px] font-bold bg-green-500/20 text-green-400 border border-green-500/30 rounded-full px-2 py-0.5">
-                              Exacto
-                            </span>
-                          )}
-                        </div>
-                        <div className="text-right">
-                          {opt.isExact ? (
-                            <span className="text-xs text-green-400 font-bold">{formatCurrencyAmount(exactOpt.amount, cashCurrency)}</span>
-                          ) : (
-                            <div>
-                              <p className="text-xs text-gray-400">Cambio</p>
-                              <p className="text-sm font-black text-yellow-400">{formatCurrencyAmount(opt.change, cashCurrency)}</p>
-                            </div>
-                          )}
-                        </div>
-                        {cashPrepared === opt.amount && (
-                          <Check size={16} className="text-yellow-400 ml-2 flex-shrink-0" />
-                        )}
+                        <span>{m.flag}</span>
+                        <span>{cur}</span>
                       </button>
-                    ))}
-                  </div>
-
-                  {/* Change confirmation banner */}
-                  {cashPrepared !== null && cashPrepared > exactOpt.amount && (
-                    <div className="flex items-center gap-2 bg-green-500/10 border border-green-500/20 rounded-xl px-3 py-2">
-                      <span className="text-lg">🔄</span>
-                      <p className="text-sm text-green-400 font-bold">
-                        El driver te dará{" "}
-                        <span className="text-white">{formatCurrencyAmount(cashPrepared - exactOpt.amount, cashCurrency)}</span>
-                        {" "}de cambio {cashCurrency !== "DOP" && <span className="text-gray-400 font-normal text-xs">en {meta.label}</span>}
-                      </p>
-                    </div>
-                  )}
+                    );
+                  })}
                 </div>
-              );
-            })()}
+                <p className="text-xs text-gray-500 text-center">
+                  Al confirmar el pedido te mostraremos las opciones de cambio
+                </p>
+              </div>
+            )}
 
             {/* Tip */}
             <div className="rounded-2xl p-4 border border-yellow-400/20 bg-yellow-400/5">
@@ -816,6 +759,84 @@ export default function CustomerCart() {
           </div>
         )}
       </div>
+
+      {/* Change modal — matches screenshot style */}
+      {showChangeModal && (() => {
+        const opts = getCashOptions(grandTotal, cashCurrency);
+        const exactOpt = opts[0];
+        const totalLabel = formatCurrencyAmount(exactOpt.amount, cashCurrency);
+        return (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm px-6">
+            <div className="w-full max-w-sm bg-white rounded-2xl overflow-hidden shadow-2xl">
+              {/* Header */}
+              <div className="px-6 pt-6 pb-4 border-b border-gray-100">
+                <h2 className="text-lg font-black text-gray-900 text-center">
+                  Total {totalLabel}
+                </h2>
+                <p className="text-base font-bold text-gray-700 text-center mt-0.5">¿Necesitas cambio?</p>
+                {cashCurrency !== "DOP" && (
+                  <p className="text-xs text-gray-400 text-center mt-1">
+                    Tasa aprox: 1 {cashCurrency} = {cashCurrency === "USD" ? "60" : "65"} RD$ · ({formatDOP(grandTotal)})
+                  </p>
+                )}
+              </div>
+
+              {/* Options */}
+              <div className="divide-y divide-gray-100">
+                {/* No change option */}
+                <button
+                  onClick={() => { setCashPrepared(exactOpt.amount); }}
+                  className="w-full flex items-center justify-between px-6 py-4 hover:bg-blue-50 transition text-left"
+                >
+                  <span className={`text-base font-semibold ${cashPrepared === exactOpt.amount || cashPrepared === null ? "text-blue-500" : "text-gray-800"}`}>
+                    No necesito cambio
+                  </span>
+                  {(cashPrepared === exactOpt.amount || cashPrepared === null) && (
+                    <Check size={18} className="text-blue-500 flex-shrink-0" />
+                  )}
+                </button>
+
+                {/* Bill options */}
+                {opts.slice(1).map(opt => (
+                  <button
+                    key={opt.amount}
+                    onClick={() => setCashPrepared(opt.amount)}
+                    className="w-full flex items-center justify-between px-6 py-4 hover:bg-blue-50 transition text-left"
+                  >
+                    <div>
+                      <p className="text-base font-semibold text-gray-800">
+                        Para {formatCurrencyAmount(opt.amount, cashCurrency)}
+                      </p>
+                      <p className="text-sm text-gray-500">
+                        El driver da de vuelta {formatCurrencyAmount(opt.change, cashCurrency)}
+                      </p>
+                    </div>
+                    {cashPrepared === opt.amount && (
+                      <Check size={18} className="text-blue-500 flex-shrink-0 ml-2" />
+                    )}
+                  </button>
+                ))}
+              </div>
+
+              {/* Cancel / OK */}
+              <div className="flex border-t border-gray-100">
+                <button
+                  onClick={() => { setShowChangeModal(false); setCashPrepared(null); }}
+                  className="flex-1 py-4 text-base font-bold text-blue-500 hover:bg-blue-50 transition border-r border-gray-100"
+                >
+                  Cancelar
+                </button>
+                <button
+                  onClick={handleChangeConfirm}
+                  className="flex-1 py-4 text-base font-bold text-blue-500 hover:bg-blue-50 transition"
+                >
+                  OK
+                </button>
+              </div>
+            </div>
+          </div>
+        );
+      })()}
 
       {/* Cutlery modal */}
       {showCutleryModal && (
