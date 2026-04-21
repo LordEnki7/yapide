@@ -96,8 +96,39 @@ jobs:
           path: ${{ runner.temp }}/export/*.ipa
           retention-days: 30
 
+      # Required secrets for the two steps below:
+      #   ASC_API_KEY_BASE64 – base64-encoded App Store Connect .p8 private key
+      #   ASC_API_KEY_ID     – key ID shown in App Store Connect → Users & Access → Keys
+      #   ASC_ISSUER_ID      – issuer UUID shown on the same page
+      #
+      # Note: xcrun altool is used here for TestFlight uploads. Apple may
+      # deprecate or change altool behavior as Xcode evolves. If uploads
+      # become flaky, switch to `xcrun notarytool` or fastlane pilot as a
+      # drop-in replacement without changing any secret values.
+      - name: Write App Store Connect API key
+        env:
+          ASC_API_KEY_BASE64: ${{ secrets.ASC_API_KEY_BASE64 }}
+          ASC_API_KEY_ID: ${{ secrets.ASC_API_KEY_ID }}
+        run: |
+          mkdir -p ~/.private_keys
+          echo "$ASC_API_KEY_BASE64" | base64 -D > ~/.private_keys/AuthKey_${ASC_API_KEY_ID}.p8
+
+      - name: Submit IPA to TestFlight
+        env:
+          ASC_API_KEY_ID: ${{ secrets.ASC_API_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+        run: |
+          IPA_PATH=$(ls $RUNNER_TEMP/export/*.ipa | head -n 1)
+          xcrun altool --upload-app \
+            --type ios \
+            --file "$IPA_PATH" \
+            --apiKey "$ASC_API_KEY_ID" \
+            --apiIssuer "$ASC_ISSUER_ID" \
+            --verbose
+
       - name: Clean up keychain and provisioning profile
         if: always()
         run: |
           security delete-keychain $RUNNER_TEMP/app-signing.keychain-db || true
           rm -f ~/Library/MobileDevice/Provisioning\ Profiles/build_pp.mobileprovision || true
+          rm -f ~/.private_keys/AuthKey_*.p8 || true
