@@ -2,10 +2,12 @@ import express, { type Express, type Request, type Response, type NextFunction }
 import cors from "cors";
 import pinoHttp from "pino-http";
 import session from "express-session";
+import connectPgSimple from "connect-pg-simple";
 import helmet from "helmet";
 import router from "./routes";
 import { logger } from "./lib/logger";
 import { generalLimiter } from "./lib/rate-limiters";
+import { pool } from "@workspace/db";
 
 const app: Express = express();
 
@@ -63,8 +65,15 @@ app.use(express.urlencoded({ extended: true, limit: "2mb" }));
 const sessionSecret = process.env.SESSION_SECRET ?? "qlq-super-secret-2024";
 const sessionCookieDomain = process.env.SESSION_COOKIE_DOMAIN ?? undefined;
 
+const PgSession = connectPgSimple(session);
+
 app.use(
   session({
+    store: new PgSession({
+      pool,
+      tableName: "session",
+      createTableIfMissing: true,
+    }),
     secret: sessionSecret,
     resave: false,
     saveUninitialized: false,
