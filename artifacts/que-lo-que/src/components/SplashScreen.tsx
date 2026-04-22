@@ -51,7 +51,7 @@ export default function SplashScreen({ onDone }: SplashScreenProps) {
           src="/logo.png"
           alt="YaPide"
           style={{
-            width: "clamp(180px, 55vw, 260px)",
+            width: "clamp(240px, 72vw, 340px)",
             objectFit: "contain",
             display: "block",
             filter: "contrast(1.25) brightness(1.08)",
