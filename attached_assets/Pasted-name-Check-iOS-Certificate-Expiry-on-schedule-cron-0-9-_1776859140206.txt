@@ -1,0 +1,85 @@
+name: Check iOS Certificate Expiry
+
+on:
+  schedule:
+    - cron: '0 9 * * 1'  # Every Monday at 09:00 UTC
+  workflow_dispatch:
+
+jobs:
+  check-cert-expiry:
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+
+    steps:
+      - name: Check iOS distribution certificate expiry
+        env:
+          BUILD_CERTIFICATE_BASE64: ${{ secrets.IOS_BUILD_CERTIFICATE_BASE64 }}
+          P12_PASSWORD: ${{ secrets.IOS_P12_PASSWORD }}
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          if [ -z "$BUILD_CERTIFICATE_BASE64" ]; then
+            echo "::warning::IOS_BUILD_CERTIFICATE_BASE64 is not set — skipping expiry check."
+            exit 0
+          fi
+          CERT_FILE=$(mktemp /tmp/ios-cert-XXXXXX.p12)
+          echo "$BUILD_CERTIFICATE_BASE64" | base64 -d > "$CERT_FILE"
+          EXPIRY=$(openssl pkcs12 -in "$CERT_FILE" \
+            -nokeys \
+            -clcerts \
+            -passin pass:"${P12_PASSWORD}" \
+            2>/dev/null \
+            | openssl x509 -noout -enddate 2>/dev/null \
+            | cut -d= -f2)
+          rm -f "$CERT_FILE"
+          if [ -z "$EXPIRY" ]; then
+            echo "::warning::Could not parse the expiry date from IOS_BUILD_CERTIFICATE_BASE64. Verify the certificate and IOS_P12_PASSWORD are correct."
+            exit 0
+          fi
+          EXPIRY_EPOCH=$(date -d "$EXPIRY" +%s)
+          NOW_EPOCH=$(date +%s)
+          DAYS_LEFT=$(( (EXPIRY_EPOCH - NOW_EPOCH) / 86400 ))
+          echo "iOS Distribution Certificate expires: $EXPIRY ($DAYS_LEFT days remaining)"
+          if [ "$DAYS_LEFT" -le 0 ]; then
+            echo "::error::iOS Distribution Certificate has EXPIRED (was valid until $EXPIRY). iOS builds will fail. Renew it immediately and rotate IOS_BUILD_CERTIFICATE_BASE64."
+            EXISTING_EXPIRED=$(gh issue list --state open --search "iOS Distribution Certificate has expired" --json number --jq 'length')
+            if [ "$EXISTING_EXPIRED" -eq 0 ]; then
+              gh issue create \
+                --title "URGENT: iOS Distribution Certificate has expired" \
+                --body "The iOS Distribution Certificate stored in \`IOS_BUILD_CERTIFICATE_BASE64\` **expired on $EXPIRY**. iOS builds will fail until the certificate is renewed and the secret is rotated.
+  **Renewal steps:** See [docs/ci-secrets.md](../../blob/main/docs/ci-secrets.md#step-by-step-export-the-distribution-certificate-p12) for full instructions.
+ Check failure on line 59 in .github/workflows/check-ios-cert-expiry.yml
+
+
+GitHub Actions
+/ .github/workflows/check-ios-cert-expiry.yml
+Invalid workflow file
+
+You have an error in your yaml syntax on line 59
+
+  _Opened automatically by the [Check iOS Certificate Expiry](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}) workflow._" \
+                || echo "::warning::Could not create GitHub issue automatically. Please open one manually."
+            else
+              echo "An open issue for the expired certificate already exists — skipping duplicate."
+            fi
+
+          elif [ "$DAYS_LEFT" -le 30 ]; then
+            echo "::warning::iOS Distribution Certificate expires in $DAYS_LEFT day(s) on $EXPIRY. Renew it before it expires to avoid broken builds."
+            EXISTING=$(gh issue list --state open --search "iOS Distribution Certificate expires" --json number --jq 'length')
+            if [ "$EXISTING" -eq 0 ]; then
+              gh issue create \
+                --title "iOS Distribution Certificate expires in $DAYS_LEFT days ($EXPIRY)" \
+                --body "The iOS Distribution Certificate stored in \`IOS_BUILD_CERTIFICATE_BASE64\` will expire on **$EXPIRY** ($DAYS_LEFT days from now). Renew it before then to avoid broken iOS builds.
+
+  **Renewal steps:** See [docs/ci-secrets.md](../../blob/main/docs/ci-secrets.md#step-by-step-export-the-distribution-certificate-p12) for full instructions.
+
+  _Opened automatically by the [Check iOS Certificate Expiry](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}) workflow._" \
+                || echo "::warning::Could not create GitHub issue automatically. Please open one manually."
+            else
+              echo "An open issue for certificate expiry already exists — skipping duplicate."
+            fi
+
+          else
+            echo "iOS Distribution Certificate is valid for another $DAYS_LEFT days. No action needed."
+          fi

@@ -39,23 +39,37 @@ export default function SplashScreen({ onDone }: SplashScreenProps) {
       }}
     >
       <div style={{
-        background: "rgba(0, 10, 50, 0.50)",
-        borderRadius: "24px",
+        background: "rgba(0, 10, 50, 0.55)",
+        borderRadius: "28px",
         width: "clamp(280px, 85vw, 380px)",
         overflow: "hidden",
         backdropFilter: "blur(12px)",
         WebkitBackdropFilter: "blur(12px)",
-        border: "1px solid rgba(255,255,255,0.12)",
-        boxShadow: "0 8px 40px rgba(0,0,40,0.5)",
+        border: "1px solid rgba(255,255,255,0.14)",
+        boxShadow: "0 8px 40px rgba(0,0,40,0.6)",
       }}>
+        {/* Brand text — crisp HTML so no letters ever disappear */}
+        <div style={{ padding: "22px 24px 8px", textAlign: "center" }}>
+          <p style={{ margin: 0, lineHeight: 1, fontSize: "clamp(36px, 10vw, 52px)", fontWeight: 900, letterSpacing: "-1px" }}>
+            <span style={{ color: "#6be832" }}>Ya</span><span style={{ color: "#ffffff" }}>Pide</span>
+          </p>
+          <p style={{ margin: "6px 0 0", fontSize: "clamp(13px, 3.8vw, 18px)", fontWeight: 800, letterSpacing: "0.5px", color: "#fff" }}>
+            ENTREGA <span style={{ color: "#FFD700" }}>RÁPIDA</span>
+          </p>
+          <p style={{ margin: "2px 0 0", fontSize: "clamp(13px, 3.8vw, 18px)", fontWeight: 800, letterSpacing: "0.5px", color: "#fff" }}>
+            Y ECONÓMICA
+          </p>
+        </div>
+        {/* Motorcycle — show bottom portion of logo image only */}
         <img
           src="/logo.png"
-          alt="YaPide"
+          alt=""
           style={{
             width: "100%",
-            objectFit: "contain",
+            height: "clamp(140px, 38vw, 200px)",
+            objectFit: "cover",
+            objectPosition: "bottom center",
             display: "block",
-            filter: "contrast(1.8) brightness(1.15) saturate(1.2)",
           }}
         />
       </div>
