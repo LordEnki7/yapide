@@ -6,8 +6,16 @@
 Brand: deep royal navy blue (`228 83% 9%`), electric yellow (#FFD700), white text.
 Tagline: "Entrega rápida y económica."
 Four distinct user modes: customer, driver, business, admin.
-Logo: motorcycle with lightning bolt (`/public/logo.png`, transparent PNG).
+Logo: `public/logo.png` (838×720 transparent PNG, motorcycle + YaPide text overlapping).
 Bilingual ES/EN with Spanish as default.
+
+## Logo / Splash Design (locked in)
+
+- **"YaPide"** rendered as HTML text: `Ya` in #6be832 (green), `Pide` in white, font-size clamp(48px,13vw,64px), weight 900.
+- **Tagline**: "ENTREGA RÁPIDA Y ECONÓMICA" — white + #FFD700 for "RÁPIDA", font-weight 800.
+- **Motorcycle**: shown via `overflow:hidden` container with `aspectRatio: "1 / 0.44"` + `position:absolute; bottom:0` on the img. This crops to the bottom 44% of logo.png, revealing the full rider including helmet without any of the PNG's text zone bleeding through. Width: `clamp(120px, 32vw, 150px)`.
+- Both SplashScreen.tsx and Landing.tsx use the same technique.
+- The PNG text (top ~49%) and motorcycle rider (bottom ~51%) overlap slightly in the asset — do NOT attempt to cleanly separate them with a single horizontal cut; the overflow:hidden + aspectRatio approach is the final solution.
 
 pnpm workspace monorepo using TypeScript.
 
@@ -29,12 +37,9 @@ pnpm workspace monorepo using TypeScript.
 
 ## GitHub
 
-- **Repo**: https://github.com/LordEnki7/yapida.git
-- **Push command** (run in shell — bypasses Replit's git credential interceptor):
-  ```bash
-  GIT_ASKPASS='' git push "https://$GITHUB_TOKEN@github.com/LordEnki7/yapida.git" HEAD:main
-  ```
-- The `GITHUB_TOKEN` secret is stored in Replit Secrets. Never use plain `git push` — the Replit shell intercepts credentials and blocks it.
+- **Repo**: https://github.com/LordEnki7/yapide.git (note: yapide not yapida)
+- **Latest commit**: `037250a` — overflow:hidden motorcycle crop, no layout gap
+- **Push**: `git push origin main` works directly (GITHUB_TOKEN configured)
 
 ## Key Commands
 
