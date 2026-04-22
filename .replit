@@ -1,4 +1,4 @@
-modules = ["nodejs-24"]
+modules = ["nodejs-24", "postgresql-16"]
 
 [deployment]
 router = "application"
@@ -87,3 +87,6 @@ externalPort = 9000
 
 [userenv.production]
 SESSION_COOKIE_DOMAIN = ".yapide.app"
+
+[nix]
+channel = "stable-25_05"
