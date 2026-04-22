@@ -64,7 +64,7 @@ export default function SplashScreen({ onDone }: SplashScreenProps) {
       {/* Motorcycle — container is 40% of image height (image ratio 720/838 ≈ 0.859) */}
       {/* At width W, full image height = W × 0.859. 40% of that = W × 0.344 */}
       <div style={{
-        width: "clamp(240px, 72vw, 340px)",
+        width: "clamp(190px, 55vw, 260px)",
         aspectRatio: "1 / 0.344",
         overflow: "hidden",
         position: "relative",

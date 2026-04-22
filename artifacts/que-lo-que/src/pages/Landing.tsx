@@ -114,7 +114,7 @@ export default function Landing() {
 
         {/* Motorcycle — container is 40% of image height (ratio 720/838 ≈ 0.859) */}
         <div className="mb-2 overflow-hidden relative" style={{
-          width: "clamp(220px, 68vw, 320px)",
+          width: "clamp(190px, 55vw, 260px)",
           aspectRatio: "1 / 0.344",
         }}>
           <img
