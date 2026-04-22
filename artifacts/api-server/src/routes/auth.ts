@@ -127,7 +127,6 @@ router.post("/auth/phone-register", async (req, res): Promise<void> => {
   res.status(201).json({
     user: formatUser(user),
     token: `session-${user.id}`,
-    otpCode: otp,
     waLink,
   });
 });
@@ -215,7 +214,7 @@ router.post("/auth/resend-otp", async (req, res): Promise<void> => {
   const digits = user.phone;
   const waLink = `https://wa.me/1${digits}?text=Tu+c%C3%B3digo+de+verificaci%C3%B3n+YaPide+es%3A+*${otp}*+%28v%C3%A1lido+10+minutos%29`;
 
-  res.json({ otpCode: otp, waLink });
+  res.json({ waLink });
 });
 
 // ─── Forgot PIN (send reset code) ────────────────────────────────────────────
@@ -240,7 +239,7 @@ router.post("/auth/forgot-pin", async (req, res): Promise<void> => {
 
   const waLink = `https://wa.me/1${digits}?text=Tu+c%C3%B3digo+para+restablecer+tu+PIN+de+YaPide+es%3A+*${otp}*+%28v%C3%A1lido+10+minutos%29`;
 
-  res.json({ otpCode: otp, waLink, userId: user.id });
+  res.json({ waLink, userId: user.id });
 });
 
 // ─── Reset PIN ───────────────────────────────────────────────────────────────

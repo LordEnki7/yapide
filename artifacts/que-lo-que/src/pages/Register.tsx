@@ -32,8 +32,6 @@ export default function Register() {
 
   // OTP verification state (after phone register)
   const [verifyStep, setVerifyStep] = useState(false);
-  const [otpCode, setOtpCode] = useState("");
-  const [otpDisplay, setOtpDisplay] = useState("");
   const [waLink, setWaLink] = useState("");
   const [enteredOtp, setEnteredOtp] = useState("");
   const [otpVerifying, setOtpVerifying] = useState(false);
@@ -126,8 +124,6 @@ export default function Register() {
         role: data.user.role,
         isBanned: data.user.isBanned,
       });
-      setOtpCode(data.otpCode);
-      setOtpDisplay(data.otpCode);
       setWaLink(data.waLink);
       const dest = data.user.role === "business"
         ? "/business/onboarding"
@@ -175,10 +171,8 @@ export default function Register() {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error ?? "Error");
-      setOtpCode(data.otpCode);
-      setOtpDisplay(data.otpCode);
       setWaLink(data.waLink);
-      toast({ title: "Código reenviado", description: "Se generó un nuevo código de verificación" });
+      toast({ title: "Código reenviado", description: "Se generó un nuevo código. Envíatelo por WhatsApp." });
     } catch (err: any) {
       toast({ title: "Error", description: err.message, variant: "destructive" });
     } finally {
@@ -210,21 +204,21 @@ export default function Register() {
             </div>
 
             <div className="bg-green-500/10 border border-green-500/30 rounded-2xl p-5 text-center mb-5">
-              <p className="text-sm text-white/70 mb-1">Tu código de verificación:</p>
-              <p className="text-4xl font-black tracking-[0.35em] text-yellow-400 my-2">{otpDisplay}</p>
-              <p className="text-xs text-white/40">Válido por 10 minutos</p>
+              <p className="text-sm text-white/70 mb-1">Tu código está listo.</p>
+              <p className="text-xs text-white/50 mb-3">Toca el botón para enviártelo por WhatsApp, luego ingrésalo aquí.</p>
 
               {waLink && (
                 <a
                   href={waLink}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 mt-4 bg-[#25D366] hover:bg-[#20ba5a] text-white text-sm font-bold px-5 py-2.5 rounded-2xl transition"
+                  className="inline-flex items-center gap-2 bg-[#25D366] hover:bg-[#20ba5a] text-white text-sm font-bold px-5 py-2.5 rounded-2xl transition"
                 >
                   <MessageCircle size={16} />
                   Enviarme el código por WhatsApp
                 </a>
               )}
+              <p className="text-xs text-white/30 mt-3">Válido por 10 minutos</p>
             </div>
 
             <div className="space-y-4">

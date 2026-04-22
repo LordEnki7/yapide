@@ -25,8 +25,6 @@ export default function Login() {
   // Forgot-PIN flow state
   const [forgotStep, setForgotStep] = useState<ForgotStep>("idle");
   const [forgotPhone, setForgotPhone] = useState("");
-  const [otpCode, setOtpCode] = useState("");
-  const [otpDisplay, setOtpDisplay] = useState("");
   const [waLink, setWaLink] = useState("");
   const [enteredOtp, setEnteredOtp] = useState("");
   const [newPin, setNewPin] = useState("");
@@ -115,8 +113,6 @@ export default function Login() {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error ?? "Error");
-      setOtpCode(data.otpCode);
-      setOtpDisplay(data.otpCode);
       setWaLink(data.waLink);
       setForgotStep("enter-code");
     } catch (err: any) {
@@ -127,8 +123,8 @@ export default function Login() {
   };
 
   const handleForgotVerifyCode = () => {
-    if (enteredOtp.trim() !== otpCode) {
-      toast({ title: "Código incorrecto", description: "Verifica el código enviado por WhatsApp", variant: "destructive" });
+    if (!enteredOtp || enteredOtp.trim().length < 4) {
+      toast({ title: "Código requerido", description: "Ingresa el código de 6 dígitos", variant: "destructive" });
       return;
     }
     setForgotStep("new-pin");
@@ -166,7 +162,7 @@ export default function Login() {
       <div className="min-h-screen bg-background text-white flex flex-col">
         <div className="px-4 pt-6 flex items-center justify-between">
           <button
-            onClick={() => { setForgotStep("idle"); setEnteredOtp(""); setNewPin(""); setNewPinConfirm(""); setOtpDisplay(""); }}
+            onClick={() => { setForgotStep("idle"); setEnteredOtp(""); setNewPin(""); setNewPinConfirm(""); }}
             className="flex items-center gap-2 text-white/60 hover:text-white transition"
           >
             <ArrowLeft size={18} />
@@ -218,20 +214,20 @@ export default function Login() {
               <div className="space-y-4">
                 <div className="bg-green-500/10 border border-green-500/30 rounded-2xl p-4 text-center">
                   <MessageCircle size={24} className="text-green-400 mx-auto mb-2" />
-                  <p className="text-sm text-white/80 mb-1">Tu código de verificación:</p>
-                  <p className="text-3xl font-black tracking-[0.3em] text-yellow-400">{otpDisplay}</p>
-                  <p className="text-xs text-white/50 mt-2">Válido por 10 minutos</p>
+                  <p className="text-sm text-white/80 mb-1">Tu código está listo.</p>
+                  <p className="text-xs text-white/50 mb-3">Toca el botón para recibirlo por WhatsApp, luego ingrésalo aquí.</p>
                   {waLink && (
                     <a
                       href={waLink}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center gap-2 mt-3 bg-green-600 hover:bg-green-500 text-white text-xs font-bold px-4 py-2 rounded-xl transition"
+                      className="inline-flex items-center gap-2 bg-[#25D366] hover:bg-[#20ba5a] text-white text-sm font-bold px-5 py-2.5 rounded-2xl transition"
                     >
                       <MessageCircle size={14} />
-                      Envíate por WhatsApp
+                      Enviarme el código por WhatsApp
                     </a>
                   )}
+                  <p className="text-xs text-white/30 mt-3">Válido por 10 minutos</p>
                 </div>
                 <Input
                   type="text"
