@@ -100,7 +100,7 @@ export default function Landing() {
         <img
           src={logo}
           alt="YaPide"
-          className="w-56 object-contain drop-shadow-[0_0_40px_rgba(255,215,0,0.4)] mb-3"
+          className="w-56 object-contain drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)] drop-shadow-[0_0_40px_rgba(255,215,0,0.4)] mb-3"
         />
         <h1 className="text-3xl font-black text-white text-center leading-tight tracking-tight">
           {t.heroLine1}

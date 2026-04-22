@@ -44,7 +44,7 @@ export default function SplashScreen({ onDone }: SplashScreenProps) {
         style={{
           width: "clamp(180px, 55vw, 280px)",
           objectFit: "contain",
-          filter: "drop-shadow(0 8px 32px rgba(255,215,0,0.35))",
+          filter: "drop-shadow(0 2px 8px rgba(0,0,0,0.8)) drop-shadow(0 8px 32px rgba(255,215,0,0.35))",
         }}
       />
 
