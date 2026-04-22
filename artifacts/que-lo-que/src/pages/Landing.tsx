@@ -97,32 +97,36 @@ export default function Landing() {
 
       {/* Hero */}
       <div className="flex flex-col items-center pt-6 pb-5 px-6">
-        {/* Brand name — pure HTML text */}
-        <div className="text-center mb-1" style={{ lineHeight: 1 }}>
-          <p className="m-0 font-black" style={{
-            fontSize: "clamp(48px, 13vw, 64px)",
-            letterSpacing: "-2px",
-            lineHeight: 1,
-          }}>
-            <span style={{ color: "#6be832" }}>Ya</span>
-            <span className="text-white">Pide</span>
-          </p>
-          <p className="m-0 mt-1.5 font-extrabold text-white" style={{ fontSize: "clamp(13px, 3.6vw, 18px)", letterSpacing: "1px" }}>
-            ENTREGA <span style={{ color: "#FFD700" }}>RÁPIDA</span> Y ECONÓMICA
-          </p>
-        </div>
+        {/* Unified logo block — text top, motorcycle flush below */}
+        <div className="flex flex-col items-center mb-2" style={{ gap: 0 }}>
+          {/* Brand name */}
+          <div className="text-center" style={{ lineHeight: 1 }}>
+            <p className="m-0 font-black" style={{
+              fontSize: "clamp(48px, 13vw, 64px)",
+              letterSpacing: "-2px",
+              lineHeight: 1,
+            }}>
+              <span style={{ color: "#6be832" }}>Ya</span>
+              <span className="text-white">Pide</span>
+            </p>
+            <p className="m-0 mt-1.5 font-extrabold text-white" style={{ fontSize: "clamp(13px, 3.6vw, 18px)", letterSpacing: "1px" }}>
+              ENTREGA <span style={{ color: "#FFD700" }}>RÁPIDA</span> Y ECONÓMICA
+            </p>
+          </div>
 
-        {/* Motorcycle — container is 40% of image height (ratio 720/838 ≈ 0.859) */}
-        <div className="mb-2 overflow-hidden relative" style={{
-          width: "clamp(190px, 55vw, 260px)",
-          aspectRatio: "1 / 0.344",
-        }}>
-          <img
-            src={logo}
-            alt=""
-            className="w-full absolute bottom-0 left-0"
-            style={{ filter: "drop-shadow(0 6px 24px rgba(0,0,0,0.5))" }}
-          />
+          {/* Motorcycle — sits flush under the tagline as the logo's lower half */}
+          <div className="overflow-hidden relative" style={{
+            width: "clamp(190px, 55vw, 260px)",
+            aspectRatio: "1 / 0.344",
+            marginTop: "2px",
+          }}>
+            <img
+              src={logo}
+              alt=""
+              className="w-full absolute bottom-0 left-0"
+              style={{ filter: "drop-shadow(0 6px 24px rgba(0,0,0,0.5))" }}
+            />
+          </div>
         </div>
         <h1 className="text-3xl font-black text-white text-center leading-tight tracking-tight">
           {t.heroLine1}
