@@ -101,7 +101,7 @@ export default function Landing() {
           <br />
           <span className="text-yellow-400">{t.heroLine2}</span>
         </h1>
-        <p className="text-gray-400 text-sm mt-2 text-center">{t.howToEnter}</p>
+        <p className="text-[#FFD700] font-medium text-sm mt-2 text-center">{t.howToEnter}</p>
       </div>
 
       {/* Role picker cards */}
