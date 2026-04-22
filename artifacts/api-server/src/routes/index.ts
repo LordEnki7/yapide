@@ -16,6 +16,7 @@ import pushRouter from "./push";
 import agentsRouter from "./agents";
 import staffRouter from "./staff";
 import favoritesRouter from "./favorites";
+import paymentsRouter from "./payments";
 import { authLimiter, orderLimiter, supportLimiter } from "../lib/rate-limiters";
 
 const router: IRouter = Router();
@@ -49,5 +50,6 @@ router.post("/agents/support/ask", supportLimiter);
 router.use(agentsRouter);
 router.use(staffRouter);
 router.use(favoritesRouter);
+router.use(paymentsRouter);
 
 export default router;

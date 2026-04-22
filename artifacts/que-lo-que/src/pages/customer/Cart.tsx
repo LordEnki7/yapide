@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, lazy, Suspense } from "react";
 import { Link, useLocation } from "wouter";
 import { useCart } from "@/lib/cart";
 import { useCreateOrder, getListOrdersQueryKey } from "@workspace/api-client-react";
@@ -10,11 +10,13 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import {
   ArrowLeft, Trash2, MapPin, Banknote, Plus, ChevronDown, ChevronUp,
-  Check, Navigation, Loader2, FileText, Tag, X, CreditCard, Lock,
+  Check, Navigation, Loader2, FileText, Tag, X, CreditCard,
   ChevronRight, Minus,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { requestGPS } from "@/lib/gps";
+
+const StripePaymentSheet = lazy(() => import("@/components/StripePaymentSheet"));
 
 const MARKUP = 0.15;
 const DELIVERY_FEE = 150;
@@ -115,6 +117,7 @@ export default function CustomerCart() {
   const { t } = useLang();
   const user = getStoredUser();
 
+  const [showStripeSheet, setShowStripeSheet] = useState(false);
   const [showCutleryModal, setShowCutleryModal] = useState(false);
   const [showChangeModal, setShowChangeModal] = useState(false);
   const [cashCurrency, setCashCurrency] = useState<CashCurrency>("DOP");
@@ -251,6 +254,10 @@ export default function CustomerCart() {
   const handleOrder = () => {
     if (!address.trim()) {
       toast({ title: t.missingAddress, description: t.addressRequired, variant: "destructive" });
+      return;
+    }
+    if (paymentMethod === "card") {
+      setShowStripeSheet(true);
       return;
     }
     if (paymentMethod === "cash") {
@@ -588,20 +595,17 @@ export default function CustomerCart() {
                 </button>
                 <button
                   onClick={() => setPaymentMethod("card")}
-                  className={`flex flex-col items-center justify-center gap-2 p-5 rounded-2xl border-2 transition font-black relative overflow-hidden ${paymentMethod === "card" ? "border-blue-400/40 bg-blue-400/8" : "border-white/15 bg-white/5"}`}
+                  className={`flex flex-col items-center justify-center gap-2 p-5 rounded-2xl border-2 transition font-black relative overflow-hidden ${paymentMethod === "card" ? "border-blue-400 bg-blue-400/15 shadow-[0_0_20px_rgba(96,165,250,0.2)]" : "border-white/15 bg-white/5 hover:border-white/30"}`}
                 >
-                  <CreditCard size={30} className="text-white/30" />
-                  <span className="text-sm font-black text-white/40">Tarjeta</span>
-                  <div className="absolute top-2 right-2 bg-gray-700/80 rounded-full px-1.5 py-0.5 flex items-center gap-0.5">
-                    <Lock size={9} className="text-white/50" />
-                    <span className="text-[9px] text-gray-400 font-bold">Próximo</span>
-                  </div>
+                  <CreditCard size={30} className={paymentMethod === "card" ? "text-blue-400" : "text-gray-400"} />
+                  <span className={`text-sm font-black ${paymentMethod === "card" ? "text-blue-400" : "text-white/70"}`}>Tarjeta</span>
+                  {paymentMethod === "card" && <Check size={14} className="text-blue-400" />}
                 </button>
               </div>
               {paymentMethod === "card" && (
                 <div className="mt-2 flex items-start gap-2 bg-blue-400/8 border border-blue-400/20 rounded-xl px-3 py-2.5">
-                  <Lock size={14} className="text-blue-400 flex-shrink-0 mt-0.5" />
-                  <p className="text-xs text-white/60">El pago con tarjeta estará disponible muy pronto. Elige efectivo para completar tu pedido.</p>
+                  <CreditCard size={14} className="text-blue-400 flex-shrink-0 mt-0.5" />
+                  <p className="text-xs text-white/80">Visa, Mastercard, Amex — pago seguro con Stripe 🔒</p>
                 </div>
               )}
             </div>
@@ -907,17 +911,49 @@ export default function CustomerCart() {
           <Button
             className="w-full bg-yellow-400 text-black font-black text-lg h-14 hover:bg-yellow-300 shadow-[0_0_30px_rgba(255,215,0,0.3)] disabled:opacity-50"
             onClick={handleOrder}
-            disabled={createOrder.isPending || paymentMethod === "card"}
+            disabled={createOrder.isPending}
             data-testid="button-place-order"
           >
             {createOrder.isPending
               ? t.placing
               : paymentMethod === "card"
-              ? "🔒 Tarjeta no disponible aún"
+              ? `💳 Pagar con tarjeta · ${formatDOP(grandTotal)}`
               : `Pedir ahora · ${formatDOP(grandTotal)}`}
           </Button>
         )}
       </div>
+
+      {/* ── Stripe Payment Sheet ── */}
+      {showStripeSheet && (
+        <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/70 backdrop-blur-sm">
+          <div className="w-full max-w-md bg-[#0d2057] rounded-t-3xl border-t border-blue-400/20 p-6 pb-10 shadow-2xl">
+            <div className="flex items-center justify-between mb-5">
+              <div>
+                <p className="font-black text-white text-lg">Pago seguro</p>
+                <p className="text-[#FFD700] text-sm font-bold">{formatDOP(grandTotal)}</p>
+              </div>
+              <button onClick={() => setShowStripeSheet(false)} className="text-white/40 hover:text-white transition">
+                <X size={22} />
+              </button>
+            </div>
+            <Suspense fallback={
+              <div className="flex justify-center py-10">
+                <Loader2 size={28} className="animate-spin text-[#FFD700]" />
+              </div>
+            }>
+              <StripePaymentSheet
+                amountDOP={grandTotal}
+                onSuccess={() => {
+                  setShowStripeSheet(false);
+                  if (!isLaundry) setShowCutleryModal(true);
+                  else placeOrder(null);
+                }}
+                onCancel={() => setShowStripeSheet(false)}
+              />
+            </Suspense>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
