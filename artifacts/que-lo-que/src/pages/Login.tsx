@@ -25,7 +25,7 @@ export default function Login() {
   // Forgot-PIN flow state
   const [forgotStep, setForgotStep] = useState<ForgotStep>("idle");
   const [forgotPhone, setForgotPhone] = useState("");
-  const [waLink, setWaLink] = useState("");
+  const [otpCode, setOtpCode] = useState("");
   const [enteredOtp, setEnteredOtp] = useState("");
   const [newPin, setNewPin] = useState("");
   const [newPinConfirm, setNewPinConfirm] = useState("");
@@ -113,7 +113,7 @@ export default function Login() {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error ?? "Error");
-      setWaLink(data.waLink);
+      setOtpCode(data.otpCode ?? "");
       setForgotStep("enter-code");
     } catch (err: any) {
       toast({ title: "Error", description: err.message, variant: "destructive" });
@@ -213,21 +213,11 @@ export default function Login() {
             {forgotStep === "enter-code" && (
               <div className="space-y-4">
                 <div className="bg-green-500/10 border border-green-500/30 rounded-2xl p-4 text-center">
-                  <MessageCircle size={24} className="text-green-400 mx-auto mb-2" />
-                  <p className="text-sm text-white/80 mb-1">Tu código está listo.</p>
-                  <p className="text-xs text-white/50 mb-3">Toca el botón para recibirlo por WhatsApp, luego ingrésalo aquí.</p>
-                  {waLink && (
-                    <a
-                      href={waLink}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-2 bg-[#25D366] hover:bg-[#20ba5a] text-white text-sm font-bold px-5 py-2.5 rounded-2xl transition"
-                    >
-                      <MessageCircle size={14} />
-                      Enviarme el código por WhatsApp
-                    </a>
+                  <p className="text-sm text-white/80 mb-2">Tu código de verificación:</p>
+                  {otpCode && (
+                    <p className="text-3xl font-black tracking-[0.3em] text-yellow-400 mb-1">{otpCode}</p>
                   )}
-                  <p className="text-xs text-white/30 mt-3">Válido por 10 minutos</p>
+                  <p className="text-xs text-white/40 mt-2">Ingresa este código abajo. Válido 10 minutos.</p>
                 </div>
                 <Input
                   type="text"

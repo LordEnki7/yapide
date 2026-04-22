@@ -122,12 +122,10 @@ router.post("/auth/phone-register", async (req, res): Promise<void> => {
 
   (req.session as any).userId = user.id;
 
-  const waLink = `https://wa.me/1${digits}?text=Tu+c%C3%B3digo+de+verificaci%C3%B3n+YaPide+es%3A+*${otp}*+%28v%C3%A1lido+10+minutos%29`;
-
   res.status(201).json({
     user: formatUser(user),
     token: `session-${user.id}`,
-    waLink,
+    otpCode: otp,
   });
 });
 
@@ -211,10 +209,7 @@ router.post("/auth/resend-otp", async (req, res): Promise<void> => {
     .set({ otpCode: otp, otpExpiresAt: otpExpiry })
     .where(eq(usersTable.id, sessionUserId));
 
-  const digits = user.phone;
-  const waLink = `https://wa.me/1${digits}?text=Tu+c%C3%B3digo+de+verificaci%C3%B3n+YaPide+es%3A+*${otp}*+%28v%C3%A1lido+10+minutos%29`;
-
-  res.json({ waLink });
+  res.json({ otpCode: otp });
 });
 
 // ─── Forgot PIN (send reset code) ────────────────────────────────────────────
@@ -237,9 +232,7 @@ router.post("/auth/forgot-pin", async (req, res): Promise<void> => {
     .set({ otpCode: otp, otpExpiresAt: otpExpiry })
     .where(eq(usersTable.id, user.id));
 
-  const waLink = `https://wa.me/1${digits}?text=Tu+c%C3%B3digo+para+restablecer+tu+PIN+de+YaPide+es%3A+*${otp}*+%28v%C3%A1lido+10+minutos%29`;
-
-  res.json({ waLink, userId: user.id });
+  res.json({ otpCode: otp, userId: user.id });
 });
 
 // ─── Reset PIN ───────────────────────────────────────────────────────────────
