@@ -97,7 +97,7 @@ export default function Landing() {
 
       {/* Hero */}
       <div className="flex flex-col items-center pt-6 pb-5 px-6">
-        <div className="mb-3 rounded-3xl px-6 py-4"
+        <div className="mb-3 rounded-3xl w-full overflow-hidden"
           style={{
             background: "rgba(0,10,50,0.50)",
             backdropFilter: "blur(12px)",
@@ -108,8 +108,8 @@ export default function Landing() {
           <img
             src={logo}
             alt="YaPide"
-            className="w-72 object-contain block"
-            style={{ filter: "contrast(1.3) brightness(1.1)", imageRendering: "high-quality" }}
+            className="w-full object-contain block"
+            style={{ filter: "contrast(1.3) brightness(1.1)" }}
           />
         </div>
         <h1 className="text-3xl font-black text-white text-center leading-tight tracking-tight">

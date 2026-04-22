@@ -41,7 +41,8 @@ export default function SplashScreen({ onDone }: SplashScreenProps) {
       <div style={{
         background: "rgba(0, 10, 50, 0.50)",
         borderRadius: "24px",
-        padding: "20px 24px 16px",
+        width: "clamp(280px, 85vw, 380px)",
+        overflow: "hidden",
         backdropFilter: "blur(12px)",
         WebkitBackdropFilter: "blur(12px)",
         border: "1px solid rgba(255,255,255,0.12)",
@@ -51,11 +52,10 @@ export default function SplashScreen({ onDone }: SplashScreenProps) {
           src="/logo.png"
           alt="YaPide"
           style={{
-            width: "clamp(240px, 72vw, 340px)",
+            width: "100%",
             objectFit: "contain",
             display: "block",
-            filter: "contrast(1.25) brightness(1.08)",
-            imageRendering: "high-quality",
+            filter: "contrast(1.3) brightness(1.1)",
           }}
         />
       </div>
