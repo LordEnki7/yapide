@@ -1,5 +1,27 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, Component, type ReactNode } from "react";
 import { Switch, Route, Router as WouterRouter } from "wouter";
+
+class ErrorBoundary extends Component<{ children: ReactNode }, { error: Error | null }> {
+  state = { error: null };
+  static getDerivedStateFromError(error: Error) { return { error }; }
+  render() {
+    if (this.state.error) {
+      const err = this.state.error as Error;
+      return (
+        <div style={{ background: "#0a1628", color: "#fff", minHeight: "100vh", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: 24, fontFamily: "monospace" }}>
+          <div style={{ fontSize: 48, marginBottom: 16 }}>⚠️</div>
+          <h2 style={{ color: "#FFD700", marginBottom: 8 }}>Error de carga</h2>
+          <p style={{ color: "#fff", opacity: 0.7, marginBottom: 16, textAlign: "center" }}>{err.message}</p>
+          <pre style={{ background: "#fff1", padding: 12, borderRadius: 8, fontSize: 11, maxWidth: "90vw", overflowX: "auto", color: "#ffa0a0" }}>{err.stack}</pre>
+          <button onClick={() => window.location.reload()} style={{ marginTop: 20, background: "#FFD700", color: "#000", border: "none", padding: "10px 24px", borderRadius: 12, fontWeight: 700, cursor: "pointer" }}>
+            Recargar
+          </button>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -110,19 +132,21 @@ function App() {
   }, []);
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <LangProvider>
-          <CartProvider>
-            {!splashDone && <SplashScreen onDone={handleSplashDone} />}
-            <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
-              <Router />
-            </WouterRouter>
-          </CartProvider>
-        </LangProvider>
-        <Toaster />
-      </TooltipProvider>
-    </QueryClientProvider>
+    <ErrorBoundary>
+      <QueryClientProvider client={queryClient}>
+        <TooltipProvider>
+          <LangProvider>
+            <CartProvider>
+              {!splashDone && <SplashScreen onDone={handleSplashDone} />}
+              <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
+                <Router />
+              </WouterRouter>
+            </CartProvider>
+          </LangProvider>
+          <Toaster />
+        </TooltipProvider>
+      </QueryClientProvider>
+    </ErrorBoundary>
   );
 }
 
