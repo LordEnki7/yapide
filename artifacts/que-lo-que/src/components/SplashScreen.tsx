@@ -63,26 +63,18 @@ export default function SplashScreen({ onDone }: SplashScreenProps) {
           </p>
         </div>
 
-        {/* Motorcycle — sits flush under the text as the logo's lower half */}
-        <div style={{
-          width: "clamp(190px, 55vw, 260px)",
-          aspectRatio: "1 / 0.344",
-          overflow: "hidden",
-          position: "relative",
-          marginTop: "2px",
-        }}>
-          <img
-            src="/logo.png"
-            alt=""
-            style={{
-              width: "100%",
-              position: "absolute",
-              bottom: 0,
-              left: 0,
-              filter: "drop-shadow(0 6px 24px rgba(0,0,0,0.5))",
-            }}
-          />
-        </div>
+        {/* Motorcycle — clip-path hides top 44% (PNG text zone), reveals full rider */}
+        <img
+          src="/logo.png"
+          alt=""
+          style={{
+            width: "clamp(120px, 32vw, 150px)",
+            marginTop: "2px",
+            display: "block",
+            clipPath: "inset(49% 0 0 0)",
+            filter: "drop-shadow(0 4px 16px rgba(0,0,0,0.45))",
+          }}
+        />
       </div>
 
       <p

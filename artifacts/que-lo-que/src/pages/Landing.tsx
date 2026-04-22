@@ -114,19 +114,18 @@ export default function Landing() {
             </p>
           </div>
 
-          {/* Motorcycle — sits flush under the tagline as the logo's lower half */}
-          <div className="overflow-hidden relative" style={{
-            width: "clamp(190px, 55vw, 260px)",
-            aspectRatio: "1 / 0.344",
-            marginTop: "2px",
-          }}>
-            <img
-              src={logo}
-              alt=""
-              className="w-full absolute bottom-0 left-0"
-              style={{ filter: "drop-shadow(0 6px 24px rgba(0,0,0,0.5))" }}
-            />
-          </div>
+          {/* Motorcycle — clip-path hides top 44% (PNG text zone), reveals full rider */}
+          <img
+            src={logo}
+            alt=""
+            style={{
+              width: "clamp(120px, 32vw, 150px)",
+              marginTop: "2px",
+              display: "block",
+              clipPath: "inset(49% 0 0 0)",
+              filter: "drop-shadow(0 4px 16px rgba(0,0,0,0.45))",
+            }}
+          />
         </div>
         <h1 className="text-3xl font-black text-white text-center leading-tight tracking-tight">
           {t.heroLine1}
