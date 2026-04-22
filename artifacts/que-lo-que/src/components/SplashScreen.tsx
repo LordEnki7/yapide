@@ -63,18 +63,27 @@ export default function SplashScreen({ onDone }: SplashScreenProps) {
           </p>
         </div>
 
-        {/* Motorcycle — clip-path hides top 44% (PNG text zone), reveals full rider */}
-        <img
-          src="/logo.png"
-          alt=""
-          style={{
-            width: "clamp(120px, 32vw, 150px)",
-            marginTop: "2px",
-            display: "block",
-            clipPath: "inset(49% 0 0 0)",
-            filter: "drop-shadow(0 4px 16px rgba(0,0,0,0.45))",
-          }}
-        />
+        {/* Motorcycle — overflow:hidden container shows only bottom 44% of PNG,
+            eliminating the layout gap that clip-path left behind */}
+        <div style={{
+          width: "clamp(120px, 32vw, 150px)",
+          aspectRatio: "1 / 0.44",
+          overflow: "hidden",
+          position: "relative",
+          marginTop: "2px",
+        }}>
+          <img
+            src="/logo.png"
+            alt=""
+            style={{
+              width: "100%",
+              position: "absolute",
+              bottom: 0,
+              left: 0,
+              filter: "drop-shadow(0 4px 16px rgba(0,0,0,0.45))",
+            }}
+          />
+        </div>
       </div>
 
       <p
