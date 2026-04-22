@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useLocation } from "wouter";
 import { useRegisterUser } from "@workspace/api-client-react";
 import { setStoredUser } from "@/lib/auth";
@@ -43,6 +43,16 @@ export default function Register() {
   const [, navigate] = useLocation();
   const { toast } = useToast();
   const { t } = useLang();
+
+  // Pre-select role from ?role= query param (coming from Landing page)
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const r = params.get("role");
+    if (r === "customer" || r === "driver" || r === "business") {
+      setRole(r);
+      setPRole(r);
+    }
+  }, []);
 
   const ROLES = [
     { value: "customer", emoji: "🍔", label: t.roleCustomerLabel, sub: t.roleCustomerSub },

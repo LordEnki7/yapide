@@ -1,8 +1,9 @@
 import { useState } from "react";
+import { useLocation } from "wouter";
 import { setStoredUser, setActiveRole } from "@/lib/auth";
 import LangToggle from "@/components/LangToggle";
 import { useLang } from "@/lib/lang";
-import { Loader2 } from "lucide-react";
+import { Loader2, LogIn, UserPlus, ChevronDown, ChevronUp } from "lucide-react";
 
 const logo = "/logo.png";
 const API = (import.meta.env.VITE_API_URL as string | undefined) ?? "";
@@ -15,11 +16,11 @@ const ROLES = [
     labelEn: "I'm a Customer",
     sub: "Pide comida, mandados y más",
     subEn: "Order food, errands & more",
-    bg: "from-yellow-400/25 to-yellow-400/5",
-    border: "border-yellow-400/50",
-    activeBg: "bg-yellow-400",
-    textActive: "text-black",
-    glow: "shadow-[0_0_40px_rgba(255,215,0,0.35)]",
+    bg: "from-yellow-400/20 to-yellow-400/5",
+    border: "border-yellow-400/40",
+    activeBg: "bg-yellow-400/20",
+    glow: "shadow-[0_0_30px_rgba(255,215,0,0.25)]",
+    dot: "bg-yellow-400",
   },
   {
     key: "driver" as const,
@@ -28,11 +29,11 @@ const ROLES = [
     labelEn: "I'm a Driver",
     sub: "Gana dinero haciendo deliveries",
     subEn: "Earn money making deliveries",
-    bg: "from-blue-400/20 to-blue-400/5",
-    border: "border-blue-400/40",
-    activeBg: "bg-blue-500",
-    textActive: "text-white",
-    glow: "shadow-[0_0_40px_rgba(59,130,246,0.3)]",
+    bg: "from-blue-400/15 to-blue-400/5",
+    border: "border-blue-400/30",
+    activeBg: "bg-blue-400/20",
+    glow: "shadow-[0_0_30px_rgba(59,130,246,0.25)]",
+    dot: "bg-blue-400",
   },
   {
     key: "business" as const,
@@ -41,23 +42,33 @@ const ROLES = [
     labelEn: "I'm a Business",
     sub: "Vende y recibe pedidos online",
     subEn: "Sell and receive orders online",
-    bg: "from-green-400/20 to-green-400/5",
-    border: "border-green-400/40",
-    activeBg: "bg-green-500",
-    textActive: "text-white",
-    glow: "shadow-[0_0_40px_rgba(34,197,94,0.3)]",
+    bg: "from-green-400/15 to-green-400/5",
+    border: "border-green-400/30",
+    activeBg: "bg-green-400/20",
+    glow: "shadow-[0_0_30px_rgba(34,197,94,0.25)]",
+    dot: "bg-green-400",
   },
 ];
 
 export default function Landing() {
   const { lang, t } = useLang();
+  const [, navigate] = useLocation();
   const [selected, setSelected] = useState<string | null>(null);
-  const [loading, setLoading] = useState<string | null>(null);
+  const [showDemo, setShowDemo] = useState(false);
+  const [demoLoading, setDemoLoading] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  const handleEnter = async (role: "customer" | "driver" | "business") => {
+  const handleRoleSelect = (role: "customer" | "driver" | "business") => {
     setSelected(role);
-    setLoading(role);
+  };
+
+  const handleCreateAccount = () => {
+    const role = selected ?? "customer";
+    navigate(`/register?role=${role}`);
+  };
+
+  const handleDemoLogin = async (role: "customer" | "driver" | "business") => {
+    setDemoLoading(role);
     setError(null);
     try {
       await fetch(`${API}/api/demo/seed`, { method: "POST", credentials: "include" });
@@ -75,96 +86,144 @@ export default function Landing() {
       window.location.href = `/${role === "business" ? "business" : role === "driver" ? "driver" : "customer"}`;
     } catch (err: any) {
       setError(err.message ?? "Error de conexión");
-      setLoading(null);
-      setSelected(null);
+      setDemoLoading(null);
     }
   };
 
-
   return (
     <div className="min-h-screen bg-background text-white flex flex-col">
-      {/* Header strip */}
+      {/* Header */}
       <div className="flex items-center justify-between px-5 pt-5">
         <div className="text-[10px] font-black text-yellow-400/60 uppercase tracking-[0.2em]">yapide.app</div>
         <LangToggle />
       </div>
 
-      {/* Hero logo section */}
-      <div className="flex flex-col items-center pt-8 pb-6 px-6">
+      {/* Hero */}
+      <div className="flex flex-col items-center pt-6 pb-5 px-6">
         <img
           src={logo}
           alt="YaPide"
-          className="w-44 object-contain drop-shadow-[0_0_40px_rgba(255,215,0,0.4)] mb-4"
+          className="w-40 object-contain drop-shadow-[0_0_40px_rgba(255,215,0,0.4)] mb-3"
         />
         <h1 className="text-3xl font-black text-white text-center leading-tight tracking-tight">
           {t.heroLine1}
           <br />
           <span className="text-yellow-400">{t.heroLine2}</span>
         </h1>
-        <p className="text-[#FFD700] font-medium text-sm mt-2 text-center">{t.howToEnter}</p>
+        <p className="text-[#FFD700]/80 font-medium text-sm mt-2 text-center">
+          {lang === "es" ? "¿Cómo vas a usar YaPide?" : "How will you use YaPide?"}
+        </p>
       </div>
 
-      {/* Role picker cards */}
-      <div className="flex-1 px-5 space-y-3 pb-4">
+      {/* Role picker */}
+      <div className="px-5 space-y-2.5 pb-4">
         {ROLES.map(role => {
-          const isLoading = loading === role.key;
           const isActive = selected === role.key;
           return (
             <button
               key={role.key}
-              onClick={() => !loading && handleEnter(role.key)}
-              disabled={!!loading}
-              className={`w-full rounded-2xl border-2 p-5 text-left transition-all duration-200 relative overflow-hidden
+              onClick={() => handleRoleSelect(role.key)}
+              className={`w-full rounded-2xl border-2 p-4 text-left transition-all duration-150 relative
                 bg-gradient-to-br ${role.bg} ${role.border}
-                ${isActive ? `${role.glow} scale-[0.98]` : "hover:scale-[0.99] active:scale-[0.97]"}
-                disabled:opacity-60`}
+                ${isActive ? `${role.glow} scale-[0.985] border-opacity-80` : "hover:scale-[0.995] active:scale-[0.98]"}`}
             >
-              <div className="flex items-center gap-4">
-                <div className={`w-14 h-14 rounded-xl flex items-center justify-center text-3xl flex-shrink-0 transition-all
-                  ${isActive ? `${role.activeBg} ${role.glow}` : "bg-white/8"}`}>
-                  {isLoading ? <Loader2 size={22} className={`animate-spin ${role.textActive}`} /> : role.emoji}
+              <div className="flex items-center gap-3">
+                <div className={`w-12 h-12 rounded-xl flex items-center justify-center text-2xl flex-shrink-0 transition-all
+                  ${isActive ? role.activeBg : "bg-white/8"}`}>
+                  {role.emoji}
                 </div>
                 <div className="flex-1">
-                  <p className="font-black text-xl text-white leading-tight">
+                  <p className="font-black text-lg text-white leading-tight">
                     {lang === "es" ? role.label : role.labelEn}
                   </p>
-                  <p className="text-[#FFD700] text-sm mt-0.5 font-medium">
+                  <p className="text-[#FFD700]/80 text-xs mt-0.5">
                     {lang === "es" ? role.sub : role.subEn}
                   </p>
                 </div>
-                <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 transition-all
-                  ${isActive ? `${role.activeBg}` : "bg-white/10"}`}>
-                  <span className="text-sm font-black">→</span>
+                <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 transition-all
+                  ${isActive ? `${role.dot} border-transparent` : "border-white/20 bg-transparent"}`}>
+                  {isActive && <div className="w-2 h-2 rounded-full bg-white" />}
                 </div>
               </div>
             </button>
           );
         })}
-
-        {/* Cities badge row */}
-        <div className="pt-2">
-          <p className="text-center text-[10px] text-[#FFD700]/70 uppercase tracking-widest mb-2">
-            {lang === "es" ? "Disponible en" : "Available in"}
-          </p>
-          <div className="flex flex-wrap gap-2 justify-center">
-            {["Santo Domingo", "Santiago", "La Romana", "San Pedro", "Puerto Plata", "Sosúa", "Cabarete"].map(city => (
-              <span key={city} className="text-[10px] font-bold px-2.5 py-1 rounded-full bg-white/5 border border-yellow-400/20 text-[#FFD700]/80">
-                📍 {city}
-              </span>
-            ))}
-          </div>
-        </div>
-
-        {error && (
-          <p className="text-center text-red-400 text-sm bg-red-500/10 border border-red-500/20 rounded-xl p-3">
-            ⚠️ {error}
-          </p>
-        )}
       </div>
 
-      {/* Footer */}
-      <div className="px-5 pb-6 text-center">
-        <p className="text-xs text-white/50">{t.demoDisclaimer}</p>
+      {/* Primary CTAs */}
+      <div className="px-5 space-y-3 pb-3">
+        <button
+          onClick={handleCreateAccount}
+          className="w-full bg-yellow-400 text-black font-black text-lg h-14 rounded-2xl hover:bg-yellow-300 active:scale-[0.98] transition-all shadow-[0_0_25px_rgba(255,215,0,0.3)] flex items-center justify-center gap-2"
+        >
+          <UserPlus size={20} />
+          {lang === "es" ? "Crear cuenta gratis" : "Create free account"}
+        </button>
+
+        <button
+          onClick={() => navigate("/login")}
+          className="w-full bg-white/8 border border-white/15 text-white font-black text-base h-12 rounded-2xl hover:bg-white/12 active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+        >
+          <LogIn size={18} />
+          {lang === "es" ? "Ya tengo cuenta — Entrar" : "I have an account — Log in"}
+        </button>
+      </div>
+
+      {/* Cities */}
+      <div className="px-5 pb-3">
+        <div className="flex flex-wrap gap-1.5 justify-center">
+          {["Santo Domingo", "Santiago", "La Romana", "San Pedro", "Puerto Plata", "Sosúa", "Cabarete"].map(city => (
+            <span key={city} className="text-[10px] font-bold px-2 py-1 rounded-full bg-white/5 border border-yellow-400/20 text-[#FFD700]/70">
+              📍 {city}
+            </span>
+          ))}
+        </div>
+      </div>
+
+      {error && (
+        <p className="mx-5 text-center text-red-400 text-sm bg-red-500/10 border border-red-500/20 rounded-xl p-3">
+          ⚠️ {error}
+        </p>
+      )}
+
+      {/* Demo toggle — for testing only */}
+      <div className="px-5 pb-6 mt-auto">
+        <button
+          onClick={() => setShowDemo(v => !v)}
+          className="w-full flex items-center justify-center gap-1.5 text-xs text-white/30 hover:text-white/50 transition py-2"
+        >
+          {showDemo ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
+          {lang === "es" ? "Entrar sin cuenta (demo)" : "Enter without account (demo)"}
+        </button>
+
+        {showDemo && (
+          <div className="mt-2 bg-white/5 border border-white/10 rounded-2xl p-3 space-y-2">
+            <p className="text-[10px] text-white/40 text-center uppercase tracking-widest mb-1">
+              {lang === "es" ? "Cuentas de prueba" : "Test accounts"}
+            </p>
+            <div className="grid grid-cols-3 gap-2">
+              {ROLES.map(role => (
+                <button
+                  key={role.key}
+                  onClick={() => handleDemoLogin(role.key)}
+                  disabled={!!demoLoading}
+                  className="flex flex-col items-center gap-1 py-2.5 px-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 transition active:scale-95 disabled:opacity-50"
+                >
+                  {demoLoading === role.key
+                    ? <Loader2 size={18} className="animate-spin text-white/60" />
+                    : <span className="text-lg">{role.emoji}</span>
+                  }
+                  <span className="text-[10px] text-white/60 font-bold">
+                    {role.key === "customer" ? (lang === "es" ? "Cliente" : "Customer")
+                     : role.key === "driver" ? (lang === "es" ? "Motorista" : "Driver")
+                     : (lang === "es" ? "Negocio" : "Business")}
+                  </span>
+                </button>
+              ))}
+            </div>
+            <p className="text-[9px] text-white/25 text-center">{t.demoDisclaimer}</p>
+          </div>
+        )}
       </div>
     </div>
   );
