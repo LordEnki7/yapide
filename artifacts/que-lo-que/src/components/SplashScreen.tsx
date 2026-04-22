@@ -55,7 +55,7 @@ export default function SplashScreen({ onDone }: SplashScreenProps) {
             width: "100%",
             objectFit: "contain",
             display: "block",
-            filter: "contrast(1.3) brightness(1.1)",
+            filter: "contrast(1.8) brightness(1.15) saturate(1.2)",
           }}
         />
       </div>

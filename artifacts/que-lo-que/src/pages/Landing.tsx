@@ -109,7 +109,7 @@ export default function Landing() {
             src={logo}
             alt="YaPide"
             className="w-full object-contain block"
-            style={{ filter: "contrast(1.3) brightness(1.1)" }}
+            style={{ filter: "contrast(1.8) brightness(1.15) saturate(1.2)" }}
           />
         </div>
         <h1 className="text-3xl font-black text-white text-center leading-tight tracking-tight">
