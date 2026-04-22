@@ -187,7 +187,7 @@ export default function Landing() {
       <div className="px-5 pb-6 mt-auto">
         <button
           onClick={() => setShowDemo(v => !v)}
-          className="w-full flex items-center justify-center gap-1.5 text-xs text-white/30 hover:text-white/50 transition py-2"
+          className="w-full flex items-center justify-center gap-1.5 text-xs text-[#FFD700]/60 hover:text-[#FFD700] transition py-2"
         >
           {showDemo ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
           {lang === "es" ? "Entrar sin cuenta (demo)" : "Enter without account (demo)"}
@@ -195,7 +195,7 @@ export default function Landing() {
 
         {showDemo && (
           <div className="mt-2 bg-white/5 border border-white/10 rounded-2xl p-3 space-y-2">
-            <p className="text-[10px] text-white/40 text-center uppercase tracking-widest mb-1">
+            <p className="text-[10px] text-[#FFD700]/70 text-center uppercase tracking-widest mb-1">
               {lang === "es" ? "Cuentas de prueba" : "Test accounts"}
             </p>
             <div className="grid grid-cols-3 gap-2">
