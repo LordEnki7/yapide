@@ -38,23 +38,46 @@ export default function SplashScreen({ onDone }: SplashScreenProps) {
         pointerEvents: "none",
       }}
     >
+      {/* Brand name — pure HTML text, always crisp */}
+      <div style={{ textAlign: "center", lineHeight: 1 }}>
+        <p style={{
+          margin: 0,
+          fontSize: "clamp(52px, 14vw, 72px)",
+          fontWeight: 900,
+          letterSpacing: "-2px",
+          lineHeight: 1,
+        }}>
+          <span style={{ color: "#6be832" }}>Ya</span>
+          <span style={{ color: "#ffffff" }}>Pide</span>
+        </p>
+        <p style={{
+          margin: "6px 0 0",
+          fontSize: "clamp(14px, 4vw, 20px)",
+          fontWeight: 800,
+          letterSpacing: "1px",
+          color: "#ffffff",
+        }}>
+          ENTREGA <span style={{ color: "#FFD700" }}>RÁPIDA</span> Y ECONÓMICA
+        </p>
+      </div>
+
+      {/* Motorcycle — container is 40% of image height (image ratio 720/838 ≈ 0.859) */}
+      {/* At width W, full image height = W × 0.859. 40% of that = W × 0.344 */}
       <div style={{
-        background: "rgba(0, 10, 50, 0.50)",
-        borderRadius: "24px",
-        width: "clamp(280px, 85vw, 380px)",
+        width: "clamp(240px, 72vw, 340px)",
+        aspectRatio: "1 / 0.344",
         overflow: "hidden",
-        backdropFilter: "blur(12px)",
-        WebkitBackdropFilter: "blur(12px)",
-        border: "1px solid rgba(255,255,255,0.12)",
-        boxShadow: "0 8px 40px rgba(0,0,40,0.5)",
+        position: "relative",
       }}>
         <img
           src="/logo.png"
-          alt="YaPide"
+          alt=""
           style={{
             width: "100%",
-            objectFit: "contain",
-            display: "block",
+            position: "absolute",
+            bottom: 0,
+            left: 0,
+            filter: "drop-shadow(0 6px 24px rgba(0,0,0,0.5))",
           }}
         />
       </div>

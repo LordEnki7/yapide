@@ -97,18 +97,31 @@ export default function Landing() {
 
       {/* Hero */}
       <div className="flex flex-col items-center pt-6 pb-5 px-6">
-        <div className="mb-3 rounded-3xl w-full overflow-hidden"
-          style={{
-            background: "rgba(0,10,50,0.50)",
-            backdropFilter: "blur(12px)",
-            WebkitBackdropFilter: "blur(12px)",
-            border: "1px solid rgba(255,255,255,0.12)",
-            boxShadow: "0 8px 40px rgba(0,0,40,0.5)",
+        {/* Brand name — pure HTML text */}
+        <div className="text-center mb-1" style={{ lineHeight: 1 }}>
+          <p className="m-0 font-black" style={{
+            fontSize: "clamp(48px, 13vw, 64px)",
+            letterSpacing: "-2px",
+            lineHeight: 1,
           }}>
+            <span style={{ color: "#6be832" }}>Ya</span>
+            <span className="text-white">Pide</span>
+          </p>
+          <p className="m-0 mt-1.5 font-extrabold text-white" style={{ fontSize: "clamp(13px, 3.6vw, 18px)", letterSpacing: "1px" }}>
+            ENTREGA <span style={{ color: "#FFD700" }}>RÁPIDA</span> Y ECONÓMICA
+          </p>
+        </div>
+
+        {/* Motorcycle — container is 40% of image height (ratio 720/838 ≈ 0.859) */}
+        <div className="mb-2 overflow-hidden relative" style={{
+          width: "clamp(220px, 68vw, 320px)",
+          aspectRatio: "1 / 0.344",
+        }}>
           <img
             src={logo}
-            alt="YaPide"
-            className="w-full object-contain block"
+            alt=""
+            className="w-full absolute bottom-0 left-0"
+            style={{ filter: "drop-shadow(0 6px 24px rgba(0,0,0,0.5))" }}
           />
         </div>
         <h1 className="text-3xl font-black text-white text-center leading-tight tracking-tight">
