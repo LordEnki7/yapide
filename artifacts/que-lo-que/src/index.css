@@ -74,51 +74,51 @@
   --elevate-1: rgba(255,255,255, .05);
   --elevate-2: rgba(255,255,255, .10);
 
-  /* Ukraine blue family background */
-  --background: 215 80% 16%;
+  /* App background: Ukraine flag blue #0057B7 */
+  --background: 214 100% 36%;
   --foreground: 0 0% 98%;
 
-  --border: 215 60% 30%;
-  
-  /* Cards: slightly lighter Ukraine blue */
-  --card: 215 70% 22%;
+  --border: 214 60% 50%;
+
+  /* Cards: slightly deeper blue */
+  --card: 214 80% 28%;
   --card-foreground: 0 0% 98%;
-  --card-border: 215 60% 30%;
+  --card-border: 214 60% 44%;
 
   /* Popovers */
-  --popover: 215 70% 22%;
+  --popover: 214 80% 28%;
   --popover-foreground: 0 0% 98%;
-  --popover-border: 215 60% 30%;
+  --popover-border: 214 60% 44%;
 
   /* Primary: Ukraine flag yellow #FFD700 */
   --primary: 51 100% 50%;
-  --primary-foreground: 215 80% 16%;
+  --primary-foreground: 214 100% 15%;
 
-  /* Secondary: Mid Ukraine blue */
-  --secondary: 215 65% 28%;
+  /* Secondary: deeper blue */
+  --secondary: 214 70% 22%;
   --secondary-foreground: 0 0% 98%;
 
-  /* Muted */
-  --muted: 215 60% 24%;
-  --muted-foreground: 215 30% 72%;
+  /* Muted: yellow replaces grey for section subtext */
+  --muted: 214 70% 28%;
+  --muted-foreground: 51 100% 50%;
 
   /* Accent */
   --accent: 51 100% 50%;
-  --accent-foreground: 215 80% 16%;
+  --accent-foreground: 214 100% 15%;
 
   /* Destructive */
   --destructive: 0 84% 60%;
   --destructive-foreground: 0 0% 98%;
 
-  --input: 215 60% 26%;
+  --input: 214 70% 30%;
   --ring: 51 100% 50%;
 
-  --sidebar: 215 80% 16%;
+  --sidebar: 214 80% 28%;
   --sidebar-foreground: 0 0% 98%;
-  --sidebar-border: 215 60% 30%;
+  --sidebar-border: 214 60% 44%;
   --sidebar-primary: 51 100% 50%;
-  --sidebar-primary-foreground: 215 80% 16%;
-  --sidebar-accent: 215 65% 28%;
+  --sidebar-primary-foreground: 214 100% 15%;
+  --sidebar-accent: 214 70% 22%;
   --sidebar-accent-foreground: 0 0% 98%;
   --sidebar-ring: 51 100% 50%;
 
@@ -140,7 +140,7 @@
 
 /* Phone frame — makes the app look like a mobile device in the browser preview */
 html {
-  background: #003d8a;
+  background: #0A1628;
 }
 
 body {
@@ -154,7 +154,7 @@ body {
   width: 100%;
   max-width: 430px;
   min-height: 100dvh;
-  background: hsl(215 80% 16%);
+  background: hsl(214 100% 36%);
   position: relative;
   overflow-x: hidden;
 }
@@ -162,7 +162,7 @@ body {
 @media (min-width: 500px) {
   body {
     padding: 14px 0;
-    background: #003d8a;
+    background: #0A1628;
   }
 
   #root {
@@ -174,9 +174,9 @@ body {
     transform: translateZ(0);
     scrollbar-width: none; /* Firefox */
     box-shadow:
-      0 0 0 1px hsl(215 60% 30%),
-      0 0 0 3px hsl(215 60% 20%),
-      0 20px 100px rgba(0,30,80,0.8);
+      0 0 0 1px hsl(214 60% 44%),
+      0 0 0 3px hsl(214 60% 30%),
+      0 20px 100px rgba(0,20,60,0.9);
   }
 
   #root::-webkit-scrollbar {
