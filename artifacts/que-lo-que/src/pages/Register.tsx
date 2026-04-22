@@ -120,7 +120,7 @@ export default function Register() {
     <div className="min-h-screen bg-background text-white flex flex-col">
       <div className="px-4 pt-6 flex items-center justify-between">
         <Link href="/login">
-          <button className="flex items-center gap-2 text-gray-400 hover:text-white transition">
+          <button className="flex items-center gap-2 text-white/60 hover:text-white transition">
             <ArrowLeft size={18} />
             <span className="text-sm">{t.back}</span>
           </button>
@@ -133,7 +133,7 @@ export default function Register() {
           <div className="text-center mb-6">
             <img src={logo} alt="YaPide" className="w-28 mx-auto object-contain mb-2" />
             <h1 className="text-2xl font-black text-yellow-400 uppercase">{t.createAccountTitle}</h1>
-            <p className="text-gray-400 text-sm mt-1">{t.joinTagline}</p>
+            <p className="text-white/70 text-sm mt-1">{t.joinTagline}</p>
           </div>
 
           {/* Tab switcher */}
@@ -141,7 +141,7 @@ export default function Register() {
             <button
               onClick={() => setTab("email")}
               className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-bold transition-all ${
-                tab === "email" ? "bg-yellow-400 text-black shadow" : "text-gray-400 hover:text-white"
+                tab === "email" ? "bg-yellow-400 text-black shadow" : "text-white/60 hover:text-white"
               }`}
             >
               <Mail size={15} /> Email
@@ -149,7 +149,7 @@ export default function Register() {
             <button
               onClick={() => setTab("phone")}
               className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-bold transition-all ${
-                tab === "phone" ? "bg-yellow-400 text-black shadow" : "text-gray-400 hover:text-white"
+                tab === "phone" ? "bg-yellow-400 text-black shadow" : "text-white/60 hover:text-white"
               }`}
             >
               <Smartphone size={15} /> Teléfono + PIN
@@ -162,7 +162,7 @@ export default function Register() {
                 placeholder={t.fullNamePlaceholder}
                 value={name}
                 onChange={e => setName(e.target.value)}
-                className="bg-white/8 border-white/10 text-white placeholder:text-gray-500 focus:border-yellow-400 h-12"
+                className="bg-white/8 border-white/10 text-white placeholder:text-white/40 focus:border-yellow-400 h-12"
                 autoComplete="name"
               />
               <Input
@@ -170,7 +170,7 @@ export default function Register() {
                 placeholder={t.emailPlaceholder}
                 value={email}
                 onChange={e => setEmail(e.target.value)}
-                className="bg-white/8 border-white/10 text-white placeholder:text-gray-500 focus:border-yellow-400 h-12"
+                className="bg-white/8 border-white/10 text-white placeholder:text-white/40 focus:border-yellow-400 h-12"
                 autoComplete="email"
               />
               <Input
@@ -178,7 +178,7 @@ export default function Register() {
                 placeholder={t.phonePlaceholder}
                 value={phone}
                 onChange={e => setPhone(e.target.value)}
-                className="bg-white/8 border-white/10 text-white placeholder:text-gray-500 focus:border-yellow-400 h-12"
+                className="bg-white/8 border-white/10 text-white placeholder:text-white/40 focus:border-yellow-400 h-12"
                 autoComplete="tel"
               />
               <div className="relative">
@@ -187,20 +187,20 @@ export default function Register() {
                   placeholder={t.passwordPlaceholder}
                   value={password}
                   onChange={e => setPassword(e.target.value)}
-                  className="bg-white/8 border-white/10 text-white placeholder:text-gray-500 focus:border-yellow-400 h-12 pr-10"
+                  className="bg-white/8 border-white/10 text-white placeholder:text-white/40 focus:border-yellow-400 h-12 pr-10"
                   autoComplete="new-password"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white transition"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-white/60 hover:text-white transition"
                 >
                   {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                 </button>
               </div>
 
               <div className="pt-1">
-                <p className="text-xs text-gray-400 uppercase tracking-widest mb-2">{t.enterAs}</p>
+                <p className="text-xs text-[#FFD700]/80 uppercase tracking-widest mb-2">{t.enterAs}</p>
                 <div className="grid grid-cols-3 gap-2">
                   {ROLES.map(r => (
                     <button
@@ -210,12 +210,12 @@ export default function Register() {
                       className={`p-3 rounded-xl border text-left transition-all ${
                         role === r.value
                           ? "bg-yellow-400/15 border-yellow-400 text-yellow-400"
-                          : "bg-white/5 border-white/10 text-gray-400 hover:border-white/20"
+                          : "bg-white/5 border-white/10 text-white/70 hover:border-white/20"
                       }`}
                     >
                       <div className="text-base leading-none mb-1">{r.emoji}</div>
                       <div className="text-xs font-bold">{r.label}</div>
-                      <div className="text-[10px] text-gray-500 mt-0.5 leading-tight">{r.sub}</div>
+                      <div className="text-[10px] text-white/50 mt-0.5 leading-tight">{r.sub}</div>
                     </button>
                   ))}
                 </div>
@@ -235,17 +235,17 @@ export default function Register() {
                 placeholder="Nombre completo"
                 value={pName}
                 onChange={e => setPName(e.target.value)}
-                className="bg-white/8 border-white/10 text-white placeholder:text-gray-500 focus:border-yellow-400 h-12"
+                className="bg-white/8 border-white/10 text-white placeholder:text-white/40 focus:border-yellow-400 h-12"
                 autoComplete="name"
               />
               <div className="relative">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm font-bold">🇩🇴 +1</span>
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-white/70 text-sm font-bold">🇩🇴 +1</span>
                 <Input
                   type="tel"
                   placeholder="809-000-0000"
                   value={pPhone}
                   onChange={e => setPPhone(e.target.value)}
-                  className="bg-white/8 border-white/10 text-white placeholder:text-gray-500 focus:border-yellow-400 h-12 pl-14"
+                  className="bg-white/8 border-white/10 text-white placeholder:text-white/40 focus:border-yellow-400 h-12 pl-14"
                   autoComplete="tel"
                   inputMode="numeric"
                   maxLength={12}
@@ -256,7 +256,7 @@ export default function Register() {
                 placeholder="Crear PIN (4–6 dígitos)"
                 value={pPin}
                 onChange={e => setPPin(e.target.value.replace(/\D/g, "").slice(0, 6))}
-                className="bg-white/8 border-white/10 text-white placeholder:text-gray-500 focus:border-yellow-400 h-12 tracking-widest text-lg text-center"
+                className="bg-white/8 border-white/10 text-white placeholder:text-white/40 focus:border-yellow-400 h-12 tracking-widest text-lg text-center"
                 inputMode="numeric"
                 maxLength={6}
               />
@@ -265,7 +265,7 @@ export default function Register() {
                 placeholder="Confirmar PIN"
                 value={pPinConfirm}
                 onChange={e => setPPinConfirm(e.target.value.replace(/\D/g, "").slice(0, 6))}
-                className={`bg-white/8 border-white/10 text-white placeholder:text-gray-500 focus:border-yellow-400 h-12 tracking-widest text-lg text-center ${
+                className={`bg-white/8 border-white/10 text-white placeholder:text-white/40 focus:border-yellow-400 h-12 tracking-widest text-lg text-center ${
                   pPinConfirm && pPin !== pPinConfirm ? "border-red-400" : pPinConfirm && pPin === pPinConfirm ? "border-green-400" : ""
                 }`}
                 inputMode="numeric"
@@ -273,7 +273,7 @@ export default function Register() {
               />
 
               <div className="pt-1">
-                <p className="text-xs text-gray-400 uppercase tracking-widest mb-2">{t.enterAs}</p>
+                <p className="text-xs text-[#FFD700]/80 uppercase tracking-widest mb-2">{t.enterAs}</p>
                 <div className="grid grid-cols-3 gap-2">
                   {ROLES.map(r => (
                     <button
@@ -283,12 +283,12 @@ export default function Register() {
                       className={`p-3 rounded-xl border text-left transition-all ${
                         pRole === r.value
                           ? "bg-yellow-400/15 border-yellow-400 text-yellow-400"
-                          : "bg-white/5 border-white/10 text-gray-400 hover:border-white/20"
+                          : "bg-white/5 border-white/10 text-white/70 hover:border-white/20"
                       }`}
                     >
                       <div className="text-base leading-none mb-1">{r.emoji}</div>
                       <div className="text-xs font-bold">{r.label}</div>
-                      <div className="text-[10px] text-gray-500 mt-0.5 leading-tight">{r.sub}</div>
+                      <div className="text-[10px] text-white/50 mt-0.5 leading-tight">{r.sub}</div>
                     </button>
                   ))}
                 </div>
@@ -304,7 +304,7 @@ export default function Register() {
             </form>
           )}
 
-          <p className="text-center text-sm text-gray-400 mt-6">
+          <p className="text-center text-sm text-white/70 mt-6">
             {t.alreadyHaveAccount}{" "}
             <Link href="/login">
               <span className="text-yellow-400 font-bold hover:underline">{t.signIn}</span>

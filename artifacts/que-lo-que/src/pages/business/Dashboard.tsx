@@ -99,26 +99,26 @@ export default function BusinessDashboard() {
       <div className="w-24 h-24 rounded-full bg-yellow-400/15 border-2 border-yellow-400/40 flex items-center justify-center text-5xl">🏪</div>
       <div>
         <h1 className="text-2xl font-black text-yellow-400 mb-2">Negocio en revisión</h1>
-        <p className="text-gray-400 text-sm leading-relaxed max-w-xs">
+        <p className="text-white/70 text-sm leading-relaxed max-w-xs">
           Tu negocio está siendo revisado por el equipo de YaPide. Recibirás una notificación cuando seas aprobado.
         </p>
       </div>
       <div className="bg-white/5 border border-white/10 rounded-2xl p-4 w-full max-w-xs space-y-2 text-left">
-        <p className="text-xs font-black text-gray-400 uppercase tracking-widest">¿Qué sigue?</p>
-        <div className="flex items-start gap-2 text-sm text-gray-300">
+        <p className="text-xs font-black text-[#FFD700]/80 uppercase tracking-widest">¿Qué sigue?</p>
+        <div className="flex items-start gap-2 text-sm text-white/80">
           <span className="text-yellow-400 flex-shrink-0">✓</span>
           <span>Registro completado</span>
         </div>
-        <div className="flex items-start gap-2 text-sm text-gray-400">
+        <div className="flex items-start gap-2 text-sm text-white/60">
           <span className="flex-shrink-0">⏳</span>
           <span>Revisión del equipo (24–48h)</span>
         </div>
-        <div className="flex items-start gap-2 text-sm text-gray-400">
+        <div className="flex items-start gap-2 text-sm text-white/60">
           <span className="flex-shrink-0">🚀</span>
           <span>¡Empieza a recibir pedidos!</span>
         </div>
       </div>
-      <p className="text-xs text-gray-600">¿Preguntas? Escríbenos al WhatsApp 📱</p>
+      <p className="text-xs text-white/50">¿Preguntas? Escríbenos al WhatsApp 📱</p>
     </div>
   );
 
@@ -127,7 +127,7 @@ export default function BusinessDashboard() {
       <div className="w-20 h-20 rounded-full bg-red-500/15 border-2 border-red-500/40 flex items-center justify-center text-4xl">❌</div>
       <div>
         <h1 className="text-xl font-black text-red-400 mb-2">Solicitud rechazada</h1>
-        <p className="text-gray-400 text-sm max-w-xs">Tu negocio no fue aprobado en este momento. Contáctanos para más información.</p>
+        <p className="text-white/70 text-sm max-w-xs">Tu negocio no fue aprobado en este momento. Contáctanos para más información.</p>
       </div>
     </div>
   );
@@ -168,7 +168,7 @@ export default function BusinessDashboard() {
                 size="sm"
               />
               <div>
-                <p className="text-xs text-gray-400 uppercase tracking-widest">{t.businessPanel}</p>
+                <p className="text-xs text-[#FFD700]/70 uppercase tracking-widest">{t.businessPanel}</p>
                 <h1 className="text-xl font-black text-yellow-400">{business?.name}</h1>
               </div>
             </div>
@@ -203,13 +203,13 @@ export default function BusinessDashboard() {
             <div className="flex-1 min-w-0">
               {business?.imageUrl && <h1 className="text-xl font-black text-white leading-tight line-clamp-1">{business.name}</h1>}
               {!business?.imageUrl && <h1 className="text-xl font-black text-white leading-tight">{business.name}</h1>}
-              <p className="text-xs text-gray-500 mt-0.5">{business?.address}</p>
+              <p className="text-xs text-white/50 mt-0.5">{business?.address}</p>
             </div>
           </div>
           <div className="flex items-center justify-between">
             <div />
             <div className="flex flex-col items-end gap-2">
-              <Badge className={`border text-sm font-bold px-3 py-1 ${business?.isOpen ? "bg-green-400/20 text-green-400 border-green-400/40" : "bg-gray-500/20 text-gray-400 border-gray-500/40"}`}>
+              <Badge className={`border text-sm font-bold px-3 py-1 ${business?.isOpen ? "bg-green-400/20 text-green-400 border-green-400/40" : "bg-white/10 text-white/60 border-white/20"}`}>
                 {business?.isOpen ? t.open : t.closed}
               </Badge>
               <Button
@@ -227,22 +227,22 @@ export default function BusinessDashboard() {
         <div className="grid grid-cols-3 gap-3 mb-4">
           <div className="bg-white/8 border border-white/10 rounded-2xl p-3 text-center">
             <p className="text-xl font-black text-yellow-400">{formatDOP(stats?.salesToday ?? 0)}</p>
-            <p className="text-xs text-gray-400 mt-1">{t.salesToday}</p>
+            <p className="text-xs text-[#FFD700]/70 mt-1">{t.salesToday}</p>
           </div>
           <div className="bg-white/8 border border-white/10 rounded-2xl p-3 text-center">
             <p className="text-xl font-black text-yellow-400">{stats?.ordersToday ?? 0}</p>
-            <p className="text-xs text-gray-400 mt-1">{t.ordersToday}</p>
+            <p className="text-xs text-[#FFD700]/70 mt-1">{t.ordersToday}</p>
           </div>
           <div className="bg-white/8 border border-white/10 rounded-2xl p-3 text-center">
             <p className="text-xl font-black text-yellow-400">⭐{business?.rating?.toFixed(1) ?? "—"}</p>
-            <p className="text-xs text-gray-400 mt-1">{t.rating}</p>
+            <p className="text-xs text-[#FFD700]/70 mt-1">{t.rating}</p>
           </div>
         </div>
 
         <div className="bg-white/8 border border-white/10 rounded-2xl p-4 mb-4">
           <div className="flex items-center gap-2 mb-2">
             <TrendingUp size={14} className="text-yellow-400" />
-            <span className="text-xs font-bold text-gray-400 uppercase tracking-widest">{t.thisWeekSales}</span>
+            <span className="text-xs font-bold text-[#FFD700]/70 uppercase tracking-widest">{t.thisWeekSales}</span>
           </div>
           <p className="text-2xl font-black text-yellow-400">{formatDOP(stats?.salesWeek ?? 0)}</p>
         </div>
@@ -251,7 +251,7 @@ export default function BusinessDashboard() {
         <div className="bg-white/8 border border-white/10 rounded-2xl p-4">
           <div className="flex items-center gap-2 mb-3">
             <Clock size={14} className="text-yellow-400" />
-            <span className="text-xs font-bold text-gray-400 uppercase tracking-widest">Tiempo de preparación</span>
+            <span className="text-xs font-bold text-[#FFD700]/70 uppercase tracking-widest">Tiempo de preparación</span>
             <span className="ml-auto text-yellow-400 font-black text-sm">{currentPrepTime} min</span>
           </div>
           <div className="flex gap-2 flex-wrap">
@@ -263,7 +263,7 @@ export default function BusinessDashboard() {
                 className={`px-3 py-1.5 rounded-xl text-xs font-black border transition-all ${
                   currentPrepTime === m
                     ? "bg-yellow-400 text-black border-yellow-400 shadow-[0_0_10px_rgba(255,215,0,0.4)]"
-                    : "bg-white/5 text-gray-400 border-white/10 hover:border-yellow-400/40 hover:text-yellow-400"
+                    : "bg-white/5 text-white/60 border-white/10 hover:border-yellow-400/40 hover:text-yellow-400"
                 }`}
               >
                 {m} min
@@ -284,8 +284,8 @@ export default function BusinessDashboard() {
           </Link>
           <Link href="/business/menu">
             <div className="bg-white/8 border border-white/10 rounded-2xl p-4 text-center hover:border-yellow-400/30 transition cursor-pointer">
-              <ChefHat size={24} className="text-gray-300 mx-auto mb-2" />
-              <p className="font-bold text-gray-300 text-sm">{t.menu}</p>
+              <ChefHat size={24} className="text-white/70 mx-auto mb-2" />
+              <p className="font-bold text-white/70 text-sm">{t.menu}</p>
             </div>
           </Link>
         </div>
@@ -295,9 +295,9 @@ export default function BusinessDashboard() {
             <TrendingUp size={20} className="text-yellow-400 flex-shrink-0" />
             <div>
               <p className="font-bold text-sm">Analíticas</p>
-              <p className="text-xs text-gray-400">Ingresos, pedidos y top productos</p>
+              <p className="text-xs text-white/60">Ingresos, pedidos y top productos</p>
             </div>
-            <span className="ml-auto text-gray-500 text-lg">›</span>
+            <span className="ml-auto text-white/50 text-lg">›</span>
           </div>
         </Link>
       </div>

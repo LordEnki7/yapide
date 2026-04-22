@@ -276,7 +276,7 @@ export default function CustomerCart() {
       <div className="min-h-screen bg-background text-white flex flex-col items-center justify-center p-6">
         <p className="text-5xl mb-4">🛒</p>
         <h2 className="text-xl font-black mb-2">{t.emptyCart}</h2>
-        <p className="text-gray-400 mb-8">{t.emptyCartMsg}</p>
+        <p className="text-white/60 mb-8">{t.emptyCartMsg}</p>
         <Link href="/customer">
           <Button className="bg-yellow-400 text-black font-bold hover:bg-yellow-300">{t.exploreBusinesses}</Button>
         </Link>
@@ -326,11 +326,11 @@ export default function CustomerCart() {
                   ? "bg-yellow-400 border-yellow-400 text-black"
                   : step === s.n
                   ? "border-yellow-400 text-yellow-400"
-                  : "border-white/20 text-gray-500"
+                  : "border-white/20 text-white/40"
               }`}>
                 {step > s.n ? <Check size={12} /> : s.n}
               </div>
-              <span className={`text-xs font-bold hidden sm:block ${step === s.n ? "text-yellow-400" : "text-gray-500"}`}>
+              <span className={`text-xs font-bold hidden sm:block ${step === s.n ? "text-yellow-400" : "text-white/40"}`}>
                 {s.label}
               </span>
             </div>
@@ -358,7 +358,7 @@ export default function CustomerCart() {
                     )}
                     <div className="flex-1 min-w-0">
                       <p className="font-black text-sm leading-tight">{item.product.name}</p>
-                      <p className="text-gray-400 text-xs mt-0.5">{formatDOP(customerPrice)} c/u</p>
+                      <p className="text-white/60 text-xs mt-0.5">{formatDOP(customerPrice)} c/u</p>
                       <p className="text-yellow-400 font-black text-sm mt-0.5">{formatDOP(lineTotal)}</p>
                     </div>
                     <div className="flex items-center gap-1.5 flex-shrink-0">
@@ -389,11 +389,11 @@ export default function CustomerCart() {
 
             {/* Order summary */}
             <div className="bg-white/5 border border-white/10 rounded-2xl p-4 space-y-2">
-              <div className="flex justify-between text-sm text-gray-400">
+              <div className="flex justify-between text-sm text-white/70">
                 <span>{items.length} {items.length === 1 ? "artículo" : "artículos"}</span>
                 <span>{formatDOP(markedUpTotal)}</span>
               </div>
-              <div className="flex justify-between text-sm text-gray-400">
+              <div className="flex justify-between text-sm text-white/70">
                 <span>{t.delivery}</span>
                 <span>{formatDOP(DELIVERY_FEE)}</span>
               </div>
@@ -419,7 +419,7 @@ export default function CustomerCart() {
             <div className="text-center mb-2">
               <p className="text-3xl mb-2">📝</p>
               <h2 className="text-xl font-black">¿Alguna instrucción?</h2>
-              <p className="text-sm text-gray-400 mt-1">Sin cebolla, extra salsa, etc. — esto va directo al negocio</p>
+              <p className="text-sm text-white/60 mt-1">Sin cebolla, extra salsa, etc. — esto va directo al negocio</p>
             </div>
             <Textarea
               placeholder={t.specialInstructions}
@@ -429,7 +429,7 @@ export default function CustomerCart() {
               rows={5}
               autoFocus
             />
-            <p className="text-xs text-gray-500 text-center">Opcional — puedes continuar sin notas</p>
+            <p className="text-xs text-white/50 text-center">Opcional — puedes continuar sin notas</p>
           </div>
         )}
 
@@ -440,7 +440,7 @@ export default function CustomerCart() {
               <div className="text-center mb-2">
                 <p className="text-3xl mb-2">👕</p>
                 <h2 className="text-xl font-black">Recogida y entrega</h2>
-                <p className="text-sm text-gray-400 mt-1">Indicamos al driver dónde pasar por tu ropa y dónde llevarla</p>
+                <p className="text-sm text-white/60 mt-1">Indicamos al driver dónde pasar por tu ropa y dónde llevarla</p>
               </div>
             ) : (
               <div className="text-center mb-2">
@@ -505,7 +505,7 @@ export default function CustomerCart() {
                       >
                         <div className="flex-1 min-w-0">
                           <p className="font-bold text-white">{a.label}</p>
-                          <p className="text-gray-400 text-xs truncate">{a.address}</p>
+                          <p className="text-white/60 text-xs truncate">{a.address}</p>
                         </div>
                         {address === a.address && <Check size={16} className="text-yellow-400 flex-shrink-0" />}
                         {a.isDefault && <span className="text-xs text-yellow-400/60 font-bold">Principal</span>}
@@ -562,7 +562,7 @@ export default function CustomerCart() {
                   </div>
                   <div className="flex gap-2">
                     <Button onClick={handleSaveNewAddress} size="sm" className="bg-yellow-400 text-black font-bold text-xs h-8">Guardar</Button>
-                    <Button onClick={() => setShowSaveForm(false)} variant="ghost" size="sm" className="text-gray-400 text-xs h-8">Cancelar</Button>
+                    <Button onClick={() => setShowSaveForm(false)} variant="ghost" size="sm" className="text-white/60 text-xs h-8">Cancelar</Button>
                   </div>
                 </div>
               )}
@@ -576,24 +576,24 @@ export default function CustomerCart() {
 
             {/* Payment tiles */}
             <div>
-              <p className="font-black text-xs text-gray-500 uppercase tracking-widest mb-3">{t.paymentMethod}</p>
+              <p className="font-black text-xs text-[#FFD700]/80 uppercase tracking-widest mb-3">{t.paymentMethod}</p>
               <div className="grid grid-cols-2 gap-3">
                 <button
                   onClick={() => setPaymentMethod("cash")}
                   className={`flex flex-col items-center justify-center gap-2 p-5 rounded-2xl border-2 transition font-black ${paymentMethod === "cash" ? "border-yellow-400 bg-yellow-400/10 shadow-[0_0_20px_rgba(255,215,0,0.15)]" : "border-white/15 bg-white/5 hover:border-white/30"}`}
                 >
                   <Banknote size={30} className={paymentMethod === "cash" ? "text-yellow-400" : "text-gray-400"} />
-                  <span className={`text-sm font-black ${paymentMethod === "cash" ? "text-yellow-400" : "text-gray-300"}`}>Efectivo</span>
+                  <span className={`text-sm font-black ${paymentMethod === "cash" ? "text-yellow-400" : "text-white/70"}`}>Efectivo</span>
                   {paymentMethod === "cash" && <Check size={14} className="text-yellow-400" />}
                 </button>
                 <button
                   onClick={() => setPaymentMethod("card")}
                   className={`flex flex-col items-center justify-center gap-2 p-5 rounded-2xl border-2 transition font-black relative overflow-hidden ${paymentMethod === "card" ? "border-blue-400/40 bg-blue-400/8" : "border-white/15 bg-white/5"}`}
                 >
-                  <CreditCard size={30} className="text-gray-500" />
-                  <span className="text-sm font-black text-gray-500">Tarjeta</span>
+                  <CreditCard size={30} className="text-white/30" />
+                  <span className="text-sm font-black text-white/40">Tarjeta</span>
                   <div className="absolute top-2 right-2 bg-gray-700/80 rounded-full px-1.5 py-0.5 flex items-center gap-0.5">
-                    <Lock size={9} className="text-gray-400" />
+                    <Lock size={9} className="text-white/50" />
                     <span className="text-[9px] text-gray-400 font-bold">Próximo</span>
                   </div>
                 </button>
@@ -601,7 +601,7 @@ export default function CustomerCart() {
               {paymentMethod === "card" && (
                 <div className="mt-2 flex items-start gap-2 bg-blue-400/8 border border-blue-400/20 rounded-xl px-3 py-2.5">
                   <Lock size={14} className="text-blue-400 flex-shrink-0 mt-0.5" />
-                  <p className="text-xs text-gray-400">El pago con tarjeta estará disponible muy pronto. Elige efectivo para completar tu pedido.</p>
+                  <p className="text-xs text-white/60">El pago con tarjeta estará disponible muy pronto. Elige efectivo para completar tu pedido.</p>
                 </div>
               )}
             </div>
@@ -629,7 +629,7 @@ export default function CustomerCart() {
                     );
                   })}
                 </div>
-                <p className="text-xs text-gray-500 text-center">
+                <p className="text-xs text-white/50 text-center">
                   Al confirmar el pedido te mostraremos las opciones de cambio
                 </p>
               </div>
@@ -638,7 +638,7 @@ export default function CustomerCart() {
             {/* Tip */}
             <div className="rounded-2xl p-4 border border-yellow-400/20 bg-yellow-400/5">
               <p className="font-black text-white text-sm mb-1 text-center">¿Propina al driver?</p>
-              <p className="text-xs text-gray-500 text-center mb-3">Opcional · 100% va al repartidor</p>
+              <p className="text-xs text-white/50 text-center mb-3">Opcional · 100% va al repartidor</p>
               <div className="flex flex-wrap gap-2 justify-center">
                 {[0, 50, 100, 200].map(p => (
                   <button
@@ -658,7 +658,7 @@ export default function CustomerCart() {
               </div>
               {showCustomTip && (
                 <div className="mt-3 flex items-center gap-2 max-w-xs mx-auto">
-                  <span className="text-gray-400 text-sm font-bold">RD$</span>
+                  <span className="text-white/70 text-sm font-bold">RD$</span>
                   <Input
                     type="number"
                     placeholder="0"
@@ -682,7 +682,7 @@ export default function CustomerCart() {
                     <p className="text-green-400 font-bold text-sm">✅ {appliedPromo.code}</p>
                     <p className="text-xs text-green-400/70">Descuento: {formatDOP(appliedPromo.discountAmount)}</p>
                   </div>
-                  <button onClick={() => setAppliedPromo(null)} className="text-gray-400 hover:text-white transition">
+                  <button onClick={() => setAppliedPromo(null)} className="text-white/50 hover:text-white transition">
                     <X size={16} />
                   </button>
                 </div>
@@ -711,17 +711,17 @@ export default function CustomerCart() {
 
             {/* Final order summary */}
             <div className="bg-white/5 border border-white/10 rounded-2xl p-4 space-y-2">
-              <p className="text-xs font-black text-gray-500 uppercase tracking-widest mb-2">Resumen del pedido</p>
-              <div className="flex justify-between text-sm text-gray-400">
+              <p className="text-xs font-black text-[#FFD700]/80 uppercase tracking-widest mb-2">Resumen del pedido</p>
+              <div className="flex justify-between text-sm text-white/70">
                 <span>{items.length} {items.length === 1 ? "artículo" : "artículos"}</span>
                 <span>{formatDOP(markedUpTotal)}</span>
               </div>
-              <div className="flex justify-between text-sm text-gray-400">
+              <div className="flex justify-between text-sm text-white/70">
                 <span>{t.delivery}</span>
                 <span>{formatDOP(DELIVERY_FEE)}</span>
               </div>
               {activeTip > 0 && (
-                <div className="flex justify-between text-sm text-gray-400">
+                <div className="flex justify-between text-sm text-white/70">
                   <span>Propina</span>
                   <span>{formatDOP(activeTip)}</span>
                 </div>
@@ -741,17 +741,17 @@ export default function CustomerCart() {
                 {isLaundry && pickupAddress && (
                   <div className="flex items-start gap-2">
                     <span className="text-[10px] flex-shrink-0 mt-0.5">📤</span>
-                    <p className="text-xs text-gray-500 leading-snug">Recogida: {pickupAddress}</p>
+                    <p className="text-xs text-white/50 leading-snug">Recogida: {pickupAddress}</p>
                   </div>
                 )}
                 <div className="flex items-start gap-2">
                   <MapPin size={12} className="text-yellow-400/60 mt-0.5 flex-shrink-0" />
-                  <p className="text-xs text-gray-500 leading-snug">{isLaundry ? `Entrega: ${address}` : address}</p>
+                  <p className="text-xs text-white/50 leading-snug">{isLaundry ? `Entrega: ${address}` : address}</p>
                 </div>
                 {notes && (
                   <div className="flex items-start gap-2">
                     <FileText size={12} className="text-yellow-400/60 mt-0.5 flex-shrink-0" />
-                    <p className="text-xs text-gray-500 leading-snug line-clamp-2">{notes}</p>
+                    <p className="text-xs text-white/50 leading-snug line-clamp-2">{notes}</p>
                   </div>
                 )}
               </div>
@@ -773,9 +773,9 @@ export default function CustomerCart() {
                 <h2 className="text-lg font-black text-gray-900 text-center">
                   Total {totalLabel}
                 </h2>
-                <p className="text-base font-bold text-gray-700 text-center mt-0.5">¿Necesitas cambio?</p>
+                <p className="text-base font-bold text-white/80 text-center mt-0.5">¿Necesitas cambio?</p>
                 {cashCurrency !== "DOP" && (
-                  <p className="text-xs text-gray-400 text-center mt-1">
+                  <p className="text-xs text-white/60 text-center mt-1">
                     Tasa aprox: 1 {cashCurrency} = {cashCurrency === "USD" ? "60" : "65"} RD$ · ({formatDOP(grandTotal)})
                   </p>
                 )}
@@ -788,7 +788,7 @@ export default function CustomerCart() {
                   onClick={() => { setCashPrepared(exactOpt.amount); }}
                   className="w-full flex items-center justify-between px-6 py-4 hover:bg-blue-50 transition text-left"
                 >
-                  <span className={`text-base font-semibold ${cashPrepared === exactOpt.amount || cashPrepared === null ? "text-blue-500" : "text-gray-800"}`}>
+                  <span className={`text-base font-semibold ${cashPrepared === exactOpt.amount || cashPrepared === null ? "text-blue-500" : "text-white/90"}`}>
                     No necesito cambio
                   </span>
                   {(cashPrepared === exactOpt.amount || cashPrepared === null) && (
@@ -804,10 +804,10 @@ export default function CustomerCart() {
                     className="w-full flex items-center justify-between px-6 py-4 hover:bg-blue-50 transition text-left"
                   >
                     <div>
-                      <p className="text-base font-semibold text-gray-800">
+                      <p className="text-base font-semibold text-white/90">
                         Para {formatCurrencyAmount(opt.amount, cashCurrency)}
                       </p>
-                      <p className="text-sm text-gray-500">
+                      <p className="text-sm text-white/40">
                         El driver da de vuelta {formatCurrencyAmount(opt.change, cashCurrency)}
                       </p>
                     </div>
@@ -848,7 +848,7 @@ export default function CustomerCart() {
             <div className="text-center">
               <p className="text-4xl mb-2">🍴</p>
               <h2 className="text-xl font-black text-white">¿Necesitas cubiertos?</h2>
-              <p className="text-sm text-gray-400 mt-1">Cuchillo, tenedor y servilleta</p>
+              <p className="text-sm text-white/60 mt-1">Cuchillo, tenedor y servilleta</p>
             </div>
             <div className="grid grid-cols-2 gap-3">
               <button
@@ -865,7 +865,7 @@ export default function CustomerCart() {
                 className="flex flex-col items-center justify-center gap-2 py-5 rounded-2xl border-2 border-white/15 bg-white/5 hover:bg-white/10 transition disabled:opacity-50"
               >
                 <span className="text-2xl">🌿</span>
-                <span className="font-black text-gray-300 text-sm">No, gracias</span>
+                <span className="font-black text-white/70 text-sm">No, gracias</span>
               </button>
             </div>
             {createOrder.isPending && (

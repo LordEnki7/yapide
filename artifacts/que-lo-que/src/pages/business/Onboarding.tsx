@@ -82,38 +82,38 @@ export default function BusinessOnboarding() {
             <Store size={24} className="text-yellow-400" />
           </div>
           <h1 className="text-2xl font-black text-yellow-400 uppercase">Configura tu negocio</h1>
-          <p className="text-gray-400 text-sm mt-1">Solo tomará 2 minutos 🚀</p>
+          <p className="text-white/70 text-sm mt-1">Solo tomará 2 minutos 🚀</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="text-xs text-gray-400 uppercase tracking-widest mb-1.5 block">
+            <label className="text-xs text-[#FFD700]/70 uppercase tracking-widest mb-1.5 block">
               <Store size={10} className="inline mr-1" />Nombre del negocio *
             </label>
             <Input
               placeholder="Ej: El Sabroso del Malecón"
               value={form.name}
               onChange={set("name")}
-              className="bg-white/8 border-white/10 text-white placeholder:text-gray-500 focus:border-yellow-400 h-12"
+              className="bg-white/8 border-white/10 text-white placeholder:text-white/40 focus:border-yellow-400 h-12"
               required
             />
           </div>
 
           <div>
-            <label className="text-xs text-gray-400 uppercase tracking-widest mb-1.5 block">
+            <label className="text-xs text-[#FFD700]/70 uppercase tracking-widest mb-1.5 block">
               <MapPin size={10} className="inline mr-1" />Dirección *
             </label>
             <Input
               placeholder="Ej: C/ Duarte #42, La Romana"
               value={form.address}
               onChange={set("address")}
-              className="bg-white/8 border-white/10 text-white placeholder:text-gray-500 focus:border-yellow-400 h-12"
+              className="bg-white/8 border-white/10 text-white placeholder:text-white/40 focus:border-yellow-400 h-12"
               required
             />
           </div>
 
           <div>
-            <label className="text-xs text-gray-400 uppercase tracking-widest mb-1.5 block">
+            <label className="text-xs text-[#FFD700]/70 uppercase tracking-widest mb-1.5 block">
               <Phone size={10} className="inline mr-1" />WhatsApp / Teléfono *
             </label>
             <Input
@@ -121,13 +121,13 @@ export default function BusinessOnboarding() {
               placeholder="Ej: 8091234567"
               value={form.phone}
               onChange={set("phone")}
-              className="bg-white/8 border-white/10 text-white placeholder:text-gray-500 focus:border-yellow-400 h-12"
+              className="bg-white/8 border-white/10 text-white placeholder:text-white/40 focus:border-yellow-400 h-12"
               required
             />
           </div>
 
           <div>
-            <label className="text-xs text-gray-400 uppercase tracking-widest mb-1.5 block">Categoría</label>
+            <label className="text-xs text-[#FFD700]/70 uppercase tracking-widest mb-1.5 block">Categoría</label>
             <select
               value={form.category}
               onChange={set("category") as any}
@@ -140,7 +140,7 @@ export default function BusinessOnboarding() {
           </div>
 
           <div>
-            <label className="text-xs text-gray-400 uppercase tracking-widest mb-1.5 block">Tiempo estimado de prep. (min)</label>
+            <label className="text-xs text-[#FFD700]/70 uppercase tracking-widest mb-1.5 block">Tiempo estimado de prep. (min)</label>
             <Input
               type="number"
               min="10"
@@ -148,19 +148,19 @@ export default function BusinessOnboarding() {
               placeholder="30"
               value={form.deliveryTime}
               onChange={set("deliveryTime")}
-              className="bg-white/8 border-white/10 text-white placeholder:text-gray-500 focus:border-yellow-400 h-12"
+              className="bg-white/8 border-white/10 text-white placeholder:text-white/40 focus:border-yellow-400 h-12"
             />
           </div>
 
           <div>
-            <label className="text-xs text-gray-400 uppercase tracking-widest mb-1.5 block">
+            <label className="text-xs text-[#FFD700]/70 uppercase tracking-widest mb-1.5 block">
               <FileText size={10} className="inline mr-1" />Descripción (opcional)
             </label>
             <Textarea
               placeholder="Ej: Los mejores mangú de la ciudad, receta de abuela..."
               value={form.description}
               onChange={set("description")}
-              className="bg-white/8 border-white/10 text-white placeholder:text-gray-500 focus:border-yellow-400 min-h-[80px] resize-none"
+              className="bg-white/8 border-white/10 text-white placeholder:text-white/40 focus:border-yellow-400 min-h-[80px] resize-none"
             />
           </div>
 

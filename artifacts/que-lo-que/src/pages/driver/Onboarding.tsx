@@ -60,12 +60,12 @@ export default function DriverOnboarding() {
             <Bike size={24} className="text-yellow-400" />
           </div>
           <h1 className="text-2xl font-black text-yellow-400 uppercase">Configura tu perfil</h1>
-          <p className="text-gray-400 text-sm mt-1">Cuéntanos cómo vas a hacer los deliveries 🛵</p>
+          <p className="text-white/70 text-sm mt-1">Cuéntanos cómo vas a hacer los deliveries 🛵</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
-            <p className="text-xs text-gray-400 uppercase tracking-widest mb-3">Tipo de vehículo</p>
+            <p className="text-xs text-[#FFD700]/70 uppercase tracking-widest mb-3">Tipo de vehículo</p>
             <div className="grid grid-cols-2 gap-3">
               {VEHICLE_TYPES.map(v => {
                 const Icon = v.icon;
@@ -89,12 +89,12 @@ export default function DriverOnboarding() {
           </div>
 
           <div>
-            <label className="text-xs text-gray-400 uppercase tracking-widest mb-1.5 block">Placa del vehículo (opcional)</label>
+            <label className="text-xs text-[#FFD700]/70 uppercase tracking-widest mb-1.5 block">Placa del vehículo (opcional)</label>
             <Input
               placeholder="Ej: A123456"
               value={vehiclePlate}
               onChange={e => setVehiclePlate(e.target.value.toUpperCase())}
-              className="bg-white/8 border-white/10 text-white placeholder:text-gray-500 focus:border-yellow-400 h-12 font-mono tracking-widest"
+              className="bg-white/8 border-white/10 text-white placeholder:text-white/40 focus:border-yellow-400 h-12 font-mono tracking-widest"
               maxLength={10}
             />
           </div>
@@ -102,15 +102,15 @@ export default function DriverOnboarding() {
           <div className="bg-yellow-400/5 border border-yellow-400/20 rounded-2xl p-4 space-y-2">
             <p className="text-xs font-black text-yellow-400 uppercase tracking-wide">💰 ¿Cuánto ganas?</p>
             <div className="space-y-1.5">
-              <div className="flex justify-between text-xs text-gray-300">
+              <div className="flex justify-between text-xs text-white/70">
                 <span>Tarifa base por delivery</span>
                 <span className="font-bold text-white">RD$75</span>
               </div>
-              <div className="flex justify-between text-xs text-gray-300">
+              <div className="flex justify-between text-xs text-white/70">
                 <span>Propinas (100% para ti)</span>
                 <span className="font-bold text-green-400">+ propina</span>
               </div>
-              <div className="flex justify-between text-xs text-gray-300">
+              <div className="flex justify-between text-xs text-white/70">
                 <span>Bonus por 10 deliveries</span>
                 <span className="font-bold text-yellow-400">RD$300</span>
               </div>

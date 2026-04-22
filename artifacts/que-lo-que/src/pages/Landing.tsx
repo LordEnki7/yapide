@@ -164,7 +164,7 @@ export default function Landing() {
 
       {/* Footer */}
       <div className="px-5 pb-6 text-center">
-        <p className="text-xs text-gray-700">{t.demoDisclaimer}</p>
+        <p className="text-xs text-white/50">{t.demoDisclaimer}</p>
       </div>
     </div>
   );

@@ -92,7 +92,7 @@ export default function CustomerSupport() {
             <p className="font-black text-white text-sm leading-tight">Asistente YaPide</p>
             <div className="flex items-center gap-1.5">
               <div className="w-1.5 h-1.5 rounded-full bg-green-400" />
-              <span className="text-[10px] text-gray-400">En línea · respuesta inmediata</span>
+              <span className="text-[10px] text-white/60">En línea · respuesta inmediata</span>
             </div>
           </div>
         </div>
@@ -117,7 +117,7 @@ export default function CustomerSupport() {
               onChange={e => setOrderId(e.target.value.replace(/\D/g, ""))}
               className="bg-white/8 border-white/10 text-white placeholder:text-gray-500 focus:border-yellow-400 h-8 text-xs flex-1"
             />
-            <button onClick={() => setShowOrderInput(false)} className="text-xs text-gray-400 hover:text-white transition px-2">Listo</button>
+            <button onClick={() => setShowOrderInput(false)} className="text-xs text-white/60 hover:text-white transition px-2">Listo</button>
           </div>
         ) : (
           <button
@@ -149,7 +149,7 @@ export default function CustomerSupport() {
 
               {msg.orderInfo && (
                 <div className="bg-white/5 border border-white/10 rounded-xl px-3 py-2.5">
-                  <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Pedido #{msg.orderInfo.id}</p>
+                  <p className="text-xs font-bold text-[#FFD700]/70 uppercase tracking-wider mb-1">Pedido #{msg.orderInfo.id}</p>
                   <p className="text-sm font-black text-white">{msg.orderInfo.statusLabel}</p>
                   <Link href={`/customer/orders/${msg.orderInfo.id}`}>
                     <button className="mt-2 text-xs text-yellow-400 font-bold hover:underline">Ver tracking completo →</button>
@@ -167,13 +167,13 @@ export default function CustomerSupport() {
                     <MessageCircle size={14} className="text-green-400" />
                     <div>
                       <p className="text-xs font-bold text-green-400">Hablar con un agente</p>
-                      <p className="text-[10px] text-gray-400">Abrir WhatsApp</p>
+                      <p className="text-[10px] text-white/60">Abrir WhatsApp</p>
                     </div>
                   </div>
                 </a>
               )}
 
-              <p className="text-[10px] text-gray-600 px-1">
+              <p className="text-[10px] text-white/40 px-1">
                 {msg.ts.toLocaleTimeString("es-DO", { hour: "2-digit", minute: "2-digit" })}
               </p>
             </div>
@@ -186,7 +186,7 @@ export default function CustomerSupport() {
               <span className="text-sm">🤖</span>
             </div>
             <div className="bg-white/8 border border-white/10 rounded-2xl rounded-bl-md px-4 py-3">
-              <Loader2 size={14} className="animate-spin text-gray-400" />
+              <Loader2 size={14} className="animate-spin text-white/60" />
             </div>
           </div>
         )}

@@ -119,26 +119,26 @@ export default function DriverDashboard() {
       <div className="w-24 h-24 rounded-full bg-yellow-400/15 border-2 border-yellow-400/40 flex items-center justify-center text-5xl">⏳</div>
       <div>
         <h1 className="text-2xl font-black text-yellow-400 mb-2">Solicitud en revisión</h1>
-        <p className="text-gray-400 text-sm leading-relaxed max-w-xs">
+        <p className="text-white/70 text-sm leading-relaxed max-w-xs">
           Tu perfil de motorista está siendo revisado por nuestro equipo. Te notificaremos cuando seas aprobado.
         </p>
       </div>
       <div className="bg-white/5 border border-white/10 rounded-2xl p-4 w-full max-w-xs space-y-2 text-left">
-        <p className="text-xs font-black text-gray-400 uppercase tracking-widest">¿Qué sigue?</p>
-        <div className="flex items-start gap-2 text-sm text-gray-300">
+        <p className="text-xs font-black text-[#FFD700]/80 uppercase tracking-widest">¿Qué sigue?</p>
+        <div className="flex items-start gap-2 text-sm text-white/80">
           <span className="text-yellow-400 flex-shrink-0">✓</span>
           <span>Solicitud enviada</span>
         </div>
-        <div className="flex items-start gap-2 text-sm text-gray-400">
+        <div className="flex items-start gap-2 text-sm text-white/60">
           <span className="flex-shrink-0">⏳</span>
           <span>Revisión del equipo YaPide (24–48h)</span>
         </div>
-        <div className="flex items-start gap-2 text-sm text-gray-400">
+        <div className="flex items-start gap-2 text-sm text-white/60">
           <span className="flex-shrink-0">🛵</span>
           <span>¡Empieza a ganar!</span>
         </div>
       </div>
-      <p className="text-xs text-gray-600">¿Preguntas? Escríbenos al WhatsApp 📱</p>
+      <p className="text-xs text-white/50">¿Preguntas? Escríbenos al WhatsApp 📱</p>
     </div>
   );
 
@@ -147,7 +147,7 @@ export default function DriverDashboard() {
       <div className="w-20 h-20 rounded-full bg-red-500/15 border-2 border-red-500/40 flex items-center justify-center text-4xl">❌</div>
       <div>
         <h1 className="text-xl font-black text-red-400 mb-2">Solicitud rechazada</h1>
-        <p className="text-gray-400 text-sm max-w-xs">Tu solicitud no fue aprobada en este momento. Contáctanos para más información.</p>
+        <p className="text-white/70 text-sm max-w-xs">Tu solicitud no fue aprobada en este momento. Contáctanos para más información.</p>
       </div>
     </div>
   );
@@ -177,7 +177,7 @@ export default function DriverDashboard() {
               size="sm"
             />
             <div>
-              <p className="text-xs text-gray-400 uppercase tracking-widest">{t.driverTitle}</p>
+              <p className="text-xs text-[#FFD700]/70 uppercase tracking-widest">{t.driverTitle}</p>
               <h1 className="text-lg font-black text-yellow-400">{user?.name ?? "YaPide 🛵"}</h1>
             </div>
           </div>
@@ -202,7 +202,7 @@ export default function DriverDashboard() {
               <p className={`font-black text-sm ${cashLocked ? "text-red-400" : "text-yellow-400"}`}>
                 {cashLocked ? t.cashLocked : t.cashWarning}
               </p>
-              <p className="text-xs text-gray-400">
+              <p className="text-xs text-white/60">
                 {cashLocked ? t.cashLockedMsg : t.cashWarningMsg(formatDOP(driver?.cashBalance ?? 0))}
               </p>
             </div>
@@ -210,7 +210,7 @@ export default function DriverDashboard() {
         )}
 
         <div className="bg-white/8 border border-white/10 rounded-2xl p-6 text-center">
-          <p className="text-gray-400 text-sm mb-4">
+          <p className="text-white/60 text-sm mb-4">
             {driver?.isOnline ? t.receivingOrders : t.activateToReceive}
           </p>
           <button
@@ -230,18 +230,18 @@ export default function DriverDashboard() {
           <div className="bg-white/8 border border-white/10 rounded-2xl p-4">
             <div className="flex items-center gap-2 mb-2">
               <TrendingUp size={16} className="text-yellow-400" />
-              <span className="text-xs text-gray-400 font-bold uppercase">{t.today}</span>
+              <span className="text-xs text-[#FFD700]/70 font-bold uppercase">{t.today}</span>
             </div>
             <p className="text-2xl font-black text-yellow-400">{formatDOP(stats?.earningsToday ?? 0)}</p>
-            <p className="text-xs text-gray-400">{stats?.deliveriesToday ?? 0} {t.deliveries}</p>
+            <p className="text-xs text-white/60">{stats?.deliveriesToday ?? 0} {t.deliveries}</p>
           </div>
           <div className="bg-white/8 border border-white/10 rounded-2xl p-4">
             <div className="flex items-center gap-2 mb-2">
               <Wallet size={16} className="text-green-400" />
-              <span className="text-xs text-gray-400 font-bold uppercase">{t.wallet}</span>
+              <span className="text-xs text-[#FFD700]/70 font-bold uppercase">{t.wallet}</span>
             </div>
             <p className="text-2xl font-black text-green-400">{formatDOP(driver?.walletBalance ?? 0)}</p>
-            <p className="text-xs text-gray-400">{t.walletBalance}</p>
+            <p className="text-xs text-white/60">{t.walletBalance}</p>
           </div>
         </div>
 
@@ -256,7 +256,7 @@ export default function DriverDashboard() {
             </Badge>
           </div>
           <Progress value={stats?.bonusProgress ?? 0} className="h-3 mb-2 bg-white/10" />
-          <p className="text-xs text-gray-400">
+          <p className="text-xs text-white/60">
             {stats?.currentStreak ?? 0}/10 → {t.nextBonus(formatDOP(500))}
           </p>
         </div>
@@ -270,8 +270,8 @@ export default function DriverDashboard() {
           </Link>
           <Link href="/driver/wallet">
             <div className="bg-white/8 border border-white/10 rounded-2xl p-4 text-center hover:border-yellow-400/30 transition cursor-pointer">
-              <Wallet size={24} className="text-gray-300 mx-auto mb-2" />
-              <p className="font-bold text-gray-300 text-sm">{t.myWallet}</p>
+              <Wallet size={24} className="text-white/70 mx-auto mb-2" />
+              <p className="font-bold text-white/70 text-sm">{t.myWallet}</p>
             </div>
           </Link>
         </div>

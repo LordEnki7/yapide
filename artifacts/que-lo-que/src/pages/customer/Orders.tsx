@@ -69,7 +69,7 @@ export default function CustomerOrders() {
         ) : orders?.length === 0 ? (
           <div className="text-center py-20">
             <p className="text-4xl mb-3">📦</p>
-            <p className="text-gray-400 font-bold">{t.noOrders}</p>
+            <p className="text-white/70 font-bold">{t.noOrders}</p>
             <Link href="/customer">
               <p className="text-yellow-400 mt-3 font-bold">{t.orderSomething}</p>
             </Link>
@@ -85,7 +85,7 @@ export default function CustomerOrders() {
                       <div className="flex items-start justify-between mb-3">
                         <div>
                           <p className="font-black text-white">{order.business?.name ?? "Negocio"}</p>
-                          <p className="text-gray-400 text-xs mt-0.5 flex items-center gap-1">
+                          <p className="text-white/60 text-xs mt-0.5 flex items-center gap-1">
                             <Clock size={10} />
                             {new Date(order.createdAt).toLocaleDateString()} · #{order.id}
                           </p>
@@ -93,7 +93,7 @@ export default function CustomerOrders() {
                         <Badge className={`border text-xs ${status.color}`}>{status.label}</Badge>
                       </div>
                       <div className="flex items-center justify-between">
-                        <p className="text-gray-400 text-sm">{t.items(order.items?.length ?? 0)}</p>
+                        <p className="text-white/60 text-sm">{t.items(order.items?.length ?? 0)}</p>
                         <p className="text-yellow-400 font-black">{formatDOP(order.totalAmount)}</p>
                       </div>
                       {order.status !== "cancelled" && (

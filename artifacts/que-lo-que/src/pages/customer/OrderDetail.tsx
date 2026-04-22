@@ -114,7 +114,7 @@ export default function CustomerOrderDetail() {
   const prevStatusRef = useRef<string | null>(null);
 
   const STATUS_CONFIG: Record<string, { emoji: string; headline: string; sub: string; color: string; bg: string; border: string }> = {
-    pending:   { emoji: "⏳", headline: "Esperando confirmación", sub: "El negocio está revisando tu pedido ahora mismo...", color: "text-gray-300", bg: "bg-white/5", border: "border-white/10" },
+    pending:   { emoji: "⏳", headline: "Esperando confirmación", sub: "El negocio está revisando tu pedido ahora mismo...", color: "text-white/80", bg: "bg-white/5", border: "border-white/10" },
     accepted:  { emoji: "👨‍🍳", headline: "¡Tu pedido está siendo preparado!", sub: "El negocio ya lo confirmó y está cocinando para ti.", color: "text-white", bg: "bg-yellow-400/8", border: "border-yellow-400/25" },
     picked_up: { emoji: "🛵", headline: "¡Tu driver está en camino!", sub: "El repartidor ya recogió tu pedido. ¡Ya casi llega!", color: "text-white", bg: "bg-green-400/8", border: "border-green-400/25" },
     delivered: { emoji: "🎉", headline: "¡Pedido entregado!", sub: "¡Buen provecho! Gracias por usar YaPide.", color: "text-white", bg: "bg-yellow-400/8", border: "border-yellow-400/25" },
@@ -179,7 +179,7 @@ export default function CustomerOrderDetail() {
         </Link>
         <div>
           <h1 className="text-lg font-black text-yellow-400">{t.orderTitle(orderId)}</h1>
-          <p className="text-xs text-gray-400">{order?.business?.name}</p>
+          <p className="text-xs text-white/60">{order?.business?.name}</p>
         </div>
       </div>
 
@@ -202,7 +202,7 @@ export default function CustomerOrderDetail() {
             </div>
             <div className="text-right">
               <p className="text-2xl font-black text-yellow-400 tabular-nums">{countdown}</p>
-              <p className="text-[10px] text-gray-500 mt-0.5">restantes</p>
+              <p className="text-[10px] text-white/50 mt-0.5">restantes</p>
             </div>
           </div>
         )}
@@ -219,7 +219,7 @@ export default function CustomerOrderDetail() {
                 <p className="text-4xl font-black text-white tracking-[0.25em] tabular-nums">
                   {(order as any).verificationPin}
                 </p>
-                <p className="text-xs text-gray-400 mt-1">
+                <p className="text-xs text-white/60 mt-1">
                   Díselo al driver cuando llegue para confirmar que eres tú
                 </p>
               </div>
@@ -238,13 +238,13 @@ export default function CustomerOrderDetail() {
               <p className={`font-black text-base leading-tight ${STATUS_CONFIG[order.status].color}`}>
                 {STATUS_CONFIG[order.status].headline}
               </p>
-              <p className="text-xs text-gray-400 mt-0.5">{STATUS_CONFIG[order.status].sub}</p>
+              <p className="text-xs text-white/60 mt-0.5">{STATUS_CONFIG[order.status].sub}</p>
             </div>
           </div>
         )}
 
         <div className={`border rounded-2xl p-4 ${isCancelled ? "bg-red-400/5 border-red-400/30" : "bg-white/8 border-white/10"}`}>
-          <h2 className="font-bold text-sm text-gray-400 mb-4 uppercase tracking-widest">{t.orderStatus}</h2>
+          <h2 className="font-bold text-sm text-[#FFD700]/80 mb-4 uppercase tracking-widest">{t.orderStatus}</h2>
           {isCancelled ? (
             <div className="flex items-center gap-3 py-2">
               <div className="w-8 h-8 rounded-full bg-red-400/20 flex items-center justify-center flex-shrink-0">
@@ -252,7 +252,7 @@ export default function CustomerOrderDetail() {
               </div>
               <div>
                 <p className="font-black text-red-400">Pedido cancelado</p>
-                <p className="text-xs text-gray-400">Este pedido fue cancelado.</p>
+                <p className="text-xs text-white/60">Este pedido fue cancelado.</p>
               </div>
             </div>
           ) : (
@@ -263,15 +263,15 @@ export default function CustomerOrderDetail() {
                 return (
                   <div key={step.key} className="flex items-center gap-3">
                     <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0 transition-all ${
-                      isCompleted ? "bg-yellow-400 text-black shadow-[0_0_10px_rgba(255,215,0,0.5)]" : "bg-white/10 text-gray-500"
+                      isCompleted ? "bg-yellow-400 text-black shadow-[0_0_10px_rgba(255,215,0,0.5)]" : "bg-white/10 text-white/40"
                     }`}>
                       {isCompleted ? "✓" : i + 1}
                     </div>
-                    <span className={`font-bold text-sm ${isCurrent ? "text-yellow-400" : isCompleted ? "text-white" : "text-gray-500"}`}>
+                    <span className={`font-bold text-sm ${isCurrent ? "text-yellow-400" : isCompleted ? "text-white" : "text-white/40"}`}>
                       {step.label}
                     </span>
                     {isCurrent && order?.status !== "delivered" && (
-                      <span className="text-xs text-gray-400 bg-white/8 px-2 py-0.5 rounded-full ml-auto animate-pulse">...</span>
+                      <span className="text-xs text-white/60 bg-white/8 px-2 py-0.5 rounded-full ml-auto animate-pulse">...</span>
                     )}
                   </div>
                 );
@@ -298,7 +298,7 @@ export default function CustomerOrderDetail() {
           <div className="bg-white/8 border border-white/10 rounded-2xl p-4">
             <div className="flex items-center justify-between">
               <div>
-                <h2 className="font-bold text-sm text-gray-400 uppercase tracking-widest">Negocio</h2>
+                <h2 className="font-bold text-sm text-[#FFD700]/80 uppercase tracking-widest">Negocio</h2>
                 <p className="font-black text-white mt-1">{order?.business?.name}</p>
               </div>
               <div className="flex items-center gap-2">
@@ -344,7 +344,7 @@ export default function CustomerOrderDetail() {
 
         {order?.driver && (
           <div className="bg-white/8 border border-white/10 rounded-2xl p-4">
-            <h2 className="font-bold text-sm text-gray-400 mb-3 uppercase tracking-widest">{t.yourDriver}</h2>
+            <h2 className="font-bold text-sm text-[#FFD700]/80 mb-3 uppercase tracking-widest">{t.yourDriver}</h2>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className="w-12 h-12 rounded-full bg-yellow-400/20 overflow-hidden flex items-center justify-center text-2xl flex-shrink-0">
@@ -395,10 +395,10 @@ export default function CustomerOrderDetail() {
         )}
 
         <div className="bg-white/8 border border-white/10 rounded-2xl p-4">
-          <h2 className="font-bold text-sm text-gray-400 mb-3 uppercase tracking-widest">{t.yourItems}</h2>
+          <h2 className="font-bold text-sm text-[#FFD700]/80 mb-3 uppercase tracking-widest">{t.yourItems}</h2>
           {order?.items?.map((item) => (
             <div key={item.id} className="flex justify-between items-center py-2 border-b border-white/5 last:border-0">
-              <span className="text-sm text-gray-300">{item.quantity}x {item.productName}</span>
+              <span className="text-sm text-white/80">{item.quantity}x {item.productName}</span>
               <span className="text-sm font-bold text-white">{formatDOP(item.price * item.quantity)}</span>
             </div>
           ))}
@@ -422,7 +422,7 @@ export default function CustomerOrderDetail() {
         {(isPending || (order as any)?.notes) && !isCancelled && (
           <div className="bg-white/5 border border-white/10 rounded-2xl p-4">
             <div className="flex items-center justify-between mb-3">
-              <h2 className="font-bold text-sm text-gray-400 uppercase tracking-widest">📝 Nota al negocio</h2>
+              <h2 className="font-bold text-sm text-[#FFD700]/80 uppercase tracking-widest">📝 Nota al negocio</h2>
               {isPending && !editingNotes && (
                 <button
                   onClick={() => { setNotesValue((order as any)?.notes ?? ""); setEditingNotes(true); }}
@@ -439,7 +439,7 @@ export default function CustomerOrderDetail() {
                   value={notesValue}
                   onChange={e => setNotesValue(e.target.value)}
                   placeholder="Sin cebolla, extra salsa, alergias..."
-                  className="bg-white/8 border-white/10 text-white placeholder:text-gray-500 focus:border-yellow-400 resize-none text-sm"
+                  className="bg-white/8 border-white/10 text-white placeholder:text-white/40 focus:border-yellow-400 resize-none text-sm"
                   rows={3}
                   autoFocus
                 />
@@ -456,7 +456,7 @@ export default function CustomerOrderDetail() {
                   <Button
                     size="sm"
                     variant="ghost"
-                    className="text-gray-400 gap-1.5"
+                    className="text-white/60 gap-1.5"
                     onClick={() => setEditingNotes(false)}
                     disabled={saveNotesMutation.isPending}
                   >
@@ -466,8 +466,8 @@ export default function CustomerOrderDetail() {
                 </div>
               </div>
             ) : (
-              <p className="text-sm text-gray-300 leading-relaxed">
-                {(order as any)?.notes || <span className="text-gray-500 italic">Sin instrucciones especiales</span>}
+              <p className="text-sm text-white/80 leading-relaxed">
+                {(order as any)?.notes || <span className="text-white/40 italic">Sin instrucciones especiales</span>}
               </p>
             )}
           </div>
@@ -475,7 +475,7 @@ export default function CustomerOrderDetail() {
 
         {(order as any)?.deliveryPhotoPath && (
           <div className="bg-white/8 border border-white/10 rounded-2xl p-4">
-            <h2 className="font-bold text-sm text-gray-400 mb-3 uppercase tracking-widest">📸 Foto de entrega</h2>
+            <h2 className="font-bold text-sm text-[#FFD700]/80 mb-3 uppercase tracking-widest">📸 Foto de entrega</h2>
             <img
               src={`/api/storage${(order as any).deliveryPhotoPath}`}
               alt="Foto de entrega"
@@ -490,7 +490,7 @@ export default function CustomerOrderDetail() {
             <h2 className="font-black text-yellow-400 mb-4">{t.rateTitle}</h2>
             <div className="space-y-3">
               <div>
-                <p className="text-sm text-gray-300 mb-2">{t.rateDriver}</p>
+                <p className="text-sm text-white/80 mb-2">{t.rateDriver}</p>
                 <div className="flex gap-2">
                   {[1, 2, 3, 4, 5].map(n => (
                     <button key={n} onClick={() => setDriverRating(n)} className="text-2xl transition-transform hover:scale-110">
@@ -500,7 +500,7 @@ export default function CustomerOrderDetail() {
                 </div>
               </div>
               <div>
-                <p className="text-sm text-gray-300 mb-2">{t.rateBusiness}</p>
+                <p className="text-sm text-white/80 mb-2">{t.rateBusiness}</p>
                 <div className="flex gap-2">
                   {[1, 2, 3, 4, 5].map(n => (
                     <button key={n} onClick={() => setBizRating(n)} className="text-2xl transition-transform hover:scale-110">
@@ -525,7 +525,7 @@ export default function CustomerOrderDetail() {
           <div className="text-center pt-2 pb-4">
             <button
               onClick={() => { setDisputeModal(true); setDisputeReason(""); setDisputeDesc(""); }}
-              className="flex items-center gap-2 mx-auto text-xs text-gray-500 hover:text-red-400 transition"
+              className="flex items-center gap-2 mx-auto text-xs text-white/50 hover:text-red-400 transition"
             >
               <AlertTriangle size={12} />
               ¿Problema con tu pedido? Abrir disputa

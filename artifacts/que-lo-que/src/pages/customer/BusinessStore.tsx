@@ -156,7 +156,7 @@ export default function BusinessStore() {
           <div className="flex-1 min-w-0">
             <h1 className="text-xl font-black text-white drop-shadow-lg leading-tight line-clamp-1">{business?.name}</h1>
             {business?.description && (
-              <p className="text-gray-300 text-xs mt-0.5 line-clamp-1">{business?.description}</p>
+              <p className="text-white/70 text-xs mt-0.5 line-clamp-1">{business?.description}</p>
             )}
             <div className="flex items-center gap-2 mt-1">
               <div className="flex items-center gap-1 bg-yellow-400/20 border border-yellow-400/30 px-2 py-0.5 rounded-lg">
@@ -177,7 +177,7 @@ export default function BusinessStore() {
           <span className="text-xl">🔒</span>
           <div>
             <p className="font-black text-white text-sm">Cerrado ahora</p>
-            <p className="text-gray-400 text-xs">Puedes ver el menú pero no hacer pedidos</p>
+            <p className="text-white/60 text-xs">Puedes ver el menú pero no hacer pedidos</p>
           </div>
         </div>
       )}
@@ -191,7 +191,7 @@ export default function BusinessStore() {
               className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl font-black text-sm transition-all ${
                 laundryMode === "bolsa"
                   ? "bg-yellow-400 text-black shadow-[0_0_16px_rgba(255,215,0,0.3)]"
-                  : "text-gray-400 hover:text-white"
+                  : "text-white/60 hover:text-white"
               }`}
             >
               <Package size={16} />
@@ -202,7 +202,7 @@ export default function BusinessStore() {
               className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl font-black text-sm transition-all ${
                 laundryMode === "libra"
                   ? "bg-yellow-400 text-black shadow-[0_0_16px_rgba(255,215,0,0.3)]"
-                  : "text-gray-400 hover:text-white"
+                  : "text-white/60 hover:text-white"
               }`}
             >
               <Scale size={16} />
@@ -215,7 +215,7 @@ export default function BusinessStore() {
       {/* ── LAUNDRY: POR BOLSA ── */}
       {isLaundry && laundryMode === "bolsa" && (
         <div className="px-4 pt-2 pb-4 space-y-3">
-          <p className="text-xs text-gray-500 text-center">Precio fijo — incluye lavado, secado y doblado</p>
+          <p className="text-xs text-white/50 text-center">Precio fijo — incluye lavado, secado y doblado</p>
           {prodsLoading ? (
             [1,2,3].map(i => <Skeleton key={i} className="h-28 bg-white/8 rounded-2xl" />)
           ) : bolsaProducts.map(product => {
@@ -237,7 +237,7 @@ export default function BusinessStore() {
                   <div className="flex-1 min-w-0">
                     <p className={`font-black text-base leading-tight ${inCart ? "text-yellow-400" : "text-white"}`}>{product.name}</p>
                     {product.description && (
-                      <p className="text-gray-400 text-xs mt-0.5 line-clamp-2">{product.description}</p>
+                      <p className="text-white/60 text-xs mt-0.5 line-clamp-2">{product.description}</p>
                     )}
                     <p className={`font-black text-lg mt-1 ${inCart ? "text-yellow-400" : "text-white"}`}>
                       {formatDOP(customerPrice(product.price))}
@@ -282,7 +282,7 @@ export default function BusinessStore() {
       {/* ── LAUNDRY: POR LIBRA ── */}
       {isLaundry && laundryMode === "libra" && (
         <div className="px-4 pt-2 pb-4 space-y-4">
-          <p className="text-xs text-gray-500 text-center">Selecciona el servicio y estima cuántas libras tienes</p>
+          <p className="text-xs text-white/50 text-center">Selecciona el servicio y estima cuántas libras tienes</p>
 
           {/* Service selector grid */}
           {prodsLoading ? (
@@ -310,7 +310,7 @@ export default function BusinessStore() {
                       {isSelected && <Check size={14} className="text-yellow-400 flex-shrink-0 mt-0.5" />}
                     </div>
                     <p className={`font-black text-base ${isSelected ? "text-yellow-400" : "text-white"}`}>
-                      {formatDOP(customerPrice(product.price))}<span className="text-xs font-bold text-gray-400">/lb</span>
+                      {formatDOP(customerPrice(product.price))}<span className="text-xs font-bold text-white/50">/lb</span>
                     </p>
                   </button>
                 );
@@ -324,7 +324,7 @@ export default function BusinessStore() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="font-black text-white text-sm">{selectedService.name.replace(" /lb", "")}</p>
-                  <p className="text-xs text-gray-400">{formatDOP(customerPrice(selectedService.price))} × {libras} lb</p>
+                  <p className="text-xs text-white/60">{formatDOP(customerPrice(selectedService.price))} × {libras} lb</p>
                 </div>
                 <p className="font-black text-yellow-400 text-xl">
                   {formatDOP(customerPrice(selectedService.price) * libras)}
@@ -333,7 +333,7 @@ export default function BusinessStore() {
 
               {/* Stepper */}
               <div>
-                <p className="text-xs text-gray-400 text-center mb-2">¿Cuántas libras estimas?</p>
+                <p className="text-xs text-white/60 text-center mb-2">¿Cuántas libras estimas?</p>
                 <div className="flex items-center justify-center gap-4">
                   <button
                     onClick={() => setLibras(l => Math.max(1, l - 1))}
@@ -343,7 +343,7 @@ export default function BusinessStore() {
                   </button>
                   <div className="text-center">
                     <p className="text-4xl font-black text-white w-16">{libras}</p>
-                    <p className="text-xs text-gray-500">libras</p>
+                    <p className="text-xs text-white/50">libras</p>
                   </div>
                   <button
                     onClick={() => setLibras(l => l + 1)}
@@ -413,7 +413,7 @@ export default function BusinessStore() {
         ) : categories.length === 0 ? (
           <div className="text-center py-12">
             <p className="text-3xl mb-2">🤷</p>
-            <p className="text-gray-400">{t.storeNoProducts}</p>
+            <p className="text-white/60">{t.storeNoProducts}</p>
           </div>
         ) : (
           <div className="space-y-6">
@@ -441,7 +441,7 @@ export default function BusinessStore() {
                               {product.name}
                             </h3>
                             {product.description && (
-                              <p className="text-gray-500 text-xs mt-1 line-clamp-2 leading-relaxed">
+                              <p className="text-white/50 text-xs mt-1 line-clamp-2 leading-relaxed">
                                 {product.description}
                               </p>
                             )}
@@ -550,7 +550,7 @@ export default function BusinessStore() {
             <div className="flex-1 overflow-y-auto px-5 pt-4 pb-2">
               <h2 className="text-xl font-black text-white leading-tight">{selectedProduct.name}</h2>
               {selectedProduct.description && (
-                <p className="text-gray-400 text-sm mt-2 leading-relaxed">{selectedProduct.description}</p>
+                <p className="text-white/70 text-sm mt-2 leading-relaxed">{selectedProduct.description}</p>
               )}
               <p className="text-yellow-400 font-black text-2xl mt-3">
                 {formatDOP(customerPrice(selectedProduct.price))}

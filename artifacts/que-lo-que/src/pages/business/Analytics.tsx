@@ -46,7 +46,7 @@ export default function BusinessAnalytics() {
         </Link>
         <div>
           <h1 className="text-xl font-black text-yellow-400">Analíticas</h1>
-          <p className="text-xs text-gray-400">Últimos 7 días</p>
+          <p className="text-xs text-white/60">Últimos 7 días</p>
         </div>
         <div className="ml-auto"><LangToggle /></div>
       </div>
@@ -62,24 +62,24 @@ export default function BusinessAnalytics() {
               <div className="bg-white/8 border border-white/10 rounded-2xl p-3 text-center">
                 <DollarSign size={16} className="text-yellow-400 mx-auto mb-1" />
                 <p className="text-lg font-black text-yellow-400">{formatDOP(analytics?.totalRevenue ?? 0)}</p>
-                <p className="text-xs text-gray-400 mt-0.5">Ingresos</p>
+                <p className="text-xs text-[#FFD700]/70 mt-0.5">Ingresos</p>
               </div>
               <div className="bg-white/8 border border-white/10 rounded-2xl p-3 text-center">
                 <ShoppingBag size={16} className="text-yellow-400 mx-auto mb-1" />
                 <p className="text-lg font-black text-yellow-400">{analytics?.totalOrders ?? 0}</p>
-                <p className="text-xs text-gray-400 mt-0.5">Pedidos</p>
+                <p className="text-xs text-[#FFD700]/70 mt-0.5">Pedidos</p>
               </div>
               <div className="bg-white/8 border border-white/10 rounded-2xl p-3 text-center">
                 <TrendingUp size={16} className="text-yellow-400 mx-auto mb-1" />
                 <p className="text-lg font-black text-yellow-400">{formatDOP(analytics?.avgOrderValue ?? 0)}</p>
-                <p className="text-xs text-gray-400 mt-0.5">Promedio</p>
+                <p className="text-xs text-[#FFD700]/70 mt-0.5">Promedio</p>
               </div>
             </div>
 
             <div className="bg-white/8 border border-white/10 rounded-2xl p-4">
               <div className="flex items-center gap-2 mb-4">
                 <BarChart2 size={16} className="text-yellow-400" />
-                <h2 className="font-bold text-sm text-gray-400 uppercase tracking-widest">Ingresos diarios</h2>
+                <h2 className="font-bold text-sm text-[#FFD700]/70 uppercase tracking-widest">Ingresos diarios</h2>
               </div>
               <div className="flex items-end gap-2 h-32">
                 {analytics?.dailyStats.map(day => (
@@ -91,19 +91,19 @@ export default function BusinessAnalytics() {
                         title={formatDOP(day.revenue)}
                       />
                     </div>
-                    <span className="text-xs text-gray-500 font-bold">{dayLabel(day.date)}</span>
+                    <span className="text-xs text-white/50 font-bold">{dayLabel(day.date)}</span>
                   </div>
                 ))}
               </div>
               {analytics?.totalOrders === 0 && (
-                <p className="text-center text-gray-500 text-sm mt-2">No hay datos para mostrar</p>
+                <p className="text-center text-white/50 text-sm mt-2">No hay datos para mostrar</p>
               )}
             </div>
 
             <div className="bg-white/8 border border-white/10 rounded-2xl p-4">
-              <h2 className="font-bold text-sm text-gray-400 uppercase tracking-widest mb-3">🏆 Top productos</h2>
+              <h2 className="font-bold text-sm text-[#FFD700]/70 uppercase tracking-widest mb-3">🏆 Top productos</h2>
               {analytics?.topProducts.length === 0 ? (
-                <p className="text-gray-500 text-sm">Sin datos todavía</p>
+                <p className="text-white/50 text-sm">Sin datos todavía</p>
               ) : (
                 <div className="space-y-3">
                   {analytics?.topProducts.map((p, i) => (
@@ -111,7 +111,7 @@ export default function BusinessAnalytics() {
                       <span className="text-lg font-black text-yellow-400 w-6">{i + 1}</span>
                       <div className="flex-1 min-w-0">
                         <p className="font-bold text-sm truncate">{p.productName}</p>
-                        <p className="text-xs text-gray-400">{p.quantity} vendidos</p>
+                        <p className="text-xs text-white/60">{p.quantity} vendidos</p>
                       </div>
                       <span className="text-sm font-black text-yellow-400">{formatDOP(p.revenue)}</span>
                     </div>

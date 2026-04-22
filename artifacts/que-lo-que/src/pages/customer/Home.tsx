@@ -164,7 +164,7 @@ export default function CustomerHome() {
           >
             <MapPin size={12} />
             {currentCityLabel}
-            <ChevronDown size={12} className="text-gray-400" />
+            <ChevronDown size={12} className="text-[#FFD700]/60" />
           </button>
           <div className="relative flex-1">
             <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#FFD700]/70" />
@@ -187,7 +187,7 @@ export default function CustomerHome() {
           <div className="fixed inset-0 bg-black/60 z-30 backdrop-blur-sm" onClick={() => setCityPickerOpen(false)} />
           <div className="fixed bottom-0 left-0 right-0 z-40 bg-card border-t border-yellow-400/30 rounded-t-3xl p-5 pb-8">
             <div className="w-10 h-1 bg-white/20 rounded-full mx-auto mb-4" />
-            <p className="text-xs font-black text-gray-400 uppercase tracking-widest mb-4 text-center">
+            <p className="text-xs font-black text-[#FFD700]/80 uppercase tracking-widest mb-4 text-center">
               {lang === "es" ? "¿Dónde estás?" : "Where are you?"}
             </p>
             <div className="space-y-2">
@@ -228,7 +228,7 @@ export default function CustomerHome() {
                     />
                   </div>
                 </div>
-                <p className="text-xs text-gray-400 flex-shrink-0">
+                <p className="text-xs text-white/60 flex-shrink-0">
                   {pointsData ? `${pointsData.progress}/${pointsData.nextRewardAt}` : "0/500"}
                 </p>
               </div>
@@ -276,7 +276,7 @@ export default function CustomerHome() {
             ) : businesses?.length === 0 ? (
               <div className="text-center py-16">
                 <p className="text-4xl mb-3">😤</p>
-                <p className="text-gray-400">{t.emptyBusinesses}</p>
+                <p className="text-white/70">{t.emptyBusinesses}</p>
               </div>
             ) : (
               <div className="space-y-3">
@@ -314,16 +314,16 @@ export default function CustomerHome() {
                             >
                               <Heart
                                 size={16}
-                                className={favoriteIds.has(biz.id) ? "text-red-400 fill-red-400" : "text-gray-500"}
+                                className={favoriteIds.has(biz.id) ? "text-red-400 fill-red-400" : "text-white/30"}
                               />
                             </button>
                           </div>
                         </div>
                         {biz.description && (
-                          <p className="text-gray-500 text-xs mt-1 line-clamp-1">{biz.description}</p>
+                          <p className="text-white/60 text-xs mt-1 line-clamp-1">{biz.description}</p>
                         )}
                         <div className="flex items-center gap-3 mt-2">
-                          <div className="flex items-center gap-1 text-gray-400">
+                          <div className="flex items-center gap-1 text-white/60">
                             <Clock size={11} />
                             <span className="text-xs">{biz.deliveryTime ?? 30}–{(biz.deliveryTime ?? 30) + 15} min</span>
                           </div>

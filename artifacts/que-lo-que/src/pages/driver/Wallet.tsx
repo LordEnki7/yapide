@@ -47,16 +47,16 @@ export default function DriverWallet() {
           <>
             <div className="grid grid-cols-2 gap-3">
               <div className="bg-green-400/10 border border-green-400/30 rounded-2xl p-4 text-center">
-                <p className="text-xs text-gray-400 uppercase tracking-widest mb-1">{t.wallet}</p>
+                <p className="text-xs text-[#FFD700]/70 uppercase tracking-widest mb-1">{t.wallet}</p>
                 <p className="text-2xl font-black text-green-400">{formatDOP(wallet?.walletBalance ?? 0)}</p>
-                <p className="text-xs text-gray-500">{t.walletBalance}</p>
+                <p className="text-xs text-white/50">{t.walletBalance}</p>
               </div>
               <div className={`rounded-2xl p-4 text-center border ${cashLocked ? "bg-red-500/20 border-red-500/50" : cashOver80 ? "bg-yellow-400/10 border-yellow-400/40" : "bg-white/8 border-white/10"}`}>
-                <p className="text-xs text-gray-400 uppercase tracking-widest mb-1">{t.cashBalance}</p>
+                <p className="text-xs text-[#FFD700]/70 uppercase tracking-widest mb-1">{t.cashBalance}</p>
                 <p className={`text-2xl font-black ${cashLocked ? "text-red-400" : cashOver80 ? "text-yellow-400" : "text-white"}`}>
                   {formatDOP(wallet?.cashBalance ?? 0)}
                 </p>
-                <p className="text-xs text-gray-500">{t.cashBalance}</p>
+                <p className="text-xs text-white/50">{t.cashBalance}</p>
               </div>
             </div>
 
@@ -67,7 +67,7 @@ export default function DriverWallet() {
                   <p className={`font-black text-sm ${cashLocked ? "text-red-400" : "text-yellow-400"}`}>
                     {cashLocked ? t.cashLocked : t.cashWarning}
                   </p>
-                  <p className="text-xs text-gray-400 mt-1">
+                  <p className="text-xs text-white/60 mt-1">
                     {cashLocked ? t.cashLockedMsg : t.cashWarningMsg(formatDOP(wallet?.cashBalance ?? 0))}
                   </p>
                 </div>
@@ -76,27 +76,27 @@ export default function DriverWallet() {
 
             <div className="grid grid-cols-2 gap-3">
               <div className="bg-white/8 border border-white/10 rounded-xl p-3">
-                <p className="text-xs text-gray-400">{t.today}</p>
+                <p className="text-xs text-[#FFD700]/70">{t.today}</p>
                 <p className="text-lg font-black text-yellow-400">{formatDOP(wallet?.totalEarningsToday ?? 0)}</p>
-                <p className="text-xs text-gray-500">{wallet?.deliveriesToday ?? 0} {t.deliveries}</p>
+                <p className="text-xs text-white/50">{wallet?.deliveriesToday ?? 0} {t.deliveries}</p>
               </div>
               <div className="bg-white/8 border border-white/10 rounded-xl p-3">
-                <p className="text-xs text-gray-400">{t.thisWeek}</p>
+                <p className="text-xs text-[#FFD700]/70">{t.thisWeek}</p>
                 <p className="text-lg font-black text-yellow-400">{formatDOP(wallet?.totalEarningsWeek ?? 0)}</p>
-                <p className="text-xs text-gray-500">{wallet?.deliveriesWeek ?? 0} {t.deliveries}</p>
+                <p className="text-xs text-white/50">{wallet?.deliveriesWeek ?? 0} {t.deliveries}</p>
               </div>
             </div>
           </>
         )}
 
         <div>
-          <h2 className="font-bold text-sm text-gray-400 uppercase tracking-widest mb-3">{t.history}</h2>
+          <h2 className="font-bold text-sm text-[#FFD700]/70 uppercase tracking-widest mb-3">{t.history}</h2>
           {txnLoading ? (
             <div className="space-y-2">
               {[1, 2, 3].map(i => <Skeleton key={i} className="h-16 bg-white/8 rounded-xl" />)}
             </div>
           ) : transactions?.length === 0 ? (
-            <div className="text-center py-10 text-gray-400">
+            <div className="text-center py-10 text-white/60">
               <Wallet size={32} className="mx-auto mb-2 opacity-30" />
               <p>{t.noTransactions}</p>
             </div>
@@ -112,13 +112,13 @@ export default function DriverWallet() {
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-bold text-white">{config.label}</p>
-                      <p className="text-xs text-gray-400 truncate">{txn.description ?? ""}</p>
+                      <p className="text-xs text-white/60 truncate">{txn.description ?? ""}</p>
                     </div>
                     <div className="text-right">
                       <p className={`font-black text-sm ${config.colorClass}`}>
                         {config.sign}{formatDOP(Math.abs(txn.amount))}
                       </p>
-                      <p className="text-xs text-gray-500">{new Date(txn.createdAt).toLocaleDateString()}</p>
+                      <p className="text-xs text-white/50">{new Date(txn.createdAt).toLocaleDateString()}</p>
                     </div>
                   </div>
                 );

@@ -71,7 +71,7 @@ export default function CustomerPoints() {
             <div className="bg-yellow-400/5 border border-yellow-400/20 rounded-2xl p-6 text-center">
               <Star size={48} className="text-yellow-400 mx-auto mb-3" fill="currentColor" />
               <h2 className="font-black text-xl text-yellow-400 mb-2">{t.pointsTitle}</h2>
-              <p className="text-sm text-gray-400 mb-5">{t.howItWorksLine1}</p>
+              <p className="text-sm text-white/60 mb-5">{t.howItWorksLine1}</p>
               <Link href="/login">
                 <Button className="bg-yellow-400 text-black font-black hover:bg-yellow-300">
                   {t.signIn}
@@ -81,13 +81,13 @@ export default function CustomerPoints() {
             <div className="bg-white/8 border border-white/10 rounded-2xl p-4">
               <div className="flex items-center gap-2 mb-3">
                 <Info size={16} className="text-yellow-400" />
-                <h3 className="font-bold text-sm text-gray-300">{t.howItWorks}</h3>
+                <h3 className="font-bold text-sm text-white/80">{t.howItWorks}</h3>
               </div>
               <div className="space-y-2">
                 {[t.howItWorksLine1, t.howItWorksLine2, t.howItWorksLine3].map((line, i) => (
                   <div key={i} className="flex items-center gap-3">
                     <div className="w-6 h-6 rounded-full bg-yellow-400/20 flex items-center justify-center text-xs font-bold text-yellow-400 flex-shrink-0">{i + 1}</div>
-                    <p className="text-sm text-gray-300">{line}</p>
+                    <p className="text-sm text-white/80">{line}</p>
                   </div>
                 ))}
               </div>
@@ -99,11 +99,11 @@ export default function CustomerPoints() {
               <div className="bg-background rounded-xl p-5">
                 <div className="flex items-start justify-between mb-5">
                   <div>
-                    <p className="text-xs text-gray-400 uppercase tracking-widest mb-1">{t.pointsBalance}</p>
-                    <p className={`text-5xl font-black ${tier === "platinum" ? "text-purple-400" : tier === "gold" ? "text-yellow-400" : "text-gray-300"}`}>
+                    <p className="text-xs text-[#FFD700]/70 uppercase tracking-widest mb-1">{t.pointsBalance}</p>
+                    <p className={`text-5xl font-black ${tier === "platinum" ? "text-purple-400" : tier === "gold" ? "text-yellow-400" : "text-white/80"}`}>
                       {data?.points.toLocaleString() ?? 0}
                     </p>
-                    <p className="text-sm text-gray-400 mt-1">{t.pointsTier(data?.points ?? 0)}</p>
+                    <p className="text-sm text-white/60 mt-1">{t.pointsTier(data?.points ?? 0)}</p>
                   </div>
                   <div className={`w-16 h-16 rounded-2xl flex items-center justify-center bg-gradient-to-br ${tier === "platinum" ? TIER_COLORS.platinum : tier === "gold" ? TIER_COLORS.gold : TIER_COLORS.silver}`}>
                     <Star size={28} className="text-black" fill="currentColor" />
@@ -117,7 +117,7 @@ export default function CustomerPoints() {
                 )}
 
                 <div className="mb-2">
-                  <div className="flex justify-between text-xs text-gray-400 mb-1.5">
+                  <div className="flex justify-between text-xs text-white/60 mb-1.5">
                     <span>{t.pointsProgress(data?.progress ?? 0, data?.nextRewardAt ?? 500)}</span>
                     <span>🍔 RD${data?.redemptionValue}</span>
                   </div>
@@ -128,7 +128,7 @@ export default function CustomerPoints() {
                     />
                   </div>
                 </div>
-                <p className="text-xs text-gray-500">
+                <p className="text-xs text-white/50">
                   {canRedeem ? t.pointsReady : t.pointsNextReward(pointsNeeded)}
                 </p>
               </div>
@@ -138,7 +138,7 @@ export default function CustomerPoints() {
               <div className="bg-yellow-400/10 border-2 border-yellow-400/40 rounded-2xl p-5 text-center">
                 <Gift size={36} className="text-yellow-400 mx-auto mb-3" />
                 <p className="font-black text-lg text-yellow-400 mb-1">{t.pointsReady}</p>
-                <p className="text-sm text-gray-400 mb-4">{t.pointsReadyMsg(data?.redemptionValue ?? 500)}</p>
+                <p className="text-sm text-white/60 mb-4">{t.pointsReadyMsg(data?.redemptionValue ?? 500)}</p>
                 <Button
                   className="w-full bg-yellow-400 text-black font-black text-lg h-12 hover:bg-yellow-300 shadow-[0_0_30px_rgba(255,215,0,0.4)]"
                   onClick={() => redeem.mutate()}
@@ -151,31 +151,31 @@ export default function CustomerPoints() {
               <div className="bg-white/8 border border-white/10 rounded-2xl p-4">
                 <div className="flex items-center gap-2 mb-3">
                   <Info size={16} className="text-yellow-400" />
-                  <h3 className="font-bold text-sm text-gray-300">{t.howItWorks}</h3>
+                  <h3 className="font-bold text-sm text-white/80">{t.howItWorks}</h3>
                 </div>
                 <div className="space-y-2">
                   <div className="flex items-center gap-3">
                     <div className="w-6 h-6 rounded-full bg-yellow-400/20 flex items-center justify-center text-xs font-bold text-yellow-400 flex-shrink-0">1</div>
-                    <p className="text-sm text-gray-300">{t.howItWorksLine1}</p>
+                    <p className="text-sm text-white/80">{t.howItWorksLine1}</p>
                   </div>
                   <div className="flex items-center gap-3">
                     <div className="w-6 h-6 rounded-full bg-yellow-400/20 flex items-center justify-center text-xs font-bold text-yellow-400 flex-shrink-0">2</div>
-                    <p className="text-sm text-gray-300">{t.howItWorksLine2}</p>
+                    <p className="text-sm text-white/80">{t.howItWorksLine2}</p>
                   </div>
                   <div className="flex items-center gap-3">
                     <div className="w-6 h-6 rounded-full bg-yellow-400/20 flex items-center justify-center text-xs font-bold text-yellow-400 flex-shrink-0">3</div>
-                    <p className="text-sm text-gray-300">{t.howItWorksLine3}</p>
+                    <p className="text-sm text-white/80">{t.howItWorksLine3}</p>
                   </div>
                 </div>
               </div>
             )}
 
             <div>
-              <h2 className="text-sm font-bold text-gray-400 uppercase tracking-widest mb-3">{t.pointsHistory}</h2>
+              <h2 className="text-sm font-bold text-[#FFD700]/70 uppercase tracking-widest mb-3">{t.pointsHistory}</h2>
               {data?.transactions.length === 0 ? (
                 <div className="text-center py-12">
-                  <TrendingUp size={32} className="mx-auto mb-2 text-gray-600" />
-                  <p className="text-gray-400">{t.noPointsHistory}</p>
+                  <TrendingUp size={32} className="mx-auto mb-2 text-white/40" />
+                  <p className="text-white/60">{t.noPointsHistory}</p>
                 </div>
               ) : (
                 <div className="space-y-2">
@@ -190,13 +190,13 @@ export default function CustomerPoints() {
                           <p className="text-sm font-bold text-white">
                             {txn.type === "earn" ? t.earnType : txn.type === "redeem" ? t.redeemType : t.bonusPointsType}
                           </p>
-                          {txn.description && <p className="text-xs text-gray-400 truncate">{txn.description}</p>}
+                          {txn.description && <p className="text-xs text-white/60 truncate">{txn.description}</p>}
                         </div>
                         <div className="text-right flex-shrink-0">
                           <p className={`font-black text-sm ${isEarn ? "text-green-400" : "text-yellow-400"}`}>
                             {isEarn ? "+" : ""}{txn.amount}
                           </p>
-                          <p className="text-xs text-gray-500">{new Date(txn.createdAt).toLocaleDateString()}</p>
+                          <p className="text-xs text-white/50">{new Date(txn.createdAt).toLocaleDateString()}</p>
                         </div>
                       </div>
                     );

@@ -100,7 +100,7 @@ export default function BusinessOrders() {
         ) : orders?.length === 0 ? (
           <div className="text-center py-20">
             <p className="text-4xl mb-3">📭</p>
-            <p className="text-gray-400 font-bold">{t.noOrdersYet}</p>
+            <p className="text-white/70 font-bold">{t.noOrdersYet}</p>
           </div>
         ) : (
           <div className="space-y-3">
@@ -109,7 +109,7 @@ export default function BusinessOrders() {
                 <div className="flex items-center justify-between mb-3">
                   <div>
                     <p className="font-black text-white">#{order.id}</p>
-                    <p className="text-xs text-gray-400 flex items-center gap-1 mt-0.5">
+                    <p className="text-xs text-white/60 flex items-center gap-1 mt-0.5">
                       <Clock size={10} />
                       {new Date(order.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
                     </p>
@@ -121,19 +121,19 @@ export default function BusinessOrders() {
 
                 <div className="border-t border-white/5 py-2 mb-3">
                   {order.items?.slice(0, 3).map(item => (
-                    <p key={item.id} className="text-sm text-gray-300">
+                    <p key={item.id} className="text-sm text-white/80">
                       {item.quantity}x {item.productName}
                     </p>
                   ))}
                   {(order.items?.length ?? 0) > 3 && (
-                    <p className="text-xs text-gray-500">+{(order.items?.length ?? 0) - 3} más</p>
+                    <p className="text-xs text-white/50">+{(order.items?.length ?? 0) - 3} más</p>
                   )}
                 </div>
 
                 {(order as any).customer?.phone && (
                   <div className="bg-white/5 rounded-xl px-3 py-2.5 mb-3 flex items-center justify-between gap-3">
                     <div className="min-w-0">
-                      <p className="text-xs text-gray-500 font-bold uppercase tracking-wider">Cliente</p>
+                      <p className="text-xs text-[#FFD700]/70 font-bold uppercase tracking-wider">Cliente</p>
                       <p className="text-sm font-bold text-white truncate">{(order as any).customer?.name ?? "Cliente"}</p>
                     </div>
                     <div className="flex gap-2 flex-shrink-0">

@@ -127,15 +127,15 @@ export default function BusinessMenu() {
           <div className="flex items-center justify-between mb-4">
             <h2 className="font-black text-yellow-400">{editingId ? t.editProduct : t.newProduct}</h2>
             <button onClick={() => { setShowForm(false); setEditingId(null); setForm(DEFAULT_FORM); }}>
-              <X size={18} className="text-gray-400 hover:text-white" />
+              <X size={18} className="text-white/60 hover:text-white" />
             </button>
           </div>
           <div className="space-y-3">
-            <Input placeholder={t.productName} value={form.name} onChange={e => setForm(p => ({ ...p, name: e.target.value }))} className="bg-white/8 border-white/10 text-white placeholder:text-gray-500 focus:border-yellow-400" />
-            <Textarea placeholder={t.description} value={form.description} onChange={e => setForm(p => ({ ...p, description: e.target.value }))} className="bg-white/8 border-white/10 text-white placeholder:text-gray-500 focus:border-yellow-400 resize-none" rows={2} />
+            <Input placeholder={t.productName} value={form.name} onChange={e => setForm(p => ({ ...p, name: e.target.value }))} className="bg-white/8 border-white/10 text-white placeholder:text-white/40 focus:border-yellow-400" />
+            <Textarea placeholder={t.description} value={form.description} onChange={e => setForm(p => ({ ...p, description: e.target.value }))} className="bg-white/8 border-white/10 text-white placeholder:text-white/40 focus:border-yellow-400 resize-none" rows={2} />
             <div className="grid grid-cols-2 gap-2">
-              <Input type="number" placeholder={t.price} value={form.price} onChange={e => setForm(p => ({ ...p, price: e.target.value }))} className="bg-white/8 border-white/10 text-white placeholder:text-gray-500 focus:border-yellow-400" />
-              <Input placeholder={t.category} value={form.category} onChange={e => setForm(p => ({ ...p, category: e.target.value }))} className="bg-white/8 border-white/10 text-white placeholder:text-gray-500 focus:border-yellow-400" />
+              <Input type="number" placeholder={t.price} value={form.price} onChange={e => setForm(p => ({ ...p, price: e.target.value }))} className="bg-white/8 border-white/10 text-white placeholder:text-white/40 focus:border-yellow-400" />
+              <Input placeholder={t.category} value={form.category} onChange={e => setForm(p => ({ ...p, category: e.target.value }))} className="bg-white/8 border-white/10 text-white placeholder:text-white/40 focus:border-yellow-400" />
             </div>
             <ImageUploader
               value={form.imageUrl}
@@ -144,7 +144,7 @@ export default function BusinessMenu() {
             />
             <div className="flex items-center gap-3">
               <Switch checked={form.isAvailable} onCheckedChange={v => setForm(p => ({ ...p, isAvailable: v }))} />
-              <span className="text-sm text-gray-300">{t.available}</span>
+              <span className="text-sm text-white/80">{t.available}</span>
             </div>
             <Button
               className="w-full bg-yellow-400 text-black font-black hover:bg-yellow-300"
@@ -165,7 +165,7 @@ export default function BusinessMenu() {
         ) : products?.length === 0 ? (
           <div className="text-center py-20">
             <p className="text-4xl mb-3">🍽️</p>
-            <p className="text-gray-400 mb-4">{t.noProducts}</p>
+            <p className="text-white/60 mb-4">{t.noProducts}</p>
             <Button
               onClick={() => { setShowForm(true); setEditingId(null); setForm(DEFAULT_FORM); }}
               className="bg-yellow-400 text-black font-bold hover:bg-yellow-300"
@@ -184,11 +184,11 @@ export default function BusinessMenu() {
                   <div className="flex items-start justify-between gap-2">
                     <div className="min-w-0">
                       <p className="font-bold text-white truncate">{product.name}</p>
-                      {product.category && <p className="text-xs text-gray-500">{product.category}</p>}
+                      {product.category && <p className="text-xs text-white/50">{product.category}</p>}
                     </div>
                     <div className="flex items-center gap-1 flex-shrink-0">
                       <button onClick={() => openEdit(product)} className="w-8 h-8 rounded-lg bg-white/8 flex items-center justify-center hover:bg-white/10 transition">
-                        <Pencil size={12} className="text-gray-400" />
+                        <Pencil size={12} className="text-white/50" />
                       </button>
                       <button onClick={() => deleteProduct.mutate({ productId: product.id })} className="w-8 h-8 rounded-lg bg-red-500/10 flex items-center justify-center hover:bg-red-500/20 transition">
                         <Trash2 size={12} className="text-red-400" />
@@ -197,7 +197,7 @@ export default function BusinessMenu() {
                   </div>
                   <div className="flex items-center justify-between mt-2">
                     <span className="text-yellow-400 font-black">{formatDOP(product.price)}</span>
-                    <Badge className={`text-xs border ${product.isAvailable ? "bg-green-400/20 text-green-400 border-green-400/40" : "bg-gray-500/20 text-gray-400 border-gray-500/40"}`}>
+                    <Badge className={`text-xs border ${product.isAvailable ? "bg-green-400/20 text-green-400 border-green-400/40" : "bg-white/10 text-white/50 border-white/20"}`}>
                       {product.isAvailable ? t.available : t.inactive}
                     </Badge>
                   </div>

@@ -32,7 +32,7 @@ interface ActiveOrder {
 function NavLinks({ address, label }: { address: string; label: string }) {
   return (
     <div className="space-y-2">
-      <div className="flex items-start gap-2 text-sm text-gray-300">
+      <div className="flex items-start gap-2 text-sm text-white/80">
         <MapPin size={14} className="text-yellow-400 flex-shrink-0 mt-0.5" />
         <span className="flex-1">{address}</span>
       </div>
@@ -55,7 +55,7 @@ function NavLinks({ address, label }: { address: string; label: string }) {
         >
           <Navigation size={11} /> Waze
         </a>
-        <span className="text-xs text-gray-500 self-center">{label}</span>
+        <span className="text-xs text-white/50 self-center">{label}</span>
       </div>
     </div>
   );
@@ -250,9 +250,9 @@ export default function DriverJobs() {
                   <div key={order.id} className="bg-yellow-400/5 border border-yellow-400/40 rounded-2xl p-4 shadow-[0_0_20px_rgba(255,215,0,0.1)]">
                     <div className="flex items-start justify-between mb-3">
                       <div>
-                        <p className="text-xs text-gray-400 uppercase tracking-widest mb-1">#{order.id}</p>
+                        <p className="text-xs text-[#FFD700]/70 uppercase tracking-widest mb-1">#{order.id}</p>
                         <p className="font-black text-xl text-yellow-400">{formatDOP(order.driverEarnings + (order.tip ?? 0))}</p>
-                        <p className="text-xs text-gray-400">tu ganancia{order.tip > 0 ? ` + RD$${order.tip} propina` : ""}</p>
+                        <p className="text-xs text-white/60">tu ganancia{order.tip > 0 ? ` + RD$${order.tip} propina` : ""}</p>
                       </div>
                       <Badge className={`border ${order.status === "accepted" ? "bg-blue-400/20 text-blue-400 border-blue-400/40" : "bg-purple-400/20 text-purple-400 border-purple-400/40"}`}>
                         {order.status === "accepted"
@@ -268,13 +268,13 @@ export default function DriverJobs() {
                           <p className="text-xs text-yellow-400 font-bold uppercase tracking-wide mb-1">📦 Paso 1 — Recoger en el negocio</p>
                           {order.businessAddress
                             ? <NavLinks address={order.businessAddress} label={order.businessName ?? ""} />
-                            : <p className="text-sm text-gray-400">{order.businessName}</p>}
+                            : <p className="text-sm text-white/70">{order.businessName}</p>}
                         </div>
                         <div className="border-t border-white/5 pt-3">
-                          <p className="text-xs text-gray-500 font-bold uppercase tracking-wide mb-1">
+                          <p className="text-xs text-[#FFD700]/70 font-bold uppercase tracking-wide mb-1">
                             <MapPinned size={10} className="inline mr-1" />Paso 2 — Entregar luego en
                           </p>
-                          <p className="text-sm text-gray-400">{order.deliveryAddress}</p>
+                          <p className="text-sm text-white/60">{order.deliveryAddress}</p>
                         </div>
                       </div>
                     ) : (
@@ -293,7 +293,7 @@ export default function DriverJobs() {
                     {/* Photo upload for delivery */}
                     {order.status === "picked_up" && (
                       <div className="mb-3">
-                        <p className="text-xs text-gray-400 mb-2 font-bold">📸 Foto de entrega (opcional)</p>
+                        <p className="text-xs text-white/60 mb-2 font-bold">📸 Foto de entrega (opcional)</p>
                         <input
                           ref={el => { fileRefs.current[order.id] = el; }}
                           type="file"
@@ -366,7 +366,7 @@ export default function DriverJobs() {
                     )}
                     <button
                       onClick={() => { setReportModal({ orderId: order.id }); setReportReason(""); setReportNotes(""); }}
-                      className="w-full mt-2 flex items-center justify-center gap-2 py-2 rounded-xl text-xs text-gray-500 hover:text-red-400 hover:bg-red-400/5 transition border border-transparent hover:border-red-400/20"
+                      className="w-full mt-2 flex items-center justify-center gap-2 py-2 rounded-xl text-xs text-white/40 hover:text-red-400 hover:bg-red-400/5 transition border border-transparent hover:border-red-400/20"
                     >
                       <AlertTriangle size={12} />
                       Reportar problema con este pedido
@@ -381,7 +381,7 @@ export default function DriverJobs() {
         {/* ─── AVAILABLE JOBS ─── */}
         <div>
           {activeOrders.length > 0 && (
-            <p className="text-xs text-gray-400 uppercase tracking-widest font-bold mb-3">Nuevos trabajos</p>
+            <p className="text-xs text-[#FFD700]/70 uppercase tracking-widest font-bold mb-3">Nuevos trabajos</p>
           )}
           {isLoading ? (
             <div className="space-y-3">
@@ -391,11 +391,11 @@ export default function DriverJobs() {
             <div className="text-center py-20">
               <p className="text-5xl mb-3">😴</p>
               <p className="text-xl font-black text-white mb-2">{t.noJobs}</p>
-              <p className="text-gray-400">{t.noJobsMsg}</p>
+              <p className="text-white/60">{t.noJobsMsg}</p>
             </div>
           ) : (jobs as any[])?.length === 0 ? (
             <div className="text-center py-8">
-              <p className="text-gray-400 text-sm">No hay nuevos pedidos disponibles ahora mismo</p>
+              <p className="text-white/60 text-sm">No hay nuevos pedidos disponibles ahora mismo</p>
             </div>
           ) : (
             <div className="space-y-4">
@@ -403,16 +403,16 @@ export default function DriverJobs() {
                 <div key={job.id} data-testid={`job-card-${job.id}`} className="bg-white/8 border border-yellow-400/20 rounded-2xl p-4 shadow-[0_0_20px_rgba(255,215,0,0.05)]">
                   <div className="flex items-start justify-between mb-3">
                     <div>
-                      <p className="text-xs text-gray-400 mb-1 uppercase tracking-widest">#{job.id}</p>
+                      <p className="text-xs text-[#FFD700]/70 mb-1 uppercase tracking-widest">#{job.id}</p>
                       <p className="font-black text-xl text-yellow-400">{formatDOP(job.driverEarnings + (job.tip ?? 0))}</p>
-                      <p className="text-xs text-gray-400">{t.yourEarning}{job.tip > 0 ? ` + RD$${job.tip} propina` : ""}</p>
+                      <p className="text-xs text-white/60">{t.yourEarning}{job.tip > 0 ? ` + RD$${job.tip} propina` : ""}</p>
                     </div>
                     <div className="flex flex-col items-end gap-1">
                       <Badge className={`border ${job.paymentMethod === "cash" ? "bg-green-400/20 text-green-400 border-green-400/40" : "bg-blue-400/20 text-blue-400 border-blue-400/40"}`}>
                         {job.paymentMethod === "cash" ? <Banknote size={12} className="mr-1 inline" /> : <CreditCard size={12} className="mr-1 inline" />}
                         {job.paymentMethod === "cash" ? t.cash : t.card}
                       </Badge>
-                      <div className="flex items-center gap-1 text-xs text-gray-400">
+                      <div className="flex items-center gap-1 text-xs text-white/60">
                         <Clock size={10} />
                         <span>~25 min</span>
                       </div>
@@ -427,13 +427,13 @@ export default function DriverJobs() {
                       {job.businessName && <p className="text-sm font-bold text-white mb-1">{job.businessName}</p>}
                       {job.businessAddress
                         ? <NavLinks address={job.businessAddress} label="negocio" />
-                        : <p className="text-xs text-gray-500">Dirección no disponible</p>}
+                        : <p className="text-xs text-white/40">Dirección no disponible</p>}
                     </div>
                     <div className="border-t border-white/5 pt-3">
-                      <p className="text-xs text-gray-400 font-bold uppercase tracking-wide mb-1">
+                      <p className="text-xs text-[#FFD700]/70 font-bold uppercase tracking-wide mb-1">
                         <MapPin size={10} className="inline mr-1" />Entregar en
                       </p>
-                      <p className="text-sm text-gray-300">{job.deliveryAddress}</p>
+                      <p className="text-sm text-white/80">{job.deliveryAddress}</p>
                     </div>
                   </div>
 
@@ -442,14 +442,14 @@ export default function DriverJobs() {
                   )}
 
                   <div className="border-t border-white/10 pt-3 flex items-center justify-between mb-3">
-                    <span className="text-sm text-gray-400">{t.earningsTotal}</span>
+                    <span className="text-sm text-white/70">{t.earningsTotal}</span>
                     <span className="font-bold text-white">{formatDOP(job.totalAmount + job.deliveryFee)}</span>
                   </div>
 
                   <div className="flex gap-3">
                     <Button
                       variant="outline"
-                      className="flex-1 border-white/20 text-gray-400 hover:border-red-400/50 hover:text-red-400 font-bold"
+                      className="flex-1 border-white/20 text-white/50 hover:border-red-400/50 hover:text-red-400 font-bold"
                       onClick={() => decline.mutate({ orderId: job.id })}
                       disabled={decline.isPending}
                     >
