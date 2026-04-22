@@ -139,15 +139,20 @@
 
   /* Global gradient background — applied to every page that uses bg-background */
   .bg-background {
-    background: linear-gradient(
-      175deg,
-      #060e2b 0%,
-      #0b1f5e 15%,
-      #003fa3 45%,
-      #0057b7 68%,
-      #1a72d8 85%,
-      #2490f0 100%
-    ) !important;
+    background:
+      linear-gradient(180deg,
+        rgba(255,255,255,0.20) 0%,
+        rgba(255,255,255,0.07) 18%,
+        transparent 45%
+      ),
+      linear-gradient(180deg,
+        #0057b7 0%,
+        #0048a8 12%,
+        #003490 28%,
+        #001e72 50%,
+        #060e2b 80%,
+        #020918 100%
+      ) !important;
   }
 }
 
@@ -215,15 +220,20 @@ body {
   width: 100%;
   max-width: 430px;
   min-height: 100dvh;
-  background: linear-gradient(
-    175deg,
-    #060e2b 0%,
-    #0b1f5e 15%,
-    #003fa3 45%,
-    #0057b7 68%,
-    #1a72d8 85%,
-    #2490f0 100%
-  );
+  background:
+    linear-gradient(180deg,
+      rgba(255,255,255,0.20) 0%,
+      rgba(255,255,255,0.07) 18%,
+      transparent 45%
+    ),
+    linear-gradient(180deg,
+      #0057b7 0%,
+      #0048a8 12%,
+      #003490 28%,
+      #001e72 50%,
+      #060e2b 80%,
+      #020918 100%
+    );
   position: relative;
   overflow-x: hidden;
 }
