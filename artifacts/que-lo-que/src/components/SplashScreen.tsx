@@ -38,15 +38,25 @@ export default function SplashScreen({ onDone }: SplashScreenProps) {
         pointerEvents: "none",
       }}
     >
-      <img
-        src="/logo.png"
-        alt="YaPide"
-        style={{
-          width: "clamp(180px, 55vw, 280px)",
-          objectFit: "contain",
-          filter: "drop-shadow(0 2px 8px rgba(0,0,0,0.8)) drop-shadow(0 8px 32px rgba(255,215,0,0.35))",
-        }}
-      />
+      <div style={{
+        background: "rgba(0, 10, 50, 0.50)",
+        borderRadius: "24px",
+        padding: "20px 24px 16px",
+        backdropFilter: "blur(12px)",
+        WebkitBackdropFilter: "blur(12px)",
+        border: "1px solid rgba(255,255,255,0.12)",
+        boxShadow: "0 8px 40px rgba(0,0,40,0.5)",
+      }}>
+        <img
+          src="/logo.png"
+          alt="YaPide"
+          style={{
+            width: "clamp(180px, 55vw, 260px)",
+            objectFit: "contain",
+            display: "block",
+          }}
+        />
+      </div>
 
       <p
         style={{

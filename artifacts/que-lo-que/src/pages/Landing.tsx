@@ -97,11 +97,20 @@ export default function Landing() {
 
       {/* Hero */}
       <div className="flex flex-col items-center pt-6 pb-5 px-6">
-        <img
-          src={logo}
-          alt="YaPide"
-          className="w-56 object-contain drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)] drop-shadow-[0_0_40px_rgba(255,215,0,0.4)] mb-3"
-        />
+        <div className="mb-3 rounded-3xl px-6 py-4"
+          style={{
+            background: "rgba(0,10,50,0.50)",
+            backdropFilter: "blur(12px)",
+            WebkitBackdropFilter: "blur(12px)",
+            border: "1px solid rgba(255,255,255,0.12)",
+            boxShadow: "0 8px 40px rgba(0,0,40,0.5)",
+          }}>
+          <img
+            src={logo}
+            alt="YaPide"
+            className="w-52 object-contain block"
+          />
+        </div>
         <h1 className="text-3xl font-black text-white text-center leading-tight tracking-tight">
           {t.heroLine1}
           <br />
