@@ -206,7 +206,7 @@
 
 /* ── Phone frame ─────────────────────────────────────────────────────────── */
 html {
-  background: radial-gradient(ellipse at 50% 40%, #162d72 0%, #060f24 70%);
+  background: radial-gradient(ellipse at 50% 40%, #1a5cc8 0%, #0d2d8a 70%);
 }
 
 body {
@@ -241,7 +241,7 @@ body {
 @media (min-width: 500px) {
   body {
     padding: 14px 0;
-    background: radial-gradient(ellipse at 50% 35%, #0d1e52 0%, #040a1a 65%);
+    background: radial-gradient(ellipse at 50% 35%, #1a5cc8 0%, #0d2d8a 65%);
   }
 
   #root {
@@ -253,10 +253,10 @@ body {
     transform: translateZ(0);
     scrollbar-width: none;
     box-shadow:
-      0 0 0 1px rgba(52, 168, 255, 0.55),
-      0 0 0 4px rgba(0, 57, 183, 0.28),
-      0 0 70px rgba(33, 150, 243, 0.18),
-      0 30px 120px rgba(0, 5, 30, 0.98);
+      0 0 0 1px rgba(100, 180, 255, 0.75),
+      0 0 0 4px rgba(0, 87, 183, 0.55),
+      0 0 60px rgba(0, 87, 183, 0.40),
+      0 30px 100px rgba(0, 30, 100, 0.70);
   }
 
   #root::-webkit-scrollbar {
