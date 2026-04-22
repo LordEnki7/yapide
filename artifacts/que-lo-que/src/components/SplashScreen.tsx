@@ -42,7 +42,7 @@ export default function SplashScreen({ onDone }: SplashScreenProps) {
         src="/logo.png"
         alt="YaPide"
         style={{
-          width: "clamp(140px, 40vw, 220px)",
+          width: "clamp(180px, 55vw, 280px)",
           objectFit: "contain",
           filter: "drop-shadow(0 8px 32px rgba(255,215,0,0.35))",
         }}
