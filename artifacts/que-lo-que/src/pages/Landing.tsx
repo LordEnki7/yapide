@@ -107,9 +107,9 @@ export default function Landing() {
           }}>
           {/* Full logo image */}
           <img src={logo} alt="YaPide" className="w-full block" />
-          {/* HTML text overlay — solid panel fully hides faint image text */}
-          <div className="absolute top-0 left-0 right-0 text-center px-5 pt-4 pb-10"
-            style={{ background: "linear-gradient(180deg, #000c32 0%, #000c32 60%, rgba(0,12,50,0) 100%)" }}>
+          {/* Solid overlay covers full PNG text area, fades before motorcycle */}
+          <div className="absolute top-0 left-0 right-0 px-5 pt-4 text-center flex flex-col justify-start"
+            style={{ height: "60%", background: "linear-gradient(180deg, #000c32 0%, #000c32 75%, rgba(0,12,50,0) 100%)" }}>
             <p className="m-0 leading-none font-black text-4xl tracking-tight">
               <span style={{ color: "#6be832" }}>Ya</span><span className="text-white">Pide</span>
             </p>
