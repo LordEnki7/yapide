@@ -15,6 +15,9 @@ const CITIES = [
   { value: "La Romana", label: "La Romana" },
   { value: "San Pedro de Macorís", label: "San Pedro" },
   { value: "San Francisco de Macorís", label: "San Francisco" },
+  { value: "Puerto Plata", label: "Puerto Plata" },
+  { value: "Sosúa", label: "Sosúa" },
+  { value: "Cabarete", label: "Cabarete" },
 ];
 
 const CATEGORIES = [

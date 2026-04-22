@@ -143,12 +143,12 @@ export default function Landing() {
 
         {/* Cities badge row */}
         <div className="pt-2">
-          <p className="text-center text-[10px] text-gray-600 uppercase tracking-widest mb-2">
+          <p className="text-center text-[10px] text-[#FFD700]/70 uppercase tracking-widest mb-2">
             {lang === "es" ? "Disponible en" : "Available in"}
           </p>
           <div className="flex flex-wrap gap-2 justify-center">
-            {["Santo Domingo", "Santiago", "La Romana", "San Pedro", "San Francisco"].map(city => (
-              <span key={city} className="text-[10px] font-bold px-2.5 py-1 rounded-full bg-white/5 border border-white/10 text-gray-400">
+            {["Santo Domingo", "Santiago", "La Romana", "San Pedro", "Puerto Plata", "Sosúa", "Cabarete"].map(city => (
+              <span key={city} className="text-[10px] font-bold px-2.5 py-1 rounded-full bg-white/5 border border-yellow-400/20 text-[#FFD700]/80">
                 📍 {city}
               </span>
             ))}
