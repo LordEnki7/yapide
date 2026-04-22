@@ -53,8 +53,8 @@ export default function SplashScreen({ onDone }: SplashScreenProps) {
         {/* Solid overlay covers full PNG text area, fades out before motorcycle */}
         <div style={{
           position: "absolute", top: 0, left: 0, right: 0,
-          height: "60%",
-          background: "linear-gradient(180deg, #000c32 0%, #000c32 75%, rgba(0,12,50,0) 100%)",
+          height: "66%",
+          background: "linear-gradient(180deg, #000c32 0%, #000c32 80%, rgba(0,12,50,0) 100%)",
           display: "flex", flexDirection: "column", justifyContent: "flex-start",
           padding: "20px 20px 0",
           textAlign: "center",
