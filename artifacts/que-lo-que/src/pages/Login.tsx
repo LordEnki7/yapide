@@ -5,22 +5,33 @@ import { setStoredUser } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, Eye, EyeOff, Smartphone, Mail } from "lucide-react";
+import { ArrowLeft, Eye, EyeOff, Smartphone, Mail, MessageCircle, KeyRound, CheckCircle } from "lucide-react";
 import { useLang } from "@/lib/lang";
 import LangToggle from "@/components/LangToggle";
 
 const logo = "/logo.png";
 
+type ForgotStep = "idle" | "enter-phone" | "enter-code" | "new-pin" | "done";
+
 export default function Login() {
   const [tab, setTab] = useState<"email" | "phone">("email");
-  // Email tab
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  // Phone tab
   const [phone, setPhone] = useState("");
   const [pin, setPin] = useState("");
   const [loading, setLoading] = useState(false);
+
+  // Forgot-PIN flow state
+  const [forgotStep, setForgotStep] = useState<ForgotStep>("idle");
+  const [forgotPhone, setForgotPhone] = useState("");
+  const [otpCode, setOtpCode] = useState("");
+  const [otpDisplay, setOtpDisplay] = useState("");
+  const [waLink, setWaLink] = useState("");
+  const [enteredOtp, setEnteredOtp] = useState("");
+  const [newPin, setNewPin] = useState("");
+  const [newPinConfirm, setNewPinConfirm] = useState("");
+  const [forgotLoading, setForgotLoading] = useState(false);
 
   const [, navigate] = useLocation();
   const { toast } = useToast();
@@ -57,7 +68,7 @@ export default function Login() {
     e.preventDefault();
     const digits = phone.replace(/\D/g, "");
     if (digits.length < 10) {
-      toast({ title: "Número inválido", description: "Ingresa tu número de teléfono completo (10 dígitos)", variant: "destructive" });
+      toast({ title: "Número inválido", description: "Ingresa tu número completo (10 dígitos)", variant: "destructive" });
       return;
     }
     if (!pin || !/^\d{4,6}$/.test(pin)) {
@@ -89,6 +100,212 @@ export default function Login() {
     }
   };
 
+  const handleForgotSendCode = async () => {
+    const digits = forgotPhone.replace(/\D/g, "");
+    if (digits.length < 10) {
+      toast({ title: "Número inválido", description: "Ingresa tu número de teléfono completo", variant: "destructive" });
+      return;
+    }
+    setForgotLoading(true);
+    try {
+      const res = await fetch("/api/auth/forgot-pin", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ phone: digits }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error ?? "Error");
+      setOtpCode(data.otpCode);
+      setOtpDisplay(data.otpCode);
+      setWaLink(data.waLink);
+      setForgotStep("enter-code");
+    } catch (err: any) {
+      toast({ title: "Error", description: err.message, variant: "destructive" });
+    } finally {
+      setForgotLoading(false);
+    }
+  };
+
+  const handleForgotVerifyCode = () => {
+    if (enteredOtp.trim() !== otpCode) {
+      toast({ title: "Código incorrecto", description: "Verifica el código enviado por WhatsApp", variant: "destructive" });
+      return;
+    }
+    setForgotStep("new-pin");
+  };
+
+  const handleForgotResetPin = async () => {
+    if (!/^\d{4,6}$/.test(newPin)) {
+      toast({ title: "PIN inválido", description: "El PIN debe ser 4–6 dígitos", variant: "destructive" });
+      return;
+    }
+    if (newPin !== newPinConfirm) {
+      toast({ title: "PINs no coinciden", description: "Los dos PINs deben ser iguales", variant: "destructive" });
+      return;
+    }
+    setForgotLoading(true);
+    try {
+      const digits = forgotPhone.replace(/\D/g, "");
+      const res = await fetch("/api/auth/reset-pin", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ phone: digits, otp: enteredOtp, newPin }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error ?? "Error");
+      setForgotStep("done");
+    } catch (err: any) {
+      toast({ title: "Error", description: err.message, variant: "destructive" });
+    } finally {
+      setForgotLoading(false);
+    }
+  };
+
+  if (forgotStep !== "idle") {
+    return (
+      <div className="min-h-screen bg-background text-white flex flex-col">
+        <div className="px-4 pt-6 flex items-center justify-between">
+          <button
+            onClick={() => { setForgotStep("idle"); setEnteredOtp(""); setNewPin(""); setNewPinConfirm(""); setOtpDisplay(""); }}
+            className="flex items-center gap-2 text-white/60 hover:text-white transition"
+          >
+            <ArrowLeft size={18} />
+            <span className="text-sm">Volver</span>
+          </button>
+          <LangToggle />
+        </div>
+
+        <div className="flex-1 flex flex-col items-center justify-center px-6">
+          <div className="w-full max-w-md">
+            <div className="text-center mb-8">
+              <div className="w-16 h-16 rounded-full bg-yellow-400/15 border border-yellow-400/30 flex items-center justify-center mx-auto mb-4">
+                <KeyRound size={28} className="text-yellow-400" />
+              </div>
+              <h1 className="text-2xl font-black text-yellow-400 uppercase">Restablecer PIN</h1>
+              <p className="text-white/60 text-sm mt-1">
+                {forgotStep === "enter-phone" && "Ingresa tu número para recibir un código"}
+                {forgotStep === "enter-code" && "Ingresa el código de verificación"}
+                {forgotStep === "new-pin" && "Crea tu nuevo PIN"}
+                {forgotStep === "done" && "¡PIN actualizado!"}
+              </p>
+            </div>
+
+            {forgotStep === "enter-phone" && (
+              <div className="space-y-4">
+                <div className="relative">
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-white/70 text-sm font-bold">🇩🇴 +1</span>
+                  <Input
+                    type="tel"
+                    placeholder="809-000-0000"
+                    value={forgotPhone}
+                    onChange={e => setForgotPhone(e.target.value)}
+                    className="bg-white/8 border-white/10 text-white placeholder:text-white/40 focus:border-yellow-400 h-12 pl-14"
+                    inputMode="numeric"
+                    maxLength={12}
+                  />
+                </div>
+                <Button
+                  onClick={handleForgotSendCode}
+                  disabled={forgotLoading}
+                  className="w-full bg-yellow-400 text-black font-black text-lg h-12 hover:bg-yellow-300"
+                >
+                  {forgotLoading ? "Enviando..." : "Enviar código"}
+                </Button>
+              </div>
+            )}
+
+            {forgotStep === "enter-code" && (
+              <div className="space-y-4">
+                <div className="bg-green-500/10 border border-green-500/30 rounded-2xl p-4 text-center">
+                  <MessageCircle size={24} className="text-green-400 mx-auto mb-2" />
+                  <p className="text-sm text-white/80 mb-1">Tu código de verificación:</p>
+                  <p className="text-3xl font-black tracking-[0.3em] text-yellow-400">{otpDisplay}</p>
+                  <p className="text-xs text-white/50 mt-2">Válido por 10 minutos</p>
+                  {waLink && (
+                    <a
+                      href={waLink}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-2 mt-3 bg-green-600 hover:bg-green-500 text-white text-xs font-bold px-4 py-2 rounded-xl transition"
+                    >
+                      <MessageCircle size={14} />
+                      Envíate por WhatsApp
+                    </a>
+                  )}
+                </div>
+                <Input
+                  type="text"
+                  placeholder="Ingresa el código de 6 dígitos"
+                  value={enteredOtp}
+                  onChange={e => setEnteredOtp(e.target.value.replace(/\D/g, "").slice(0, 6))}
+                  className="bg-white/8 border-white/10 text-white placeholder:text-white/40 focus:border-yellow-400 h-12 tracking-widest text-lg text-center"
+                  inputMode="numeric"
+                  maxLength={6}
+                />
+                <Button
+                  onClick={handleForgotVerifyCode}
+                  className="w-full bg-yellow-400 text-black font-black text-lg h-12 hover:bg-yellow-300"
+                >
+                  Verificar código
+                </Button>
+              </div>
+            )}
+
+            {forgotStep === "new-pin" && (
+              <div className="space-y-4">
+                <Input
+                  type="password"
+                  placeholder="Nuevo PIN (4–6 dígitos)"
+                  value={newPin}
+                  onChange={e => setNewPin(e.target.value.replace(/\D/g, "").slice(0, 6))}
+                  className="bg-white/8 border-white/10 text-white placeholder:text-white/40 focus:border-yellow-400 h-12 tracking-widest text-lg text-center"
+                  inputMode="numeric"
+                  maxLength={6}
+                />
+                <Input
+                  type="password"
+                  placeholder="Confirmar nuevo PIN"
+                  value={newPinConfirm}
+                  onChange={e => setNewPinConfirm(e.target.value.replace(/\D/g, "").slice(0, 6))}
+                  className={`bg-white/8 border-white/10 text-white placeholder:text-white/40 focus:border-yellow-400 h-12 tracking-widest text-lg text-center ${
+                    newPinConfirm && newPin !== newPinConfirm ? "border-red-400" : newPinConfirm && newPin === newPinConfirm ? "border-green-400" : ""
+                  }`}
+                  inputMode="numeric"
+                  maxLength={6}
+                />
+                <Button
+                  onClick={handleForgotResetPin}
+                  disabled={forgotLoading}
+                  className="w-full bg-yellow-400 text-black font-black text-lg h-12 hover:bg-yellow-300"
+                >
+                  {forgotLoading ? "Guardando..." : "Guardar nuevo PIN"}
+                </Button>
+              </div>
+            )}
+
+            {forgotStep === "done" && (
+              <div className="text-center space-y-6">
+                <div className="w-20 h-20 rounded-full bg-green-500/15 border border-green-500/30 flex items-center justify-center mx-auto">
+                  <CheckCircle size={40} className="text-green-400" />
+                </div>
+                <div>
+                  <p className="text-white font-bold text-lg">¡PIN actualizado con éxito!</p>
+                  <p className="text-white/60 text-sm mt-1">Ya puedes entrar con tu número y tu nuevo PIN</p>
+                </div>
+                <Button
+                  onClick={() => { setForgotStep("idle"); setTab("phone"); }}
+                  className="w-full bg-yellow-400 text-black font-black text-lg h-12 hover:bg-yellow-300"
+                >
+                  Ir a iniciar sesión
+                </Button>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-background text-white flex flex-col">
       <div className="px-4 pt-6 flex items-center justify-between">
@@ -109,14 +326,11 @@ export default function Login() {
             <p className="text-white/70 mt-1">{t.tagline}</p>
           </div>
 
-          {/* Tab switcher */}
           <div className="flex bg-white/5 rounded-2xl p-1 mb-5 border border-white/10">
             <button
               onClick={() => setTab("email")}
               className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-bold transition-all ${
-                tab === "email"
-                  ? "bg-yellow-400 text-black shadow"
-                  : "text-white/60 hover:text-white"
+                tab === "email" ? "bg-yellow-400 text-black shadow" : "text-white/60 hover:text-white"
               }`}
             >
               <Mail size={15} />
@@ -125,9 +339,7 @@ export default function Login() {
             <button
               onClick={() => setTab("phone")}
               className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-bold transition-all ${
-                tab === "phone"
-                  ? "bg-yellow-400 text-black shadow"
-                  : "text-white/60 hover:text-white"
+                tab === "phone" ? "bg-yellow-400 text-black shadow" : "text-white/60 hover:text-white"
               }`}
             >
               <Smartphone size={15} />
@@ -206,6 +418,14 @@ export default function Login() {
               >
                 {loading ? "Entrando..." : "Entrar con PIN"}
               </Button>
+
+              <button
+                type="button"
+                onClick={() => { setForgotPhone(phone); setForgotStep("enter-phone"); }}
+                className="w-full text-center text-sm text-[#FFD700]/70 hover:text-yellow-400 transition py-1"
+              >
+                ¿Olvidaste tu PIN? Restablécelo aquí
+              </button>
             </form>
           )}
 

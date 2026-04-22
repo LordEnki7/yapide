@@ -5,7 +5,7 @@ import { setStoredUser } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, Eye, EyeOff, Mail, Smartphone } from "lucide-react";
+import { ArrowLeft, Eye, EyeOff, Mail, Smartphone, MessageCircle, CheckCircle, RefreshCw } from "lucide-react";
 import { useLang } from "@/lib/lang";
 import LangToggle from "@/components/LangToggle";
 
@@ -29,6 +29,16 @@ export default function Register() {
   const [pPinConfirm, setPPinConfirm] = useState("");
   const [pRole, setPRole] = useState("customer");
   const [pLoading, setPLoading] = useState(false);
+
+  // OTP verification state (after phone register)
+  const [verifyStep, setVerifyStep] = useState(false);
+  const [otpCode, setOtpCode] = useState("");
+  const [otpDisplay, setOtpDisplay] = useState("");
+  const [waLink, setWaLink] = useState("");
+  const [enteredOtp, setEnteredOtp] = useState("");
+  const [otpVerifying, setOtpVerifying] = useState(false);
+  const [otpResending, setOtpResending] = useState(false);
+  const [pendingNav, setPendingNav] = useState("");
 
   const [, navigate] = useLocation();
   const { toast } = useToast();
@@ -106,15 +116,146 @@ export default function Register() {
         role: data.user.role,
         isBanned: data.user.isBanned,
       });
-      if (data.user.role === "business") navigate("/business/onboarding");
-      else if (data.user.role === "driver") navigate("/driver/onboarding");
-      else navigate(`/${data.user.role}`);
+      setOtpCode(data.otpCode);
+      setOtpDisplay(data.otpCode);
+      setWaLink(data.waLink);
+      const dest = data.user.role === "business"
+        ? "/business/onboarding"
+        : data.user.role === "driver"
+        ? "/driver/onboarding"
+        : `/${data.user.role}`;
+      setPendingNav(dest);
+      setVerifyStep(true);
     } catch (err: any) {
       toast({ title: "Error", description: err.message ?? t.error, variant: "destructive" });
     } finally {
       setPLoading(false);
     }
   };
+
+  const handleVerifyOtp = async () => {
+    if (!enteredOtp || enteredOtp.length < 4) {
+      toast({ title: "Código requerido", description: "Ingresa el código de 6 dígitos", variant: "destructive" });
+      return;
+    }
+    setOtpVerifying(true);
+    try {
+      const res = await fetch("/api/auth/verify-otp", {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ otp: enteredOtp }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error ?? "Código incorrecto");
+      navigate(pendingNav);
+    } catch (err: any) {
+      toast({ title: "Código incorrecto", description: err.message, variant: "destructive" });
+    } finally {
+      setOtpVerifying(false);
+    }
+  };
+
+  const handleResendOtp = async () => {
+    setOtpResending(true);
+    try {
+      const res = await fetch("/api/auth/resend-otp", {
+        method: "POST",
+        credentials: "include",
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error ?? "Error");
+      setOtpCode(data.otpCode);
+      setOtpDisplay(data.otpCode);
+      setWaLink(data.waLink);
+      toast({ title: "Código reenviado", description: "Se generó un nuevo código de verificación" });
+    } catch (err: any) {
+      toast({ title: "Error", description: err.message, variant: "destructive" });
+    } finally {
+      setOtpResending(false);
+    }
+  };
+
+  if (verifyStep) {
+    return (
+      <div className="min-h-screen bg-background text-white flex flex-col">
+        <div className="px-4 pt-6">
+          <button
+            onClick={() => navigate(pendingNav)}
+            className="flex items-center gap-2 text-white/60 hover:text-white transition"
+          >
+            <ArrowLeft size={18} />
+            <span className="text-sm">Saltar por ahora</span>
+          </button>
+        </div>
+
+        <div className="flex-1 flex flex-col items-center justify-center px-6">
+          <div className="w-full max-w-md">
+            <div className="text-center mb-8">
+              <div className="w-16 h-16 rounded-full bg-green-500/15 border border-green-500/30 flex items-center justify-center mx-auto mb-4">
+                <Smartphone size={28} className="text-green-400" />
+              </div>
+              <h1 className="text-2xl font-black text-yellow-400 uppercase">Verificar teléfono</h1>
+              <p className="text-white/60 text-sm mt-1">Confirma que el número es tuyo</p>
+            </div>
+
+            <div className="bg-green-500/10 border border-green-500/30 rounded-2xl p-5 text-center mb-5">
+              <p className="text-sm text-white/70 mb-1">Tu código de verificación:</p>
+              <p className="text-4xl font-black tracking-[0.35em] text-yellow-400 my-2">{otpDisplay}</p>
+              <p className="text-xs text-white/40">Válido por 10 minutos</p>
+
+              {waLink && (
+                <a
+                  href={waLink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 mt-4 bg-[#25D366] hover:bg-[#20ba5a] text-white text-sm font-bold px-5 py-2.5 rounded-2xl transition"
+                >
+                  <MessageCircle size={16} />
+                  Enviarme el código por WhatsApp
+                </a>
+              )}
+            </div>
+
+            <div className="space-y-4">
+              <Input
+                type="text"
+                placeholder="Ingresa el código de 6 dígitos"
+                value={enteredOtp}
+                onChange={e => setEnteredOtp(e.target.value.replace(/\D/g, "").slice(0, 6))}
+                className="bg-white/8 border-white/10 text-white placeholder:text-white/40 focus:border-yellow-400 h-14 tracking-[0.3em] text-2xl font-black text-center"
+                inputMode="numeric"
+                maxLength={6}
+                autoFocus
+              />
+
+              <Button
+                onClick={handleVerifyOtp}
+                disabled={otpVerifying || enteredOtp.length < 4}
+                className="w-full bg-yellow-400 text-black font-black text-lg h-12 hover:bg-yellow-300 shadow-[0_0_20px_rgba(255,215,0,0.3)]"
+              >
+                {otpVerifying ? "Verificando..." : (
+                  <span className="flex items-center gap-2">
+                    <CheckCircle size={18} />
+                    Verificar número
+                  </span>
+                )}
+              </Button>
+
+              <button
+                onClick={handleResendOtp}
+                disabled={otpResending}
+                className="w-full flex items-center justify-center gap-2 text-sm text-white/60 hover:text-yellow-400 transition py-2"
+              >
+                <RefreshCw size={14} className={otpResending ? "animate-spin" : ""} />
+                {otpResending ? "Reenviando..." : "Reenviar código"}
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background text-white flex flex-col">
@@ -136,7 +277,6 @@ export default function Register() {
             <p className="text-white/70 text-sm mt-1">{t.joinTagline}</p>
           </div>
 
-          {/* Tab switcher */}
           <div className="flex bg-white/5 rounded-2xl p-1 mb-5 border border-white/10">
             <button
               onClick={() => setTab("email")}

@@ -15,6 +15,9 @@ export const usersTable = pgTable("users", {
   // JSON array of permission keys granted to this staff member
   adminPermissions: text("admin_permissions"),
   isBanned: boolean("is_banned").notNull().default(false),
+  phoneVerified: boolean("phone_verified").notNull().default(false),
+  otpCode: text("otp_code"),
+  otpExpiresAt: timestamp("otp_expires_at", { withTimezone: true }),
   points: integer("points").notNull().default(0),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow().$onUpdate(() => new Date()),
