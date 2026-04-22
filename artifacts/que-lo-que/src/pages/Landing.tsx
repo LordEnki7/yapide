@@ -128,7 +128,7 @@ export default function Landing() {
                   <p className="font-black text-xl text-white leading-tight">
                     {lang === "es" ? role.label : role.labelEn}
                   </p>
-                  <p className="text-gray-400 text-sm mt-0.5">
+                  <p className="text-[#FFD700] text-sm mt-0.5 font-medium">
                     {lang === "es" ? role.sub : role.subEn}
                   </p>
                 </div>
