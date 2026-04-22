@@ -75,6 +75,10 @@ externalPort = 6000
 localPort = 21517
 externalPort = 8099
 
+[[ports]]
+localPort = 21518
+externalPort = 8000
+
 [userenv]
 
 [userenv.production]

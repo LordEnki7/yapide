@@ -74,52 +74,51 @@
   --elevate-1: rgba(255,255,255, .05);
   --elevate-2: rgba(255,255,255, .10);
 
-  /* Deep navy blue background (from logo) */
-  --background: 228 83% 9%;
-  /* White text */
+  /* Ukraine blue family background */
+  --background: 215 80% 16%;
   --foreground: 0 0% 98%;
 
-  --border: 226 60% 25%;
+  --border: 215 60% 30%;
   
-  /* Cards: slightly lighter navy */
-  --card: 226 74% 14%;
+  /* Cards: slightly lighter Ukraine blue */
+  --card: 215 70% 22%;
   --card-foreground: 0 0% 98%;
-  --card-border: 226 60% 25%;
+  --card-border: 215 60% 30%;
 
   /* Popovers */
-  --popover: 226 74% 14%;
+  --popover: 215 70% 22%;
   --popover-foreground: 0 0% 98%;
-  --popover-border: 226 60% 25%;
+  --popover-border: 215 60% 30%;
 
-  /* Primary: Electric Yellow #FFD700 */
+  /* Primary: Ukraine flag yellow #FFD700 */
   --primary: 51 100% 50%;
-  --primary-foreground: 228 83% 9%;
+  --primary-foreground: 215 80% 16%;
 
-  /* Secondary: Mid navy */
-  --secondary: 226 65% 20%;
+  /* Secondary: Mid Ukraine blue */
+  --secondary: 215 65% 28%;
   --secondary-foreground: 0 0% 98%;
 
   /* Muted */
-  --muted: 226 60% 17%;
-  --muted-foreground: 220 30% 70%;
+  --muted: 215 60% 24%;
+  --muted-foreground: 215 30% 72%;
 
   /* Accent */
   --accent: 51 100% 50%;
-  --accent-foreground: 228 83% 9%;
+  --accent-foreground: 215 80% 16%;
 
   /* Destructive */
   --destructive: 0 84% 60%;
   --destructive-foreground: 0 0% 98%;
 
-  --input: 226 60% 22%;
+  --input: 215 60% 26%;
   --ring: 51 100% 50%;
 
-  --sidebar: 228 83% 9%;
+  --sidebar: 215 80% 16%;
   --sidebar-foreground: 0 0% 98%;
-  --sidebar-border: 226 60% 25%;
+  --sidebar-border: 215 60% 30%;
   --sidebar-primary: 51 100% 50%;
-  --sidebar-primary-foreground: 228 83% 9%;
-  --sidebar-accent: 226 65% 20%;
+  --sidebar-primary-foreground: 215 80% 16%;
+  --sidebar-accent: 215 65% 28%;
   --sidebar-accent-foreground: 0 0% 98%;
   --sidebar-ring: 51 100% 50%;
 
@@ -141,7 +140,7 @@
 
 /* Phone frame — makes the app look like a mobile device in the browser preview */
 html {
-  background: #01060f;
+  background: #003d8a;
 }
 
 body {
@@ -155,7 +154,7 @@ body {
   width: 100%;
   max-width: 430px;
   min-height: 100dvh;
-  background: hsl(228 83% 9%);
+  background: hsl(215 80% 16%);
   position: relative;
   overflow-x: hidden;
 }
@@ -163,7 +162,7 @@ body {
 @media (min-width: 500px) {
   body {
     padding: 14px 0;
-    background: #01060f;
+    background: #003d8a;
   }
 
   #root {
@@ -172,14 +171,12 @@ body {
     max-height: calc(100dvh - 28px);
     overflow-y: auto;
     overflow-x: hidden;
-    /* transform creates a new containing block so position:fixed children
-       stay inside the phone frame instead of escaping to the viewport */
     transform: translateZ(0);
     scrollbar-width: none; /* Firefox */
     box-shadow:
-      0 0 0 1px hsl(226 60% 20%),
-      0 0 0 3px hsl(226 60% 12%),
-      0 20px 100px rgba(0,0,0,0.9);
+      0 0 0 1px hsl(215 60% 30%),
+      0 0 0 3px hsl(215 60% 20%),
+      0 20px 100px rgba(0,30,80,0.8);
   }
 
   #root::-webkit-scrollbar {

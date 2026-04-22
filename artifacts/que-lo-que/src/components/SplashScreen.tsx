@@ -26,7 +26,7 @@ export default function SplashScreen({ onDone }: SplashScreenProps) {
         position: "fixed",
         inset: 0,
         zIndex: 9999,
-        background: "#0A1628",
+        background: "#0057B7",
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
