@@ -50,11 +50,11 @@ export default function SplashScreen({ onDone }: SplashScreenProps) {
       }}>
         {/* Full logo image — motorcycle shows cleanly at the bottom */}
         <img src="/logo.png" alt="YaPide" style={{ width: "100%", display: "block" }} />
-        {/* HTML text overlaid on top portion — crisp at any size */}
+        {/* HTML text overlaid on top portion — solid panel hides faint image text */}
         <div style={{
           position: "absolute", top: 0, left: 0, right: 0,
-          background: "linear-gradient(180deg, rgba(0,8,40,0.92) 0%, rgba(0,8,40,0.85) 55%, transparent 100%)",
-          padding: "20px 20px 36px",
+          background: "linear-gradient(180deg, #000c32 0%, #000c32 62%, rgba(0,12,50,0) 100%)",
+          padding: "20px 20px 44px",
           textAlign: "center",
         }}>
           <p style={{ margin: 0, lineHeight: 1, fontSize: "clamp(34px, 9.5vw, 50px)", fontWeight: 900, letterSpacing: "-1px" }}>
