@@ -10,7 +10,7 @@ export default function LangToggle({ className = "" }: { className?: string }) {
         className={`px-3 py-1 rounded-l-lg transition-colors ${
           lang === "es"
             ? "bg-yellow-400 text-black"
-            : "bg-transparent text-gray-400 hover:text-gray-200"
+            : "bg-transparent text-white/60 hover:text-white"
         }`}
         title="Cambiar a Español"
       >
@@ -21,7 +21,7 @@ export default function LangToggle({ className = "" }: { className?: string }) {
         className={`px-3 py-1 rounded-r-lg transition-colors ${
           lang === "en"
             ? "bg-yellow-400 text-black"
-            : "bg-transparent text-gray-400 hover:text-gray-200"
+            : "bg-transparent text-white/60 hover:text-white"
         }`}
         title="Switch to English"
       >

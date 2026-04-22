@@ -20,8 +20,8 @@ export default function RoleSwitcher({ currentRole }: RoleSwitcherProps) {
   return (
     <div className="bg-white/5 border border-white/10 rounded-2xl overflow-hidden">
       <div className="px-4 pt-4 pb-3 border-b border-white/5">
-        <p className="text-xs font-black text-gray-400 uppercase tracking-widest">Cambiar modo</p>
-        <p className="text-xs text-gray-600 mt-0.5">Una cuenta, todos los modos</p>
+        <p className="text-xs font-black text-[#FFD700] uppercase tracking-widest">Cambiar modo</p>
+        <p className="text-xs text-white/70 mt-0.5">Una cuenta, todos los modos</p>
       </div>
       <div className="divide-y divide-white/5">
         {ROLES.map((role) => {
@@ -47,7 +47,7 @@ export default function RoleSwitcher({ currentRole }: RoleSwitcherProps) {
                 <p className={`font-black text-base leading-tight ${isActive ? "text-yellow-400" : "text-white"}`}>
                   {role.label}
                 </p>
-                <p className="text-xs text-gray-500 mt-0.5">{role.sublabel}</p>
+                <p className="text-xs text-white/60 mt-0.5">{role.sublabel}</p>
               </div>
               {isActive ? (
                 <div className="flex items-center gap-1.5 flex-shrink-0">
@@ -55,7 +55,7 @@ export default function RoleSwitcher({ currentRole }: RoleSwitcherProps) {
                   <span className="text-xs font-black text-yellow-400">Activo</span>
                 </div>
               ) : (
-                <span className="text-gray-600 text-sm flex-shrink-0">→</span>
+                <span className="text-[#FFD700] text-sm flex-shrink-0">→</span>
               )}
             </button>
           );

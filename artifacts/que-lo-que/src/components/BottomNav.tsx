@@ -60,7 +60,7 @@ export default function BottomNav() {
             <Link key={item.href} href={item.href}>
               <div
                 className={`flex flex-col items-center gap-1 py-3 px-3 transition-all ${
-                  isActive ? "text-yellow-400" : "text-gray-500 hover:text-gray-300"
+                  isActive ? "text-yellow-400" : "text-white/60 hover:text-white"
                 }`}
               >
                 <Icon

@@ -122,7 +122,7 @@ export default function JobAlertModal({ job, onAccept, onDecline, accepting, dec
             <p className="text-xs text-yellow-400 uppercase tracking-widest font-bold">🛵 Nuevo pedido</p>
             <p className="text-2xl font-black text-white">
               {formatDOP(job.driverEarnings + (job.tip ?? 0))}
-              <span className="text-base text-gray-400 font-normal ml-1">tu ganancia</span>
+              <span className="text-base text-white/70 font-normal ml-1">tu ganancia</span>
             </p>
           </div>
           <div className="flex items-center gap-2">
@@ -132,7 +132,7 @@ export default function JobAlertModal({ job, onAccept, onDecline, accepting, dec
               className="w-9 h-9 rounded-full bg-white/8 flex items-center justify-center hover:bg-white/12 transition"
             >
               {muted
-                ? <VolumeX size={16} className="text-gray-500" />
+                ? <VolumeX size={16} className="text-white/60" />
                 : <Volume2 size={16} className="text-yellow-400" />
               }
             </button>
@@ -140,7 +140,7 @@ export default function JobAlertModal({ job, onAccept, onDecline, accepting, dec
               onClick={() => onDecline(job.id)}
               className="w-9 h-9 rounded-full bg-white/8 flex items-center justify-center hover:bg-white/12 transition"
             >
-              <X size={16} className="text-gray-400" />
+              <X size={16} className="text-white/70" />
             </button>
           </div>
         </div>
@@ -185,16 +185,16 @@ export default function JobAlertModal({ job, onAccept, onDecline, accepting, dec
               <Store size={10} /> Recoger en
             </p>
             <p className="text-sm font-bold text-white">{job.businessName}</p>
-            {job.businessAddress && <p className="text-xs text-gray-400 mt-0.5">{job.businessAddress}</p>}
+            {job.businessAddress && <p className="text-xs text-white/70 mt-0.5">{job.businessAddress}</p>}
           </div>
           <div className="border-t border-white/5 pt-3">
-            <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-1 flex items-center gap-1">
+            <p className="text-[10px] text-[#FFD700] font-bold uppercase tracking-widest mb-1 flex items-center gap-1">
               <MapPin size={10} /> Entregar en
             </p>
-            <p className="text-sm text-gray-300">{job.deliveryAddress}</p>
+            <p className="text-sm text-white">{job.deliveryAddress}</p>
           </div>
           {job.notes && (
-            <p className="text-xs text-gray-400 bg-white/5 rounded-xl px-3 py-2 italic border-t border-white/5 pt-3">
+            <p className="text-xs text-white/70 bg-white/5 rounded-xl px-3 py-2 italic border-t border-white/5 pt-3">
               "{job.notes}"
             </p>
           )}
@@ -204,7 +204,7 @@ export default function JobAlertModal({ job, onAccept, onDecline, accepting, dec
         <div className="flex gap-3">
           <Button
             variant="outline"
-            className="flex-1 border-white/20 text-gray-400 hover:border-red-400/50 hover:text-red-400 font-bold h-12"
+            className="flex-1 border-white/20 text-white/80 hover:border-red-400/50 hover:text-red-400 font-bold h-12"
             onClick={() => onDecline(job.id)}
             disabled={declining || accepting}
           >

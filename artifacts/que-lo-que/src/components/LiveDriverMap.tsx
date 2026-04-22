@@ -123,7 +123,7 @@ export default function LiveDriverMap({ orderId, deliveryAddress }: Props) {
         <span className="text-base">🛵</span>
         <div className="flex-1 min-w-0">
           <p className="text-xs font-bold text-yellow-400 uppercase tracking-widest">Ubicación en vivo</p>
-          <p className="text-xs text-gray-400 truncate">{deliveryAddress}</p>
+          <p className="text-xs text-white/70 truncate">{deliveryAddress}</p>
         </div>
         <span className="flex items-center gap-1 flex-shrink-0">
           <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
@@ -131,7 +131,7 @@ export default function LiveDriverMap({ orderId, deliveryAddress }: Props) {
         </span>
       </div>
       <div ref={containerRef} className="w-full h-56" />
-      <div className="px-4 py-2.5 border-t border-white/10 flex items-center gap-4 text-xs text-gray-400">
+      <div className="px-4 py-2.5 border-t border-white/10 flex items-center gap-4 text-xs text-white/70">
         <span className="flex items-center gap-1.5"><span>🛵</span> Tu driver</span>
         <span className="flex items-center gap-1.5"><span>📦</span> Tu dirección</span>
       </div>
