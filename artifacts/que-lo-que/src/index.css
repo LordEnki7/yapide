@@ -143,15 +143,15 @@
       linear-gradient(180deg,
         rgba(255,255,255,0.20) 0%,
         rgba(255,255,255,0.07) 18%,
-        transparent 45%
+        transparent 50%
       ),
       linear-gradient(180deg,
         #0057b7 0%,
-        #0048a8 12%,
-        #003490 28%,
-        #001e72 50%,
-        #060e2b 80%,
-        #020918 100%
+        #0048a8 15%,
+        #003898 40%,
+        #003898 60%,
+        #0048a8 85%,
+        #0057b7 100%
       ) !important;
   }
 }
@@ -224,15 +224,15 @@ body {
     linear-gradient(180deg,
       rgba(255,255,255,0.20) 0%,
       rgba(255,255,255,0.07) 18%,
-      transparent 45%
+      transparent 50%
     ),
     linear-gradient(180deg,
       #0057b7 0%,
-      #0048a8 12%,
-      #003490 28%,
-      #001e72 50%,
-      #060e2b 80%,
-      #020918 100%
+      #0048a8 15%,
+      #003898 40%,
+      #003898 60%,
+      #0048a8 85%,
+      #0057b7 100%
     );
   position: relative;
   overflow-x: hidden;

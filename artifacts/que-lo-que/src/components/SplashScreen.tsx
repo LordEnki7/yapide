@@ -26,7 +26,7 @@ export default function SplashScreen({ onDone }: SplashScreenProps) {
         position: "fixed",
         inset: 0,
         zIndex: 9999,
-        background: "linear-gradient(175deg, #060e2b 0%, #0b1f5e 20%, #003fa3 50%, #0057b7 72%, #1a72d8 88%, #2490f0 100%)",
+        background: "linear-gradient(180deg, #0057b7 0%, #0048a8 15%, #003898 40%, #003898 60%, #0048a8 85%, #0057b7 100%)",
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
