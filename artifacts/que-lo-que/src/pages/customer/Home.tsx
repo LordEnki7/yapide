@@ -167,7 +167,7 @@ export default function CustomerHome() {
             <ChevronDown size={12} className="text-gray-400" />
           </button>
           <div className="relative flex-1">
-            <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+            <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#FFD700]/70" />
             <Input
               placeholder={selectedCategory ? t.search : t.searchPlaceholder}
               value={search}
@@ -175,7 +175,7 @@ export default function CustomerHome() {
                 setSearch(e.target.value);
                 if (e.target.value && !selectedCategory) setSelectedCategory("all");
               }}
-              className="pl-9 bg-white/8 border-white/10 text-white placeholder:text-gray-500 focus:border-yellow-400 h-10 text-sm"
+              className="pl-9 bg-white/8 border-white/10 text-white placeholder:text-white/50 focus:border-yellow-400 h-10 text-sm"
             />
           </div>
         </div>
