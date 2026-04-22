@@ -117,13 +117,15 @@ export default function Landing() {
               Y ECONÓMICA
             </p>
           </div>
-          {/* Motorcycle — show bottom of logo only */}
-          <img
-            src={logo}
-            alt=""
-            className="w-full block"
-            style={{ height: 160, objectFit: "cover", objectPosition: "bottom center" }}
-          />
+          {/* Motorcycle — background-position crops to illustration only */}
+          <div style={{
+            width: "100%",
+            height: 155,
+            backgroundImage: `url('${logo}')`,
+            backgroundSize: "100% auto",
+            backgroundPosition: "center 78%",
+            backgroundRepeat: "no-repeat",
+          }} />
         </div>
         <h1 className="text-3xl font-black text-white text-center leading-tight tracking-tight">
           {t.heroLine1}

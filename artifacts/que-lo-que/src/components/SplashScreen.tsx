@@ -60,18 +60,15 @@ export default function SplashScreen({ onDone }: SplashScreenProps) {
             Y ECONÓMICA
           </p>
         </div>
-        {/* Motorcycle — show bottom portion of logo image only */}
-        <img
-          src="/logo.png"
-          alt=""
-          style={{
-            width: "100%",
-            height: "clamp(140px, 38vw, 200px)",
-            objectFit: "cover",
-            objectPosition: "bottom center",
-            display: "block",
-          }}
-        />
+        {/* Motorcycle — background-position crops to illustration only */}
+        <div style={{
+          width: "100%",
+          height: "clamp(130px, 36vw, 185px)",
+          backgroundImage: "url('/logo.png')",
+          backgroundSize: "100% auto",
+          backgroundPosition: "center 78%",
+          backgroundRepeat: "no-repeat",
+        }} />
       </div>
 
       <p
