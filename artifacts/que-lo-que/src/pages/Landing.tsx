@@ -99,33 +99,27 @@ export default function Landing() {
       <div className="flex flex-col items-center pt-6 pb-5 px-6">
         <div className="mb-3 rounded-3xl w-full overflow-hidden"
           style={{
-            background: "rgba(0,10,50,0.55)",
             backdropFilter: "blur(12px)",
             WebkitBackdropFilter: "blur(12px)",
             border: "1px solid rgba(255,255,255,0.14)",
             boxShadow: "0 8px 40px rgba(0,0,40,0.6)",
+            position: "relative",
           }}>
-          {/* Brand text — crisp HTML so no letters ever disappear */}
-          <div className="text-center px-6 pt-5 pb-2">
-            <p className="m-0 leading-none font-black text-5xl tracking-tight">
+          {/* Full logo image */}
+          <img src={logo} alt="YaPide" className="w-full block" />
+          {/* HTML text overlay — crisp at any size, covers the faint image text */}
+          <div className="absolute top-0 left-0 right-0 text-center px-5 pt-4 pb-8"
+            style={{ background: "linear-gradient(180deg, rgba(0,8,40,0.92) 0%, rgba(0,8,40,0.85) 55%, transparent 100%)" }}>
+            <p className="m-0 leading-none font-black text-4xl tracking-tight">
               <span style={{ color: "#6be832" }}>Ya</span><span className="text-white">Pide</span>
             </p>
-            <p className="m-0 mt-1.5 font-extrabold text-base tracking-wide text-white">
+            <p className="m-0 mt-1 font-extrabold text-sm tracking-wide text-white">
               ENTREGA <span style={{ color: "#FFD700" }}>RÁPIDA</span>
             </p>
-            <p className="m-0 mt-0.5 font-extrabold text-base tracking-wide text-white">
+            <p className="m-0 mt-0.5 font-extrabold text-sm tracking-wide text-white">
               Y ECONÓMICA
             </p>
           </div>
-          {/* Motorcycle — background-position crops to illustration only */}
-          <div style={{
-            width: "100%",
-            height: 155,
-            backgroundImage: `url('${logo}')`,
-            backgroundSize: "100% auto",
-            backgroundPosition: "center 78%",
-            backgroundRepeat: "no-repeat",
-          }} />
         </div>
         <h1 className="text-3xl font-black text-white text-center leading-tight tracking-tight">
           {t.heroLine1}

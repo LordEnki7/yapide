@@ -39,7 +39,6 @@ export default function SplashScreen({ onDone }: SplashScreenProps) {
       }}
     >
       <div style={{
-        background: "rgba(0, 10, 50, 0.55)",
         borderRadius: "28px",
         width: "clamp(280px, 85vw, 380px)",
         overflow: "hidden",
@@ -47,28 +46,27 @@ export default function SplashScreen({ onDone }: SplashScreenProps) {
         WebkitBackdropFilter: "blur(12px)",
         border: "1px solid rgba(255,255,255,0.14)",
         boxShadow: "0 8px 40px rgba(0,0,40,0.6)",
+        position: "relative",
       }}>
-        {/* Brand text — crisp HTML so no letters ever disappear */}
-        <div style={{ padding: "22px 24px 8px", textAlign: "center" }}>
-          <p style={{ margin: 0, lineHeight: 1, fontSize: "clamp(36px, 10vw, 52px)", fontWeight: 900, letterSpacing: "-1px" }}>
+        {/* Full logo image — motorcycle shows cleanly at the bottom */}
+        <img src="/logo.png" alt="YaPide" style={{ width: "100%", display: "block" }} />
+        {/* HTML text overlaid on top portion — crisp at any size */}
+        <div style={{
+          position: "absolute", top: 0, left: 0, right: 0,
+          background: "linear-gradient(180deg, rgba(0,8,40,0.92) 0%, rgba(0,8,40,0.85) 55%, transparent 100%)",
+          padding: "20px 20px 36px",
+          textAlign: "center",
+        }}>
+          <p style={{ margin: 0, lineHeight: 1, fontSize: "clamp(34px, 9.5vw, 50px)", fontWeight: 900, letterSpacing: "-1px" }}>
             <span style={{ color: "#6be832" }}>Ya</span><span style={{ color: "#ffffff" }}>Pide</span>
           </p>
-          <p style={{ margin: "6px 0 0", fontSize: "clamp(13px, 3.8vw, 18px)", fontWeight: 800, letterSpacing: "0.5px", color: "#fff" }}>
+          <p style={{ margin: "5px 0 0", fontSize: "clamp(12px, 3.5vw, 17px)", fontWeight: 800, color: "#fff", letterSpacing: "0.5px" }}>
             ENTREGA <span style={{ color: "#FFD700" }}>RÁPIDA</span>
           </p>
-          <p style={{ margin: "2px 0 0", fontSize: "clamp(13px, 3.8vw, 18px)", fontWeight: 800, letterSpacing: "0.5px", color: "#fff" }}>
+          <p style={{ margin: "2px 0 0", fontSize: "clamp(12px, 3.5vw, 17px)", fontWeight: 800, color: "#fff", letterSpacing: "0.5px" }}>
             Y ECONÓMICA
           </p>
         </div>
-        {/* Motorcycle — background-position crops to illustration only */}
-        <div style={{
-          width: "100%",
-          height: "clamp(130px, 36vw, 185px)",
-          backgroundImage: "url('/logo.png')",
-          backgroundSize: "100% auto",
-          backgroundPosition: "center 78%",
-          backgroundRepeat: "no-repeat",
-        }} />
       </div>
 
       <p
