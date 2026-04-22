@@ -104,14 +104,14 @@ export default function BusinessProfile() {
         {/* Info Card */}
         <div className="bg-white/5 border border-white/10 rounded-2xl overflow-hidden">
           <div className="flex items-center justify-between px-4 pt-4 pb-2">
-            <h2 className="text-xs font-bold text-gray-400 uppercase tracking-widest">Información</h2>
+            <h2 className="text-xs font-bold text-[#FFD700]/80 uppercase tracking-widest">Información</h2>
             {!editing ? (
               <button onClick={startEdit} className="flex items-center gap-1 text-yellow-400 text-xs font-bold hover:text-yellow-300 transition">
                 <Edit2 size={12} /> Editar
               </button>
             ) : (
               <div className="flex items-center gap-2">
-                <button onClick={() => setEditing(false)} className="text-gray-400 hover:text-white transition">
+                <button onClick={() => setEditing(false)} className="text-white/60 hover:text-white transition">
                   <X size={16} />
                 </button>
                 <button onClick={saveProfile} disabled={saving} className="flex items-center gap-1 text-green-400 text-xs font-bold">
@@ -124,11 +124,11 @@ export default function BusinessProfile() {
             {editing ? (
               <>
                 <div>
-                  <label className="text-xs text-gray-400 mb-1 block">Nombre</label>
+                  <label className="text-xs text-[#FFD700]/70 mb-1 block">Nombre</label>
                   <Input value={name} onChange={e => setName(e.target.value)} className="bg-white/8 border-white/10 text-white focus:border-yellow-400 h-10" placeholder="Tu nombre" />
                 </div>
                 <div>
-                  <label className="text-xs text-gray-400 mb-1 block">Teléfono</label>
+                  <label className="text-xs text-[#FFD700]/70 mb-1 block">Teléfono</label>
                   <Input value={phone} onChange={e => setPhone(e.target.value)} className="bg-white/8 border-white/10 text-white focus:border-yellow-400 h-10" placeholder="809-555-1234" type="tel" />
                 </div>
               </>
@@ -139,7 +139,7 @@ export default function BusinessProfile() {
                     <User size={14} className="text-yellow-400" />
                   </div>
                   <div>
-                    <p className="text-xs text-gray-500">Nombre</p>
+                    <p className="text-xs text-[#FFD700]/70">Nombre</p>
                     <p className="text-sm font-bold">{isLoading ? "—" : displayName}</p>
                   </div>
                 </div>
@@ -148,7 +148,7 @@ export default function BusinessProfile() {
                     <Mail size={14} className="text-yellow-400" />
                   </div>
                   <div>
-                    <p className="text-xs text-gray-500">Correo</p>
+                    <p className="text-xs text-[#FFD700]/70">Correo</p>
                     <p className="text-sm font-bold">{isLoading ? "—" : displayEmail}</p>
                   </div>
                 </div>
@@ -157,7 +157,7 @@ export default function BusinessProfile() {
                     <Phone size={14} className="text-yellow-400" />
                   </div>
                   <div>
-                    <p className="text-xs text-gray-500">Teléfono</p>
+                    <p className="text-xs text-[#FFD700]/70">Teléfono</p>
                     <p className="text-sm font-bold">{isLoading ? "—" : displayPhone}</p>
                   </div>
                 </div>
@@ -183,7 +183,7 @@ export default function BusinessProfile() {
         {!showDeleteAccount ? (
           <button
             onClick={() => setShowDeleteAccount(true)}
-            className="w-full text-xs text-gray-600 hover:text-red-400 transition text-center py-2"
+            className="w-full text-xs text-white/40 hover:text-red-400 transition text-center py-2"
           >
             Eliminar mi cuenta
           </button>
@@ -193,7 +193,7 @@ export default function BusinessProfile() {
               <AlertTriangle size={16} className="text-red-400 flex-shrink-0" />
               <p className="text-sm font-bold text-red-400">¿Eliminar cuenta permanentemente?</p>
             </div>
-            <p className="text-xs text-gray-400">Esta acción no se puede deshacer. Se eliminarán todos tus datos.</p>
+            <p className="text-xs text-white/70">Esta acción no se puede deshacer. Se eliminarán todos tus datos.</p>
             <div className="flex gap-2">
               <Button
                 onClick={handleDeleteAccount}
@@ -205,7 +205,7 @@ export default function BusinessProfile() {
               <Button
                 onClick={() => setShowDeleteAccount(false)}
                 variant="outline"
-                className="flex-1 border-white/20 text-gray-300 font-bold h-10 text-sm"
+                className="flex-1 border-white/20 text-white font-bold h-10 text-sm"
               >
                 Cancelar
               </Button>

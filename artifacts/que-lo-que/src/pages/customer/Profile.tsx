@@ -165,14 +165,14 @@ export default function CustomerProfile() {
         {/* Info Card */}
         <div className="bg-white/8 border border-white/10 rounded-2xl overflow-hidden">
           <div className="flex items-center justify-between px-4 pt-4 pb-2">
-            <h2 className="text-xs font-bold text-gray-400 uppercase tracking-widest">{t.information}</h2>
+            <h2 className="text-xs font-bold text-[#FFD700]/80 uppercase tracking-widest">{t.information}</h2>
             {!editing ? (
               <button onClick={startEdit} className="flex items-center gap-1 text-yellow-400 text-xs font-bold hover:text-yellow-300 transition">
                 <Edit2 size={12} /> {t.edit}
               </button>
             ) : (
               <div className="flex items-center gap-2">
-                <button onClick={cancelEdit} className="text-gray-400 hover:text-white transition">
+                <button onClick={cancelEdit} className="text-white/60 hover:text-white transition">
                   <X size={16} />
                 </button>
                 <button
@@ -190,7 +190,7 @@ export default function CustomerProfile() {
             {editing ? (
               <>
                 <div>
-                  <label className="text-xs text-gray-400 mb-1 block">{t.nameLabel}</label>
+                  <label className="text-xs text-[#FFD700]/70 mb-1 block">{t.nameLabel}</label>
                   <Input
                     value={name}
                     onChange={e => setName(e.target.value)}
@@ -199,7 +199,7 @@ export default function CustomerProfile() {
                   />
                 </div>
                 <div>
-                  <label className="text-xs text-gray-400 mb-1 block">{t.phoneLabel}</label>
+                  <label className="text-xs text-[#FFD700]/70 mb-1 block">{t.phoneLabel}</label>
                   <Input
                     value={phone}
                     onChange={e => setPhone(e.target.value)}
@@ -216,7 +216,7 @@ export default function CustomerProfile() {
                     <User size={14} className="text-yellow-400" />
                   </div>
                   <div>
-                    <p className="text-xs text-gray-500">{t.nameLabel}</p>
+                    <p className="text-xs text-[#FFD700]/70">{t.nameLabel}</p>
                     <p className="text-sm font-bold text-white">{isLoading ? "—" : displayName}</p>
                   </div>
                 </div>
@@ -225,7 +225,7 @@ export default function CustomerProfile() {
                     <Mail size={14} className="text-yellow-400" />
                   </div>
                   <div>
-                    <p className="text-xs text-gray-500">{t.emailLabel}</p>
+                    <p className="text-xs text-[#FFD700]/70">{t.emailLabel}</p>
                     <p className="text-sm font-bold text-white">{isLoading ? "—" : displayEmail}</p>
                   </div>
                 </div>
@@ -234,7 +234,7 @@ export default function CustomerProfile() {
                     <Phone size={14} className="text-yellow-400" />
                   </div>
                   <div>
-                    <p className="text-xs text-gray-500">{t.phoneLabel}</p>
+                    <p className="text-xs text-[#FFD700]/70">{t.phoneLabel}</p>
                     <p className="text-sm font-bold text-white">{isLoading ? "—" : displayPhone}</p>
                   </div>
                 </div>
@@ -248,19 +248,19 @@ export default function CustomerProfile() {
           <Link href="/customer/orders">
             <div className="flex items-center justify-between px-4 py-3 hover:bg-white/5 transition cursor-pointer">
               <span className="text-sm font-bold text-white">📦 {t.myOrders}</span>
-              <span className="text-gray-500 text-xs">→</span>
+              <span className="text-[#FFD700] text-xs">→</span>
             </div>
           </Link>
           <Link href="/customer/points">
             <div className="flex items-center justify-between px-4 py-3 hover:bg-white/5 transition cursor-pointer">
               <span className="text-sm font-bold text-white">⭐ {t.pointsTitle}</span>
-              <span className="text-gray-500 text-xs">→</span>
+              <span className="text-[#FFD700] text-xs">→</span>
             </div>
           </Link>
           <Link href="/customer/support">
             <div className="flex items-center justify-between px-4 py-3 hover:bg-white/5 transition cursor-pointer">
               <span className="text-sm font-bold text-white">🤖 {t.supportLink}</span>
-              <span className="text-gray-500 text-xs">→</span>
+              <span className="text-[#FFD700] text-xs">→</span>
             </div>
           </Link>
         </div>
@@ -270,7 +270,7 @@ export default function CustomerProfile() {
           <div className="bg-white/8 border border-white/10 rounded-2xl overflow-hidden">
             <div className="px-4 pt-4 pb-2 flex items-center gap-2">
               <MapPin size={14} className="text-yellow-400" />
-              <h2 className="text-xs font-bold text-gray-400 uppercase tracking-widest">{t.myAddresses}</h2>
+              <h2 className="text-xs font-bold text-[#FFD700]/80 uppercase tracking-widest">{t.myAddresses}</h2>
             </div>
             <div className="divide-y divide-white/5">
               {addresses.map((addr) => (
@@ -282,7 +282,7 @@ export default function CustomerProfile() {
                         <span className="text-[10px] bg-yellow-400/15 text-yellow-400 border border-yellow-400/30 px-1.5 py-0.5 rounded-full font-bold">{t.defaultBadge}</span>
                       )}
                     </div>
-                    <p className="text-xs text-gray-400 truncate mt-0.5">{addr.address}</p>
+                    <p className="text-xs text-white/70 truncate mt-0.5">{addr.address}</p>
                   </div>
                   <div className="flex items-center gap-1.5 flex-shrink-0">
                     {!addr.isDefault && (
@@ -325,7 +325,7 @@ export default function CustomerProfile() {
         {!showDeleteAccount ? (
           <button
             onClick={() => setShowDeleteAccount(true)}
-            className="w-full text-xs text-gray-600 hover:text-red-400 transition text-center py-2"
+            className="w-full text-xs text-white/40 hover:text-red-400 transition text-center py-2"
           >
             {t.deleteMyAccount}
           </button>
@@ -335,7 +335,7 @@ export default function CustomerProfile() {
               <AlertTriangle size={16} className="text-red-400 flex-shrink-0" />
               <p className="text-sm font-bold text-red-400">{t.deleteAccountConfirm}</p>
             </div>
-            <p className="text-xs text-gray-400">{t.deleteAccountWarning}</p>
+            <p className="text-xs text-white/70">{t.deleteAccountWarning}</p>
             <div className="flex gap-2">
               <Button
                 onClick={handleDeleteAccount}
@@ -347,7 +347,7 @@ export default function CustomerProfile() {
               <Button
                 onClick={() => setShowDeleteAccount(false)}
                 variant="outline"
-                className="flex-1 border-white/20 text-gray-300 font-bold h-10 text-sm"
+                className="flex-1 border-white/20 text-white font-bold h-10 text-sm"
               >
                 {t.cancel}
               </Button>
