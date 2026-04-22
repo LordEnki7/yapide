@@ -45,7 +45,7 @@ export default function BottomNav() {
   else if (!location.startsWith("/customer")) return null;
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-50 bg-background border-t border-yellow-400/20 px-1">
+    <div className="fixed bottom-0 left-0 right-0 z-50 glass-dark border-t border-white/10 px-1">
       <div className="flex items-center justify-around">
         {navItems.map((item) => {
           const Icon = item.icon;
@@ -59,13 +59,16 @@ export default function BottomNav() {
           return (
             <Link key={item.href} href={item.href}>
               <div
-                className={`flex flex-col items-center gap-1 py-3 px-3 transition-all ${
-                  isActive ? "text-yellow-400" : "text-white/60 hover:text-white"
+                className={`flex flex-col items-center gap-1 py-3 px-3 transition-all relative ${
+                  isActive ? "text-yellow-400" : "text-white/55 hover:text-white"
                 }`}
               >
+                {isActive && (
+                  <span className="absolute top-1.5 left-1/2 -translate-x-1/2 w-6 h-0.5 rounded-full bg-yellow-400 shadow-[0_0_8px_rgba(255,215,0,0.9)]" />
+                )}
                 <Icon
                   size={20}
-                  className={isActive ? "drop-shadow-[0_0_6px_rgba(255,215,0,0.8)]" : ""}
+                  className={isActive ? "drop-shadow-[0_0_8px_rgba(255,215,0,0.9)]" : ""}
                 />
                 <span className="text-xs font-bold">{item.label}</span>
               </div>

@@ -16,11 +16,10 @@ const ROLES = [
     labelEn: "I'm a Customer",
     sub: "Pide comida, mandados y más",
     subEn: "Order food, errands & more",
-    bg: "from-yellow-400/20 to-yellow-400/5",
-    border: "border-yellow-400/40",
-    activeBg: "bg-yellow-400/20",
-    glow: "shadow-[0_0_30px_rgba(255,215,0,0.25)]",
+    activeBg: "bg-yellow-400/25",
+    glow: "shadow-[0_0_40px_rgba(255,215,0,0.4)]",
     dot: "bg-yellow-400",
+    activeBorderColor: "rgba(255,215,0,0.6)",
   },
   {
     key: "driver" as const,
@@ -29,11 +28,10 @@ const ROLES = [
     labelEn: "I'm a Driver",
     sub: "Gana dinero haciendo deliveries",
     subEn: "Earn money making deliveries",
-    bg: "from-blue-400/15 to-blue-400/5",
-    border: "border-blue-400/30",
-    activeBg: "bg-blue-400/20",
-    glow: "shadow-[0_0_30px_rgba(59,130,246,0.25)]",
+    activeBg: "bg-blue-400/25",
+    glow: "shadow-[0_0_40px_rgba(96,165,250,0.4)]",
     dot: "bg-blue-400",
+    activeBorderColor: "rgba(96,165,250,0.6)",
   },
   {
     key: "business" as const,
@@ -42,11 +40,10 @@ const ROLES = [
     labelEn: "I'm a Business",
     sub: "Vende y recibe pedidos online",
     subEn: "Sell and receive orders online",
-    bg: "from-green-400/15 to-green-400/5",
-    border: "border-green-400/30",
-    activeBg: "bg-green-400/20",
-    glow: "shadow-[0_0_30px_rgba(34,197,94,0.25)]",
+    activeBg: "bg-green-400/25",
+    glow: "shadow-[0_0_40px_rgba(74,222,128,0.4)]",
     dot: "bg-green-400",
+    activeBorderColor: "rgba(74,222,128,0.6)",
   },
 ];
 
@@ -123,9 +120,9 @@ export default function Landing() {
             <button
               key={role.key}
               onClick={() => handleRoleSelect(role.key)}
-              className={`w-full rounded-2xl border-2 p-4 text-left transition-all duration-150 relative
-                bg-gradient-to-br ${role.bg} ${role.border}
-                ${isActive ? `${role.glow} scale-[0.985] border-opacity-80` : "hover:scale-[0.995] active:scale-[0.98]"}`}
+              className={`w-full rounded-2xl p-4 text-left transition-all duration-150 relative glass
+                ${isActive ? `${role.glow} scale-[0.985] border-[${role.border}]` : "hover:scale-[0.995] active:scale-[0.98] hover:brightness-110"}`}
+              style={isActive ? { borderColor: role.activeBorderColor } : {}}
             >
               <div className="flex items-center gap-3">
                 <div className={`w-12 h-12 rounded-xl flex items-center justify-center text-2xl flex-shrink-0 transition-all
@@ -154,7 +151,7 @@ export default function Landing() {
       <div className="px-5 space-y-3 pb-3">
         <button
           onClick={handleCreateAccount}
-          className="w-full bg-yellow-400 text-black font-black text-lg h-14 rounded-2xl hover:bg-yellow-300 active:scale-[0.98] transition-all shadow-[0_0_25px_rgba(255,215,0,0.3)] flex items-center justify-center gap-2"
+          className="btn-gold w-full text-black font-black text-lg h-14 rounded-2xl active:scale-[0.98] transition-all flex items-center justify-center gap-2"
         >
           <UserPlus size={20} />
           {lang === "es" ? "Crear cuenta gratis" : "Create free account"}
@@ -162,7 +159,7 @@ export default function Landing() {
 
         <button
           onClick={() => navigate("/login")}
-          className="w-full bg-white/8 border border-white/15 text-white font-black text-base h-12 rounded-2xl hover:bg-white/12 active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+          className="w-full glass text-white font-black text-base h-12 rounded-2xl hover:brightness-125 active:scale-[0.98] transition-all flex items-center justify-center gap-2"
         >
           <LogIn size={18} />
           {lang === "es" ? "Ya tengo cuenta — Entrar" : "I have an account — Log in"}
