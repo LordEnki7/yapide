@@ -96,9 +96,9 @@ export default function Landing() {
       </div>
 
       {/* Hero */}
-      <div className="flex flex-col items-center pt-6 pb-5 px-6">
+      <div className="flex flex-col items-center pt-1 pb-3 px-6">
         {/* Unified logo block — text top, motorcycle flush below */}
-        <div className="flex flex-col items-center mb-2" style={{ gap: 0 }}>
+        <div className="flex flex-col items-center mb-1" style={{ gap: 0 }}>
           {/* Brand name */}
           <div className="text-center" style={{ lineHeight: 1 }}>
             <p className="m-0 font-black" style={{
@@ -127,12 +127,12 @@ export default function Landing() {
             }}
           />
         </div>
-        <h1 className="text-3xl font-black text-white text-center leading-tight tracking-tight">
+        <h1 className="text-3xl font-black text-white text-center leading-tight tracking-tight mt-1">
           {t.heroLine1}
           <br />
           <span className="text-yellow-400">{t.heroLine2}</span>
         </h1>
-        <p className="text-[#FFD700]/80 font-medium text-sm mt-2 text-center">
+        <p className="text-[#FFD700]/80 font-medium text-sm mt-1 text-center">
           {lang === "es" ? "¿Cómo vas a usar YaPide?" : "How will you use YaPide?"}
         </p>
       </div>
