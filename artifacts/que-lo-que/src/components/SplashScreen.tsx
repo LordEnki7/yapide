@@ -39,36 +39,24 @@ export default function SplashScreen({ onDone }: SplashScreenProps) {
       }}
     >
       <div style={{
-        borderRadius: "28px",
+        background: "rgba(0, 10, 50, 0.50)",
+        borderRadius: "24px",
         width: "clamp(280px, 85vw, 380px)",
         overflow: "hidden",
         backdropFilter: "blur(12px)",
         WebkitBackdropFilter: "blur(12px)",
-        border: "1px solid rgba(255,255,255,0.14)",
-        boxShadow: "0 8px 40px rgba(0,0,40,0.6)",
-        position: "relative",
+        border: "1px solid rgba(255,255,255,0.12)",
+        boxShadow: "0 8px 40px rgba(0,0,40,0.5)",
       }}>
-        {/* Full logo image — motorcycle shows cleanly at the bottom */}
-        <img src="/logo.png" alt="YaPide" style={{ width: "100%", display: "block" }} />
-        {/* Solid overlay covers full PNG text area, fades out before motorcycle */}
-        <div style={{
-          position: "absolute", top: 0, left: 0, right: 0,
-          height: "66%",
-          background: "linear-gradient(180deg, #000c32 0%, #000c32 80%, rgba(0,12,50,0) 100%)",
-          display: "flex", flexDirection: "column", justifyContent: "flex-start",
-          padding: "20px 20px 0",
-          textAlign: "center",
-        }}>
-          <p style={{ margin: 0, lineHeight: 1, fontSize: "clamp(34px, 9.5vw, 50px)", fontWeight: 900, letterSpacing: "-1px" }}>
-            <span style={{ color: "#6be832" }}>Ya</span><span style={{ color: "#ffffff" }}>Pide</span>
-          </p>
-          <p style={{ margin: "5px 0 0", fontSize: "clamp(12px, 3.5vw, 17px)", fontWeight: 800, color: "#fff", letterSpacing: "0.5px" }}>
-            ENTREGA <span style={{ color: "#FFD700" }}>RÁPIDA</span>
-          </p>
-          <p style={{ margin: "2px 0 0", fontSize: "clamp(12px, 3.5vw, 17px)", fontWeight: 800, color: "#fff", letterSpacing: "0.5px" }}>
-            Y ECONÓMICA
-          </p>
-        </div>
+        <img
+          src="/logo.png"
+          alt="YaPide"
+          style={{
+            width: "100%",
+            objectFit: "contain",
+            display: "block",
+          }}
+        />
       </div>
 
       <p

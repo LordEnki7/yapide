@@ -99,27 +99,17 @@ export default function Landing() {
       <div className="flex flex-col items-center pt-6 pb-5 px-6">
         <div className="mb-3 rounded-3xl w-full overflow-hidden"
           style={{
+            background: "rgba(0,10,50,0.50)",
             backdropFilter: "blur(12px)",
             WebkitBackdropFilter: "blur(12px)",
-            border: "1px solid rgba(255,255,255,0.14)",
-            boxShadow: "0 8px 40px rgba(0,0,40,0.6)",
-            position: "relative",
+            border: "1px solid rgba(255,255,255,0.12)",
+            boxShadow: "0 8px 40px rgba(0,0,40,0.5)",
           }}>
-          {/* Full logo image */}
-          <img src={logo} alt="YaPide" className="w-full block" />
-          {/* Solid overlay covers full PNG text area, fades before motorcycle */}
-          <div className="absolute top-0 left-0 right-0 px-5 pt-4 text-center flex flex-col justify-start"
-            style={{ height: "66%", background: "linear-gradient(180deg, #000c32 0%, #000c32 80%, rgba(0,12,50,0) 100%)" }}>
-            <p className="m-0 leading-none font-black text-4xl tracking-tight">
-              <span style={{ color: "#6be832" }}>Ya</span><span className="text-white">Pide</span>
-            </p>
-            <p className="m-0 mt-1 font-extrabold text-sm tracking-wide text-white">
-              ENTREGA <span style={{ color: "#FFD700" }}>RÁPIDA</span>
-            </p>
-            <p className="m-0 mt-0.5 font-extrabold text-sm tracking-wide text-white">
-              Y ECONÓMICA
-            </p>
-          </div>
+          <img
+            src={logo}
+            alt="YaPide"
+            className="w-full object-contain block"
+          />
         </div>
         <h1 className="text-3xl font-black text-white text-center leading-tight tracking-tight">
           {t.heroLine1}
