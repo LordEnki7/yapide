@@ -204,11 +204,13 @@ export default function Register() {
             </div>
 
             <div className="bg-green-500/10 border border-green-500/30 rounded-2xl p-5 text-center mb-5">
-              <p className="text-sm text-white/70 mb-2">Tu código de verificación:</p>
-              {otpCode && (
-                <p className="text-4xl font-black tracking-[0.35em] text-yellow-400 mb-1">{otpCode}</p>
+              <p className="text-sm text-white/70 mb-2">Código enviado por WhatsApp</p>
+              {import.meta.env.DEV && (
+                <p className="text-xs text-yellow-400/70 font-mono mt-1">
+                  🛠 Desarrollo: revisa la consola del servidor
+                </p>
               )}
-              <p className="text-xs text-white/40 mt-2">Ingresa este código abajo. Válido 10 minutos.</p>
+              <p className="text-xs text-white/40 mt-2">Ingresa el código que recibiste. Válido 10 minutos.</p>
             </div>
 
             <div className="space-y-4">

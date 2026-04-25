@@ -162,10 +162,14 @@ router.post("/auth/phone-register", async (req, res): Promise<void> => {
 
   (req.session as any).userId = user.id;
 
+  // TODO: send OTP via Twilio WhatsApp when TWILIO_* secrets are configured
+  if (process.env.NODE_ENV !== "production") {
+    console.log(`[DEV] OTP for ${digits}: ${otp}`);
+  }
+
   res.status(201).json({
     user: formatUser(user),
     token: `session-${user.id}`,
-    otpCode: otp,
   });
 });
 
@@ -277,7 +281,11 @@ router.post("/auth/resend-otp", async (req, res): Promise<void> => {
     .set({ otpCode: otp, otpExpiresAt: otpExpiry })
     .where(eq(usersTable.id, sessionUserId));
 
-  res.json({ otpCode: otp });
+  // TODO: send OTP via Twilio WhatsApp when TWILIO_* secrets are configured
+  if (process.env.NODE_ENV !== "production") {
+    console.log(`[DEV] Resend OTP for user ${sessionUserId}: ${otp}`);
+  }
+  res.json({ message: "OTP enviado" });
 });
 
 // ─── Forgot PIN (send reset code) ────────────────────────────────────────────
@@ -306,7 +314,11 @@ router.post("/auth/forgot-pin", async (req, res): Promise<void> => {
     .set({ otpCode: otp, otpExpiresAt: otpExpiry })
     .where(eq(usersTable.id, user.id));
 
-  res.json({ otpCode: otp, userId: user.id });
+  // TODO: send OTP via Twilio WhatsApp when TWILIO_* secrets are configured
+  if (process.env.NODE_ENV !== "production") {
+    console.log(`[DEV] Forgot-PIN OTP for +${digits}: ${otp}`);
+  }
+  res.json({ userId: user.id });
 });
 
 // ─── Reset PIN ───────────────────────────────────────────────────────────────
