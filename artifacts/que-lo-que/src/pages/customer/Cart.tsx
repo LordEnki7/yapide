@@ -19,7 +19,28 @@ import { requestGPS } from "@/lib/gps";
 const StripePaymentSheet = lazy(() => import("@/components/StripePaymentSheet"));
 
 const MARKUP = 0.15;
-const DELIVERY_FEE = 150;
+const MIN_DELIVERY_FEE = 100;
+const MAX_DELIVERY_FEE = 190;
+
+// Haversine distance between two lat/lng points (km)
+function haversineKm(lat1: number, lon1: number, lat2: number, lon2: number): number {
+  const R = 6371;
+  const toRad = (v: number) => (v * Math.PI) / 180;
+  const dLat = toRad(lat2 - lat1);
+  const dLon = toRad(lon2 - lon1);
+  const a =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon / 2) ** 2;
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+}
+
+// Fee tiers: 0-2 km → RD$100, 2-5 km → RD$130, 5-8 km → RD$160, 8+ km → RD$190
+function calcDeliveryFee(km: number): number {
+  if (km <= 2) return 100;
+  if (km <= 5) return 130;
+  if (km <= 8) return 160;
+  return MAX_DELIVERY_FEE;
+}
 
 type CashCurrency = "DOP" | "USD" | "EUR";
 
@@ -117,6 +138,11 @@ export default function CustomerCart() {
   const { t } = useLang();
   const user = getStoredUser();
 
+  const [deliveryFee, setDeliveryFee] = useState(MIN_DELIVERY_FEE);
+  const [distanceKm, setDistanceKm] = useState<number | null>(null);
+  const [feeLoading, setFeeLoading] = useState(false);
+
+  const [showTipModal, setShowTipModal] = useState(false);
   const [showStripeSheet, setShowStripeSheet] = useState(false);
   const [showCutleryModal, setShowCutleryModal] = useState(false);
   const [showChangeModal, setShowChangeModal] = useState(false);
@@ -129,9 +155,10 @@ export default function CustomerCart() {
   const [promoError, setPromoError] = useState("");
 
   const markedUpTotal = parseFloat((totalAmount * (1 + MARKUP)).toFixed(2));
-  const activeTip = showCustomTip && customTip ? parseFloat(customTip) || 0 : tip;
+  const rawCustomTip = showCustomTip && customTip ? parseFloat(customTip) || 0 : 0;
+  const activeTip = showCustomTip ? Math.min(rawCustomTip, 150) : tip;
   const promoDiscount = appliedPromo?.discountAmount ?? 0;
-  const grandTotal = Math.max(markedUpTotal + DELIVERY_FEE + activeTip - promoDiscount, 0);
+  const grandTotal = Math.max(markedUpTotal + deliveryFee + activeTip - promoDiscount, 0);
 
   useEffect(() => {
     if (!user) return;
@@ -202,7 +229,7 @@ export default function CustomerCart() {
       const res = await fetch("/api/promo-codes/validate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ code: promoInput.trim(), orderTotal: markedUpTotal + DELIVERY_FEE }),
+        body: JSON.stringify({ code: promoInput.trim(), orderTotal: markedUpTotal + deliveryFee }),
       });
       const data = await res.json();
       if (!res.ok) {
@@ -251,11 +278,60 @@ export default function CustomerCart() {
     setShowCutleryModal(false);
   };
 
+  // Geocode address text → {lat, lng} using Nominatim
+  const geocodeAddress = async (addressText: string): Promise<{ lat: number; lng: number } | null> => {
+    try {
+      const q = encodeURIComponent(`${addressText}, Dominican Republic`);
+      const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&limit=1&q=${q}`);
+      const data = await res.json();
+      if (data?.[0]) return { lat: parseFloat(data[0].lat), lng: parseFloat(data[0].lon) };
+    } catch { }
+    return null;
+  };
+
+  // Calculate dynamic delivery fee when user finishes entering address (step 3 → 4)
+  const calculateFee = async (deliveryAddr: string) => {
+    if (!businessId) return;
+    setFeeLoading(true);
+    try {
+      // Fetch business location
+      const bizRes = await fetch(`/api/businesses/${businessId}`, { credentials: "include" });
+      const biz = bizRes.ok ? await bizRes.json() : null;
+      const bizLat = biz?.lat ? parseFloat(biz.lat) : null;
+      const bizLng = biz?.lng ? parseFloat(biz.lng) : null;
+
+      // Geocode delivery address
+      const dest = await geocodeAddress(deliveryAddr);
+
+      if (bizLat && bizLng && dest) {
+        const km = haversineKm(bizLat, bizLng, dest.lat, dest.lng);
+        const fee = calcDeliveryFee(km);
+        setDistanceKm(Math.round(km * 10) / 10);
+        setDeliveryFee(fee);
+      } else {
+        // Fallback: keep base fee if geocoding fails
+        setDistanceKm(null);
+        setDeliveryFee(MIN_DELIVERY_FEE);
+      }
+    } catch {
+      setDeliveryFee(MIN_DELIVERY_FEE);
+    } finally {
+      setFeeLoading(false);
+    }
+  };
+
   const handleOrder = () => {
     if (!address.trim()) {
       toast({ title: t.missingAddress, description: t.addressRequired, variant: "destructive" });
       return;
     }
+    // Show tip prompt first (always, before any payment)
+    setShowTipModal(true);
+  };
+
+  // Called after tip is confirmed
+  const proceedToPayment = () => {
+    setShowTipModal(false);
     if (paymentMethod === "card") {
       setShowStripeSheet(true);
       return;
@@ -401,8 +477,16 @@ export default function CustomerCart() {
                 <span>{formatDOP(markedUpTotal)}</span>
               </div>
               <div className="flex justify-between text-sm text-white/70">
-                <span>{t.delivery}</span>
-                <span>{formatDOP(DELIVERY_FEE)}</span>
+                <span className="flex items-center gap-1.5">
+                  {t.delivery}
+                  {feeLoading && <Loader2 size={11} className="animate-spin text-yellow-400/60" />}
+                  {!feeLoading && distanceKm !== null && (
+                    <span className="text-[10px] text-yellow-400/60 font-bold">~{distanceKm} km</span>
+                  )}
+                </span>
+                <span className={feeLoading ? "text-white/30" : deliveryFee > MIN_DELIVERY_FEE ? "text-orange-400 font-bold" : ""}>
+                  {formatDOP(deliveryFee)}
+                </span>
               </div>
               <div className="border-t border-white/10 pt-2 flex justify-between font-black text-lg">
                 <span>{t.total}</span>
@@ -639,12 +723,12 @@ export default function CustomerCart() {
               </div>
             )}
 
-            {/* Tip */}
+            {/* Tip — quick selector (also shown in the tip modal before payment) */}
             <div className="rounded-2xl p-4 border border-yellow-400/20 bg-yellow-400/5">
-              <p className="font-black text-white text-sm mb-1 text-center">¿Propina al driver?</p>
-              <p className="text-xs text-white/50 text-center mb-3">Opcional · 100% va al repartidor</p>
+              <p className="font-black text-white text-sm mb-1 text-center">🤝 ¿Propina al driver?</p>
+              <p className="text-xs text-white/50 text-center mb-3">Opcional · 100% va al repartidor · máx RD$150</p>
               <div className="flex flex-wrap gap-2 justify-center">
-                {[0, 50, 100, 200].map(p => (
+                {[0, 20, 30, 50, 100].map(p => (
                   <button
                     key={p}
                     onClick={() => { setTip(p); setShowCustomTip(false); setCustomTip(""); }}
@@ -657,19 +741,27 @@ export default function CustomerCart() {
                   onClick={() => { setShowCustomTip(!showCustomTip); setTip(0); }}
                   className={`px-4 py-2 rounded-full text-sm font-black border transition ${showCustomTip ? "bg-yellow-400 text-black border-yellow-400" : "border-white/20 bg-white/5 text-gray-300 hover:border-yellow-400/40"}`}
                 >
-                  Otra cantidad
+                  Otra
                 </button>
               </div>
               {showCustomTip && (
-                <div className="mt-3 flex items-center gap-2 max-w-xs mx-auto">
-                  <span className="text-white/70 text-sm font-bold">RD$</span>
-                  <Input
-                    type="number"
-                    placeholder="0"
-                    value={customTip}
-                    onChange={(e) => setCustomTip(e.target.value)}
-                    className="bg-white/8 border-white/10 text-white placeholder:text-gray-500 focus:border-yellow-400 h-9 text-center font-black"
-                  />
+                <div className="mt-3 space-y-1">
+                  <div className="flex items-center gap-2 max-w-xs mx-auto">
+                    <span className="text-white/70 text-sm font-bold">RD$</span>
+                    <Input
+                      type="number"
+                      placeholder="0"
+                      min={0}
+                      max={150}
+                      value={customTip}
+                      onChange={(e) => {
+                        const v = e.target.value;
+                        if (!v || parseFloat(v) <= 150) setCustomTip(v);
+                      }}
+                      className="bg-white/8 border-white/10 text-white placeholder:text-gray-500 focus:border-yellow-400 h-9 text-center font-black"
+                    />
+                  </div>
+                  <p className="text-[10px] text-center text-white/30">Máximo RD$150</p>
                 </div>
               )}
             </div>
@@ -721,8 +813,16 @@ export default function CustomerCart() {
                 <span>{formatDOP(markedUpTotal)}</span>
               </div>
               <div className="flex justify-between text-sm text-white/70">
-                <span>{t.delivery}</span>
-                <span>{formatDOP(DELIVERY_FEE)}</span>
+                <span className="flex items-center gap-1.5">
+                  {t.delivery}
+                  {feeLoading && <Loader2 size={11} className="animate-spin text-yellow-400/60" />}
+                  {!feeLoading && distanceKm !== null && (
+                    <span className="text-[10px] text-yellow-400/60 font-bold">~{distanceKm} km</span>
+                  )}
+                </span>
+                <span className={feeLoading ? "text-white/30" : deliveryFee > MIN_DELIVERY_FEE ? "text-orange-400 font-bold" : ""}>
+                  {formatDOP(deliveryFee)}
+                </span>
               </div>
               {activeTip > 0 && (
                 <div className="flex justify-between text-sm text-white/70">
@@ -887,7 +987,7 @@ export default function CustomerCart() {
         {step < 4 ? (
           <Button
             className="w-full bg-yellow-400 text-black font-black text-lg h-14 hover:bg-yellow-300 shadow-[0_0_30px_rgba(255,215,0,0.25)] flex items-center justify-between px-6 disabled:opacity-50"
-            onClick={() => {
+            onClick={async () => {
               if (step === 3 && !address.trim()) {
                 toast({ title: t.missingAddress, description: t.addressRequired, variant: "destructive" });
                 return;
@@ -895,6 +995,10 @@ export default function CustomerCart() {
               if (step === 3 && isLaundry && !pickupAddress.trim()) {
                 toast({ title: "Dirección de recogida requerida", description: "Indica dónde recoger tu ropa", variant: "destructive" });
                 return;
+              }
+              if (step === 3) {
+                // Calculate distance-based delivery fee in background
+                calculateFee(address);
               }
               setStep((step + 1) as Step);
             }}
@@ -922,6 +1026,77 @@ export default function CustomerCart() {
           </Button>
         )}
       </div>
+
+      {/* ── Tip Modal (shown before payment) ── */}
+      {showTipModal && (
+        <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/70 backdrop-blur-sm">
+          <div className="w-full max-w-md bg-[#0d1c3d] rounded-t-3xl border-t border-yellow-400/20 p-6 pb-10 shadow-2xl">
+            {/* Header */}
+            <div className="text-center mb-5">
+              <p className="text-4xl mb-2">🤝</p>
+              <h2 className="text-xl font-black text-white">¿Propina al driver?</h2>
+              <p className="text-sm text-white/50 mt-1">100% va directo al repartidor · máx RD$150</p>
+            </div>
+
+            {/* Tip quick picks */}
+            <div className="grid grid-cols-4 gap-2 mb-4">
+              {[20, 30, 50, 100].map(p => (
+                <button
+                  key={p}
+                  onClick={() => { setTip(p); setShowCustomTip(false); setCustomTip(""); }}
+                  className={`flex flex-col items-center justify-center py-4 rounded-2xl border-2 font-black transition ${!showCustomTip && tip === p ? "border-yellow-400 bg-yellow-400/15 text-yellow-400 shadow-[0_0_16px_rgba(255,215,0,0.2)]" : "border-white/15 bg-white/5 text-white/70 hover:border-yellow-400/40"}`}
+                >
+                  <span className="text-base">RD${p}</span>
+                </button>
+              ))}
+            </div>
+
+            {/* Custom amount */}
+            <div className="mb-4">
+              <button
+                onClick={() => { setShowCustomTip(!showCustomTip); if (!showCustomTip) setTip(0); }}
+                className={`w-full py-3 rounded-2xl border-2 text-sm font-bold transition ${showCustomTip ? "border-yellow-400 bg-yellow-400/10 text-yellow-400" : "border-white/15 bg-white/5 text-white/50 hover:border-white/30"}`}
+              >
+                {showCustomTip ? "Cantidad personalizada" : "+ Otra cantidad (máx RD$150)"}
+              </button>
+              {showCustomTip && (
+                <div className="mt-3 flex items-center gap-3 px-2">
+                  <span className="text-white/60 font-bold text-sm flex-shrink-0">RD$</span>
+                  <Input
+                    type="number"
+                    placeholder="0"
+                    min={0}
+                    max={150}
+                    autoFocus
+                    value={customTip}
+                    onChange={e => {
+                      const v = e.target.value;
+                      if (!v || parseFloat(v) <= 150) setCustomTip(v);
+                    }}
+                    className="bg-white/8 border-white/10 text-white placeholder:text-gray-500 focus:border-yellow-400 h-10 text-center font-black text-lg"
+                  />
+                </div>
+              )}
+            </div>
+
+            {/* Actions */}
+            <div className="space-y-2">
+              <button
+                onClick={proceedToPayment}
+                className="w-full h-14 rounded-2xl font-black text-lg bg-[#FFD700] text-black flex items-center justify-center gap-2 active:scale-[0.98] transition-all"
+              >
+                {activeTip > 0 ? `Añadir propina ${formatDOP(activeTip)} →` : "Continuar sin propina →"}
+              </button>
+              <button
+                onClick={() => { setTip(0); setShowCustomTip(false); setCustomTip(""); setShowTipModal(false); }}
+                className="w-full h-11 rounded-2xl font-bold text-sm text-white/40 hover:text-white transition"
+              >
+                Cancelar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* ── Stripe Payment Sheet ── */}
       {showStripeSheet && (
