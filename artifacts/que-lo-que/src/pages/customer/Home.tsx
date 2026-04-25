@@ -111,7 +111,15 @@ export default function CustomerHome() {
       query: {
         enabled: !!selectedCategory || !!search,
         queryKey: getListBusinessesQueryKey({ category: (selectedCategory ?? "all") as any, search: search || undefined }),
-        select: (data: any[]) => data.filter((b: any) => !b.city || b.city === city || city === "all"),
+        select: (data: any[]) => {
+          const filtered = data.filter((b: any) => !b.city || b.city === city || city === "all");
+          // Open businesses first, closed sink to bottom
+          return [...filtered].sort((a, b) => {
+            const aOpen = a.isOpen !== false ? 1 : 0;
+            const bOpen = b.isOpen !== false ? 1 : 0;
+            return bOpen - aOpen;
+          });
+        },
       }
     }
   );
@@ -280,63 +288,75 @@ export default function CustomerHome() {
               </div>
             ) : (
               <div className="space-y-3">
-                {businesses?.map((biz) => (
-                  <Link key={biz.id} href={`/customer/business/${biz.id}`}>
-                    <div
-                      data-testid={`business-card-${biz.id}`}
-                      className="flex gap-4 bg-white/5 border border-white/10 rounded-2xl p-3 hover:border-yellow-400/30 hover:bg-white/8 transition-all cursor-pointer active:scale-[0.99]"
-                    >
-                      {/* Logo */}
-                      <div className="w-20 h-20 rounded-xl overflow-hidden bg-yellow-400/10 flex-shrink-0 flex items-center justify-center">
-                        {biz.imageUrl ? (
-                          <img
-                            src={biz.imageUrl}
-                            alt={biz.name}
-                            className={`w-full h-full object-cover ${biz.isOpen === false ? "grayscale opacity-50" : ""}`}
-                          />
-                        ) : (
-                          <span className="text-3xl">🍽️</span>
+                {businesses?.map((biz) => {
+                  const isClosed = biz.isOpen === false;
+                  return (
+                    <Link key={biz.id} href={`/customer/business/${biz.id}`}>
+                      <div
+                        data-testid={`business-card-${biz.id}`}
+                        className={`relative flex gap-4 rounded-2xl p-3 transition-all cursor-pointer active:scale-[0.99] overflow-hidden border ${
+                          isClosed
+                            ? "bg-black/40 border-white/6 opacity-70"
+                            : "bg-white/5 border-white/10 hover:border-yellow-400/30 hover:bg-white/8"
+                        }`}
+                      >
+                        {/* Dark tint overlay for closed */}
+                        {isClosed && (
+                          <div className="absolute inset-0 bg-black/30 rounded-2xl pointer-events-none z-10" />
                         )}
-                      </div>
 
-                      {/* Info */}
-                      <div className="flex-1 min-w-0 py-0.5">
-                        <div className="flex items-start justify-between gap-2">
-                          <h3 className="font-black text-white text-base leading-tight line-clamp-1">{biz.name}</h3>
-                          <div className="flex items-center gap-2 flex-shrink-0">
-                            <div className="flex items-center gap-1 bg-yellow-400/15 border border-yellow-400/30 px-2 py-0.5 rounded-lg">
-                              <Star size={10} className="text-yellow-400" fill="currentColor" />
-                              <span className="text-xs font-black text-yellow-400">{biz.rating?.toFixed(1)}</span>
-                            </div>
-                            <button
-                              onClick={e => toggleFavorite(e, biz.id)}
-                              className="w-7 h-7 rounded-full flex items-center justify-center hover:bg-red-400/10 transition"
-                            >
-                              <Heart
-                                size={16}
-                                className={favoriteIds.has(biz.id) ? "text-red-400 fill-red-400" : "text-white/30"}
-                              />
-                            </button>
-                          </div>
-                        </div>
-                        {biz.description && (
-                          <p className="text-white/60 text-xs mt-1 line-clamp-1">{biz.description}</p>
-                        )}
-                        <div className="flex items-center gap-3 mt-2">
-                          <div className="flex items-center gap-1 text-white/60">
-                            <Clock size={11} />
-                            <span className="text-xs">{biz.deliveryTime ?? 30}–{(biz.deliveryTime ?? 30) + 15} min</span>
-                          </div>
-                          {biz.isOpen === false ? (
-                            <span className="text-[10px] font-black text-red-400 bg-red-400/10 px-2 py-0.5 rounded-full">CERRADO</span>
+                        {/* Logo */}
+                        <div className="w-20 h-20 rounded-xl overflow-hidden bg-yellow-400/10 flex-shrink-0 flex items-center justify-center">
+                          {biz.imageUrl ? (
+                            <img
+                              src={biz.imageUrl}
+                              alt={biz.name}
+                              className={`w-full h-full object-cover ${isClosed ? "grayscale" : ""}`}
+                            />
                           ) : (
-                            <span className="text-[10px] font-black text-green-400 bg-green-400/10 px-2 py-0.5 rounded-full">ABIERTO</span>
+                            <span className={`text-3xl ${isClosed ? "grayscale opacity-50" : ""}`}>🍽️</span>
                           )}
                         </div>
+
+                        {/* Info */}
+                        <div className="flex-1 min-w-0 py-0.5 relative z-20">
+                          <div className="flex items-start justify-between gap-2">
+                            <h3 className={`font-black text-base leading-tight line-clamp-1 ${isClosed ? "text-white/50" : "text-white"}`}>{biz.name}</h3>
+                            <div className="flex items-center gap-2 flex-shrink-0">
+                              <div className="flex items-center gap-1 bg-yellow-400/15 border border-yellow-400/30 px-2 py-0.5 rounded-lg">
+                                <Star size={10} className="text-yellow-400" fill="currentColor" />
+                                <span className="text-xs font-black text-yellow-400">{biz.rating?.toFixed(1)}</span>
+                              </div>
+                              <button
+                                onClick={e => toggleFavorite(e, biz.id)}
+                                className="w-7 h-7 rounded-full flex items-center justify-center hover:bg-red-400/10 transition"
+                              >
+                                <Heart
+                                  size={16}
+                                  className={favoriteIds.has(biz.id) ? "text-red-400 fill-red-400" : "text-white/30"}
+                                />
+                              </button>
+                            </div>
+                          </div>
+                          {biz.description && (
+                            <p className={`text-xs mt-1 line-clamp-1 ${isClosed ? "text-white/30" : "text-white/60"}`}>{biz.description}</p>
+                          )}
+                          <div className="flex items-center gap-3 mt-2">
+                            <div className={`flex items-center gap-1 ${isClosed ? "text-white/30" : "text-white/60"}`}>
+                              <Clock size={11} />
+                              <span className="text-xs">{biz.deliveryTime ?? 30}–{(biz.deliveryTime ?? 30) + 15} min</span>
+                            </div>
+                            {isClosed ? (
+                              <span className="text-[10px] font-black text-white/50 bg-white/8 border border-white/10 px-2 py-0.5 rounded-full">🔒 CERRADO</span>
+                            ) : (
+                              <span className="text-[10px] font-black text-green-400 bg-green-400/10 px-2 py-0.5 rounded-full">ABIERTO</span>
+                            )}
+                          </div>
+                        </div>
                       </div>
-                    </div>
-                  </Link>
-                ))}
+                    </Link>
+                  );
+                })}
               </div>
             )}
           </div>

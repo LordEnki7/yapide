@@ -7,6 +7,7 @@ import { useLang } from "@/lib/lang";
 import LangToggle from "@/components/LangToggle";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useToast } from "@/hooks/use-toast";
 import { ArrowLeft, Star, ShoppingCart, Plus, Minus, X, ShoppingBag, Scale, Package, Check } from "lucide-react";
 
 const MARKUP = 0.15;
@@ -24,6 +25,15 @@ export default function BusinessStore() {
   const categoryRefs = useRef<Record<string, HTMLDivElement | null>>({});
   const { addItem, removeItem, updateQuantity, items, totalAmount } = useCart();
   const { t } = useLang();
+  const { toast } = useToast();
+
+  const guardClosed = () => {
+    if (business?.isOpen === false) {
+      toast({ title: "🍳 La cocina está cerrada", description: "Este negocio no está tomando pedidos ahora mismo.", variant: "destructive" });
+      return true;
+    }
+    return false;
+  };
 
   const { data: business, isLoading: bizLoading } = useGetBusiness(
     businessId,
@@ -44,6 +54,7 @@ export default function BusinessStore() {
   const libraProducts = useMemo(() => (products ?? []).filter(p => p.category === "Por Libra" && p.isAvailable), [products]);
 
   const handleAddLibras = () => {
+    if (guardClosed()) return;
     if (!selectedService) return;
     addItem({ ...selectedService, businessId: businessId } as any, libras, business?.category ?? undefined);
     setSelectedService(null);
@@ -56,6 +67,7 @@ export default function BusinessStore() {
   const getCartItem = (productId: number) => items.find(i => i.productId === productId);
 
   const handleAdd = (product: any) => {
+    if (guardClosed()) return;
     const existing = getCartItem(product.id);
     if (existing) {
       updateQuantity(product.id, existing.quantity + 1);
@@ -96,6 +108,7 @@ export default function BusinessStore() {
   };
 
   const openSheet = (product: any) => {
+    if (guardClosed()) return;
     setSelectedProduct(product);
     setSheetQty(getCartItem(product.id)?.quantity || 1);
   };
@@ -103,6 +116,7 @@ export default function BusinessStore() {
   const closeSheet = () => setSelectedProduct(null);
 
   const handleAddFromSheet = () => {
+    if (guardClosed()) return;
     if (!selectedProduct) return;
     const existing = getCartItem(selectedProduct.id);
     if (existing) {
@@ -171,13 +185,16 @@ export default function BusinessStore() {
         </div>
       </div>
 
-      {/* Closed banner */}
+      {/* Kitchen closed banner */}
       {business?.isOpen === false && (
-        <div className="mx-4 mt-3 flex items-center gap-3 bg-gray-800/80 border border-white/20 rounded-2xl p-3">
-          <span className="text-xl">🔒</span>
-          <div>
-            <p className="font-black text-white text-sm">Cerrado ahora</p>
-            <p className="text-white/60 text-xs">Puedes ver el menú pero no hacer pedidos</p>
+        <div className="mx-4 mt-3">
+          <div className="flex items-center gap-3 bg-black/60 border border-white/15 rounded-2xl p-4 backdrop-blur-sm">
+            <div className="w-10 h-10 rounded-xl bg-white/8 flex items-center justify-center flex-shrink-0 text-xl">🍳</div>
+            <div className="flex-1 min-w-0">
+              <p className="font-black text-white text-sm leading-tight">La cocina está cerrada</p>
+              <p className="text-white/50 text-xs mt-0.5">Puedes explorar el menú, pero los pedidos no están disponibles en este momento.</p>
+            </div>
+            <span className="text-[10px] font-black text-white/40 bg-white/8 border border-white/10 px-2 py-1 rounded-lg flex-shrink-0">CERRADO</span>
           </div>
         </div>
       )}
@@ -248,7 +265,7 @@ export default function BusinessStore() {
                       <div className="flex items-center gap-2">
                         <button
                           onClick={() => handleRemove(product.id)}
-                          disabled={business?.isOpen === false}
+                          /* closed guard handled by handler */
                           className="w-9 h-9 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition disabled:opacity-30"
                         >
                           <Minus size={14} />
@@ -256,7 +273,7 @@ export default function BusinessStore() {
                         <span className="text-sm font-black text-yellow-400 w-5 text-center">{cartItem.quantity}</span>
                         <button
                           onClick={() => handleAdd(product)}
-                          disabled={business?.isOpen === false}
+                          /* closed guard handled by handler */
                           className="w-9 h-9 rounded-full bg-yellow-400 flex items-center justify-center hover:bg-yellow-300 transition shadow-[0_0_10px_rgba(255,215,0,0.4)] disabled:opacity-30"
                         >
                           <Plus size={14} className="text-black" />
@@ -265,7 +282,7 @@ export default function BusinessStore() {
                     ) : (
                       <button
                         onClick={() => handleAdd(product)}
-                        disabled={business?.isOpen === false}
+                        /* closed guard handled by handler */
                         className="w-10 h-10 rounded-full bg-yellow-400 flex items-center justify-center hover:bg-yellow-300 transition shadow-[0_0_14px_rgba(255,215,0,0.4)] disabled:opacity-30"
                       >
                         <Plus size={18} className="text-black" />
@@ -372,7 +389,7 @@ export default function BusinessStore() {
 
               <Button
                 onClick={handleAddLibras}
-                disabled={business?.isOpen === false}
+                /* closed guard handled by handler */
                 className="w-full bg-yellow-400 text-black font-black h-13 hover:bg-yellow-300 shadow-[0_0_24px_rgba(255,215,0,0.3)] gap-2 text-base disabled:opacity-40"
               >
                 <ShoppingBag size={18} />
@@ -467,7 +484,7 @@ export default function BusinessStore() {
                               <div className="flex items-center gap-1.5">
                                 <button
                                   onClick={() => handleRemove(product.id)}
-                                  disabled={business?.isOpen === false}
+                                  /* closed guard handled by handler */
                                   className="w-7 h-7 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition disabled:opacity-30"
                                 >
                                   <Minus size={12} className="text-white" />
@@ -477,7 +494,7 @@ export default function BusinessStore() {
                                 </span>
                                 <button
                                   onClick={() => handleAdd(product)}
-                                  disabled={business?.isOpen === false}
+                                  /* closed guard handled by handler */
                                   className="w-7 h-7 rounded-full bg-yellow-400 flex items-center justify-center hover:bg-yellow-300 transition shadow-[0_0_10px_rgba(255,215,0,0.4)] disabled:opacity-30"
                                 >
                                   <Plus size={12} className="text-black" />
@@ -486,7 +503,7 @@ export default function BusinessStore() {
                             ) : (
                               <button
                                 onClick={() => handleAdd(product)}
-                                disabled={business?.isOpen === false}
+                                /* closed guard handled by handler */
                                 className="w-8 h-8 rounded-full bg-yellow-400 flex items-center justify-center hover:bg-yellow-300 transition shadow-[0_0_12px_rgba(255,215,0,0.4)] disabled:opacity-30"
                               >
                                 <Plus size={16} className="text-black" />
@@ -505,8 +522,18 @@ export default function BusinessStore() {
       </div>
       </>}
 
-      {/* Sticky View Order button */}
-      {cartCount > 0 && (
+      {/* Sticky bottom — closed state OR cart button */}
+      {business?.isOpen === false ? (
+        <div className="fixed bottom-0 left-0 right-0 p-4 bg-black/90 backdrop-blur-md border-t border-white/10 z-20">
+          <div className="flex items-center gap-3 justify-center">
+            <span className="text-2xl">🍳</span>
+            <div className="text-center">
+              <p className="font-black text-white text-sm">La cocina está cerrada</p>
+              <p className="text-white/50 text-xs">Los pedidos no están disponibles en este momento</p>
+            </div>
+          </div>
+        </div>
+      ) : cartCount > 0 ? (
         <div className="fixed bottom-0 left-0 right-0 p-4 bg-background/95 backdrop-blur-sm border-t border-yellow-400/20 z-20">
           <Link href="/customer/cart">
             <Button className="w-full bg-yellow-400 text-black font-black text-base h-14 hover:bg-yellow-300 shadow-[0_0_30px_rgba(255,215,0,0.3)] flex items-center justify-between px-5">
@@ -521,7 +548,7 @@ export default function BusinessStore() {
             </Button>
           </Link>
         </div>
-      )}
+      ) : null}
 
       {/* Product Detail Bottom Sheet */}
       {selectedProduct && (
@@ -575,7 +602,7 @@ export default function BusinessStore() {
               <Button
                 className="w-full bg-yellow-400 text-black font-black text-base h-14 hover:bg-yellow-300 shadow-[0_0_24px_rgba(255,215,0,0.3)] gap-2 disabled:opacity-40"
                 onClick={handleAddFromSheet}
-                disabled={business?.isOpen === false}
+                /* closed guard handled by handler */
               >
                 <ShoppingBag size={18} />
                 {t.addToCart} · {formatDOP(customerPrice(selectedProduct.price) * sheetQty)}
