@@ -15,6 +15,16 @@ import { hashPassword } from "../lib/auth";
 
 const router: IRouter = Router();
 
+const isProd = process.env.NODE_ENV === "production";
+
+function demoGuard(res: any): boolean {
+  if (isProd && process.env.DEMO_ENABLED !== "true") {
+    res.status(404).json({ error: "Not found" });
+    return true;
+  }
+  return false;
+}
+
 const DEMO_USERS = [
   { name: "Juan Pérez", email: "demo@customer.yapida.app", role: "customer", phone: "809-555-0001" },
   { name: "Miguel Santos", email: "demo@driver.yapida.app", role: "driver", phone: "809-555-0002" },
@@ -22,10 +32,11 @@ const DEMO_USERS = [
   { name: "Admin Demo", email: "demo@admin.yapida.app", role: "admin", phone: "809-555-0004" },
 ];
 
-const DEMO_PASSWORD = hashPassword("demo123");
-
 router.post("/demo/seed", async (_req, res): Promise<void> => {
+  if (demoGuard(res)) return;
   try {
+    const demoPasswordHash = await hashPassword("demo123");
+
     // Upsert demo users
     const createdUsers: Record<string, typeof usersTable.$inferSelect> = {};
     for (const u of DEMO_USERS) {
@@ -37,7 +48,7 @@ router.post("/demo/seed", async (_req, res): Promise<void> => {
           name: u.name,
           email: u.email,
           phone: u.phone,
-          passwordHash: DEMO_PASSWORD,
+          passwordHash: demoPasswordHash,
           role: u.role,
           points: u.role === "customer" ? 340 : 0,
         }).returning();
@@ -89,7 +100,7 @@ router.post("/demo/seed", async (_req, res): Promise<void> => {
         phone: "809-971-2233",
         imageUrl: "https://images.unsplash.com/photo-1598514983318-2f64f8f4796c?w=800&q=80",
         logoUrl: "https://images.unsplash.com/photo-1610057099431-d73a1c9d2f2f?w=200&h=200&fit=crop&q=80",
-        rating: 4.9, isOpen: true, prepTimeMinutes: 20,
+        rating: 4.9, isOpen: true, prepTimeMinutes: 20, lat: 19.4519, lng: -70.6965,
         products: [
           { name: "Pollo a la Brasa entero", description: "Pollo asado a la leña con yuca y ensalada", price: 850, category: "Especiales" },
           { name: "Medio pollo", description: "Con arroz, habichuelas y tostones", price: 450, category: "Platos" },
@@ -107,7 +118,7 @@ router.post("/demo/seed", async (_req, res): Promise<void> => {
         phone: "809-580-4455",
         imageUrl: "https://images.unsplash.com/photo-1542838132-92c53300491e?w=800&q=80",
         logoUrl: "https://images.unsplash.com/photo-1542838132-92c53300491e?w=200&h=200&fit=crop&q=80",
-        rating: 4.7, isOpen: true, prepTimeMinutes: 10,
+        rating: 4.7, isOpen: true, prepTimeMinutes: 10, lat: 19.4489, lng: -70.7481,
         products: [
           { name: "Salami Induveca 225g", description: "El clásico del desayuno dominicano", price: 185, category: "Embutidos" },
           { name: "Pan de agua x6", description: "Pan fresco del día", price: 80, category: "Panadería" },
@@ -125,7 +136,7 @@ router.post("/demo/seed", async (_req, res): Promise<void> => {
         phone: "809-583-7766",
         imageUrl: "https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=800&q=80",
         logoUrl: "https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=200&h=200&fit=crop&q=80",
-        rating: 4.6, isOpen: true, prepTimeMinutes: 8,
+        rating: 4.6, isOpen: true, prepTimeMinutes: 8, lat: 19.4479, lng: -70.6939,
         products: [
           { name: "Paracetamol 500mg x20", description: "Analgésico y antipirético", price: 95, category: "Analgésicos" },
           { name: "Ibuprofeno 400mg x10", description: "Antiinflamatorio y analgésico", price: 120, category: "Analgésicos" },
@@ -141,7 +152,7 @@ router.post("/demo/seed", async (_req, res): Promise<void> => {
         phone: "809-724-9988",
         imageUrl: "https://images.unsplash.com/photo-1513104890138-7c749659a591?w=800&q=80",
         logoUrl: "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=200&h=200&fit=crop&q=80",
-        rating: 4.5, isOpen: true, prepTimeMinutes: 30,
+        rating: 4.5, isOpen: true, prepTimeMinutes: 30, lat: 19.4602, lng: -70.6884,
         products: [
           { name: "Pizza Pepperoni Grande", description: "Pizza 14\" con extra pepperoni", price: 750, category: "Pizzas" },
           { name: "Pizza Hawaiana Grande", description: "Jamón, piña y queso mozzarella", price: 720, category: "Pizzas" },
@@ -158,7 +169,7 @@ router.post("/demo/seed", async (_req, res): Promise<void> => {
         phone: "809-241-3344",
         imageUrl: "https://images.unsplash.com/photo-1509440159596-0249088772ff?w=800&q=80",
         logoUrl: "https://images.unsplash.com/photo-1509440159596-0249088772ff?w=200&h=200&fit=crop&q=80",
-        rating: 4.8, isOpen: true, prepTimeMinutes: 15,
+        rating: 4.8, isOpen: true, prepTimeMinutes: 15, lat: 19.4519, lng: -70.6960,
         products: [
           { name: "Tres Leches personal", description: "Pastel tres leches con chantilly", price: 180, category: "Pasteles" },
           { name: "Bizcocho de Cumpleaños 1lb", description: "Bizcocho dominicano decorado", price: 650, category: "Bizcochos" },
@@ -174,7 +185,7 @@ router.post("/demo/seed", async (_req, res): Promise<void> => {
         phone: "809-971-4488",
         imageUrl: "https://images.unsplash.com/photo-1582735689369-4fe89db7114c?w=800&q=80",
         logoUrl: "https://images.unsplash.com/photo-1582735689369-4fe89db7114c?w=200&h=200&fit=crop&q=80",
-        rating: 4.9, isOpen: true, prepTimeMinutes: 120,
+        rating: 4.9, isOpen: true, prepTimeMinutes: 120, lat: 19.4488, lng: -70.6979,
         products: [
           { name: "Bolsa Pequeña (~3 lb)", description: "Ideal para ropa de 2–3 días. Lavado, secado y doblado incluido.", price: 420, category: "Por Bolsa" },
           { name: "Bolsa Mediana (~6 lb)", description: "Perfecta para una semana de ropa casual.", price: 780, category: "Por Bolsa" },
@@ -193,7 +204,7 @@ router.post("/demo/seed", async (_req, res): Promise<void> => {
         phone: "809-221-5566",
         imageUrl: "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=800&q=80",
         logoUrl: "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=200&h=200&fit=crop&q=80",
-        rating: 4.8, isOpen: true, prepTimeMinutes: 25,
+        rating: 4.8, isOpen: true, prepTimeMinutes: 25, lat: 18.4717, lng: -69.9040,
         products: [
           { name: "Sancocho de 7 carnes", description: "El rey de los caldos dominicanos", price: 550, category: "Sopas" },
           { name: "Mangú con los tres golpes", description: "Plátano, salami, huevo y queso frito", price: 320, category: "Desayuno" },
@@ -209,7 +220,7 @@ router.post("/demo/seed", async (_req, res): Promise<void> => {
         phone: "809-686-3311",
         imageUrl: "https://images.unsplash.com/photo-1534723452862-4c874018d66d?w=800&q=80",
         logoUrl: "https://images.unsplash.com/photo-1534723452862-4c874018d66d?w=200&h=200&fit=crop&q=80",
-        rating: 4.5, isOpen: true, prepTimeMinutes: 12,
+        rating: 4.5, isOpen: true, prepTimeMinutes: 12, lat: 18.4730, lng: -69.8834,
         products: [
           { name: "Plátanos x5", description: "Plátanos maduros o verdes frescos", price: 95, category: "Frescos" },
           { name: "Salami Supremo 450g", description: "Salami de res y cerdo premium", price: 220, category: "Embutidos" },
@@ -225,7 +236,7 @@ router.post("/demo/seed", async (_req, res): Promise<void> => {
         phone: "809-533-8800",
         imageUrl: "https://images.unsplash.com/photo-1576671414121-aa2d60f4fcf2?w=800&q=80",
         logoUrl: "https://images.unsplash.com/photo-1576671414121-aa2d60f4fcf2?w=200&h=200&fit=crop&q=80",
-        rating: 4.7, isOpen: true, prepTimeMinutes: 10,
+        rating: 4.7, isOpen: true, prepTimeMinutes: 10, lat: 18.4738, lng: -69.9143,
         products: [
           { name: "Naproxeno 500mg x10", description: "Antiinflamatorio potente", price: 110, category: "Analgésicos" },
           { name: "Loratadina 10mg x10", description: "Antialérgico sin sueño", price: 95, category: "Alergias" },
@@ -242,7 +253,7 @@ router.post("/demo/seed", async (_req, res): Promise<void> => {
         phone: "809-556-4422",
         imageUrl: "https://images.unsplash.com/photo-1559339352-11d035aa65de?w=800&q=80",
         logoUrl: "https://images.unsplash.com/photo-1559339352-11d035aa65de?w=200&h=200&fit=crop&q=80",
-        rating: 4.9, isOpen: true, prepTimeMinutes: 25,
+        rating: 4.9, isOpen: true, prepTimeMinutes: 25, lat: 18.4271, lng: -68.9724,
         products: [
           { name: "Camarones al ajillo", description: "Camarones gigantes salteados con ajo y mantequilla", price: 680, category: "Mariscos" },
           { name: "Pescado frito entero", description: "Mero o pargo frito con tostones y ensalada", price: 520, category: "Pescados" },
@@ -258,7 +269,7 @@ router.post("/demo/seed", async (_req, res): Promise<void> => {
         phone: "809-550-6677",
         imageUrl: "https://images.unsplash.com/photo-1571867424488-4565932edb41?w=800&q=80",
         logoUrl: "https://images.unsplash.com/photo-1571867424488-4565932edb41?w=200&h=200&fit=crop&q=80",
-        rating: 4.4, isOpen: true, prepTimeMinutes: 10,
+        rating: 4.4, isOpen: true, prepTimeMinutes: 10, lat: 18.4285, lng: -68.9749,
         products: [
           { name: "Cebolla blanca x3", description: "Cebolla fresca local", price: 75, category: "Frescos" },
           { name: "Pasta de tomate 170g", description: "Concentrado de tomate natural", price: 65, category: "Condimentos" },
@@ -275,7 +286,7 @@ router.post("/demo/seed", async (_req, res): Promise<void> => {
         phone: "809-529-3344",
         imageUrl: "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=800&q=80",
         logoUrl: "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=200&h=200&fit=crop&q=80",
-        rating: 4.7, isOpen: true, prepTimeMinutes: 20,
+        rating: 4.7, isOpen: true, prepTimeMinutes: 20, lat: 18.4559, lng: -69.3071,
         products: [
           { name: "Plato del día", description: "Arroz, carne, habichuelas y ensalada fresca", price: 350, category: "Platos" },
           { name: "Pollo guisado", description: "Pollo en salsa con papas y aceitunas", price: 380, category: "Platos" },
@@ -291,7 +302,7 @@ router.post("/demo/seed", async (_req, res): Promise<void> => {
         phone: "809-529-8811",
         imageUrl: "https://images.unsplash.com/photo-1587854692152-cbe660dbde88?w=800&q=80",
         logoUrl: "https://images.unsplash.com/photo-1587854692152-cbe660dbde88?w=200&h=200&fit=crop&q=80",
-        rating: 4.5, isOpen: true, prepTimeMinutes: 8,
+        rating: 4.5, isOpen: true, prepTimeMinutes: 8, lat: 18.4545, lng: -69.3015,
         products: [
           { name: "Amoxicilina 500mg x12", description: "Antibiótico de amplio espectro (receta req.)", price: 145, category: "Antibióticos" },
           { name: "Buscapina Compositum x10", description: "Para cólicos y dolor abdominal", price: 130, category: "Gástrico" },
@@ -307,7 +318,7 @@ router.post("/demo/seed", async (_req, res): Promise<void> => {
         phone: "809-588-2211",
         imageUrl: "https://images.unsplash.com/photo-1567620832903-9fc6debc209f?w=800&q=80",
         logoUrl: "https://images.unsplash.com/photo-1567620832903-9fc6debc209f?w=200&h=200&fit=crop&q=80",
-        rating: 4.6, isOpen: true, prepTimeMinutes: 20,
+        rating: 4.6, isOpen: true, prepTimeMinutes: 20, lat: 19.3001, lng: -70.2522,
         products: [
           { name: "Pollo al carbón", description: "Pollo a las brasas con arroz y ensalada", price: 420, category: "Platos" },
           { name: "Pechuga a la plancha", description: "Pechuga asada con vegetales salteados", price: 380, category: "Platos" },
@@ -322,7 +333,7 @@ router.post("/demo/seed", async (_req, res): Promise<void> => {
         phone: "809-588-4499",
         imageUrl: "https://images.unsplash.com/photo-1590779033100-9f60a05a013d?w=800&q=80",
         logoUrl: "https://images.unsplash.com/photo-1590779033100-9f60a05a013d?w=200&h=200&fit=crop&q=80",
-        rating: 4.3, isOpen: true, prepTimeMinutes: 10,
+        rating: 4.3, isOpen: true, prepTimeMinutes: 10, lat: 19.2998, lng: -70.2490,
         products: [
           { name: "Longaniza artesanal 500g", description: "Longaniza local ahumada", price: 280, category: "Embutidos" },
           { name: "Plátanos verdes x6", description: "Plátanos de la región para tostones", price: 110, category: "Frescos" },
@@ -341,11 +352,18 @@ router.post("/demo/seed", async (_req, res): Promise<void> => {
       let bizRecord: typeof businessesTable.$inferSelect;
       if (existing) {
         bizRecord = existing;
-        // Idempotent update: city + logoUrl
-        const needsUpdate = (!existing.city || existing.city !== biz.city) || (!existing.logoUrl && biz.logoUrl);
+        // Idempotent update: city + logoUrl + lat/lng
+        const needsUpdate =
+          (!existing.city || existing.city !== biz.city) ||
+          (!existing.logoUrl && biz.logoUrl) ||
+          (biz.lat && !existing.lat);
         if (needsUpdate) {
           const [updated] = await db.update(businessesTable)
-            .set({ city: biz.city, ...(biz.logoUrl ? { logoUrl: biz.logoUrl } : {}) })
+            .set({
+              city: biz.city,
+              ...(biz.logoUrl ? { logoUrl: biz.logoUrl } : {}),
+              ...(biz.lat ? { lat: biz.lat, lng: biz.lng } : {}),
+            })
             .where(eq(businessesTable.id, existing.id))
             .returning();
           bizRecord = updated;
@@ -511,6 +529,7 @@ router.post("/demo/seed", async (_req, res): Promise<void> => {
 });
 
 router.post("/demo/login", async (req, res): Promise<void> => {
+  if (demoGuard(res)) return;
   const role = req.query["role"] as string;
   const validRoles = ["customer", "driver", "business", "admin"];
   if (!validRoles.includes(role)) {

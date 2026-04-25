@@ -5,7 +5,42 @@ import { CreateBusinessBody, UpdateBusinessBody, ListBusinessesQueryParams, GetB
 
 const router: IRouter = Router();
 
+// ─── Business hours helpers ──────────────────────────────────────────────────
+// DR is always UTC-4 (Atlantic Standard Time, no DST)
+type DayKey = "sun" | "mon" | "tue" | "wed" | "thu" | "fri" | "sat";
+type DaySlot = { open: string; close: string } | null;
+type OpenHours = Partial<Record<DayKey, DaySlot>>;
+
+function getDRTime(): { dayKey: DayKey; minuteOfDay: number } {
+  const now = new Date();
+  const drMs = now.getTime() - 4 * 60 * 60 * 1000;
+  const drDate = new Date(drMs);
+  const days: DayKey[] = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"];
+  const dayKey = days[drDate.getUTCDay()];
+  const minuteOfDay = drDate.getUTCHours() * 60 + drDate.getUTCMinutes();
+  return { dayKey, minuteOfDay };
+}
+
+function timeToMinutes(t: string): number {
+  const [h, m] = t.split(":").map(Number);
+  return (h ?? 0) * 60 + (m ?? 0);
+}
+
+function computeIsOpenFromSchedule(openHoursJson: string | null | undefined, fallback: boolean): boolean {
+  if (!openHoursJson) return fallback;
+  try {
+    const hours: OpenHours = JSON.parse(openHoursJson);
+    const { dayKey, minuteOfDay } = getDRTime();
+    const slot = hours[dayKey];
+    if (!slot) return false;
+    return minuteOfDay >= timeToMinutes(slot.open) && minuteOfDay < timeToMinutes(slot.close);
+  } catch {
+    return fallback;
+  }
+}
+
 function formatBusiness(b: typeof businessesTable.$inferSelect) {
+  const computedIsOpen = computeIsOpenFromSchedule(b.openHours, b.isOpen);
   return {
     id: b.id,
     userId: b.userId,
@@ -20,7 +55,8 @@ function formatBusiness(b: typeof businessesTable.$inferSelect) {
     lat: b.lat,
     lng: b.lng,
     isActive: b.isActive,
-    isOpen: b.isOpen,
+    isOpen: computedIsOpen,
+    openHours: b.openHours ? JSON.parse(b.openHours) : null,
     approvalStatus: b.approvalStatus,
     rating: b.rating,
     totalOrders: b.totalOrders,
@@ -95,6 +131,36 @@ router.patch("/businesses/mine/prep-time", async (req, res): Promise<void> => {
     res.status(400).json({ error: "prepTimeMinutes must be between 5 and 120" }); return;
   }
   const [business] = await db.update(businessesTable).set({ prepTimeMinutes }).where(eq(businessesTable.userId, sessionUserId)).returning();
+  if (!business) { res.status(404).json({ error: "Business not found" }); return; }
+  res.json(formatBusiness(business));
+});
+
+// ─── Business hours schedule (per-day open/close time) ───────────────────────
+router.patch("/businesses/mine/hours", async (req, res): Promise<void> => {
+  const sessionUserId = (req.session as any)?.userId;
+  if (!sessionUserId) { res.status(401).json({ error: "Unauthorized" }); return; }
+
+  const { openHours } = req.body;
+  if (openHours === undefined) { res.status(400).json({ error: "openHours required" }); return; }
+
+  // Validate structure: each day is null | { open: "HH:MM", close: "HH:MM" }
+  const validDays = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"];
+  const timeRe = /^\d{2}:\d{2}$/;
+  if (openHours !== null) {
+    for (const [day, slot] of Object.entries(openHours as Record<string, unknown>)) {
+      if (!validDays.includes(day)) { res.status(400).json({ error: `Invalid day: ${day}` }); return; }
+      if (slot === null) continue;
+      if (typeof slot !== "object" || slot === null) { res.status(400).json({ error: `Invalid slot for ${day}` }); return; }
+      const { open, close } = slot as any;
+      if (!timeRe.test(open) || !timeRe.test(close)) { res.status(400).json({ error: `Invalid time for ${day}` }); return; }
+    }
+  }
+
+  const openHoursJson = openHours === null ? null : JSON.stringify(openHours);
+  const [business] = await db.update(businessesTable)
+    .set({ openHours: openHoursJson })
+    .where(eq(businessesTable.userId, sessionUserId))
+    .returning();
   if (!business) { res.status(404).json({ error: "Business not found" }); return; }
   res.json(formatBusiness(business));
 });

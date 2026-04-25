@@ -9,9 +9,22 @@ import { useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Package, ChefHat, TrendingUp, Clock } from "lucide-react";
+import { Package, ChefHat, TrendingUp, Clock, CalendarClock } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+
+// ── Business hours types ─────────────────────────────────────────────────────
+type DayKey = "sun" | "mon" | "tue" | "wed" | "thu" | "fri" | "sat";
+type OpenHours = Partial<Record<DayKey, { open: string; close: string } | null>>;
+const ALL_DAYS: { key: DayKey; label: string }[] = [
+  { key: "mon", label: "Lun" },
+  { key: "tue", label: "Mar" },
+  { key: "wed", label: "Mié" },
+  { key: "thu", label: "Jue" },
+  { key: "fri", label: "Vie" },
+  { key: "sat", label: "Sáb" },
+  { key: "sun", label: "Dom" },
+];
 
 export default function BusinessDashboard() {
   const user = getStoredUser();
@@ -65,8 +78,47 @@ export default function BusinessDashboard() {
 
   const [prepTime, setPrepTime] = useState<number | null>(null);
   const [savingPrepTime, setSavingPrepTime] = useState(false);
-
   const currentPrepTime = prepTime ?? business?.prepTimeMinutes ?? 25;
+
+  // ── Business hours state ────────────────────────────────────────────────────
+  const [hours, setHours] = useState<OpenHours>({});
+  const [savingHours, setSavingHours] = useState(false);
+
+  useEffect(() => {
+    if (business && (business as any).openHours) {
+      setHours((business as any).openHours as OpenHours);
+    }
+  }, [business]);
+
+  const toggleDay = (day: DayKey) => {
+    setHours(prev => {
+      if (prev[day]) return { ...prev, [day]: null };
+      return { ...prev, [day]: { open: "08:00", close: "22:00" } };
+    });
+  };
+
+  const setSlot = (day: DayKey, field: "open" | "close", val: string) => {
+    setHours(prev => ({ ...prev, [day]: { ...(prev[day] as any), [field]: val } }));
+  };
+
+  const saveHours = async () => {
+    setSavingHours(true);
+    try {
+      const res = await fetch("/api/businesses/mine/hours", {
+        method: "PATCH",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ openHours: Object.keys(hours).length === 0 ? null : hours }),
+      });
+      if (!res.ok) throw new Error("Error al guardar");
+      queryClient.invalidateQueries({ queryKey: getGetMyBusinessQueryKey() });
+      toast({ title: "✅ Horario guardado" });
+    } catch {
+      toast({ title: "Error al guardar horario", variant: "destructive" });
+    } finally {
+      setSavingHours(false);
+    }
+  };
 
   const handlePrepTime = async (minutes: number) => {
     setPrepTime(minutes);
@@ -272,7 +324,69 @@ export default function BusinessDashboard() {
           </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-3">
+        {/* Business hours schedule */}
+        <div className="bg-white/8 border border-white/10 rounded-2xl p-4 mt-4">
+          <div className="flex items-center gap-2 mb-3">
+            <CalendarClock size={14} className="text-yellow-400" />
+            <span className="text-xs font-bold text-[#FFD700]/70 uppercase tracking-widest">Horario de atención</span>
+          </div>
+          <div className="space-y-2">
+            {ALL_DAYS.map(({ key, label }) => {
+              const slot = hours[key];
+              const enabled = !!slot;
+              return (
+                <div key={key} className="flex items-center gap-2">
+                  {/* Day toggle */}
+                  <button
+                    onClick={() => toggleDay(key)}
+                    className={`w-10 text-xs font-black rounded-lg py-1 transition-all flex-shrink-0 ${
+                      enabled
+                        ? "bg-yellow-400 text-black"
+                        : "bg-white/8 text-white/40 border border-white/10"
+                    }`}
+                  >
+                    {label}
+                  </button>
+                  {/* Time inputs */}
+                  {enabled ? (
+                    <div className="flex items-center gap-1.5 flex-1">
+                      <input
+                        type="time"
+                        value={slot!.open}
+                        onChange={e => setSlot(key, "open", e.target.value)}
+                        className="flex-1 bg-white/5 border border-white/10 rounded-lg px-2 py-1 text-xs text-white focus:outline-none focus:border-yellow-400/60 [color-scheme:dark]"
+                      />
+                      <span className="text-white/40 text-xs">–</span>
+                      <input
+                        type="time"
+                        value={slot!.close}
+                        onChange={e => setSlot(key, "close", e.target.value)}
+                        className="flex-1 bg-white/5 border border-white/10 rounded-lg px-2 py-1 text-xs text-white focus:outline-none focus:border-yellow-400/60 [color-scheme:dark]"
+                      />
+                    </div>
+                  ) : (
+                    <span className="flex-1 text-xs text-white/30 italic pl-1">Cerrado</span>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+          <Button
+            onClick={saveHours}
+            disabled={savingHours}
+            size="sm"
+            className="w-full mt-3 bg-yellow-400 hover:bg-yellow-300 text-black font-black text-xs"
+          >
+            {savingHours ? "Guardando..." : "Guardar horario"}
+          </Button>
+          {(business as any).openHours && (
+            <p className="text-center text-xs text-white/40 mt-2">
+              Apertura/cierre automático según este horario (hora DR)
+            </p>
+          )}
+        </div>
+
+        <div className="grid grid-cols-2 gap-3 mt-4">
           <Link href="/business/orders">
             <div className="bg-yellow-400/10 border border-yellow-400/30 rounded-2xl p-4 text-center hover:bg-yellow-400/20 transition cursor-pointer">
               <Package size={24} className="text-yellow-400 mx-auto mb-2" />

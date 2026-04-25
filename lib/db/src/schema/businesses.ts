@@ -18,6 +18,7 @@ export const businessesTable = pgTable("businesses", {
   lng: real("lng"),
   isActive: boolean("is_active").notNull().default(true),
   isOpen: boolean("is_open").notNull().default(true),
+  openHours: text("open_hours"),
   approvalStatus: text("approval_status").notNull().default("approved"),
   rating: real("rating").notNull().default(5.0),
   totalOrders: integer("total_orders").notNull().default(0),

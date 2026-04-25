@@ -39,8 +39,39 @@ export default function CustomerOrderDetail() {
 
   const { data: order, isLoading } = useGetOrder(
     orderId,
-    { query: { enabled: !!orderId, queryKey: getGetOrderQueryKey(orderId), refetchInterval: 8000 } }
+    { query: { enabled: !!orderId, queryKey: getGetOrderQueryKey(orderId), refetchInterval: 30000 } }
   );
+
+  // ── Live SSE connection — instant status updates ──────────────────────────
+  const sseRef = useRef<EventSource | null>(null);
+  useEffect(() => {
+    if (!orderId || !order) return;
+    const isTerminal = order.status === "delivered" || order.status === "cancelled";
+    if (isTerminal) return; // No need to stream once done
+
+    const base = import.meta.env.BASE_URL?.replace(/\/$/, "") ?? "";
+    const es = new EventSource(`${base}/api/orders/${orderId}/stream`, { withCredentials: true });
+    sseRef.current = es;
+
+    es.addEventListener("status", (e: MessageEvent) => {
+      try {
+        const data = JSON.parse(e.data);
+        if (data.status) {
+          queryClient.invalidateQueries({ queryKey: getGetOrderQueryKey(orderId) });
+        }
+      } catch { /* ignore parse errors */ }
+    });
+
+    es.onerror = () => {
+      es.close();
+      sseRef.current = null;
+    };
+
+    return () => {
+      es.close();
+      sseRef.current = null;
+    };
+  }, [orderId, order?.status]);
 
   const rateOrder = useRateOrder({
     mutation: {

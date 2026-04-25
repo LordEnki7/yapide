@@ -1,9 +1,10 @@
 import { Router, type IRouter } from "express";
-import { eq, and, desc } from "drizzle-orm";
+import { eq, and, desc, avg } from "drizzle-orm";
 import { db, ordersTable, orderItemsTable, businessesTable, usersTable, driversTable, productsTable, walletTransactionsTable, pointsTransactionsTable, notificationsTable, driverReportsTable, disputesTable } from "@workspace/db";
 import { CreateOrderBody, UpdateOrderStatusBody, RateOrderBody, ListOrdersQueryParams } from "@workspace/api-zod";
 import { calculateFees, CASH_LIMIT } from "../lib/dispatch";
 import { sendPushToUser } from "../lib/push";
+import { subscribe, emitOrderStatusChange } from "../lib/sse";
 
 const formatDOP = (n: number) => `RD$ ${Math.round(n).toLocaleString("es-DO")}`;
 
@@ -139,6 +140,39 @@ router.get("/orders/:orderId", async (req, res): Promise<void> => {
   res.json(isOwner ? { ...formatted, verificationPin: order.verificationPin } : formatted);
 });
 
+// ─── SSE: live order status stream ───────────────────────────────────────────
+router.get("/orders/:orderId/stream", async (req, res): Promise<void> => {
+  const sessionUserId = (req.session as any)?.userId;
+  if (!sessionUserId) { res.status(401).end(); return; }
+  const raw = Array.isArray(req.params.orderId) ? req.params.orderId[0] : req.params.orderId;
+  const id = parseInt(raw, 10);
+  if (isNaN(id)) { res.status(400).end(); return; }
+
+  res.setHeader("Content-Type", "text/event-stream");
+  res.setHeader("Cache-Control", "no-cache");
+  res.setHeader("Connection", "keep-alive");
+  res.setHeader("X-Accel-Buffering", "no");
+  res.flushHeaders();
+
+  // Send current status immediately
+  const [order] = await db.select({ status: ordersTable.status }).from(ordersTable).where(eq(ordersTable.id, id));
+  if (order) {
+    res.write(`event: status\ndata: ${JSON.stringify({ orderId: id, status: order.status, ts: Date.now() })}\n\n`);
+  }
+
+  // Keep-alive ping every 25s
+  const pingInterval = setInterval(() => {
+    try { res.write(": ping\n\n"); } catch { clearInterval(pingInterval); }
+  }, 25000);
+
+  const cleanup = subscribe(id, res);
+
+  req.on("close", () => {
+    clearInterval(pingInterval);
+    cleanup();
+  });
+});
+
 router.post("/orders", async (req, res): Promise<void> => {
   const sessionUserId = (req.session as any)?.userId;
   if (!sessionUserId) { res.status(401).json({ error: "Unauthorized" }); return; }
@@ -240,6 +274,9 @@ router.patch("/orders/:orderId/status", async (req, res): Promise<void> => {
   }
   const [order] = await db.update(ordersTable).set(updateData).where(eq(ordersTable.id, id)).returning();
   if (!order) { res.status(404).json({ error: "Order not found" }); return; }
+
+  // Instantly push status to any connected SSE clients
+  emitOrderStatusChange(id, parsed.data.status);
 
   if (parsed.data.status === "delivered" && order.driverId) {
     const [driver] = await db.select().from(driversTable).where(eq(driversTable.id, order.driverId));
@@ -393,12 +430,49 @@ router.post("/orders/:orderId/rate", async (req, res): Promise<void> => {
   const parsed = RateOrderBody.safeParse(req.body);
   if (!parsed.success) { res.status(400).json({ error: parsed.error.message }); return; }
 
+  const [existing] = await db.select().from(ordersTable).where(eq(ordersTable.id, id));
+  if (!existing) { res.status(404).json({ error: "Order not found" }); return; }
+  if (existing.customerId !== sessionUserId) { res.status(403).json({ error: "Not your order" }); return; }
+  if (existing.status !== "delivered") { res.status(400).json({ error: "Can only rate delivered orders" }); return; }
+  if (existing.driverRating !== null || existing.businessRating !== null) {
+    res.status(409).json({ error: "Ya calificaste este pedido" }); return;
+  }
+
   const [order] = await db.update(ordersTable).set({
-    driverRating: parsed.data.driverRating,
-    businessRating: parsed.data.businessRating,
+    driverRating: parsed.data.driverRating ?? null,
+    businessRating: parsed.data.businessRating ?? null,
   }).where(eq(ordersTable.id, id)).returning();
 
   if (!order) { res.status(404).json({ error: "Order not found" }); return; }
+
+  // Recalculate and update business average rating
+  if (parsed.data.businessRating !== undefined && order.businessId) {
+    const [result] = await db
+      .select({ avgRating: avg(ordersTable.businessRating) })
+      .from(ordersTable)
+      .where(and(eq(ordersTable.businessId, order.businessId)));
+    const newAvg = result?.avgRating ? parseFloat(String(result.avgRating)) : null;
+    if (newAvg !== null) {
+      await db.update(businessesTable)
+        .set({ rating: Math.round(newAvg * 10) / 10 })
+        .where(eq(businessesTable.id, order.businessId));
+    }
+  }
+
+  // Recalculate and update driver average rating
+  if (parsed.data.driverRating !== undefined && order.driverId) {
+    const [result] = await db
+      .select({ avgRating: avg(ordersTable.driverRating) })
+      .from(ordersTable)
+      .where(and(eq(ordersTable.driverId, order.driverId)));
+    const newAvg = result?.avgRating ? parseFloat(String(result.avgRating)) : null;
+    if (newAvg !== null) {
+      await db.update(driversTable)
+        .set({ rating: Math.round(newAvg * 10) / 10 })
+        .where(eq(driversTable.id, order.driverId));
+    }
+  }
+
   res.json({ success: true });
 });
 
