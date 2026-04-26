@@ -69,6 +69,7 @@ import AdminNotifications from "@/pages/admin/Notifications";
 import AdminStaff from "@/pages/admin/Staff";
 import AdminDisputes from "@/pages/admin/Disputes";
 import AdminSettings from "@/pages/admin/Settings";
+import AdminPromoAI from "@/pages/admin/PromoAI";
 import AdminBanners from "@/pages/admin/Banners";
 import AdminDeliveryWindows from "@/pages/admin/DeliveryWindows";
 import AdminPointsEvents from "@/pages/admin/PointsEvents";
@@ -133,6 +134,7 @@ function Router() {
         <Route path="/admin/staff" component={AdminStaff} />
         <Route path="/admin/disputes" component={AdminDisputes} />
         <Route path="/admin/settings" component={AdminSettings} />
+        <Route path="/admin/promo-ai" component={AdminPromoAI} />
         <Route path="/admin/banners" component={AdminBanners} />
         <Route path="/admin/delivery-windows" component={AdminDeliveryWindows} />
         <Route path="/admin/points-events" component={AdminPointsEvents} />

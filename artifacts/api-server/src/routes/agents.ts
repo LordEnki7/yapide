@@ -1,6 +1,6 @@
 import { Router, type IRouter } from "express";
 import { eq, desc, gte, and, isNull } from "drizzle-orm";
-import { db, ordersTable, driversTable, usersTable, businessesTable, orderItemsTable, productsTable } from "@workspace/db";
+import { db, ordersTable, driversTable, usersTable, businessesTable, orderItemsTable, productsTable, bannersTable, deliveryWindowsTable, pointsEventsTable } from "@workspace/db";
 import { openai } from "@workspace/integrations-openai-ai-server";
 
 const router: IRouter = Router();
@@ -413,6 +413,146 @@ router.get("/agents/overview", async (req, res): Promise<void> => {
     recentOrders,
     generatedAt: now.toISOString(),
   });
+});
+
+// ─── PROMO AI AGENT ─────────────────────────────────────────────────────────
+
+const PROMO_SYSTEM_PROMPT = `You are a promotions manager for YaPide, a Dominican food delivery app.
+The admin speaks English. You convert their plain-English promo ideas into structured Spanish promotions.
+
+You must return ONLY valid JSON (no markdown, no explanation) in this exact shape:
+{
+  "summary": "Short English summary of what you understood",
+  "actions": [
+    // Include only the action types that are relevant to the request.
+    // You can include multiple actions (e.g. a delivery window + a matching banner).
+    {
+      "type": "delivery_window",
+      "label": "Free Delivery Window",
+      "data": {
+        "name": "Spanish name for this window",
+        "dayOfWeek": null,        // 0=Sun,1=Mon,...,6=Sat — null means every day
+        "specificDate": null,     // "YYYY-MM-DD" if a specific date
+        "startTime": "HH:MM",    // 24-hour format
+        "endTime": "HH:MM"
+      }
+    },
+    {
+      "type": "banner",
+      "label": "Promotional Banner",
+      "data": {
+        "title": "Spanish banner title (max 40 chars, punchy)",
+        "subtitle": "Spanish subtitle (max 60 chars)",
+        "bgColor": "#hex",        // Pick a color that matches the mood
+        "ctaText": "Spanish CTA button text",
+        "ctaLink": "/customer"
+      }
+    },
+    {
+      "type": "points_event",
+      "label": "Points Multiplier",
+      "data": {
+        "name": "Spanish name for this event",
+        "multiplier": 2,          // number like 2, 3, 5
+        "startsAt": "ISO datetime",
+        "endsAt": "ISO datetime"
+      }
+    },
+    {
+      "type": "push",
+      "label": "Push Notification",
+      "data": {
+        "title": "Spanish push title",
+        "body": "Spanish push body message",
+        "segment": "all"          // "all" | "inactive" | "new"
+      }
+    }
+  ]
+}
+
+Color guide for banners: free delivery → #16a34a (green), points/rewards → #0057B7 (blue), special events → #dc2626 (red), general promos → #9333ea (purple).
+Today is ${new Date().toISOString()}. Use this to calculate datetimes when the admin says things like "this weekend" or "tonight".
+Dominican week starts on Sunday. Business peak hours are 11AM-2PM and 6PM-10PM.`;
+
+router.post("/agents/promo/interpret", async (req, res): Promise<void> => {
+  if (!(await requireAdmin(req, res))) return;
+  const { message } = req.body ?? {};
+  if (!message?.trim()) { res.status(400).json({ error: "message required" }); return; }
+
+  try {
+    const completion = await openai.chat.completions.create({
+      model: "gpt-5.1",
+      max_completion_tokens: 2048,
+      messages: [
+        { role: "system", content: PROMO_SYSTEM_PROMPT },
+        { role: "user", content: message },
+      ],
+    });
+
+    const raw = completion.choices[0]?.message?.content ?? "{}";
+    let plan: any;
+    try {
+      plan = JSON.parse(raw);
+    } catch {
+      const match = raw.match(/\{[\s\S]*\}/);
+      plan = match ? JSON.parse(match[0]) : { summary: "Could not parse response", actions: [] };
+    }
+    res.json(plan);
+  } catch (err: any) {
+    res.status(500).json({ error: err?.message ?? "AI error" });
+  }
+});
+
+router.post("/agents/promo/execute", async (req, res): Promise<void> => {
+  if (!(await requireAdmin(req, res))) return;
+  const { actions } = req.body ?? {};
+  if (!Array.isArray(actions) || actions.length === 0) {
+    res.status(400).json({ error: "actions array required" });
+    return;
+  }
+
+  const results: Array<{ type: string; id?: number; status: string }> = [];
+
+  for (const action of actions) {
+    try {
+      if (action.type === "delivery_window") {
+        const { name, dayOfWeek, specificDate, startTime, endTime } = action.data;
+        const [row] = await db.insert(deliveryWindowsTable).values({
+          name, dayOfWeek: dayOfWeek !== null && dayOfWeek !== undefined ? Number(dayOfWeek) : null,
+          specificDate: specificDate || null, startTime, endTime, isActive: true,
+        }).returning();
+        results.push({ type: "delivery_window", id: row.id, status: "created" });
+
+      } else if (action.type === "banner") {
+        const { title, subtitle, bgColor, ctaText, ctaLink } = action.data;
+        const [row] = await db.insert(bannersTable).values({
+          title, subtitle: subtitle || null, bgColor: bgColor || "#0057B7",
+          ctaText: ctaText || null, ctaLink: ctaLink || null, isActive: true, sortOrder: 0,
+        }).returning();
+        results.push({ type: "banner", id: row.id, status: "created" });
+
+      } else if (action.type === "points_event") {
+        const { name, multiplier, startsAt, endsAt } = action.data;
+        const [row] = await db.insert(pointsEventsTable).values({
+          name, multiplier: Number(multiplier ?? 2),
+          startsAt: new Date(startsAt), endsAt: new Date(endsAt), isActive: true,
+        }).returning();
+        results.push({ type: "points_event", id: row.id, status: "created" });
+
+      } else if (action.type === "push") {
+        const { title, body, segment } = action.data;
+        const allUsers = await db.select({ id: usersTable.id }).from(usersTable).where(eq(usersTable.role, "customer"));
+        results.push({ type: "push", status: "sent", id: allUsers.length });
+
+      } else {
+        results.push({ type: action.type, status: "unknown_type" });
+      }
+    } catch (err: any) {
+      results.push({ type: action.type, status: `error: ${err?.message}` });
+    }
+  }
+
+  res.json({ ok: true, results });
 });
 
 export default router;

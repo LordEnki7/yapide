@@ -5,7 +5,7 @@ import { formatDOP } from "@/lib/auth";
 import { useAdminLang } from "@/lib/lang";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Users, Package, Bike, TrendingUp, Tag, Bot, Bell, Shield, Crown, ShieldCheck, AlertCircle, Settings, Megaphone, Truck, Star, Send, QrCode } from "lucide-react";
+import { Users, Package, Bike, TrendingUp, Tag, Bot, Bell, Shield, Crown, ShieldCheck, AlertCircle, Settings, Megaphone, Truck, Star, Send, QrCode, Sparkles } from "lucide-react";
 import { getEffectivePermissions, type Permission } from "@/lib/adminPermissions";
 
 interface AdminInfo {
@@ -106,6 +106,24 @@ export default function AdminDashboard() {
                 </div>
               </div>
               <span className="text-yellow-400 font-black text-lg">→</span>
+            </div>
+          </Link>
+        )}
+
+        {/* Promo AI CTA — only if promo_codes permitted */}
+        {can("promo_codes") && (
+          <Link href="/admin/promo-ai">
+            <div className="bg-[#0057B7]/15 border border-[#0057B7]/40 rounded-2xl p-4 flex items-center justify-between hover:bg-[#0057B7]/20 transition cursor-pointer">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-[#0057B7]/30 flex items-center justify-center">
+                  <Sparkles size={20} className="text-blue-300" />
+                </div>
+                <div>
+                  <p className="font-black text-blue-300">Agente de Promociones</p>
+                  <p className="text-xs text-gray-400">Describe tu promo en inglés · IA lo crea</p>
+                </div>
+              </div>
+              <span className="text-blue-300 font-black text-lg">→</span>
             </div>
           </Link>
         )}
