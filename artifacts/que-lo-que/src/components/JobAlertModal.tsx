@@ -1,7 +1,6 @@
 import { useEffect, useState, useRef } from "react";
 import { formatDOP } from "@/lib/auth";
 import { MapPin, Banknote, CreditCard, Store, X, Volume2, VolumeX } from "lucide-react";
-import { Button } from "@/components/ui/button";
 
 interface Job {
   id: number;
@@ -74,10 +73,19 @@ export default function JobAlertModal({ job, onAccept, onDecline, accepting, dec
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const mutedRef = useRef(false);
 
+  // Swipe state
+  const trackRef = useRef<HTMLDivElement>(null);
+  const [dragX, setDragX] = useState(0);
+  const [dragging, setDragging] = useState(false);
+  const startXRef = useRef(0);
+  const [triggered, setTriggered] = useState(false);
+
   useEffect(() => {
     setSeconds(COUNTDOWN);
     mutedRef.current = false;
     setMuted(false);
+    setTriggered(false);
+    setDragX(0);
 
     playAlertBeep();
     const speakTimer = setTimeout(() => {
@@ -109,8 +117,51 @@ export default function JobAlertModal({ job, onAccept, onDecline, accepting, dec
     if (next && "speechSynthesis" in window) window.speechSynthesis.cancel();
   };
 
+  const getTrackWidth = () => trackRef.current?.offsetWidth ?? 300;
+
+  const handleDragStart = (clientX: number) => {
+    if (triggered || accepting || declining) return;
+    startXRef.current = clientX;
+    setDragging(true);
+  };
+
+  const handleDragMove = (clientX: number) => {
+    if (!dragging || triggered) return;
+    const tw = getTrackWidth();
+    const delta = clientX - startXRef.current;
+    const clamped = Math.max(-tw * 0.46, Math.min(tw * 0.46, delta));
+    setDragX(clamped);
+  };
+
+  const handleDragEnd = () => {
+    if (!dragging || triggered) return;
+    setDragging(false);
+    const tw = getTrackWidth();
+    if (dragX > tw * 0.33) {
+      setTriggered(true);
+      clearInterval(timerRef.current!);
+      onAccept(job.id);
+    } else if (dragX < -tw * 0.33) {
+      setTriggered(true);
+      clearInterval(timerRef.current!);
+      onDecline(job.id);
+    } else {
+      setDragX(0);
+    }
+  };
+
   const pct = (seconds / COUNTDOWN) * 100;
   const urgent = seconds <= 10;
+  const tw = getTrackWidth();
+  const swipePct = tw > 0 ? dragX / (tw * 0.46) : 0;
+  const isAccepting = swipePct > 0.2;
+  const isDeclining = swipePct < -0.2;
+
+  const trackBg = isAccepting
+    ? `rgba(74,222,128,${Math.min(0.35, Math.abs(swipePct) * 0.4)})`
+    : isDeclining
+    ? `rgba(248,113,113,${Math.min(0.35, Math.abs(swipePct) * 0.4)})`
+    : "rgba(255,255,255,0.05)";
 
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center" style={{ background: "rgba(0,0,0,0.85)" }}>
@@ -120,104 +171,120 @@ export default function JobAlertModal({ job, onAccept, onDecline, accepting, dec
         <div className="flex items-center justify-between mb-4">
           <div>
             <p className="text-xs text-yellow-400 uppercase tracking-widest font-bold">🛵 Nuevo pedido</p>
-            <p className="text-2xl font-black text-white">
+            <p className="text-3xl font-black text-white">
               {formatDOP(job.driverEarnings + (job.tip ?? 0))}
-              <span className="text-base text-white/70 font-normal ml-1">tu ganancia</span>
             </p>
+            <p className="text-sm text-white/60">tu ganancia{job.tip > 0 ? ` (incl. RD$${job.tip} propina)` : ""}</p>
           </div>
           <div className="flex items-center gap-2">
-            <button
-              onClick={toggleMute}
-              title={muted ? "Activar voz" : "Silenciar"}
-              className="w-9 h-9 rounded-full bg-white/8 flex items-center justify-center hover:bg-white/12 transition"
-            >
-              {muted
-                ? <VolumeX size={16} className="text-white/60" />
-                : <Volume2 size={16} className="text-yellow-400" />
-              }
+            <button onClick={toggleMute} className="w-10 h-10 rounded-full bg-white/8 flex items-center justify-center hover:bg-white/12 transition">
+              {muted ? <VolumeX size={18} className="text-white/60" /> : <Volume2 size={18} className="text-yellow-400" />}
             </button>
-            <button
-              onClick={() => onDecline(job.id)}
-              className="w-9 h-9 rounded-full bg-white/8 flex items-center justify-center hover:bg-white/12 transition"
-            >
-              <X size={16} className="text-white/70" />
-            </button>
-          </div>
-        </div>
-
-        {/* Countdown ring */}
-        <div className="flex justify-center mb-4">
-          <div className="relative w-20 h-20">
-            <svg className="w-20 h-20 -rotate-90" viewBox="0 0 80 80">
-              <circle cx="40" cy="40" r="34" fill="none" stroke="rgba(255,255,255,0.08)" strokeWidth="6" />
-              <circle
-                cx="40" cy="40" r="34" fill="none"
-                stroke={urgent ? "#ef4444" : "#FFD700"}
-                strokeWidth="6"
-                strokeLinecap="round"
-                strokeDasharray={`${2 * Math.PI * 34}`}
-                strokeDashoffset={`${2 * Math.PI * 34 * (1 - pct / 100)}`}
-                className="transition-all duration-1000"
-              />
-            </svg>
-            <div className="absolute inset-0 flex items-center justify-center">
-              <span className={`text-2xl font-black ${urgent ? "text-red-400" : "text-yellow-400"}`}>{seconds}</span>
+            {/* Countdown ring */}
+            <div className="relative w-14 h-14">
+              <svg className="w-14 h-14 -rotate-90" viewBox="0 0 56 56">
+                <circle cx="28" cy="28" r="23" fill="none" stroke="rgba(255,255,255,0.08)" strokeWidth="5" />
+                <circle
+                  cx="28" cy="28" r="23" fill="none"
+                  stroke={urgent ? "#ef4444" : "#FFD700"}
+                  strokeWidth="5"
+                  strokeLinecap="round"
+                  strokeDasharray={`${2 * Math.PI * 23}`}
+                  strokeDashoffset={`${2 * Math.PI * 23 * (1 - pct / 100)}`}
+                  className="transition-all duration-1000"
+                />
+              </svg>
+              <div className="absolute inset-0 flex items-center justify-center">
+                <span className={`text-lg font-black ${urgent ? "text-red-400" : "text-yellow-400"}`}>{seconds}</span>
+              </div>
             </div>
           </div>
         </div>
 
         {/* Payment badge */}
-        <div className="flex justify-center mb-4">
-          <span className={`flex items-center gap-1.5 px-3 py-1 rounded-full border text-xs font-bold ${
+        <div className="flex justify-start mb-3">
+          <span className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-sm font-bold ${
             job.paymentMethod === "cash"
               ? "bg-green-400/15 text-green-400 border-green-400/40"
               : "bg-blue-400/15 text-blue-400 border-blue-400/40"
           }`}>
-            {job.paymentMethod === "cash" ? <Banknote size={12} /> : <CreditCard size={12} />}
+            {job.paymentMethod === "cash" ? <Banknote size={14} /> : <CreditCard size={14} />}
             {job.paymentMethod === "cash" ? "Efectivo" : "Tarjeta"} · {formatDOP(job.totalAmount + job.deliveryFee)}
           </span>
         </div>
 
         {/* Addresses */}
         <div className="bg-white/5 rounded-2xl p-4 space-y-3 mb-5">
-          <div>
-            <p className="text-[10px] text-yellow-400 font-bold uppercase tracking-widest mb-1 flex items-center gap-1">
-              <Store size={10} /> Recoger en
-            </p>
-            <p className="text-sm font-bold text-white">{job.businessName}</p>
-            {job.businessAddress && <p className="text-xs text-white/70 mt-0.5">{job.businessAddress}</p>}
+          <div className="flex items-start gap-2">
+            <Store size={14} className="text-yellow-400 flex-shrink-0 mt-0.5" />
+            <div>
+              <p className="text-[10px] text-yellow-400 font-bold uppercase tracking-widest mb-0.5">Recoger en</p>
+              <p className="text-base font-bold text-white">{job.businessName}</p>
+              {job.businessAddress && <p className="text-xs text-white/60 mt-0.5">{job.businessAddress}</p>}
+            </div>
           </div>
-          <div className="border-t border-white/5 pt-3">
-            <p className="text-[10px] text-[#FFD700] font-bold uppercase tracking-widest mb-1 flex items-center gap-1">
-              <MapPin size={10} /> Entregar en
-            </p>
-            <p className="text-sm text-white">{job.deliveryAddress}</p>
+          <div className="border-t border-white/8 pt-3 flex items-start gap-2">
+            <MapPin size={14} className="text-green-400 flex-shrink-0 mt-0.5" />
+            <div>
+              <p className="text-[10px] text-green-400 font-bold uppercase tracking-widest mb-0.5">Entregar en</p>
+              <p className="text-base text-white">{job.deliveryAddress}</p>
+            </div>
           </div>
           {job.notes && (
-            <p className="text-xs text-white/70 bg-white/5 rounded-xl px-3 py-2 italic border-t border-white/5 pt-3">
-              "{job.notes}"
-            </p>
+            <p className="text-xs text-white/70 bg-white/5 rounded-xl px-3 py-2 italic">"{job.notes}"</p>
           )}
         </div>
 
-        {/* Buttons */}
-        <div className="flex gap-3">
-          <Button
-            variant="outline"
-            className="flex-1 border-white/20 text-white/80 hover:border-red-400/50 hover:text-red-400 font-bold h-12"
-            onClick={() => onDecline(job.id)}
-            disabled={declining || accepting}
+        {/* Swipe-to-accept track */}
+        <div
+          ref={trackRef}
+          className="relative h-20 rounded-2xl overflow-hidden select-none touch-none"
+          style={{
+            background: trackBg,
+            border: isAccepting ? "2px solid rgba(74,222,128,0.5)" : isDeclining ? "2px solid rgba(248,113,113,0.5)" : "2px solid rgba(255,255,255,0.12)",
+            transition: dragging ? "none" : "border-color 0.2s, background 0.2s",
+          }}
+          onTouchStart={e => handleDragStart(e.touches[0].clientX)}
+          onTouchMove={e => handleDragMove(e.touches[0].clientX)}
+          onTouchEnd={handleDragEnd}
+          onMouseDown={e => handleDragStart(e.clientX)}
+          onMouseMove={e => dragging && handleDragMove(e.clientX)}
+          onMouseUp={handleDragEnd}
+          onMouseLeave={handleDragEnd}
+        >
+          {/* Left hint */}
+          <div className="absolute left-4 top-1/2 -translate-y-1/2 flex items-center gap-1">
+            <X size={16} className="text-red-400/70" />
+            <span className="text-xs font-bold text-red-400/70">Rechazar</span>
+          </div>
+          {/* Right hint */}
+          <div className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center gap-1">
+            <span className="text-xs font-bold text-green-400/70">Aceptar</span>
+            <span className="text-green-400/70 text-base">✓</span>
+          </div>
+
+          {/* Draggable thumb */}
+          <div
+            className="absolute top-1/2 left-1/2 -translate-y-1/2 h-14 w-32 rounded-xl flex items-center justify-center gap-2 font-black text-sm shadow-lg"
+            style={{
+              transform: `translateX(calc(-50% + ${dragX}px)) translateY(-50%)`,
+              transition: dragging ? "none" : "transform 0.3s cubic-bezier(0.34,1.56,0.64,1)",
+              background: isAccepting ? "#4ade80" : isDeclining ? "#f87171" : "#FFD700",
+              color: isAccepting ? "#000" : isDeclining ? "#fff" : "#000",
+            }}
           >
-            Rechazar
-          </Button>
-          <Button
-            className="flex-[2] bg-yellow-400 text-black font-black h-12 text-base hover:bg-yellow-300 shadow-[0_0_30px_rgba(255,215,0,0.4)] active:scale-95 transition-transform"
-            onClick={() => onAccept(job.id)}
-            disabled={accepting || declining}
-          >
-            {accepting ? "Aceptando..." : "✅ Aceptar"}
-          </Button>
+            {triggered || accepting ? (
+              <span className="animate-pulse">...</span>
+            ) : isAccepting ? (
+              <>✅ Aceptar</>
+            ) : isDeclining ? (
+              <>✕ Rechazar</>
+            ) : (
+              <><span className="opacity-60">⟵</span> Desliza <span className="opacity-60">⟶</span></>
+            )}
+          </div>
         </div>
+        <p className="text-center text-xs text-white/40 mt-2">Desliza a la derecha para aceptar · izquierda para rechazar</p>
       </div>
     </div>
   );

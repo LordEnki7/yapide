@@ -166,8 +166,8 @@ export default function DriverDashboard() {
           declining={declineJob.isPending}
         />
       )}
-      <div className="bg-background border-b border-yellow-400/20 px-4 py-4">
-        <div className="flex items-center justify-between">
+      <div className="bg-background border-b border-yellow-400/20 px-4 pt-4 pb-0">
+        <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-3">
             <ImageUpload
               currentUrl={driver?.photoUrl ? `/api/storage/objects/${driver.photoUrl}` : undefined}
@@ -184,12 +184,25 @@ export default function DriverDashboard() {
           <div className="flex items-center gap-2">
             <NotificationBell />
             <LangToggle />
-            <div className="text-right">
-              <div className="flex items-center gap-1">
-                <div className={`w-2 h-2 rounded-full ${driver?.isOnline ? "bg-green-400 animate-pulse" : "bg-gray-500"}`} />
-                <span className="text-xs font-bold">{driver?.isOnline ? t.online : t.offline}</span>
-              </div>
+            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/8 border border-white/10">
+              <div className={`w-2 h-2 rounded-full ${driver?.isOnline ? "bg-green-400 animate-pulse" : "bg-gray-500"}`} />
+              <span className="text-xs font-bold">{driver?.isOnline ? t.online : t.offline}</span>
             </div>
+          </div>
+        </div>
+
+        {/* Today's earnings banner */}
+        <div className="flex items-center justify-between bg-yellow-400/10 border border-yellow-400/25 rounded-2xl px-4 py-3 mb-3">
+          <div className="flex items-center gap-2">
+            <TrendingUp size={18} className="text-yellow-400" />
+            <div>
+              <p className="text-[10px] text-yellow-400/70 uppercase tracking-widest font-bold">Hoy</p>
+              <p className="text-2xl font-black text-yellow-400 leading-none">{formatDOP(stats?.earningsToday ?? 0)}</p>
+            </div>
+          </div>
+          <div className="text-right">
+            <p className="text-2xl font-black text-white leading-none">{stats?.deliveriesToday ?? 0}</p>
+            <p className="text-[10px] text-white/50 uppercase tracking-widest">{stats?.deliveriesToday === 1 ? "entrega" : "entregas"}</p>
           </div>
         </div>
       </div>
@@ -226,23 +239,15 @@ export default function DriverDashboard() {
           </button>
         </div>
 
-        <div className="grid grid-cols-2 gap-3">
-          <div className="bg-white/8 border border-white/10 rounded-2xl p-4">
-            <div className="flex items-center gap-2 mb-2">
-              <TrendingUp size={16} className="text-yellow-400" />
-              <span className="text-xs text-[#FFD700]/70 font-bold uppercase">{t.today}</span>
+        <div className="bg-white/8 border border-white/10 rounded-2xl p-4 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Wallet size={18} className="text-green-400" />
+            <div>
+              <p className="text-xs text-[#FFD700]/70 font-bold uppercase">{t.wallet}</p>
+              <p className="text-2xl font-black text-green-400">{formatDOP(driver?.walletBalance ?? 0)}</p>
             </div>
-            <p className="text-2xl font-black text-yellow-400">{formatDOP(stats?.earningsToday ?? 0)}</p>
-            <p className="text-xs text-white/60">{stats?.deliveriesToday ?? 0} {t.deliveries}</p>
           </div>
-          <div className="bg-white/8 border border-white/10 rounded-2xl p-4">
-            <div className="flex items-center gap-2 mb-2">
-              <Wallet size={16} className="text-green-400" />
-              <span className="text-xs text-[#FFD700]/70 font-bold uppercase">{t.wallet}</span>
-            </div>
-            <p className="text-2xl font-black text-green-400">{formatDOP(driver?.walletBalance ?? 0)}</p>
-            <p className="text-xs text-white/60">{t.walletBalance}</p>
-          </div>
+          <p className="text-xs text-white/50">{t.walletBalance}</p>
         </div>
 
         <div className="bg-white/8 border border-white/10 rounded-2xl p-4">

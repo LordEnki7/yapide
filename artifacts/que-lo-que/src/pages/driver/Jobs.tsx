@@ -404,18 +404,18 @@ export default function DriverJobs() {
                       <div className="space-y-2">
                         {!arrived ? (
                           <Button
-                            className="w-full h-14 rounded-2xl bg-orange-500 hover:bg-orange-400 text-white font-black text-base shadow-[0_0_20px_rgba(249,115,22,0.4)] active:scale-95 transition-transform"
+                            className="w-full h-20 rounded-2xl bg-orange-500 hover:bg-orange-400 text-white font-black text-xl shadow-[0_0_30px_rgba(249,115,22,0.5)] active:scale-[0.97] transition-transform"
                             onClick={() => setArrivedIds(prev => new Set(prev).add(order.id))}
                           >
                             📍 Llegué al negocio
                           </Button>
                         ) : (
                           <Button
-                            className="w-full h-14 rounded-2xl bg-blue-500 hover:bg-blue-400 text-white font-black text-base shadow-[0_0_20px_rgba(59,130,246,0.4)] active:scale-95 transition-transform"
+                            className="w-full h-20 rounded-2xl bg-blue-500 hover:bg-blue-400 text-white font-black text-xl shadow-[0_0_30px_rgba(59,130,246,0.5)] active:scale-[0.97] transition-transform"
                             onClick={() => handleMarkPickedUp(order.id)}
                             disabled={updateStatus.isPending}
                           >
-                            <Package size={18} className="mr-2" />
+                            <Package size={22} className="mr-2" />
                             ✅ Ya recogí el pedido
                           </Button>
                         )}
@@ -442,7 +442,7 @@ export default function DriverJobs() {
                           </div>
                         )}
                         <Button
-                          className="w-full h-14 rounded-2xl bg-yellow-400 hover:bg-yellow-300 text-black font-black text-base shadow-[0_0_30px_rgba(255,215,0,0.5)] active:scale-95 transition-transform disabled:opacity-40"
+                          className="w-full h-20 rounded-2xl bg-yellow-400 hover:bg-yellow-300 text-black font-black text-xl shadow-[0_0_40px_rgba(255,215,0,0.6)] active:scale-[0.97] transition-transform disabled:opacity-40"
                           onClick={() => { setPinInput(""); setPinModal({ orderId: order.id }); }}
                           disabled={
                             updateStatus.isPending ||
@@ -451,8 +451,8 @@ export default function DriverJobs() {
                           }
                         >
                           {uploadingId === order.id
-                            ? <Loader2 size={18} className="mr-2 animate-spin" />
-                            : <ShieldCheck size={18} className="mr-2" />
+                            ? <Loader2 size={22} className="mr-2 animate-spin" />
+                            : <ShieldCheck size={22} className="mr-2" />
                           }
                           🎉 Marcar como entregado
                         </Button>
