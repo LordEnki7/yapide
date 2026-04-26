@@ -20,6 +20,7 @@ export const businessesTable = pgTable("businesses", {
   isOpen: boolean("is_open").notNull().default(true),
   openHours: text("open_hours"),
   approvalStatus: text("approval_status").notNull().default("approved"),
+  isFeatured: boolean("is_featured").notNull().default(false),
   rating: real("rating").notNull().default(5.0),
   totalOrders: integer("total_orders").notNull().default(0),
   prepTimeMinutes: integer("prep_time_minutes").notNull().default(25),

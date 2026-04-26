@@ -18,6 +18,9 @@ import staffRouter from "./staff";
 import favoritesRouter from "./favorites";
 import paymentsRouter from "./payments";
 import referralsRouter from "./referrals";
+import bannersRouter from "./banners";
+import deliveryWindowsRouter from "./delivery_windows";
+import pointsEventsRouter from "./points_events";
 import { authLimiter, orderLimiter, supportLimiter } from "../lib/rate-limiters";
 
 const router: IRouter = Router();
@@ -53,5 +56,8 @@ router.use(staffRouter);
 router.use(favoritesRouter);
 router.use(paymentsRouter);
 router.use(referralsRouter);
+router.use(bannersRouter);
+router.use(deliveryWindowsRouter);
+router.use(pointsEventsRouter);
 
 export default router;

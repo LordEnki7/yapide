@@ -5,7 +5,7 @@ import { formatDOP } from "@/lib/auth";
 import { useAdminLang } from "@/lib/lang";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Users, Package, Bike, TrendingUp, Tag, Bot, Bell, Shield, Crown, ShieldCheck, AlertCircle, Settings } from "lucide-react";
+import { Users, Package, Bike, TrendingUp, Tag, Bot, Bell, Shield, Crown, ShieldCheck, AlertCircle, Settings, Megaphone, Truck, Star, Send, QrCode } from "lucide-react";
 import { getEffectivePermissions, type Permission } from "@/lib/adminPermissions";
 
 interface AdminInfo {
@@ -57,7 +57,12 @@ export default function AdminDashboard() {
     { href: "/admin/drivers",         label: t.drivers,        icon: Bike,        perm: "drivers" as Permission },
     { href: "/admin/businesses",      label: t.businesses,     icon: TrendingUp,  perm: "businesses" as Permission },
     { href: "/admin/orders",          label: t.allOrders,      icon: Package,     perm: "orders" as Permission },
-    { href: "/admin/promo-codes",     label: "Códigos Promo",  icon: Tag,         perm: "promo_codes" as Permission },
+    { href: "/admin/promo-codes",      label: "Códigos Promo",  icon: Tag,         perm: "promo_codes" as Permission },
+    { href: "/admin/banners",          label: "Banners",        icon: Megaphone,   perm: "promo_codes" as Permission },
+    { href: "/admin/delivery-windows", label: "Delivery Gratis",icon: Truck,       perm: "promo_codes" as Permission },
+    { href: "/admin/points-events",    label: "Pts Eventos",    icon: Star,        perm: "promo_codes" as Permission },
+    { href: "/admin/broadcast",        label: "Push Masivo",    icon: Send,        perm: "notifications" as Permission },
+    { href: "/admin/qr-generator",     label: "QR Generator",   icon: QrCode,      perm: "promo_codes" as Permission },
     { href: "/admin/notifications",   label: "Notificaciones", icon: Bell,        perm: "notifications" as Permission },
     { href: "/admin/staff",           label: "Staff",          icon: Shield,      perm: "staff" as Permission },
     { href: "/admin/disputes",        label: "Disputas",       icon: AlertCircle, perm: "orders" as Permission },

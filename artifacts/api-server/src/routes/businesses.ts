@@ -216,6 +216,18 @@ router.patch("/businesses/:businessId", async (req, res): Promise<void> => {
   res.json(formatBusiness(business));
 });
 
+// PATCH /api/businesses/:id/featured — admin toggle featured
+router.patch("/businesses/:businessId/featured", async (req, res): Promise<void> => {
+  const sessionUserId = (req.session as any)?.userId;
+  if (!sessionUserId) { res.status(401).json({ error: "Unauthorized" }); return; }
+  const id = parseInt(req.params.businessId, 10);
+  if (isNaN(id)) { res.status(400).json({ error: "Invalid id" }); return; }
+  const { isFeatured } = req.body ?? {};
+  const [biz] = await db.update(businessesTable).set({ isFeatured: Boolean(isFeatured) }).where(eq(businessesTable.id, id)).returning();
+  if (!biz) { res.status(404).json({ error: "Not found" }); return; }
+  res.json({ id: biz.id, isFeatured: biz.isFeatured });
+});
+
 router.get("/businesses/mine/analytics", async (req, res): Promise<void> => {
   const sessionUserId = (req.session as any)?.userId;
   if (!sessionUserId) { res.status(401).json({ error: "Unauthorized" }); return; }

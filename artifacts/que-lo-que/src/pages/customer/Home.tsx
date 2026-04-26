@@ -6,8 +6,17 @@ import { useLang } from "@/lib/lang";
 import LangToggle from "@/components/LangToggle";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Search, Star, Clock, ChevronLeft, MapPin, ChevronDown, Heart } from "lucide-react";
+import { Search, Star, Clock, ChevronLeft, MapPin, ChevronDown, Heart, Truck, Zap } from "lucide-react";
 import NotificationBell from "@/components/NotificationBell";
+
+interface Banner {
+  id: number; title: string; subtitle: string | null; imageUrl: string | null;
+  bgColor: string; ctaText: string | null; ctaLink: string | null;
+}
+
+interface PointsEvent {
+  id: number; name: string; multiplier: number;
+}
 
 const CITIES = [
   { value: "Santo Domingo", label: "Santo Domingo" },
@@ -64,6 +73,16 @@ export default function CustomerHome() {
   const [cityPickerOpen, setCityPickerOpen] = useState(false);
   const [favoriteIds, setFavoriteIds] = useState<Set<number>>(new Set());
   const [favLoading, setFavLoading] = useState<Set<number>>(new Set());
+  const [banners, setBanners] = useState<Banner[]>([]);
+  const [activeBannerIdx, setActiveBannerIdx] = useState(0);
+  const [freeDelivery, setFreeDelivery] = useState(false);
+  const [pointsEvents, setPointsEvents] = useState<PointsEvent[]>([]);
+
+  useEffect(() => {
+    fetch("/api/banners/active").then(r => r.ok ? r.json() : []).then(setBanners).catch(() => {});
+    fetch("/api/delivery-windows/active").then(r => r.ok ? r.json() : {}).then(d => setFreeDelivery(d?.active ?? false)).catch(() => {});
+    fetch("/api/points-events/active").then(r => r.ok ? r.json() : []).then(setPointsEvents).catch(() => {});
+  }, []);
 
   useEffect(() => {
     fetch("/api/favorites", { credentials: "include" })
@@ -113,11 +132,13 @@ export default function CustomerHome() {
         queryKey: getListBusinessesQueryKey({ category: (selectedCategory ?? "all") as any, search: search || undefined }),
         select: (data: any[]) => {
           const filtered = data.filter((b: any) => !b.city || b.city === city || city === "all");
-          // Open businesses first, closed sink to bottom
+          // Featured first, then open, then closed
           return [...filtered].sort((a, b) => {
+            const aFeat = a.isFeatured ? 2 : 0;
+            const bFeat = b.isFeatured ? 2 : 0;
             const aOpen = a.isOpen !== false ? 1 : 0;
             const bOpen = b.isOpen !== false ? 1 : 0;
-            return bOpen - aOpen;
+            return (bFeat + bOpen) - (aFeat + aOpen);
           });
         },
       }
@@ -249,6 +270,57 @@ export default function CustomerHome() {
           </div>
         )}
 
+        {/* ─── PROMO INDICATORS — free delivery + points multiplier ─── */}
+        {!selectedCategory && !search && (freeDelivery || pointsEvents.length > 0) && (
+          <div className="px-4 pt-2 flex flex-col gap-2">
+            {freeDelivery && (
+              <div className="flex items-center gap-3 bg-green-500/15 border border-green-500/30 rounded-2xl px-4 py-2.5 animate-pulse-slow">
+                <Truck size={18} className="text-green-400 flex-shrink-0" />
+                <p className="text-sm font-bold text-green-300">
+                  {lang === "es" ? "🎉 ¡Delivery gratis ahora mismo!" : "🎉 Free delivery right now!"}
+                </p>
+              </div>
+            )}
+            {pointsEvents.map(ev => (
+              <div key={ev.id} className="flex items-center gap-3 bg-yellow-400/15 border border-yellow-400/30 rounded-2xl px-4 py-2.5">
+                <Zap size={18} className="text-yellow-400 flex-shrink-0" />
+                <p className="text-sm font-bold text-yellow-300">
+                  ⭐ {ev.multiplier}x puntos — {ev.name}
+                </p>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* ─── PROMO BANNERS ─── */}
+        {!selectedCategory && !search && banners.length > 0 && (
+          <div className="px-4 pt-3">
+            <div className="relative overflow-hidden rounded-2xl cursor-pointer" style={{ backgroundColor: banners[activeBannerIdx]?.bgColor ?? "#0057B7" }}>
+              {banners[activeBannerIdx]?.imageUrl && (
+                <img src={banners[activeBannerIdx].imageUrl!} alt="" className="absolute right-0 top-0 h-full w-1/3 object-cover opacity-30 pointer-events-none" />
+              )}
+              <div className="relative z-10 px-5 py-5">
+                <p className="font-black text-white text-xl drop-shadow leading-tight">{banners[activeBannerIdx]?.title}</p>
+                {banners[activeBannerIdx]?.subtitle && <p className="text-white/80 text-sm mt-1">{banners[activeBannerIdx].subtitle}</p>}
+                {banners[activeBannerIdx]?.ctaText && banners[activeBannerIdx]?.ctaLink && (
+                  <a href={banners[activeBannerIdx].ctaLink!} className="mt-3 inline-block bg-yellow-400 text-black font-black text-sm px-4 py-2 rounded-xl hover:bg-yellow-300 transition">
+                    {banners[activeBannerIdx].ctaText}
+                  </a>
+                )}
+              </div>
+              {/* Dots */}
+              {banners.length > 1 && (
+                <div className="absolute bottom-2 right-3 flex gap-1">
+                  {banners.map((_, i) => (
+                    <button key={i} onClick={() => setActiveBannerIdx(i)}
+                      className={`w-2 h-2 rounded-full transition ${i === activeBannerIdx ? "bg-yellow-400" : "bg-white/30"}`} />
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
         {/* ─── CATEGORY TILES ─── */}
         {!selectedCategory && !search && (
           <div className="pt-3 space-y-2">
@@ -326,7 +398,16 @@ export default function CustomerHome() {
                         {/* Info */}
                         <div className="flex-1 min-w-0 py-0.5 relative z-20">
                           <div className="flex items-start justify-between gap-2">
-                            <h3 className={`font-black text-base leading-tight line-clamp-1 ${isClosed ? "text-white/50" : "text-white"}`}>{biz.name}</h3>
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center gap-2 flex-wrap">
+                                <h3 className={`font-black text-base leading-tight line-clamp-1 ${isClosed ? "text-white/50" : "text-white"}`}>{biz.name}</h3>
+                                {biz.isFeatured && !isClosed && (
+                                  <span className="flex-shrink-0 flex items-center gap-0.5 text-[10px] bg-yellow-400/20 text-yellow-400 border border-yellow-400/30 px-1.5 py-0.5 rounded-full font-bold">
+                                    <Star size={8} fill="currentColor" /> Destacado
+                                  </span>
+                                )}
+                              </div>
+                            </div>
                             <div className="flex items-center gap-2 flex-shrink-0">
                               <div className="flex items-center gap-1 bg-yellow-400/15 border border-yellow-400/30 px-2 py-0.5 rounded-lg">
                                 <Star size={10} className="text-yellow-400" fill="currentColor" />

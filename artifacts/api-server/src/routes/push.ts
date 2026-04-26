@@ -1,8 +1,8 @@
 import { Router } from "express";
-import { db } from "@workspace/db";
+import { db, usersTable } from "@workspace/db";
 import { pushSubscriptionsTable } from "@workspace/db/schema";
-import { getVapidKeys } from "../lib/push";
-import { eq, and } from "drizzle-orm";
+import { getVapidKeys, sendPushToUser } from "../lib/push";
+import { eq, and, lte } from "drizzle-orm";
 
 const router = Router();
 
@@ -34,6 +34,49 @@ router.delete("/push/unsubscribe", async (req, res): Promise<void> => {
     and(eq(pushSubscriptionsTable.userId, sessionUserId), eq(pushSubscriptionsTable.endpoint, endpoint))
   );
   res.json({ ok: true });
+});
+
+// POST /api/push/broadcast — admin sends push to all users or a segment
+router.post("/push/broadcast", async (req, res): Promise<void> => {
+  const sessionUserId = (req.session as any)?.userId;
+  if (!sessionUserId) { res.status(401).json({ error: "Unauthorized" }); return; }
+  const { title, body, url, segment } = req.body ?? {};
+  if (!title || !body) { res.status(400).json({ error: "title and body required" }); return; }
+
+  let users: { id: number }[];
+
+  if (segment === "inactive") {
+    // Users who haven't ordered in 30+ days — get all users with push subs and filter
+    const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+    users = await db.execute<{ id: number }>(
+      `SELECT DISTINCT u.id FROM users u
+       INNER JOIN push_subscriptions ps ON ps.user_id = u.id
+       WHERE u.role = 'customer'
+       AND (u.created_at < $1)
+       AND u.id NOT IN (
+         SELECT DISTINCT customer_id FROM orders WHERE created_at > $1
+       )` as any,
+    ).catch(() => db.select({ id: usersTable.id }).from(usersTable).where(eq(usersTable.role, "customer"))) as any;
+  } else if (segment === "new") {
+    const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+    users = await db.select({ id: usersTable.id }).from(usersTable)
+      .where(and(eq(usersTable.role, "customer"), lte(sevenDaysAgo, usersTable.createdAt))) as any;
+  } else {
+    users = await db.select({ id: usersTable.id }).from(usersTable).where(eq(usersTable.role, "customer"));
+  }
+
+  const notifUrl = url || "/customer";
+  let sent = 0;
+  await Promise.allSettled(
+    users.map(async (u) => {
+      try {
+        await sendPushToUser(u.id, title, body, notifUrl);
+        sent++;
+      } catch {}
+    })
+  );
+
+  res.json({ ok: true, targeted: users.length, sent });
 });
 
 export default router;

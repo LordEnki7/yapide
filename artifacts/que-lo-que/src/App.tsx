@@ -69,6 +69,11 @@ import AdminNotifications from "@/pages/admin/Notifications";
 import AdminStaff from "@/pages/admin/Staff";
 import AdminDisputes from "@/pages/admin/Disputes";
 import AdminSettings from "@/pages/admin/Settings";
+import AdminBanners from "@/pages/admin/Banners";
+import AdminDeliveryWindows from "@/pages/admin/DeliveryWindows";
+import AdminPointsEvents from "@/pages/admin/PointsEvents";
+import AdminBroadcast from "@/pages/admin/Broadcast";
+import AdminQRGenerator from "@/pages/admin/QRGenerator";
 import CustomerSupport from "@/pages/customer/Support";
 import CustomerSearch from "@/pages/customer/Search";
 import BusinessOnboarding from "@/pages/business/Onboarding";
@@ -77,6 +82,7 @@ import DriverProfile from "@/pages/driver/Profile";
 import BusinessProfile from "@/pages/business/Profile";
 import PrivacyPolicy from "@/pages/PrivacyPolicy";
 import EULAPage from "@/pages/EULA";
+import PromoPage from "@/pages/Promo";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -127,10 +133,16 @@ function Router() {
         <Route path="/admin/staff" component={AdminStaff} />
         <Route path="/admin/disputes" component={AdminDisputes} />
         <Route path="/admin/settings" component={AdminSettings} />
+        <Route path="/admin/banners" component={AdminBanners} />
+        <Route path="/admin/delivery-windows" component={AdminDeliveryWindows} />
+        <Route path="/admin/points-events" component={AdminPointsEvents} />
+        <Route path="/admin/broadcast" component={AdminBroadcast} />
+        <Route path="/admin/qr-generator" component={AdminQRGenerator} />
         <Route path="/customer/support" component={CustomerSupport} />
         <Route path="/customer/search" component={CustomerSearch} />
         <Route path="/privacy" component={PrivacyPolicy} />
         <Route path="/eula" component={EULAPage} />
+        <Route path="/promo/:code" component={PromoPage} />
         <Route component={NotFound} />
       </Switch>
       <BottomNav />

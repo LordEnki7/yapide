@@ -93,6 +93,8 @@
     "@stripe/react-stripe-js": "^6.2.0",
     "@stripe/stripe-js": "^9.2.0",
     "@types/leaflet": "^1.9.21",
-    "leaflet": "^1.9.4"
+    "leaflet": "^1.9.4",
+    "qrcode": "^1.5.4",
+    "qrcode-svg": "^1.1.0"
   }
 }

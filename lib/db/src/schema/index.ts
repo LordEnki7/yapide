@@ -18,3 +18,6 @@ export * from "./disputes";
 export * from "./order_messages";
 export * from "./business_payouts";
 export * from "./location_notes";
+export * from "./banners";
+export * from "./delivery_windows";
+export * from "./points_events";

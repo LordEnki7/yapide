@@ -1,6 +1,6 @@
 import { Router, type IRouter } from "express";
-import { eq, and, desc, avg, sql } from "drizzle-orm";
-import { db, ordersTable, orderItemsTable, businessesTable, usersTable, driversTable, productsTable, walletTransactionsTable, pointsTransactionsTable, notificationsTable, driverReportsTable, disputesTable, orderMessagesTable } from "@workspace/db";
+import { eq, and, desc, avg, sql, lte, gte } from "drizzle-orm";
+import { db, ordersTable, orderItemsTable, businessesTable, usersTable, driversTable, productsTable, walletTransactionsTable, pointsTransactionsTable, notificationsTable, driverReportsTable, disputesTable, orderMessagesTable, deliveryWindowsTable, pointsEventsTable } from "@workspace/db";
 import { CreateOrderBody, UpdateOrderStatusBody, RateOrderBody, ListOrdersQueryParams } from "@workspace/api-zod";
 import { calculateFees, CASH_LIMIT, CASH_WARNING_THRESHOLD } from "../lib/dispatch";
 import { sendPushToUser } from "../lib/push";
@@ -260,7 +260,23 @@ router.post("/orders", async (req, res): Promise<void> => {
     });
   }
 
-  const { totalAmount, deliveryFee, commission, driverEarnings } = calculateFees(baseAmount, 3, tip ?? 0);
+  let { totalAmount, deliveryFee, commission, driverEarnings } = calculateFees(baseAmount, 3, tip ?? 0);
+
+  // ─── Free delivery window check ─────────────────────────────────────────────
+  const nowForWindow = new Date();
+  const freeWindows = await db.select().from(deliveryWindowsTable).where(eq(deliveryWindowsTable.isActive, true));
+  const dayOfWeekNow = nowForWindow.getDay();
+  const hhmm = `${String(nowForWindow.getHours()).padStart(2,"0")}:${String(nowForWindow.getMinutes()).padStart(2,"0")}`;
+  const todayStr = nowForWindow.toISOString().slice(0, 10);
+  const freeDeliveryActive = freeWindows.some(w => {
+    const dayMatch = w.dayOfWeek === null || w.dayOfWeek === dayOfWeekNow;
+    const dateMatch = !w.specificDate || w.specificDate === todayStr;
+    return dayMatch && dateMatch && hhmm >= w.startTime && hhmm <= w.endTime;
+  });
+  if (freeDeliveryActive) {
+    totalAmount = parseFloat((totalAmount - deliveryFee).toFixed(2));
+    deliveryFee = 0;
+  }
 
   const verificationPin = String(Math.floor(1000 + Math.random() * 9000));
 
@@ -291,15 +307,23 @@ router.post("/orders", async (req, res): Promise<void> => {
 
   await db.update(businessesTable).set({ totalOrders: businessesTable.totalOrders }).where(eq(businessesTable.id, businessId));
 
-  const pointsEarned = Math.floor(baseAmount / 10);
+  // Points multiplier event check
+  const nowForPoints = new Date();
+  const activeMultiplierEvents = await db.select().from(pointsEventsTable)
+    .where(and(eq(pointsEventsTable.isActive, true), lte(pointsEventsTable.startsAt, nowForPoints), gte(pointsEventsTable.endsAt, nowForPoints)));
+  const pointsMultiplier = activeMultiplierEvents.length > 0 ? Math.max(...activeMultiplierEvents.map(e => e.multiplier ?? 1)) : 1;
+
+  const basePoints = Math.floor(baseAmount / 10);
+  const pointsEarned = Math.round(basePoints * pointsMultiplier);
   if (pointsEarned > 0) {
     await db.update(usersTable).set({ points: (await db.select({ points: usersTable.points }).from(usersTable).where(eq(usersTable.id, sessionUserId)))[0].points + pointsEarned }).where(eq(usersTable.id, sessionUserId));
+    const multiplierNote = pointsMultiplier > 1 ? ` 🎉 ${pointsMultiplier}x puntos!` : "";
     await db.insert(pointsTransactionsTable).values({
       userId: sessionUserId,
       orderId: order.id,
       type: "earn",
       amount: pointsEarned,
-      description: `Pedido #${order.id} · RD$${totalAmount.toFixed(0)}`,
+      description: `Pedido #${order.id} · RD$${totalAmount.toFixed(0)}${multiplierNote}`,
     });
   }
 
