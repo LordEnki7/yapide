@@ -2,6 +2,7 @@ import { Router, type IRouter } from "express";
 import { eq, ilike, and, gte, desc, or } from "drizzle-orm";
 import { db, businessesTable, usersTable, ordersTable, orderItemsTable, businessPayoutsTable, productsTable } from "@workspace/db";
 import { CreateBusinessBody, UpdateBusinessBody, ListBusinessesQueryParams, GetBusinessParams, UpdateBusinessParams } from "@workspace/api-zod";
+import { requireAdminPermission } from "../lib/adminPermissions";
 
 const router: IRouter = Router();
 
@@ -217,9 +218,7 @@ router.patch("/businesses/:businessId", async (req, res): Promise<void> => {
 });
 
 // PATCH /api/businesses/:id/featured — admin toggle featured
-router.patch("/businesses/:businessId/featured", async (req, res): Promise<void> => {
-  const sessionUserId = (req.session as any)?.userId;
-  if (!sessionUserId) { res.status(401).json({ error: "Unauthorized" }); return; }
+router.patch("/businesses/:businessId/featured", requireAdminPermission("businesses"), async (req, res): Promise<void> => {
   const id = parseInt(req.params.businessId, 10);
   if (isNaN(id)) { res.status(400).json({ error: "Invalid id" }); return; }
   const { isFeatured } = req.body ?? {};

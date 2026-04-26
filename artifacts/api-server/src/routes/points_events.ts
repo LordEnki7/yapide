@@ -1,13 +1,10 @@
 import { Router, type IRouter } from "express";
 import { eq, and, lte, gte, asc } from "drizzle-orm";
 import { db, pointsEventsTable } from "@workspace/db";
+import { requireAdminPermission } from "../lib/adminPermissions";
 
 const router: IRouter = Router();
-
-function requireAdmin(req: any, res: any, next: any) {
-  if (!(req.session as any)?.userId) { res.status(401).json({ error: "Not authenticated" }); return; }
-  next();
-}
+const requireAdmin = requireAdminPermission("promo_codes");
 
 // Utility: get active multiplier for right now (returns 1 if none)
 export async function getActivePointsMultiplier(): Promise<number> {

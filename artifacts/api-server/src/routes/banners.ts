@@ -1,14 +1,10 @@
 import { Router, type IRouter } from "express";
 import { eq, and, or, isNull, lte, gte, asc } from "drizzle-orm";
 import { db, bannersTable } from "@workspace/db";
+import { requireAdminPermission } from "../lib/adminPermissions";
 
 const router: IRouter = Router();
-
-function requireAdmin(req: any, res: any, next: any) {
-  const userId = (req.session as any)?.userId;
-  if (!userId) { res.status(401).json({ error: "Not authenticated" }); return; }
-  next();
-}
+const requireAdmin = requireAdminPermission("promo_codes");
 
 // GET /api/banners/active — public, returns banners active right now
 router.get("/banners/active", async (_req, res): Promise<void> => {

@@ -1,13 +1,10 @@
 import { Router, type IRouter } from "express";
 import { eq, asc } from "drizzle-orm";
 import { db, deliveryWindowsTable } from "@workspace/db";
+import { requireAdminPermission } from "../lib/adminPermissions";
 
 const router: IRouter = Router();
-
-function requireAdmin(req: any, res: any, next: any) {
-  if (!(req.session as any)?.userId) { res.status(401).json({ error: "Not authenticated" }); return; }
-  next();
-}
+const requireAdmin = requireAdminPermission("promo_codes");
 
 // Utility: is right now inside any active free delivery window?
 export async function isFreeDeliveryActive(): Promise<boolean> {
