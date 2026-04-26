@@ -9,7 +9,7 @@ import { useQueryClient, useMutation } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, MapPin, Banknote, CreditCard, Clock, Navigation, Camera, CheckCircle2, Package, Loader2, Store, MessageCircle, MapPinned, ShieldCheck, AlertTriangle, NotebookPen, Sparkles } from "lucide-react";
+import { ArrowLeft, MapPin, Banknote, CreditCard, Clock, Navigation, Camera, CheckCircle2, Package, Loader2, Store, MessageCircle, MapPinned, ShieldCheck, AlertTriangle, NotebookPen, Sparkles, Phone, Calculator } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import JobAlertModal from "@/components/JobAlertModal";
 import ChatPanel from "@/components/ChatPanel";
@@ -41,16 +41,47 @@ interface LocationNote {
   createdAt: string;
 }
 
-function NavLinks({ address, label }: { address: string; label: string }) {
+function NavLinks({ address, label, prominent = false }: { address: string; label: string; prominent?: boolean }) {
+  const encoded = encodeURIComponent(address);
+  if (prominent) {
+    return (
+      <div className="space-y-2">
+        <div className="flex items-start gap-2">
+          <MapPin size={14} className="text-yellow-400 flex-shrink-0 mt-0.5" />
+          <p className="text-sm text-white/90 leading-snug flex-1">{address}</p>
+        </div>
+        <div className="grid grid-cols-2 gap-2">
+          <a
+            href={`https://maps.google.com/?q=${encoded}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={e => e.stopPropagation()}
+            className="flex items-center justify-center gap-2 h-14 rounded-2xl bg-blue-500/15 border border-blue-500/40 text-blue-300 font-black text-sm active:scale-95 transition-transform"
+          >
+            <Navigation size={16} /> Google Maps
+          </a>
+          <a
+            href={`https://waze.com/ul?q=${encoded}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={e => e.stopPropagation()}
+            className="flex items-center justify-center gap-2 h-14 rounded-2xl bg-cyan-500/15 border border-cyan-500/40 text-cyan-300 font-black text-sm active:scale-95 transition-transform"
+          >
+            <Navigation size={16} /> Waze
+          </a>
+        </div>
+      </div>
+    );
+  }
   return (
-    <div className="space-y-2">
+    <div className="space-y-1.5">
       <div className="flex items-start gap-2 text-sm text-white/80">
         <MapPin size={14} className="text-yellow-400 flex-shrink-0 mt-0.5" />
         <span className="flex-1">{address}</span>
       </div>
       <div className="flex gap-2">
         <a
-          href={`https://maps.google.com/?q=${encodeURIComponent(address)}`}
+          href={`https://maps.google.com/?q=${encoded}`}
           target="_blank"
           rel="noopener noreferrer"
           onClick={e => e.stopPropagation()}
@@ -59,7 +90,7 @@ function NavLinks({ address, label }: { address: string; label: string }) {
           <Navigation size={11} /> Maps
         </a>
         <a
-          href={`https://waze.com/ul?q=${encodeURIComponent(address)}`}
+          href={`https://waze.com/ul?q=${encoded}`}
           target="_blank"
           rel="noopener noreferrer"
           onClick={e => e.stopPropagation()}
@@ -97,6 +128,17 @@ export default function DriverJobs() {
   const [noteModal, setNoteModal] = useState<{ orderId: number; address: string } | null>(null);
   const [noteText, setNoteText] = useState("");
   const [noteSubmitting, setNoteSubmitting] = useState(false);
+
+  // Cash change calculator
+  const [calcOpen, setCalcOpen] = useState<Set<number>>(new Set());
+  const [billGiven, setBillGiven] = useState<Record<number, string>>({});
+  const DR_BILLS = [200, 500, 1000, 2000];
+  const toggleCalc = (id: number) => setCalcOpen(prev => { const s = new Set(prev); s.has(id) ? s.delete(id) : s.add(id); return s; });
+  const getChange = (orderId: number, total: number): number | null => {
+    const given = parseFloat(billGiven[orderId] ?? "");
+    if (isNaN(given) || given < total) return null;
+    return Math.round(given - total);
+  };
 
   const queryClient = useQueryClient();
   const { toast } = useToast();
@@ -325,7 +367,7 @@ export default function DriverJobs() {
                         <div>
                           <p className="text-xs text-yellow-400 font-bold uppercase tracking-wide mb-1">📦 Paso 1 — Recoger en el negocio</p>
                           {order.businessAddress
-                            ? <NavLinks address={order.businessAddress} label={order.businessName ?? ""} />
+                            ? <NavLinks address={order.businessAddress} label={order.businessName ?? ""} prominent />
                             : <p className="text-sm text-white/70">{order.businessName}</p>}
                         </div>
                         <div className="border-t border-white/5 pt-3">
@@ -339,7 +381,7 @@ export default function DriverJobs() {
                       <div className="space-y-3 mb-3">
                         <div>
                           <p className="text-xs text-yellow-400 font-bold uppercase tracking-wide mb-1">🏠 Paso 2 — Entregar ahora en</p>
-                          <NavLinks address={order.deliveryAddress} label="destino" />
+                          <NavLinks address={order.deliveryAddress} label="destino" prominent />
                         </div>
                         {locationNotes[order.deliveryAddress]?.length > 0 && (
                           <div className="rounded-xl bg-amber-400/10 border border-amber-400/30 px-3 py-2.5 space-y-1.5">
@@ -386,17 +428,44 @@ export default function DriverJobs() {
                       </div>
                     )}
 
-                    {/* WhatsApp customer contact */}
+                    {/* Customer contact — WhatsApp + direct call */}
                     {order.customerPhone && (
-                      <a
-                        href={`https://wa.me/1${order.customerPhone.replace(/\D/g, "")}?text=${encodeURIComponent(`Hola${order.customerName ? ` ${order.customerName.split(" ")[0]}` : ""}, soy tu delivery de YaPide 🛵 Pedido #${order.id}`)}`}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="flex items-center justify-center gap-2 w-full mb-3 py-2.5 rounded-xl bg-green-500/15 border border-green-500/40 text-green-400 text-sm font-bold hover:bg-green-500/25 transition"
-                      >
-                        <MessageCircle size={15} />
-                        Contactar a {order.customerName?.split(" ")[0] ?? "el cliente"} por WhatsApp
-                      </a>
+                      <div className="grid grid-cols-2 gap-2 mb-3">
+                        <a
+                          href={`https://wa.me/1${order.customerPhone.replace(/\D/g, "")}?text=${encodeURIComponent(`Hola${order.customerName ? ` ${order.customerName.split(" ")[0]}` : ""}, soy tu delivery de YaPide 🛵 Pedido #${order.id}`)}`}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="flex items-center justify-center gap-2 h-12 rounded-2xl bg-green-500/15 border border-green-500/40 text-green-400 text-sm font-bold active:scale-95 transition-transform"
+                        >
+                          <MessageCircle size={15} /> WhatsApp
+                        </a>
+                        <a
+                          href={`tel:${order.customerPhone.replace(/\D/g, "")}`}
+                          className="flex items-center justify-center gap-2 h-12 rounded-2xl bg-white/8 border border-white/20 text-white text-sm font-bold active:scale-95 transition-transform"
+                        >
+                          <Phone size={15} /> Llamar
+                        </a>
+                      </div>
+                    )}
+
+                    {/* Business contact — during pickup only */}
+                    {order.status === "accepted" && order.businessPhone && (
+                      <div className="grid grid-cols-2 gap-2 mb-3">
+                        <a
+                          href={`https://wa.me/1${order.businessPhone.replace(/\D/g, "")}?text=${encodeURIComponent(`Hola, soy el motorista de YaPide 🛵. Estoy fuera para recoger el pedido #${order.id}.`)}`}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="flex items-center justify-center gap-2 h-12 rounded-2xl bg-orange-500/15 border border-orange-500/40 text-orange-400 text-sm font-bold active:scale-95 transition-transform"
+                        >
+                          <MessageCircle size={15} /> WA Negocio
+                        </a>
+                        <a
+                          href={`tel:${order.businessPhone.replace(/\D/g, "")}`}
+                          className="flex items-center justify-center gap-2 h-12 rounded-2xl bg-white/8 border border-white/20 text-white text-sm font-bold active:scale-95 transition-transform"
+                        >
+                          <Phone size={15} /> Llamar negocio
+                        </a>
+                      </div>
                     )}
 
                     {/* ─── QUICK-ACTION BAR ─── */}
@@ -441,6 +510,64 @@ export default function DriverJobs() {
                             <CheckCircle2 size={13} /> Cédula verificada ✓
                           </div>
                         )}
+
+                        {/* Inline cash change calculator — cash orders only */}
+                        {order.paymentMethod === "cash" && (
+                          <div className="rounded-2xl border border-yellow-400/20 overflow-hidden">
+                            <button
+                              onClick={() => toggleCalc(order.id)}
+                              className="w-full flex items-center justify-between px-4 py-3 bg-yellow-400/8 hover:bg-yellow-400/12 transition"
+                            >
+                              <div className="flex items-center gap-2 text-yellow-400 text-sm font-black">
+                                <Calculator size={15} /> Calcular cambio
+                              </div>
+                              <span className="text-yellow-400 text-lg leading-none">{calcOpen.has(order.id) ? "−" : "+"}</span>
+                            </button>
+                            {calcOpen.has(order.id) && (
+                              <div className="px-4 pb-4 pt-3 bg-yellow-400/5 space-y-3">
+                                <div className="flex items-center justify-between">
+                                  <span className="text-xs text-white/60">Total a cobrar</span>
+                                  <span className="font-black text-white">{formatDOP(order.totalAmount + order.deliveryFee)}</span>
+                                </div>
+                                <div className="grid grid-cols-4 gap-2">
+                                  {DR_BILLS.map(bill => (
+                                    <button
+                                      key={bill}
+                                      onClick={() => setBillGiven(prev => ({ ...prev, [order.id]: String(bill) }))}
+                                      className={`h-11 rounded-xl text-sm font-black border transition-all active:scale-95 ${
+                                        billGiven[order.id] === String(bill)
+                                          ? "bg-yellow-400 text-black border-yellow-400"
+                                          : "bg-white/8 text-white border-white/15 hover:border-yellow-400/40"
+                                      }`}
+                                    >
+                                      {bill >= 1000 ? `${bill/1000}K` : bill}
+                                    </button>
+                                  ))}
+                                </div>
+                                <div className="flex items-center gap-2">
+                                  <span className="text-xs text-white/50 flex-shrink-0">RD$</span>
+                                  <input
+                                    type="number"
+                                    inputMode="numeric"
+                                    value={billGiven[order.id] ?? ""}
+                                    onChange={e => setBillGiven(prev => ({ ...prev, [order.id]: e.target.value }))}
+                                    placeholder="otro monto"
+                                    className="flex-1 bg-white/8 border border-white/15 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-yellow-400/60 [color-scheme:dark]"
+                                  />
+                                </div>
+                                {getChange(order.id, order.totalAmount + order.deliveryFee) !== null ? (
+                                  <div className="flex items-center justify-between bg-green-400/15 border border-green-400/30 rounded-xl px-4 py-3">
+                                    <span className="text-sm font-bold text-green-400">Cambio a dar</span>
+                                    <span className="text-2xl font-black text-green-400">{formatDOP(getChange(order.id, order.totalAmount + order.deliveryFee)!)}</span>
+                                  </div>
+                                ) : billGiven[order.id] && parseFloat(billGiven[order.id]) < (order.totalAmount + order.deliveryFee) ? (
+                                  <p className="text-center text-xs text-red-400 font-bold">⚠️ Monto insuficiente</p>
+                                ) : null}
+                              </div>
+                            )}
+                          </div>
+                        )}
+
                         <Button
                           className="w-full h-20 rounded-2xl bg-yellow-400 hover:bg-yellow-300 text-black font-black text-xl shadow-[0_0_40px_rgba(255,215,0,0.6)] active:scale-[0.97] transition-transform disabled:opacity-40"
                           onClick={() => { setPinInput(""); setPinModal({ orderId: order.id }); }}
