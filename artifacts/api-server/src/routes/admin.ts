@@ -1,7 +1,8 @@
 import { Router, type IRouter } from "express";
 import { eq, desc, and } from "drizzle-orm";
-import { db, usersTable, driversTable, businessesTable, ordersTable, productsTable, disputesTable, orderItemsTable } from "@workspace/db";
+import { db, usersTable, driversTable, businessesTable, ordersTable, productsTable, disputesTable, orderItemsTable, walletTransactionsTable } from "@workspace/db";
 import { AdminListUsersQueryParams, AdminBanUserBody, AdminLockDriverBody } from "@workspace/api-zod";
+import { sendWhatsApp } from "../lib/whatsapp";
 
 const router: IRouter = Router();
 
@@ -222,6 +223,54 @@ router.patch("/admin/disputes/:disputeId/resolve", async (req, res): Promise<voi
   }).where(eq(disputesTable.id, id)).returning();
   if (!dispute) { res.status(404).json({ error: "Dispute not found" }); return; }
   res.json(dispute);
+});
+
+router.post("/admin/drivers/:driverId/request-dropoff", async (req, res): Promise<void> => {
+  if (!isAdmin(req)) { res.status(401).json({ error: "Unauthorized" }); return; }
+  const id = parseInt(Array.isArray(req.params.driverId) ? req.params.driverId[0] : req.params.driverId, 10);
+  if (isNaN(id)) { res.status(400).json({ error: "Invalid driverId" }); return; }
+
+  const [driver] = await db.select().from(driversTable).where(eq(driversTable.id, id));
+  if (!driver) { res.status(404).json({ error: "Driver not found" }); return; }
+
+  const [user] = await db.select().from(usersTable).where(eq(usersTable.id, driver.userId));
+  if (!user?.phone) { res.status(400).json({ error: "Driver has no phone number on file" }); return; }
+
+  const name = user.name?.split(" ")[0] ?? "Driver";
+  const amountStr = `RD$${Math.round(driver.cashBalance).toLocaleString()}`;
+  const message = `💰 Hola ${name}, el equipo de *YaPide* te solicita que pases a la oficina a entregar el efectivo que tienes (${amountStr}). Por favor llega lo antes posible con todo el efectivo. ¡Gracias! 📍 Oficina YaPide`;
+
+  const sent = await sendWhatsApp(user.phone, message);
+  res.json({ success: true, messageSent: sent, driverName: user.name, cashBalance: driver.cashBalance });
+});
+
+router.post("/admin/drivers/:driverId/record-dropoff", async (req, res): Promise<void> => {
+  if (!isAdmin(req)) { res.status(401).json({ error: "Unauthorized" }); return; }
+  const id = parseInt(Array.isArray(req.params.driverId) ? req.params.driverId[0] : req.params.driverId, 10);
+  if (isNaN(id)) { res.status(400).json({ error: "Invalid driverId" }); return; }
+
+  const amount = parseFloat(req.body.amount);
+  if (isNaN(amount) || amount <= 0) { res.status(400).json({ error: "amount must be a positive number" }); return; }
+
+  const [driver] = await db.select().from(driversTable).where(eq(driversTable.id, id));
+  if (!driver) { res.status(404).json({ error: "Driver not found" }); return; }
+
+  const newCashBalance = Math.max(0, driver.cashBalance - amount);
+  const shouldUnlock = driver.isLocked && newCashBalance <= 0;
+
+  await db.update(driversTable).set({
+    cashBalance: newCashBalance,
+    ...(shouldUnlock && { isLocked: false }),
+  }).where(eq(driversTable.id, id));
+
+  await db.insert(walletTransactionsTable).values({
+    driverId: id,
+    type: "cash_dropoff",
+    amount: -amount,
+    description: `Entrega de efectivo en oficina — RD$${Math.round(amount).toLocaleString()}`,
+  });
+
+  res.json({ success: true, previousBalance: driver.cashBalance, newCashBalance, unlockedDriver: shouldUnlock });
 });
 
 router.post("/admin/orders/:orderId/assign-driver", async (req, res): Promise<void> => {

@@ -2,7 +2,7 @@ import { Router, type IRouter } from "express";
 import { eq, and, desc, avg } from "drizzle-orm";
 import { db, ordersTable, orderItemsTable, businessesTable, usersTable, driversTable, productsTable, walletTransactionsTable, pointsTransactionsTable, notificationsTable, driverReportsTable, disputesTable } from "@workspace/db";
 import { CreateOrderBody, UpdateOrderStatusBody, RateOrderBody, ListOrdersQueryParams } from "@workspace/api-zod";
-import { calculateFees, CASH_LIMIT } from "../lib/dispatch";
+import { calculateFees, CASH_LIMIT, CASH_WARNING_THRESHOLD } from "../lib/dispatch";
 import { sendPushToUser } from "../lib/push";
 import { sendWhatsApp } from "../lib/whatsapp";
 import { subscribe, emitOrderStatusChange } from "../lib/sse";
@@ -339,6 +339,18 @@ router.patch("/orders/:orderId/status", async (req, res): Promise<void> => {
           amount: order.totalAmount + order.deliveryFee + tipAmount,
           description: `Cash collected for order #${order.id}`,
         });
+
+        if (newCashBalance >= CASH_WARNING_THRESHOLD) {
+          const [driverUser] = await db.select().from(usersTable).where(eq(usersTable.id, driver.userId));
+          if (driverUser?.phone) {
+            const name = driverUser.name?.split(" ")[0] ?? "Driver";
+            const amountStr = `RD$${Math.round(newCashBalance).toLocaleString()}`;
+            const msg = isLocked
+              ? `🔒 Hola ${name}, tienes ${amountStr} en efectivo y tu cuenta está *bloqueada*. Por favor pasa a la oficina YaPide AHORA a entregar el efectivo para reactivar tu cuenta. ¡No tomes más pedidos hasta entregar! - YaPide`
+              : `⚠️ Hola ${name}, ya tienes ${amountStr} en efectivo. Por favor pasa pronto a la oficina a hacer tu entrega para evitar que tu cuenta sea bloqueada. ¡Seguridad primero! - YaPide`;
+            sendWhatsApp(driverUser.phone, msg).catch(() => {});
+          }
+        }
       }
 
       const tenDeliveryMilestones = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100];

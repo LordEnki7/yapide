@@ -57,6 +57,7 @@ export const DELIVERY_BASE_FEE = 150;
 export const DELIVERY_FEE_PER_KM = 25;
 export const DELIVERY_DRIVER_SHARE = 0.50;
 export const CASH_LIMIT = 10000;
+export const CASH_WARNING_THRESHOLD = 7000;
 
 export function calculateFees(baseAmount: number, distanceKm = 3, tip = 0) {
   const markedUpTotal = parseFloat((baseAmount * (1 + PLATFORM_MARKUP)).toFixed(2));
