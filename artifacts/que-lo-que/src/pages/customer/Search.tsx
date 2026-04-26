@@ -54,7 +54,8 @@ export default function CustomerSearch() {
     debounceRef.current = setTimeout(async () => {
       setLoading(true);
       try {
-        const data = await apiFetch<SearchResults>(`/api/search?q=${encodeURIComponent(query)}`);
+        const resp = await apiFetch(`/api/search?q=${encodeURIComponent(query)}`);
+        const data: SearchResults = await resp.json();
         setResults(data);
       } catch {
         setResults(null);

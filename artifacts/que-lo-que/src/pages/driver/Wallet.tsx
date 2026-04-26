@@ -35,7 +35,7 @@ export default function DriverWallet() {
   });
   const { data: earningsData, isLoading: earningsLoading } = useQuery({
     queryKey: ["driver-earnings"],
-    queryFn: () => apiFetch<{ days: EarningsDay[]; totalOrders: number }>("/api/drivers/me/earnings"),
+    queryFn: () => apiFetch("/api/drivers/me/earnings").then(r => r.json()) as Promise<{ days: EarningsDay[]; totalOrders: number }>,
     enabled: tab === "breakdown",
   });
 
