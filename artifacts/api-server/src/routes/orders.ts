@@ -156,6 +156,27 @@ router.get("/orders/:orderId/stream", async (req, res): Promise<void> => {
   const id = parseInt(raw, 10);
   if (isNaN(id)) { res.status(400).end(); return; }
 
+  // Authorization: only allow the customer, assigned driver, the business owner, or an admin/business
+  const [order] = await db.select().from(ordersTable).where(eq(ordersTable.id, id));
+  if (!order) { res.status(404).end(); return; }
+  const [userRow] = await db.select({ role: usersTable.role }).from(usersTable).where(eq(usersTable.id, sessionUserId));
+  if (userRow?.role !== "admin") {
+    const isCustomer = order.customerId === sessionUserId;
+    let isDriver = false;
+    if (order.driverId !== null) {
+      const [driverRow] = await db.select({ id: driversTable.id }).from(driversTable)
+        .where(and(eq(driversTable.id, order.driverId), eq(driversTable.userId, sessionUserId)));
+      isDriver = !!driverRow;
+    }
+    let isBizOwner = false;
+    if (userRow?.role === "business") {
+      const [bizRow] = await db.select({ id: businessesTable.id }).from(businessesTable)
+        .where(and(eq(businessesTable.id, order.businessId), eq(businessesTable.userId, sessionUserId)));
+      isBizOwner = !!bizRow;
+    }
+    if (!isCustomer && !isDriver && !isBizOwner) { res.status(403).end(); return; }
+  }
+
   res.setHeader("Content-Type", "text/event-stream");
   res.setHeader("Cache-Control", "no-cache");
   res.setHeader("Connection", "keep-alive");
@@ -163,7 +184,6 @@ router.get("/orders/:orderId/stream", async (req, res): Promise<void> => {
   res.flushHeaders();
 
   // Send current status immediately
-  const [order] = await db.select({ status: ordersTable.status }).from(ordersTable).where(eq(ordersTable.id, id));
   if (order) {
     res.write(`event: status\ndata: ${JSON.stringify({ orderId: id, status: order.status, ts: Date.now() })}\n\n`);
   }
