@@ -3,6 +3,11 @@ import { eq, desc } from "drizzle-orm";
 import { db, usersTable, notificationsTable } from "@workspace/db";
 import { hashPassword, verifyPassword } from "../lib/auth";
 import { RegisterUserBody, LoginUserBody } from "@workspace/api-zod";
+import { createHash } from "crypto";
+
+function generateReferralCode(userId: number): string {
+  return createHash("md5").update(`${userId}yapide2024`).digest("hex").slice(0, 7).toUpperCase();
+}
 
 const router: IRouter = Router();
 
@@ -35,6 +40,8 @@ router.post("/auth/register", async (req, res): Promise<void> => {
     return;
   }
   const { name, email, password, role, phone } = parsed.data;
+  const referralCodeInput = typeof req.body?.referralCode === "string" ? req.body.referralCode.trim().toUpperCase() : null;
+
   const existing = await db
     .select()
     .from(usersTable)
@@ -43,6 +50,14 @@ router.post("/auth/register", async (req, res): Promise<void> => {
     res.status(409).json({ error: "Email already registered" });
     return;
   }
+
+  // Resolve referrer if a code was provided
+  let referredById: number | null = null;
+  if (referralCodeInput) {
+    const [referrer] = await db.select({ id: usersTable.id }).from(usersTable).where(eq(usersTable.referralCode, referralCodeInput));
+    if (referrer) referredById = referrer.id;
+  }
+
   const [user] = await db
     .insert(usersTable)
     .values({
@@ -51,8 +66,13 @@ router.post("/auth/register", async (req, res): Promise<void> => {
       phone: phone ?? null,
       passwordHash: await hashPassword(password),
       role,
+      referredById,
     })
     .returning();
+
+  // Generate and assign referral code using the new user's ID
+  const referralCode = generateReferralCode(user.id);
+  await db.update(usersTable).set({ referralCode }).where(eq(usersTable.id, user.id));
 
   (req.session as any).userId = user.id;
   res.status(201).json({ user: formatUser(user), token: `session-${user.id}` });

@@ -17,6 +17,7 @@ import agentsRouter from "./agents";
 import staffRouter from "./staff";
 import favoritesRouter from "./favorites";
 import paymentsRouter from "./payments";
+import referralsRouter from "./referrals";
 import { authLimiter, orderLimiter, supportLimiter } from "../lib/rate-limiters";
 
 const router: IRouter = Router();
@@ -51,5 +52,6 @@ router.use(agentsRouter);
 router.use(staffRouter);
 router.use(favoritesRouter);
 router.use(paymentsRouter);
+router.use(referralsRouter);
 
 export default router;

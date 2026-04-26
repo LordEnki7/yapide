@@ -1,5 +1,5 @@
 import { Router, type IRouter } from "express";
-import { eq, and, desc, avg } from "drizzle-orm";
+import { eq, and, desc, avg, sql } from "drizzle-orm";
 import { db, ordersTable, orderItemsTable, businessesTable, usersTable, driversTable, productsTable, walletTransactionsTable, pointsTransactionsTable, notificationsTable, driverReportsTable, disputesTable, orderMessagesTable } from "@workspace/db";
 import { CreateOrderBody, UpdateOrderStatusBody, RateOrderBody, ListOrdersQueryParams } from "@workspace/api-zod";
 import { calculateFees, CASH_LIMIT, CASH_WARNING_THRESHOLD } from "../lib/dispatch";
@@ -418,6 +418,31 @@ router.patch("/orders/:orderId/status", async (req, res): Promise<void> => {
           description: `${newTotalDeliveries} deliveries milestone bonus!`,
         });
       }
+    }
+  }
+
+  // ─── Referral bonus — first delivered order for a referred customer ─────────
+  if (parsed.data.status === "delivered") {
+    const [customer] = await db.select({
+      referredById: usersTable.referredById,
+      referralBonusPaid: usersTable.referralBonusPaid,
+    }).from(usersTable).where(eq(usersTable.id, order.customerId));
+
+    if (customer?.referredById && !customer?.referralBonusPaid) {
+      const REFERRAL_POINTS = 10; // 10 pts ≈ RD$100 value
+      // Credit new customer + mark bonus as paid
+      await db.update(usersTable)
+        .set({ points: sql`${usersTable.points} + ${REFERRAL_POINTS}`, referralBonusPaid: true })
+        .where(eq(usersTable.id, order.customerId));
+      // Credit referrer
+      await db.update(usersTable)
+        .set({ points: sql`${usersTable.points} + ${REFERRAL_POINTS}` })
+        .where(eq(usersTable.id, customer.referredById));
+      // Log points transactions
+      await db.insert(pointsTransactionsTable).values([
+        { userId: order.customerId, points: REFERRAL_POINTS, type: "referral_bonus", description: "🎁 Bono por usar código de referido", orderId: order.id },
+        { userId: customer.referredById, points: REFERRAL_POINTS, type: "referral_bonus", description: "🎁 Tu amigo hizo su primer pedido en YaPide", orderId: order.id },
+      ]);
     }
   }
 

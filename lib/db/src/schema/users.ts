@@ -19,6 +19,10 @@ export const usersTable = pgTable("users", {
   otpCode: text("otp_code"),
   otpExpiresAt: timestamp("otp_expires_at", { withTimezone: true }),
   points: integer("points").notNull().default(0),
+  // Referral system
+  referralCode: text("referral_code").unique(),
+  referredById: integer("referred_by_id"),
+  referralBonusPaid: boolean("referral_bonus_paid").notNull().default(false),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow().$onUpdate(() => new Date()),
 });

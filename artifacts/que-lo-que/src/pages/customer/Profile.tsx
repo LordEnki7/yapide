@@ -11,7 +11,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
 import { useQueryClient } from "@tanstack/react-query";
 import RoleSwitcher from "@/components/RoleSwitcher";
-import { ArrowLeft, User, Phone, Mail, MapPin, LogOut, Edit2, Check, X, Trash2, Star, AlertTriangle } from "lucide-react";
+import { ArrowLeft, User, Phone, Mail, MapPin, LogOut, Edit2, Check, X, Trash2, Star, AlertTriangle, Copy, Gift, Users } from "lucide-react";
 
 interface SavedAddress {
   id: number;
@@ -34,6 +34,17 @@ export default function CustomerProfile() {
   const [deletingId, setDeletingId] = useState<number | null>(null);
   const [showDeleteAccount, setShowDeleteAccount] = useState(false);
   const [deletingAccount, setDeletingAccount] = useState(false);
+
+  const [referralData, setReferralData] = useState<{
+    code: string; referredCount: number; paidCount: number; earnedTotal: number; bonusPerReferral: number;
+  } | null>(null);
+
+  useEffect(() => {
+    fetch("/api/referrals/me", { credentials: "include" })
+      .then(r => r.ok ? r.json() : null)
+      .then(d => { if (d?.code) setReferralData(d); })
+      .catch(() => {});
+  }, []);
 
   useEffect(() => {
     fetch("/api/customer/addresses", { credentials: "include" })
@@ -263,6 +274,69 @@ export default function CustomerProfile() {
             </div>
           </Link>
         </div>
+
+        {/* Referral Card */}
+        {referralData && (
+          <div className="bg-gradient-to-br from-yellow-400/15 to-[#0057B7]/15 border border-yellow-400/30 rounded-2xl overflow-hidden">
+            <div className="px-4 pt-4 pb-2 flex items-center gap-2">
+              <Gift size={14} className="text-yellow-400" />
+              <h2 className="text-xs font-bold text-[#FFD700]/80 uppercase tracking-widest">
+                {lang === "es" ? "Programa de referidos" : "Referral Program"}
+              </h2>
+            </div>
+            <div className="px-4 pb-4 space-y-3">
+              <p className="text-xs text-white/60 leading-relaxed">
+                {lang === "es"
+                  ? `Invita amigos y ambos reciben RD$${referralData.bonusPerReferral} en puntos cuando hagan su primer pedido.`
+                  : `Invite friends and both of you get RD$${referralData.bonusPerReferral} in points on their first order.`}
+              </p>
+              {/* Code display */}
+              <div className="flex items-center gap-2">
+                <div className="flex-1 bg-black/40 border border-yellow-400/30 rounded-xl px-4 py-3 flex items-center justify-between">
+                  <span className="text-yellow-400 font-black text-xl tracking-[0.25em] font-mono">{referralData.code}</span>
+                  <button
+                    onClick={() => {
+                      navigator.clipboard.writeText(referralData.code);
+                      toast({ title: lang === "es" ? "¡Código copiado!" : "Code copied!" });
+                    }}
+                    className="text-white/50 hover:text-yellow-400 transition ml-2"
+                  >
+                    <Copy size={16} />
+                  </button>
+                </div>
+                <button
+                  onClick={() => {
+                    const url = `${window.location.origin}/register?ref=${referralData.code}`;
+                    if (navigator.share) {
+                      navigator.share({ title: "YaPide", text: lang === "es" ? `¡Únete a YaPide con mi código y recibe RD$${referralData.bonusPerReferral}!` : `Join YaPide with my code and get RD$${referralData.bonusPerReferral}!`, url });
+                    } else {
+                      navigator.clipboard.writeText(url);
+                      toast({ title: lang === "es" ? "¡Link copiado!" : "Link copied!" });
+                    }
+                  }}
+                  className="h-12 w-12 rounded-xl bg-[#0057B7]/60 border border-[#0057B7]/40 flex items-center justify-center text-white hover:bg-[#0057B7]/80 transition flex-shrink-0"
+                >
+                  <Users size={18} />
+                </button>
+              </div>
+              {/* Stats */}
+              <div className="grid grid-cols-3 gap-2 pt-1">
+                <div className="bg-white/5 rounded-xl p-2.5 text-center">
+                  <p className="text-lg font-black text-white">{referralData.referredCount}</p>
+                  <p className="text-[10px] text-white/50">{lang === "es" ? "Invitados" : "Invited"}</p>
+                </div>
+                <div className="bg-white/5 rounded-xl p-2.5 text-center">
+                  <p className="text-lg font-black text-green-400">{referralData.paidCount}</p>
+                  <p className="text-[10px] text-white/50">{lang === "es" ? "Completados" : "Completed"}</p>
+                </div>
+                <div className="bg-white/5 rounded-xl p-2.5 text-center">
+                  <p className="text-lg font-black text-yellow-400">RD${referralData.earnedTotal}</p>
+                  <p className="text-[10px] text-white/50">{lang === "es" ? "Ganados" : "Earned"}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Saved Addresses */}
         {addresses.length > 0 && (

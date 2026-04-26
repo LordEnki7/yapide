@@ -1,11 +1,11 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Link, useLocation } from "wouter";
 import { useRegisterUser } from "@workspace/api-client-react";
 import { setStoredUser } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, Eye, EyeOff, Mail, Smartphone, CheckCircle, RefreshCw } from "lucide-react";
+import { ArrowLeft, Eye, EyeOff, Mail, Smartphone, CheckCircle, RefreshCw, Gift, CheckCircle2 } from "lucide-react";
 import { useLang } from "@/lib/lang";
 import LangToggle from "@/components/LangToggle";
 
@@ -32,6 +32,10 @@ export default function Register() {
   const [pPinConfirm, setPPinConfirm] = useState("");
   const [pLoading, setPLoading] = useState(false);
 
+  const [referralCode, setReferralCode] = useState("");
+  const [referralValidation, setReferralValidation] = useState<{ valid: boolean; name?: string } | null>(null);
+  const referralDebounce = useRef<ReturnType<typeof setTimeout> | null>(null);
+
   const [verifyStep, setVerifyStep] = useState(false);
   const [enteredOtp, setEnteredOtp] = useState("");
   const [otpVerifying, setOtpVerifying] = useState(false);
@@ -45,10 +49,27 @@ export default function Register() {
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const r = params.get("role");
-    if (r === "customer" || r === "driver" || r === "business") {
-      setRole(r);
-    }
+    if (r === "customer" || r === "driver" || r === "business") setRole(r);
+    const ref = params.get("ref");
+    if (ref) setReferralCode(ref.toUpperCase());
   }, []);
+
+  useEffect(() => {
+    if (!referralCode || referralCode.length < 7) { setReferralValidation(null); return; }
+    if (referralDebounce.current) clearTimeout(referralDebounce.current);
+    referralDebounce.current = setTimeout(async () => {
+      try {
+        const res = await fetch("/api/referrals/validate", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ code: referralCode }),
+        });
+        const data = await res.json();
+        setReferralValidation({ valid: data.valid, name: data.referrerName });
+      } catch { setReferralValidation(null); }
+    }, 500);
+    return () => { if (referralDebounce.current) clearTimeout(referralDebounce.current); };
+  }, [referralCode]);
 
   const isNonCustomer = role === "driver" || role === "business";
   const roleMeta = ROLE_META[role];
@@ -80,7 +101,7 @@ export default function Register() {
       toast({ title: t.missingData, description: t.fillCredentials, variant: "destructive" });
       return;
     }
-    register.mutate({ data: { name, email, password, role: role as any, phone: phone || undefined } });
+    register.mutate({ data: { name, email, password, role: role as any, phone: phone || undefined, referralCode: referralCode || undefined } as any });
   };
 
   const handlePhoneSubmit = async (e: React.FormEvent) => {
@@ -326,6 +347,34 @@ export default function Register() {
                 >
                   {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                 </button>
+              </div>
+
+              {/* Referral Code */}
+              <div className="relative">
+                <div className="absolute left-3 top-1/2 -translate-y-1/2 text-yellow-400/70">
+                  <Gift size={16} />
+                </div>
+                <Input
+                  placeholder={lang === "es" ? "Código de referido (opcional)" : "Referral code (optional)"}
+                  value={referralCode}
+                  onChange={e => setReferralCode(e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 7))}
+                  className={`bg-white/8 border-white/10 text-white placeholder:text-white/40 focus:border-yellow-400 h-12 pl-9 pr-9 uppercase tracking-widest font-mono ${referralValidation?.valid === true ? "border-green-500/60" : referralValidation?.valid === false ? "border-red-500/50" : ""}`}
+                />
+                {referralValidation?.valid === true && (
+                  <div className="absolute right-3 top-1/2 -translate-y-1/2 text-green-400">
+                    <CheckCircle2 size={16} />
+                  </div>
+                )}
+                {referralValidation?.valid === true && (
+                  <p className="text-xs text-green-400 mt-1 pl-1">
+                    {lang === "es" ? `🎁 ¡Código válido! Invitado por ${referralValidation.name}` : `🎁 Valid code! Invited by ${referralValidation.name}`}
+                  </p>
+                )}
+                {referralValidation?.valid === false && (
+                  <p className="text-xs text-red-400 mt-1 pl-1">
+                    {lang === "es" ? "Código no encontrado" : "Code not found"}
+                  </p>
+                )}
               </div>
 
               <Button
