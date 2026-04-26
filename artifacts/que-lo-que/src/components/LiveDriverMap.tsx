@@ -6,13 +6,27 @@ interface Props {
   deliveryAddress: string;
 }
 
+const MAPBOX_TOKEN = import.meta.env.VITE_MAPBOX_TOKEN as string | undefined;
+
 async function geocodeAddress(address: string): Promise<{ lat: number; lng: number } | null> {
+  // ── Mapbox (preferred — better DR coverage) ────────────────────────────────
+  if (MAPBOX_TOKEN) {
+    try {
+      const query = encodeURIComponent(`${address}, República Dominicana`);
+      const url = `https://api.mapbox.com/geocoding/v5/mapbox.places/${query}.json?access_token=${MAPBOX_TOKEN}&country=DO&language=es&limit=1`;
+      const res = await fetch(url);
+      const data = await res.json();
+      const [lng, lat] = data?.features?.[0]?.center ?? [];
+      if (lat != null && lng != null) return { lat, lng };
+    } catch { /* fall through */ }
+  }
+  // ── Nominatim fallback ────────────────────────────────────────────────────
   try {
     const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(address + ", República Dominicana")}&format=json&limit=1`;
     const res = await fetch(url, { headers: { "Accept-Language": "es" } });
     const data = await res.json();
     if (data?.[0]) return { lat: parseFloat(data[0].lat), lng: parseFloat(data[0].lon) };
-  } catch { /* fallback to SD */ }
+  } catch { /* fallback to SD center */ }
   return null;
 }
 
@@ -43,7 +57,14 @@ export default function LiveDriverMap({ orderId, deliveryAddress }: Props) {
       });
       mapRef.current = map;
 
-      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", { maxZoom: 19 }).addTo(map);
+      // Use Mapbox Streets tiles when token is available, otherwise OSM fallback
+      const tileUrl = MAPBOX_TOKEN
+        ? `https://api.mapbox.com/styles/v1/mapbox/streets-v12/tiles/{z}/{x}/{y}?access_token=${MAPBOX_TOKEN}`
+        : "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png";
+      const tileOptions = MAPBOX_TOKEN
+        ? { maxZoom: 22, tileSize: 512, zoomOffset: -1, attribution: "© Mapbox © OpenStreetMap" }
+        : { maxZoom: 19 };
+      L.tileLayer(tileUrl, tileOptions).addTo(map);
 
       const driverIcon = L.divIcon({
         className: "",

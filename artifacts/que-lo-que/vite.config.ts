@@ -6,9 +6,14 @@ import runtimeErrorOverlay from "@replit/vite-plugin-runtime-error-modal";
 
 const port = Number(process.env.PORT) || 3000;
 const basePath = process.env.BASE_PATH || "/";
+const mapboxToken = process.env.MAPBOX_TOKEN ?? "";
 
 export default defineConfig({
   base: basePath,
+  define: {
+    // Expose public Mapbox token to the frontend bundle
+    "import.meta.env.VITE_MAPBOX_TOKEN": JSON.stringify(mapboxToken),
+  },
   plugins: [
     react(),
     tailwindcss(),

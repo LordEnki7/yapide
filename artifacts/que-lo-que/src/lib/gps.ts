@@ -21,7 +21,25 @@ export function saveGPS(loc: GPSLocation) {
   localStorage.setItem(GPS_KEY, JSON.stringify(loc));
 }
 
+const MAPBOX_TOKEN = import.meta.env.VITE_MAPBOX_TOKEN as string | undefined;
+
 export async function reverseGeocode(lat: number, lng: number): Promise<string> {
+  // ── Mapbox (preferred — better DR street coverage) ──────────────────────────
+  if (MAPBOX_TOKEN) {
+    try {
+      const url = `https://api.mapbox.com/geocoding/v5/mapbox.places/${lng},${lat}.json?access_token=${MAPBOX_TOKEN}&language=es&limit=1&types=address,place`;
+      const res = await fetch(url);
+      if (res.ok) {
+        const data = await res.json();
+        const place = data?.features?.[0];
+        if (place?.place_name) {
+          // Strip the country suffix (", República Dominicana") for brevity
+          return place.place_name.replace(/,\s*República Dominicana$/i, "").trim();
+        }
+      }
+    } catch { /* fall through */ }
+  }
+  // ── Nominatim fallback ──────────────────────────────────────────────────────
   try {
     const res = await fetch(
       `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json`,
