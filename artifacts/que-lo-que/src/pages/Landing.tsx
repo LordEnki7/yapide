@@ -63,7 +63,7 @@ export default function Landing() {
           </div>
         </div>
 
-        <h1 className="text-2xl font-black text-white text-center leading-tight tracking-tight mt-3">
+        <h1 className="text-2xl font-black text-white text-center leading-tight tracking-tight mt-10">
           {lang === "es" ? <>Tu comida favorita,<br /><span className="text-yellow-400">donde estés</span></> : <>Your favorite food,<br /><span className="text-yellow-400">wherever you are</span></>}
         </h1>
         <p className="text-white/50 text-sm mt-2 text-center">
