@@ -9,7 +9,7 @@ import { useQueryClient, useMutation } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, MapPin, Banknote, CreditCard, Clock, Navigation, Camera, CheckCircle2, Package, Loader2, Store, MessageCircle, MapPinned, ShieldCheck, AlertTriangle } from "lucide-react";
+import { ArrowLeft, MapPin, Banknote, CreditCard, Clock, Navigation, Camera, CheckCircle2, Package, Loader2, Store, MessageCircle, MapPinned, ShieldCheck, AlertTriangle, NotebookPen, Sparkles } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import JobAlertModal from "@/components/JobAlertModal";
 import ChatPanel from "@/components/ChatPanel";
@@ -32,6 +32,13 @@ interface ActiveOrder {
   requiresAgeCheck?: boolean;
   ageVerified?: boolean;
   verificationPin?: string;
+  isFirstTimeBuyer?: boolean;
+}
+
+interface LocationNote {
+  id: number;
+  note: string;
+  createdAt: string;
 }
 
 function NavLinks({ address, label }: { address: string; label: string }) {
@@ -85,6 +92,11 @@ export default function DriverJobs() {
   const fileRefs = useRef<{ [key: number]: HTMLInputElement | null }>({});
   const [ageVerifiedIds, setAgeVerifiedIds] = useState<Set<number>>(new Set());
   const seenJobIds = useRef<Set<number>>(new Set());
+  const pendingNoteRef = useRef<{ orderId: number; address: string } | null>(null);
+  const [locationNotes, setLocationNotes] = useState<{ [address: string]: LocationNote[] }>({});
+  const [noteModal, setNoteModal] = useState<{ orderId: number; address: string } | null>(null);
+  const [noteText, setNoteText] = useState("");
+  const [noteSubmitting, setNoteSubmitting] = useState(false);
 
   const queryClient = useQueryClient();
   const { toast } = useToast();
@@ -100,11 +112,28 @@ export default function DriverJobs() {
     }
   };
 
+  const fetchLocationNotes = async (address: string) => {
+    if (!address || locationNotes[address]) return;
+    try {
+      const res = await fetch(`/api/driver/location-notes?address=${encodeURIComponent(address)}`, { credentials: "include" });
+      if (res.ok) {
+        const notes: LocationNote[] = await res.json();
+        setLocationNotes(prev => ({ ...prev, [address]: notes }));
+      }
+    } catch {}
+  };
+
   useEffect(() => {
     fetchActiveOrders();
     const interval = setInterval(fetchActiveOrders, 10000);
     return () => clearInterval(interval);
   }, []);
+
+  useEffect(() => {
+    activeOrders.filter(o => o.status === "picked_up").forEach(o => {
+      fetchLocationNotes(o.deliveryAddress);
+    });
+  }, [activeOrders]);
 
   // Show alert modal for new jobs (first unseen job)
   useEffect(() => {
@@ -148,11 +177,17 @@ export default function DriverJobs() {
         fetchActiveOrders();
         queryClient.invalidateQueries({ queryKey: getGetAvailableJobsQueryKey() });
         queryClient.invalidateQueries({ queryKey: getListOrdersQueryKey() });
+        if (pendingNoteRef.current) {
+          setNoteModal(pendingNoteRef.current);
+          setNoteText("");
+          pendingNoteRef.current = null;
+        }
       },
       onError: (err: any) => {
         const msg = err?.response?.data?.error ?? t.error;
         toast({ title: "❌ Error", description: msg, variant: "destructive" });
         setPinModal(null);
+        pendingNoteRef.current = null;
       },
     }
   });
@@ -270,6 +305,12 @@ export default function DriverJobs() {
                         <p className="text-xs text-[#FFD700]/70 uppercase tracking-widest mb-1">#{order.id}</p>
                         <p className="font-black text-xl text-yellow-400">{formatDOP(order.driverEarnings + (order.tip ?? 0))}</p>
                         <p className="text-xs text-white/60">tu ganancia{order.tip > 0 ? ` + RD$${order.tip} propina` : ""}</p>
+                        {order.isFirstTimeBuyer && (
+                          <div className="flex items-center gap-1.5 mt-1.5 px-2.5 py-1 rounded-lg bg-green-400/15 border border-green-400/30 w-fit">
+                            <Sparkles size={11} className="text-green-400" />
+                            <span className="text-xs font-black text-green-400">¡Primer pedido del cliente!</span>
+                          </div>
+                        )}
                       </div>
                       <Badge className={`border ${order.status === "accepted" ? "bg-blue-400/20 text-blue-400 border-blue-400/40" : "bg-purple-400/20 text-purple-400 border-purple-400/40"}`}>
                         {order.status === "accepted"
@@ -300,6 +341,17 @@ export default function DriverJobs() {
                           <p className="text-xs text-yellow-400 font-bold uppercase tracking-wide mb-1">🏠 Paso 2 — Entregar ahora en</p>
                           <NavLinks address={order.deliveryAddress} label="destino" />
                         </div>
+                        {locationNotes[order.deliveryAddress]?.length > 0 && (
+                          <div className="rounded-xl bg-amber-400/10 border border-amber-400/30 px-3 py-2.5 space-y-1.5">
+                            <div className="flex items-center gap-1.5 mb-1">
+                              <NotebookPen size={11} className="text-amber-400" />
+                              <span className="text-[10px] font-black text-amber-400 uppercase tracking-widest">Notas de otros motoristas</span>
+                            </div>
+                            {locationNotes[order.deliveryAddress].map(n => (
+                              <p key={n.id} className="text-xs text-amber-200/90 italic">• {n.note}</p>
+                            ))}
+                          </div>
+                        )}
                       </div>
                     )}
 
@@ -551,6 +603,8 @@ export default function DriverJobs() {
                     toast({ title: "PIN incompleto", description: "El PIN debe tener 4 dígitos", variant: "destructive" });
                     return;
                   }
+                  const order = activeOrders.find(o => o.id === pinModal.orderId);
+                  if (order) pendingNoteRef.current = { orderId: order.id, address: order.deliveryAddress };
                   handleMarkDelivered(pinModal.orderId, pinInput);
                   setPinModal(null);
                   setPinInput("");
@@ -648,6 +702,69 @@ export default function DriverJobs() {
               >
                 {reportLoading ? <Loader2 size={14} className="animate-spin" /> : <AlertTriangle size={14} />}
                 Enviar reporte
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Location Note Modal — shown after delivery */}
+      {noteModal && (
+        <div className="fixed inset-0 z-50 flex items-end justify-center">
+          <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={() => setNoteModal(null)} />
+          <div className="relative z-10 w-full max-w-lg bg-white rounded-t-3xl p-6 pb-10 space-y-4">
+            <div className="w-10 h-1 bg-gray-200 rounded-full mx-auto" />
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-full bg-amber-50 flex items-center justify-center">
+                <NotebookPen size={20} className="text-amber-500" />
+              </div>
+              <div>
+                <h2 className="text-base font-black text-gray-900">¿Fue difícil encontrar?</h2>
+                <p className="text-xs text-gray-500">Deja una nota para el próximo motorista</p>
+              </div>
+            </div>
+            <div className="bg-gray-50 rounded-xl px-3 py-2">
+              <p className="text-xs text-gray-400 truncate"><MapPin size={10} className="inline mr-1 text-yellow-500" />{noteModal.address}</p>
+            </div>
+            <textarea
+              value={noteText}
+              onChange={e => setNoteText(e.target.value)}
+              placeholder='Ej: "El portón está cerrado, tocar 2 veces" o "Parquear en la esquina"'
+              rows={3}
+              maxLength={200}
+              className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm text-gray-900 resize-none focus:outline-none focus:border-amber-400 transition"
+              autoFocus
+            />
+            <div className="flex gap-3">
+              <button
+                onClick={() => setNoteModal(null)}
+                className="flex-1 py-3 rounded-xl border border-gray-200 text-gray-500 font-bold text-sm"
+              >
+                Saltar
+              </button>
+              <button
+                disabled={!noteText.trim() || noteSubmitting}
+                onClick={async () => {
+                  if (!noteText.trim() || noteSubmitting) return;
+                  setNoteSubmitting(true);
+                  try {
+                    await apiFetch("/api/driver/location-notes", {
+                      method: "POST",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({ addressText: noteModal.address, note: noteText.trim(), orderId: noteModal.orderId }),
+                    });
+                    toast({ title: "✅ Nota guardada", description: "Gracias, ayudas al próximo motorista." });
+                    setNoteModal(null);
+                  } catch {
+                    toast({ title: "Error", description: "No se pudo guardar la nota", variant: "destructive" });
+                  } finally {
+                    setNoteSubmitting(false);
+                  }
+                }}
+                className="flex-[2] py-3 rounded-xl bg-amber-400 text-black font-black text-sm disabled:opacity-50 flex items-center justify-center gap-2"
+              >
+                {noteSubmitting ? <Loader2 size={14} className="animate-spin" /> : <NotebookPen size={14} />}
+                Guardar nota
               </button>
             </div>
           </div>

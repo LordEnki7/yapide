@@ -1,6 +1,6 @@
 import { Router, type IRouter } from "express";
-import { eq, and, desc, inArray, isNull } from "drizzle-orm";
-import { db, driversTable, usersTable, ordersTable, orderItemsTable, walletTransactionsTable, businessesTable } from "@workspace/db";
+import { eq, and, desc, inArray, isNull, count, ilike } from "drizzle-orm";
+import { db, driversTable, usersTable, ordersTable, orderItemsTable, walletTransactionsTable, businessesTable, locationNotesTable } from "@workspace/db";
 import { RegisterDriverBody, UpdateDriverStatusBody, UpdateDriverLocationBody } from "@workspace/api-zod";
 import { CASH_LIMIT } from "../lib/dispatch";
 import { sendPushToUser } from "../lib/push";
@@ -327,6 +327,8 @@ router.get("/driver/active-orders", async (req, res): Promise<void> => {
       .from(businessesTable).where(eq(businessesTable.id, o.businessId));
     const [customer] = await db.select({ name: usersTable.name, phone: usersTable.phone })
       .from(usersTable).where(eq(usersTable.id, o.customerId));
+    const [prevCount] = await db.select({ c: count() }).from(ordersTable)
+      .where(and(eq(ordersTable.customerId, o.customerId), eq(ordersTable.status, "delivered")));
     return {
       id: o.id,
       status: o.status,
@@ -343,9 +345,43 @@ router.get("/driver/active-orders", async (req, res): Promise<void> => {
       businessPhone: biz?.phone ?? null,
       customerName: customer?.name ?? null,
       customerPhone: customer?.phone ?? null,
+      isFirstTimeBuyer: (prevCount?.c ?? 0) === 0,
     };
   }));
   res.json(formatted);
+});
+
+router.get("/driver/location-notes", async (req, res): Promise<void> => {
+  const sessionUserId = (req.session as any)?.userId;
+  if (!sessionUserId) { res.status(401).json({ error: "Unauthorized" }); return; }
+  const address = (req.query.address as string ?? "").trim();
+  if (!address) { res.json([]); return; }
+  const notes = await db.select({
+    id: locationNotesTable.id,
+    note: locationNotesTable.note,
+    createdAt: locationNotesTable.createdAt,
+  })
+    .from(locationNotesTable)
+    .where(ilike(locationNotesTable.addressText, `%${address.slice(0, 40)}%`))
+    .orderBy(desc(locationNotesTable.createdAt))
+    .limit(3);
+  res.json(notes);
+});
+
+router.post("/driver/location-notes", async (req, res): Promise<void> => {
+  const sessionUserId = (req.session as any)?.userId;
+  if (!sessionUserId) { res.status(401).json({ error: "Unauthorized" }); return; }
+  const [driver] = await db.select().from(driversTable).where(eq(driversTable.userId, sessionUserId));
+  if (!driver) { res.status(404).json({ error: "Driver not found" }); return; }
+  const { addressText, note, orderId } = req.body as { addressText: string; note: string; orderId?: number };
+  if (!addressText || !note?.trim()) { res.status(400).json({ error: "address and note required" }); return; }
+  const [created] = await db.insert(locationNotesTable).values({
+    addressText: addressText.trim(),
+    note: note.trim(),
+    driverId: driver.id,
+    orderId: orderId ?? null,
+  }).returning();
+  res.json(created);
 });
 
 export default router;

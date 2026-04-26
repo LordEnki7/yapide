@@ -17,3 +17,4 @@ export * from "./driver_reports";
 export * from "./disputes";
 export * from "./order_messages";
 export * from "./business_payouts";
+export * from "./location_notes";
