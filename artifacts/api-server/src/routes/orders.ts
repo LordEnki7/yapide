@@ -46,6 +46,9 @@ async function formatOrder(order: typeof ordersTable.$inferSelect) {
     orderType: order.orderType,
     pickupAddress: order.pickupAddress,
     createdAt: order.createdAt,
+    pickingStatus: order.pickingStatus,
+    requiresAgeCheck: order.requiresAgeCheck,
+    ageVerified: order.ageVerified,
     items: items.map(i => ({
       id: i.id,
       orderId: i.orderId,
@@ -53,6 +56,9 @@ async function formatOrder(order: typeof ordersTable.$inferSelect) {
       productName: i.productName,
       quantity: i.quantity,
       price: i.price,
+      pickerStatus: i.pickerStatus,
+      substituteName: i.substituteName,
+      substitutePrice: i.substitutePrice,
     })),
     estimatedMinutes: business ? ((business.prepTimeMinutes ?? 20) + 20) : 40,
     business: business ? {
@@ -182,6 +188,10 @@ router.post("/orders", async (req, res): Promise<void> => {
 
   const { businessId, paymentMethod, deliveryAddress, notes, items, tip = 0, orderType = "delivery", pickupAddress } = parsed.data as any;
 
+  const [biz0] = await db.select({ category: businessesTable.category }).from(businessesTable).where(eq(businessesTable.id, businessId));
+  const isPickingBusiness = biz0 && (biz0.category === "supermarket" || biz0.category === "liquor");
+  const isLiquor = biz0?.category === "liquor";
+
   let baseAmount = 0;
   const itemDetails: Array<{ productId: number; productName: string; quantity: number; price: number }> = [];
 
@@ -217,6 +227,8 @@ router.post("/orders", async (req, res): Promise<void> => {
     orderType: orderType ?? "delivery",
     pickupAddress: pickupAddress ?? null,
     verificationPin,
+    pickingStatus: isPickingBusiness ? "in_progress" : "not_required",
+    requiresAgeCheck: isLiquor,
   }).returning();
 
   for (const item of itemDetails) {
@@ -269,7 +281,25 @@ router.patch("/orders/:orderId/status", async (req, res): Promise<void> => {
     }
   }
 
-  const updateData: Partial<typeof ordersTable.$inferInsert> = { status: parsed.data.status };
+  // For supermarket/liquor orders accepted by business → go to picking instead of accepted
+  let effectiveStatus = parsed.data.status;
+  if (parsed.data.status === "accepted") {
+    const [existingOrder] = await db.select({ pickingStatus: ordersTable.pickingStatus }).from(ordersTable).where(eq(ordersTable.id, id));
+    if (existingOrder?.pickingStatus === "in_progress") {
+      effectiveStatus = "picking";
+    }
+  }
+
+  // Age check: prevent delivery if age not verified for liquor orders
+  if (parsed.data.status === "delivered") {
+    const [existingOrder] = await db.select({ requiresAgeCheck: ordersTable.requiresAgeCheck, ageVerified: ordersTable.ageVerified }).from(ordersTable).where(eq(ordersTable.id, id));
+    if (existingOrder?.requiresAgeCheck && !existingOrder?.ageVerified) {
+      res.status(403).json({ error: "Debes verificar la cédula del cliente antes de marcar como entregado." });
+      return;
+    }
+  }
+
+  const updateData: Partial<typeof ordersTable.$inferInsert> = { status: effectiveStatus };
   if (parsed.data.status === "delivered" && (parsed.data as any).deliveryPhotoPath) {
     updateData.deliveryPhotoPath = (parsed.data as any).deliveryPhotoPath;
   }
@@ -277,7 +307,7 @@ router.patch("/orders/:orderId/status", async (req, res): Promise<void> => {
   if (!order) { res.status(404).json({ error: "Order not found" }); return; }
 
   // Instantly push status to any connected SSE clients
-  emitOrderStatusChange(id, parsed.data.status);
+  emitOrderStatusChange(id, effectiveStatus);
 
   if (parsed.data.status === "delivered" && order.driverId) {
     const [driver] = await db.select().from(driversTable).where(eq(driversTable.id, order.driverId));
@@ -336,7 +366,7 @@ router.patch("/orders/:orderId/status", async (req, res): Promise<void> => {
     sendPushToUser(order.customerId, pushInfo.title, pushInfo.body, pushInfo.url).catch(() => {});
   }
 
-  if (parsed.data.status === "accepted") {
+  if (effectiveStatus === "accepted") {
     const [biz] = await db.select({ name: businessesTable.name }).from(businessesTable).where(eq(businessesTable.id, order.businessId));
     const onlineDrivers = await db.select({ userId: driversTable.userId }).from(driversTable).where(eq(driversTable.isOnline, true));
     onlineDrivers.forEach(d => {
@@ -520,6 +550,133 @@ router.post("/orders/:orderId/dispute", async (req, res): Promise<void> => {
   if (existing.length) { res.status(409).json({ error: "Ya existe una disputa para este pedido" }); return; }
   const [dispute] = await db.insert(disputesTable).values({ orderId: id, customerId: sessionUserId, reason, description: description ?? null }).returning();
   res.status(201).json(dispute);
+});
+
+// ─── Picker: update individual item status ────────────────────────────────────
+router.patch("/orders/:orderId/items/:itemId/picker", async (req, res): Promise<void> => {
+  const sessionUserId = (req.session as any)?.userId;
+  if (!sessionUserId) { res.status(401).json({ error: "Unauthorized" }); return; }
+  const orderId = parseInt(req.params.orderId, 10);
+  const itemId = parseInt(req.params.itemId, 10);
+  if (isNaN(orderId) || isNaN(itemId)) { res.status(400).json({ error: "Invalid id" }); return; }
+
+  const [order] = await db.select().from(ordersTable).where(eq(ordersTable.id, orderId));
+  if (!order) { res.status(404).json({ error: "Order not found" }); return; }
+
+  // Must be the business owner
+  const [biz] = await db.select({ userId: businessesTable.userId }).from(businessesTable).where(eq(businessesTable.id, order.businessId));
+  if (!biz || biz.userId !== sessionUserId) { res.status(403).json({ error: "Forbidden" }); return; }
+
+  const { pickerStatus, substituteName, substitutePrice } = req.body as {
+    pickerStatus: "found" | "out_of_stock" | "substituted";
+    substituteName?: string;
+    substitutePrice?: number;
+  };
+  if (!["found", "out_of_stock", "substituted"].includes(pickerStatus)) {
+    res.status(400).json({ error: "Invalid pickerStatus" }); return;
+  }
+
+  const [updated] = await db.update(orderItemsTable)
+    .set({ pickerStatus, substituteName: substituteName ?? null, substitutePrice: substitutePrice ?? null })
+    .where(and(eq(orderItemsTable.id, itemId), eq(orderItemsTable.orderId, orderId)))
+    .returning();
+  if (!updated) { res.status(404).json({ error: "Item not found" }); return; }
+
+  res.json(updated);
+});
+
+// ─── Picker: business confirms picking is done ────────────────────────────────
+router.post("/orders/:orderId/confirm-picking", async (req, res): Promise<void> => {
+  const sessionUserId = (req.session as any)?.userId;
+  if (!sessionUserId) { res.status(401).json({ error: "Unauthorized" }); return; }
+  const orderId = parseInt(req.params.orderId, 10);
+  if (isNaN(orderId)) { res.status(400).json({ error: "Invalid orderId" }); return; }
+
+  const [order] = await db.select().from(ordersTable).where(eq(ordersTable.id, orderId));
+  if (!order) { res.status(404).json({ error: "Order not found" }); return; }
+
+  const [biz] = await db.select({ userId: businessesTable.userId }).from(businessesTable).where(eq(businessesTable.id, order.businessId));
+  if (!biz || biz.userId !== sessionUserId) { res.status(403).json({ error: "Forbidden" }); return; }
+
+  const allItems = await db.select().from(orderItemsTable).where(eq(orderItemsTable.orderId, orderId));
+  const hasSubs = allItems.some(i => i.pickerStatus === "substituted" || i.pickerStatus === "out_of_stock");
+
+  let newStatus: string;
+  let newPickingStatus: string;
+
+  if (hasSubs) {
+    newStatus = "pending_substitution";
+    newPickingStatus = "pending_approval";
+    // Notify customer
+    sendPushToUser(order.customerId, "🔄 Cambios en tu pedido", `Algunos artículos de tu pedido #${orderId} necesitan tu aprobación`, `/customer/orders/${orderId}`).catch(() => {});
+  } else {
+    newStatus = "accepted";
+    newPickingStatus = "done";
+    // Dispatch to drivers
+    const onlineDrivers = await db.select({ userId: driversTable.userId }).from(driversTable).where(eq(driversTable.isOnline, true));
+    const [bizName] = await db.select({ name: businessesTable.name }).from(businessesTable).where(eq(businessesTable.id, order.businessId));
+    onlineDrivers.forEach(d => {
+      sendPushToUser(d.userId, "🛍️ Nuevo delivery disponible", `${bizName?.name ?? "Un negocio"} tiene un pedido listo para recoger`, "/driver/jobs").catch(() => {});
+    });
+    sendPushToUser(order.customerId, "✅ Pedido listo", `Tu pedido #${orderId} está listo y buscando delivery 🛵`, `/customer/orders/${orderId}`).catch(() => {});
+  }
+
+  await db.update(ordersTable).set({ status: newStatus, pickingStatus: newPickingStatus }).where(eq(ordersTable.id, orderId));
+  emitOrderStatusChange(orderId, newStatus);
+
+  res.json({ status: newStatus, pickingStatus: newPickingStatus });
+});
+
+// ─── Customer: approve substitutions ─────────────────────────────────────────
+router.post("/orders/:orderId/approve-substitutions", async (req, res): Promise<void> => {
+  const sessionUserId = (req.session as any)?.userId;
+  if (!sessionUserId) { res.status(401).json({ error: "Unauthorized" }); return; }
+  const orderId = parseInt(req.params.orderId, 10);
+  if (isNaN(orderId)) { res.status(400).json({ error: "Invalid orderId" }); return; }
+
+  const [order] = await db.select().from(ordersTable).where(eq(ordersTable.id, orderId));
+  if (!order) { res.status(404).json({ error: "Order not found" }); return; }
+  if (order.customerId !== sessionUserId) { res.status(403).json({ error: "Not your order" }); return; }
+
+  // approvals: { [itemId]: true | false } — true = accept sub, false = remove item
+  const { approvals } = req.body as { approvals: Record<string, boolean> };
+
+  for (const [itemIdStr, accepted] of Object.entries(approvals ?? {})) {
+    const itemId = parseInt(itemIdStr, 10);
+    if (!accepted) {
+      await db.delete(orderItemsTable).where(and(eq(orderItemsTable.id, itemId), eq(orderItemsTable.orderId, orderId)));
+    }
+  }
+
+  // Move to accepted → dispatch to drivers
+  await db.update(ordersTable).set({ status: "accepted", pickingStatus: "done" }).where(eq(ordersTable.id, orderId));
+  emitOrderStatusChange(orderId, "accepted");
+
+  const onlineDrivers = await db.select({ userId: driversTable.userId }).from(driversTable).where(eq(driversTable.isOnline, true));
+  const [bizName] = await db.select({ name: businessesTable.name }).from(businessesTable).where(eq(businessesTable.id, order.businessId));
+  onlineDrivers.forEach(d => {
+    sendPushToUser(d.userId, "🛍️ Nuevo delivery disponible", `${bizName?.name ?? "Un negocio"} tiene un pedido listo para recoger`, "/driver/jobs").catch(() => {});
+  });
+
+  res.json({ status: "accepted" });
+});
+
+// ─── Driver: mark age verified ────────────────────────────────────────────────
+router.patch("/orders/:orderId/age-verified", async (req, res): Promise<void> => {
+  const sessionUserId = (req.session as any)?.userId;
+  if (!sessionUserId) { res.status(401).json({ error: "Unauthorized" }); return; }
+  const orderId = parseInt(req.params.orderId, 10);
+  if (isNaN(orderId)) { res.status(400).json({ error: "Invalid orderId" }); return; }
+
+  const [driver] = await db.select().from(driversTable).where(eq(driversTable.userId, sessionUserId));
+  if (!driver) { res.status(403).json({ error: "Driver only" }); return; }
+
+  const [order] = await db.select().from(ordersTable).where(eq(ordersTable.id, orderId));
+  if (!order) { res.status(404).json({ error: "Order not found" }); return; }
+  if (order.driverId !== driver.id) { res.status(403).json({ error: "Not your order" }); return; }
+
+  await db.update(ordersTable).set({ ageVerified: true }).where(eq(ordersTable.id, orderId));
+  res.json({ ageVerified: true });
 });
 
 export default router;

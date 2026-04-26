@@ -13,4 +13,7 @@ export interface OrderItem {
   productName: string;
   quantity: number;
   price: number;
+  pickerStatus?: "pending" | "found" | "out_of_stock" | "substituted";
+  substituteName?: string | null;
+  substitutePrice?: number | null;
 }

@@ -53,6 +53,7 @@ import BusinessDashboard from "@/pages/business/Dashboard";
 import BusinessOrders from "@/pages/business/Orders";
 import BusinessMenu from "@/pages/business/Menu";
 import BusinessAnalytics from "@/pages/business/Analytics";
+import BusinessPicker from "@/pages/business/Picker";
 
 import AdminDashboard from "@/pages/admin/Dashboard";
 import AdminUsers from "@/pages/admin/Users";
@@ -102,6 +103,7 @@ function Router() {
         <Route path="/driver/profile" component={DriverProfile} />
         <Route path="/business" component={BusinessDashboard} />
         <Route path="/business/orders" component={BusinessOrders} />
+        <Route path="/business/orders/:id/pick" component={BusinessPicker} />
         <Route path="/business/menu" component={BusinessMenu} />
         <Route path="/business/analytics" component={BusinessAnalytics} />
         <Route path="/business/profile" component={BusinessProfile} />

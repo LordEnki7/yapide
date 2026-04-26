@@ -64,6 +64,8 @@ export default function BusinessOrders() {
 
   const STATUS_COLORS: Record<string, string> = {
     pending: "bg-yellow-400/20 text-yellow-400 border-yellow-400/40",
+    picking: "bg-orange-400/20 text-orange-400 border-orange-400/40",
+    pending_substitution: "bg-orange-400/20 text-orange-400 border-orange-400/40",
     accepted: "bg-blue-400/20 text-blue-400 border-blue-400/40",
     picked_up: "bg-purple-400/20 text-purple-400 border-purple-400/40",
     delivered: "bg-green-400/20 text-green-400 border-green-400/40",
@@ -72,6 +74,8 @@ export default function BusinessOrders() {
 
   const STATUS_LABELS: Record<string, string> = {
     pending: t.statusPending,
+    picking: "🛒 Recogiendo",
+    pending_substitution: "⏳ Aprobando cambios",
     accepted: t.statusAccepted,
     picked_up: t.statusPickedUp,
     delivered: t.statusDelivered,
@@ -190,6 +194,16 @@ export default function BusinessOrders() {
                           {t.accept}
                         </Button>
                       </>
+                    )}
+                    {order.status === "picking" && (
+                      <Link href={`/business/orders/${order.id}/pick`} onClick={e => e.stopPropagation()}>
+                        <Button size="sm" className="bg-orange-400 text-black font-bold text-xs h-8 hover:bg-orange-300 animate-pulse">
+                          🛒 Recoger artículos
+                        </Button>
+                      </Link>
+                    )}
+                    {order.status === "pending_substitution" && (
+                      <Badge className="bg-orange-400/20 text-orange-400 border-orange-400/40 text-xs">⏳ Cliente aprobando</Badge>
                     )}
                     {order.status === "accepted" && (
                       <Badge className="bg-blue-400/20 text-blue-400 border-blue-400/40 text-xs">{t.preparing}</Badge>

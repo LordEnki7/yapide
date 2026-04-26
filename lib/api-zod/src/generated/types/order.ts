@@ -34,5 +34,8 @@ export interface Order {
   customerRating?: number;
   driverRating?: number;
   businessRating?: number;
+  pickingStatus?: "not_required" | "in_progress" | "pending_approval" | "done";
+  requiresAgeCheck?: boolean;
+  ageVerified?: boolean;
   createdAt: string;
 }

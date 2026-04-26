@@ -29,6 +29,9 @@ export const ordersTable = pgTable("orders", {
   promoDiscount: real("promo_discount").notNull().default(0),
   orderType: text("order_type").notNull().default("delivery"),
   pickupAddress: text("pickup_address"),
+  pickingStatus: text("picking_status").notNull().default("not_required"),
+  requiresAgeCheck: boolean("requires_age_check").notNull().default(false),
+  ageVerified: boolean("age_verified").notNull().default(false),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow().$onUpdate(() => new Date()),
 });
@@ -40,6 +43,9 @@ export const orderItemsTable = pgTable("order_items", {
   productName: text("product_name").notNull(),
   quantity: integer("quantity").notNull(),
   price: real("price").notNull(),
+  pickerStatus: text("picker_status").notNull().default("pending"),
+  substituteName: text("substitute_name"),
+  substitutePrice: real("substitute_price"),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
 

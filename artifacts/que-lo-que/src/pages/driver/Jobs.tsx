@@ -5,7 +5,7 @@ import { useGetAvailableJobs, getGetAvailableJobsQueryKey, useAcceptJob, useDecl
 import { formatDOP } from "@/lib/auth";
 import { useLang } from "@/lib/lang";
 import LangToggle from "@/components/LangToggle";
-import { useQueryClient } from "@tanstack/react-query";
+import { useQueryClient, useMutation } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
@@ -28,6 +28,9 @@ interface ActiveOrder {
   businessPhone?: string | null;
   customerName?: string | null;
   customerPhone?: string | null;
+  requiresAgeCheck?: boolean;
+  ageVerified?: boolean;
+  verificationPin?: string;
 }
 
 function NavLinks({ address, label }: { address: string; label: string }) {
@@ -79,6 +82,7 @@ export default function DriverJobs() {
   const [reportNotes, setReportNotes] = useState("");
   const [reportLoading, setReportLoading] = useState(false);
   const fileRefs = useRef<{ [key: number]: HTMLInputElement | null }>({});
+  const [ageVerifiedIds, setAgeVerifiedIds] = useState<Set<number>>(new Set());
   const seenJobIds = useRef<Set<number>>(new Set());
 
   const queryClient = useQueryClient();
@@ -175,6 +179,19 @@ export default function DriverJobs() {
         setAlertJob(null);
       },
     }
+  });
+
+  const markAgeVerified = useMutation({
+    mutationFn: async (orderId: number) => {
+      const r = await apiFetch(`/api/orders/${orderId}/age-verified`, { method: "PATCH" });
+      if (!r.ok) throw new Error("Failed to verify age");
+      return r.json();
+    },
+    onSuccess: (_data, orderId) => {
+      setAgeVerifiedIds(prev => { const next = new Set(prev); next.add(orderId); return next; });
+      toast({ title: "✅ Edad verificada" });
+    },
+    onError: () => toast({ title: "Error al verificar edad", variant: "destructive" }),
   });
 
   const handleMarkPickedUp = (orderId: number) => {
@@ -351,17 +368,42 @@ export default function DriverJobs() {
                         )}
                       </div>
                     ) : (
-                      <Button
-                        className="w-full h-14 rounded-2xl bg-yellow-400 hover:bg-yellow-300 text-black font-black text-base shadow-[0_0_30px_rgba(255,215,0,0.5)] active:scale-95 transition-transform"
-                        onClick={() => { setPinInput(""); setPinModal({ orderId: order.id }); }}
-                        disabled={updateStatus.isPending || uploadingId === order.id}
-                      >
-                        {uploadingId === order.id
-                          ? <Loader2 size={18} className="mr-2 animate-spin" />
-                          : <ShieldCheck size={18} className="mr-2" />
-                        }
-                        🎉 Marcar como entregado
-                      </Button>
+                      <div className="space-y-2">
+                        {/* Age verification — required for liquor store orders */}
+                        {order.requiresAgeCheck && !ageVerifiedIds.has(order.id) && !order.ageVerified && (
+                          <button
+                            className="w-full h-14 rounded-2xl border-2 border-blue-400/60 bg-blue-400/10 text-blue-400 font-black text-sm flex items-center justify-center gap-2 hover:bg-blue-400/20 transition active:scale-95"
+                            onClick={() => markAgeVerified.mutate(order.id)}
+                            disabled={markAgeVerified.isPending}
+                          >
+                            {markAgeVerified.isPending
+                              ? <Loader2 size={16} className="animate-spin" />
+                              : <ShieldCheck size={18} />
+                            }
+                            🪪 Verifiqué la cédula del cliente
+                          </button>
+                        )}
+                        {order.requiresAgeCheck && (ageVerifiedIds.has(order.id) || order.ageVerified) && (
+                          <div className="w-full h-8 rounded-xl bg-green-500/10 border border-green-500/30 flex items-center justify-center gap-1.5 text-green-400 text-xs font-bold">
+                            <CheckCircle2 size={13} /> Cédula verificada ✓
+                          </div>
+                        )}
+                        <Button
+                          className="w-full h-14 rounded-2xl bg-yellow-400 hover:bg-yellow-300 text-black font-black text-base shadow-[0_0_30px_rgba(255,215,0,0.5)] active:scale-95 transition-transform disabled:opacity-40"
+                          onClick={() => { setPinInput(""); setPinModal({ orderId: order.id }); }}
+                          disabled={
+                            updateStatus.isPending ||
+                            uploadingId === order.id ||
+                            (order.requiresAgeCheck && !ageVerifiedIds.has(order.id) && !order.ageVerified)
+                          }
+                        >
+                          {uploadingId === order.id
+                            ? <Loader2 size={18} className="mr-2 animate-spin" />
+                            : <ShieldCheck size={18} className="mr-2" />
+                          }
+                          🎉 Marcar como entregado
+                        </Button>
+                      </div>
                     )}
                     <button
                       onClick={() => { setReportModal({ orderId: order.id }); setReportReason(""); setReportNotes(""); }}

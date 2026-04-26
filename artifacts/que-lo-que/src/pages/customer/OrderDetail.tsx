@@ -5,11 +5,12 @@ import { useLang } from "@/lib/lang";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
-import { ArrowLeft, Star, MessageCircle, Share2, Clock, Phone, MessageSquare, Pencil, Check, X, AlertTriangle } from "lucide-react";
+import { ArrowLeft, Star, MessageCircle, Share2, Clock, Phone, MessageSquare, Pencil, Check, X, AlertTriangle, ShieldCheck, RefreshCw } from "lucide-react";
 import { useState, useEffect, useRef, lazy, Suspense } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { useQueryClient, useMutation } from "@tanstack/react-query";
 import { XCircle, Loader2 } from "lucide-react";
+import { apiFetch } from "@/lib/apiFetch";
 
 const LiveDriverMap = lazy(() => import("@/components/LiveDriverMap"));
 
@@ -25,10 +26,28 @@ export default function CustomerOrderDetail() {
   const [disputeDesc, setDisputeDesc] = useState("");
   const [disputeLoading, setDisputeLoading] = useState(false);
   const [disputeSubmitted, setDisputeSubmitted] = useState(false);
+  const [subApprovals, setSubApprovals] = useState<Record<number, boolean>>({});
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const { t } = useLang();
   const [, navigate] = useLocation();
+
+  const approveSubstitutions = useMutation({
+    mutationFn: async (approvals: Record<string, boolean>) => {
+      const r = await apiFetch(`/api/orders/${orderId}/approve-substitutions`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ approvals }),
+      });
+      if (!r.ok) throw new Error("Failed to approve");
+      return r.json();
+    },
+    onSuccess: () => {
+      toast({ title: "✅ Aprobado — buscando driver" });
+      queryClient.invalidateQueries({ queryKey: ["/api/orders", orderId] });
+    },
+    onError: () => toast({ title: "Error al aprobar", variant: "destructive" }),
+  });
 
   const STEPS = [
     { key: "pending", label: t.pendingStep },
@@ -258,6 +277,77 @@ export default function CustomerOrderDetail() {
                 <span className="text-2xl">🛵</span>
               </div>
             </div>
+          </div>
+        )}
+
+        {/* Age verification banner — shown for liquor orders while active */}
+        {(order as any)?.requiresAgeCheck && !isDelivered && !isCancelled && (
+          <div className="rounded-2xl border-2 border-blue-400/50 bg-blue-400/8 px-5 py-4 flex items-start gap-3">
+            <ShieldCheck size={22} className="text-blue-400 flex-shrink-0 mt-0.5" />
+            <div>
+              <p className="text-sm font-black text-blue-400">Ten tu cédula lista 🪪</p>
+              <p className="text-xs text-white/60 mt-0.5">
+                El driver verificará tu identificación al entregar. Ley RD — mayor de 18 años.
+              </p>
+            </div>
+          </div>
+        )}
+
+        {/* Substitution approval panel */}
+        {order?.status === "pending_substitution" && (order as any)?.items?.some((i: any) => i.pickerStatus === "substituted" || i.pickerStatus === "out_of_stock") && (
+          <div className="rounded-2xl border-2 border-orange-400/60 bg-orange-400/8 px-5 py-4 space-y-4">
+            <div className="flex items-center gap-2">
+              <RefreshCw size={18} className="text-orange-400" />
+              <p className="font-black text-orange-400">El negocio propone cambios</p>
+            </div>
+            <p className="text-xs text-white/60">
+              Algunos artículos no estaban disponibles. Revisa y aprueba o rechaza cada cambio.
+            </p>
+
+            <div className="space-y-3">
+              {((order as any).items as any[]).filter((i: any) => i.pickerStatus === "substituted" || i.pickerStatus === "out_of_stock").map((item: any) => {
+                const approved = subApprovals[item.id] ?? true;
+                return (
+                  <div key={item.id} className={`rounded-xl border p-3 transition-all ${approved ? "border-orange-400/40 bg-orange-400/5" : "border-red-500/40 bg-red-500/5 opacity-60"}`}>
+                    <p className="text-xs text-white/50 line-through">{item.productName}</p>
+                    {item.pickerStatus === "substituted" ? (
+                      <>
+                        <p className="text-sm font-bold text-white mt-0.5">→ {item.substituteName}</p>
+                        {item.substitutePrice && (
+                          <p className="text-xs text-orange-400 mt-0.5">RD${item.substitutePrice.toFixed(2)}</p>
+                        )}
+                      </>
+                    ) : (
+                      <p className="text-xs text-red-400 mt-0.5 font-bold">Sin stock — se eliminará del pedido</p>
+                    )}
+                    <div className="flex gap-2 mt-2">
+                      <button
+                        className={`flex-1 h-8 rounded-lg text-xs font-bold border transition ${approved ? "bg-green-500/20 border-green-500/40 text-green-400" : "bg-white/5 border-white/15 text-white/40"}`}
+                        onClick={() => setSubApprovals(p => ({ ...p, [item.id]: true }))}
+                      >
+                        ✓ Aceptar
+                      </button>
+                      <button
+                        className={`flex-1 h-8 rounded-lg text-xs font-bold border transition ${!approved ? "bg-red-500/20 border-red-500/40 text-red-400" : "bg-white/5 border-white/15 text-white/40"}`}
+                        onClick={() => setSubApprovals(p => ({ ...p, [item.id]: false }))}
+                      >
+                        ✗ Rechazar
+                      </button>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            <Button
+              className="w-full h-12 font-black bg-orange-400 text-black hover:bg-orange-300 rounded-xl"
+              onClick={() => approveSubstitutions.mutate(Object.fromEntries(Object.entries(subApprovals).map(([k, v]) => [k, v])))}
+              disabled={approveSubstitutions.isPending}
+            >
+              {approveSubstitutions.isPending
+                ? <Loader2 size={18} className="animate-spin mx-auto" />
+                : "Confirmar y buscar delivery"}
+            </Button>
           </div>
         )}
 
