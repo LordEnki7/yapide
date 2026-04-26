@@ -242,6 +242,42 @@ router.post("/drivers/jobs/:orderId/decline", async (req, res): Promise<void> =>
   res.json({ success: true });
 });
 
+router.get("/drivers/me/ratings", async (req, res): Promise<void> => {
+  const sessionUserId = (req.session as any)?.userId;
+  if (!sessionUserId) { res.status(401).json({ error: "Unauthorized" }); return; }
+  const [driver] = await db.select().from(driversTable).where(eq(driversTable.userId, sessionUserId));
+  if (!driver) { res.status(404).json({ error: "Driver not found" }); return; }
+
+  const ratedOrders = await db.select({
+    id: ordersTable.id,
+    driverRating: ordersTable.driverRating,
+    createdAt: ordersTable.createdAt,
+    businessId: ordersTable.businessId,
+  }).from(ordersTable)
+    .where(and(eq(ordersTable.driverId, driver.id)))
+    .orderBy(desc(ordersTable.createdAt));
+
+  const withRatings = ratedOrders.filter(o => o.driverRating !== null);
+
+  const breakdown: Record<number, number> = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
+  let sum = 0;
+  for (const o of withRatings) {
+    const r = o.driverRating!;
+    breakdown[r] = (breakdown[r] ?? 0) + 1;
+    sum += r;
+  }
+  const average = withRatings.length > 0 ? sum / withRatings.length : 0;
+
+  const recent = await Promise.all(
+    withRatings.slice(0, 20).map(async o => {
+      const [biz] = await db.select({ name: businessesTable.name }).from(businessesTable).where(eq(businessesTable.id, o.businessId));
+      return { orderId: o.id, rating: o.driverRating!, createdAt: o.createdAt, businessName: biz?.name ?? null };
+    })
+  );
+
+  res.json({ average, total: withRatings.length, breakdown, recent });
+});
+
 router.get("/driver/active-orders", async (req, res): Promise<void> => {
   const sessionUserId = (req.session as any)?.userId;
   if (!sessionUserId) { res.status(401).json({ error: "Unauthorized" }); return; }

@@ -1,6 +1,6 @@
 import { Router, type IRouter } from "express";
 import { eq, ilike, and, gte, desc } from "drizzle-orm";
-import { db, businessesTable, usersTable, ordersTable, orderItemsTable } from "@workspace/db";
+import { db, businessesTable, usersTable, ordersTable, orderItemsTable, businessPayoutsTable } from "@workspace/db";
 import { CreateBusinessBody, UpdateBusinessBody, ListBusinessesQueryParams, GetBusinessParams, UpdateBusinessParams } from "@workspace/api-zod";
 
 const router: IRouter = Router();
@@ -235,6 +235,30 @@ router.get("/businesses/mine/analytics", async (req, res): Promise<void> => {
   }
 
   res.json({ totalRevenue, totalOrders, avgOrderValue, dailyStats, topProducts });
+});
+
+router.get("/businesses/mine/payouts", async (req, res): Promise<void> => {
+  const sessionUserId = (req.session as any)?.userId;
+  if (!sessionUserId) { res.status(401).json({ error: "Unauthorized" }); return; }
+  const [business] = await db.select().from(businessesTable).where(eq(businessesTable.userId, sessionUserId));
+  if (!business) { res.status(404).json({ error: "No business found" }); return; }
+
+  const payouts = await db.select().from(businessPayoutsTable)
+    .where(eq(businessPayoutsTable.businessId, business.id))
+    .orderBy(desc(businessPayoutsTable.createdAt));
+
+  const deliveredOrders = await db.select({ totalAmount: ordersTable.totalAmount, commission: ordersTable.commission })
+    .from(ordersTable)
+    .where(and(eq(ordersTable.businessId, business.id), eq(ordersTable.status, "delivered")));
+
+  const totalEarned = deliveredOrders.reduce((s, o) => s + (o.totalAmount - o.commission), 0);
+  const totalPaidOut = payouts.reduce((s, p) => s + p.amount, 0);
+
+  res.json({
+    pendingAmount: Math.max(0, totalEarned - totalPaidOut),
+    totalPaidOut,
+    payouts: payouts.map(p => ({ id: p.id, amount: p.amount, note: p.note, createdAt: p.createdAt })),
+  });
 });
 
 export default router;

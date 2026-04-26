@@ -48,12 +48,14 @@ import CustomerProfile from "@/pages/customer/Profile";
 import DriverDashboard from "@/pages/driver/Dashboard";
 import DriverJobs from "@/pages/driver/Jobs";
 import DriverWallet from "@/pages/driver/Wallet";
+import DriverRatings from "@/pages/driver/Ratings";
 
 import BusinessDashboard from "@/pages/business/Dashboard";
 import BusinessOrders from "@/pages/business/Orders";
 import BusinessMenu from "@/pages/business/Menu";
 import BusinessAnalytics from "@/pages/business/Analytics";
 import BusinessPicker from "@/pages/business/Picker";
+import BusinessPayouts from "@/pages/business/Payouts";
 
 import AdminDashboard from "@/pages/admin/Dashboard";
 import AdminUsers from "@/pages/admin/Users";
@@ -66,6 +68,7 @@ import AdminCommandCenter from "@/pages/admin/CommandCenter";
 import AdminNotifications from "@/pages/admin/Notifications";
 import AdminStaff from "@/pages/admin/Staff";
 import AdminDisputes from "@/pages/admin/Disputes";
+import AdminSettings from "@/pages/admin/Settings";
 import CustomerSupport from "@/pages/customer/Support";
 import BusinessOnboarding from "@/pages/business/Onboarding";
 import DriverOnboarding from "@/pages/driver/Onboarding";
@@ -101,12 +104,14 @@ function Router() {
         <Route path="/driver/jobs" component={DriverJobs} />
         <Route path="/driver/wallet" component={DriverWallet} />
         <Route path="/driver/profile" component={DriverProfile} />
+        <Route path="/driver/ratings" component={DriverRatings} />
         <Route path="/business" component={BusinessDashboard} />
         <Route path="/business/orders" component={BusinessOrders} />
         <Route path="/business/orders/:id/pick" component={BusinessPicker} />
         <Route path="/business/menu" component={BusinessMenu} />
         <Route path="/business/analytics" component={BusinessAnalytics} />
         <Route path="/business/profile" component={BusinessProfile} />
+        <Route path="/business/payouts" component={BusinessPayouts} />
         <Route path="/admin" component={AdminDashboard} />
         <Route path="/admin/users" component={AdminUsers} />
         <Route path="/admin/drivers" component={AdminDrivers} />
@@ -118,6 +123,7 @@ function Router() {
         <Route path="/admin/notifications" component={AdminNotifications} />
         <Route path="/admin/staff" component={AdminStaff} />
         <Route path="/admin/disputes" component={AdminDisputes} />
+        <Route path="/admin/settings" component={AdminSettings} />
         <Route path="/customer/support" component={CustomerSupport} />
         <Route component={NotFound} />
       </Switch>

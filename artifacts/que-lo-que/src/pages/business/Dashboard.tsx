@@ -412,6 +412,16 @@ export default function BusinessDashboard() {
             <span className="ml-auto text-white/50 text-lg">›</span>
           </div>
         </Link>
+        <Link href="/business/payouts">
+          <div className="bg-green-400/8 border border-green-400/20 rounded-2xl p-4 flex items-center gap-3 hover:border-green-400/40 transition cursor-pointer mt-3">
+            <span className="text-xl">💳</span>
+            <div>
+              <p className="font-bold text-sm">Pagos y cobros</p>
+              <p className="text-xs text-white/60">Monto pendiente por cobrar a YaPide</p>
+            </div>
+            <span className="ml-auto text-white/50 text-lg">›</span>
+          </div>
+        </Link>
       </div>
     </div>
   );

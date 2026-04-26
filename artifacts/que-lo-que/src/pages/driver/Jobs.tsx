@@ -12,6 +12,7 @@ import { Badge } from "@/components/ui/badge";
 import { ArrowLeft, MapPin, Banknote, CreditCard, Clock, Navigation, Camera, CheckCircle2, Package, Loader2, Store, MessageCircle, MapPinned, ShieldCheck, AlertTriangle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import JobAlertModal from "@/components/JobAlertModal";
+import ChatPanel from "@/components/ChatPanel";
 
 interface ActiveOrder {
   id: number;
@@ -652,6 +653,19 @@ export default function DriverJobs() {
           </div>
         </div>
       )}
+
+      {/* Chat for most active delivery order */}
+      {(() => {
+        const active = activeOrders.find(o => o.status === "picked_up" || o.status === "accepted");
+        if (!active) return null;
+        return (
+          <ChatPanel
+            orderId={active.id}
+            partnerRole="customer"
+            partnerName={(active as any).customerName ?? null}
+          />
+        );
+      })()}
     </div>
   );
 }

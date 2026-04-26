@@ -1,6 +1,6 @@
 import { Router, type IRouter } from "express";
 import { eq, and, desc, avg } from "drizzle-orm";
-import { db, ordersTable, orderItemsTable, businessesTable, usersTable, driversTable, productsTable, walletTransactionsTable, pointsTransactionsTable, notificationsTable, driverReportsTable, disputesTable } from "@workspace/db";
+import { db, ordersTable, orderItemsTable, businessesTable, usersTable, driversTable, productsTable, walletTransactionsTable, pointsTransactionsTable, notificationsTable, driverReportsTable, disputesTable, orderMessagesTable } from "@workspace/db";
 import { CreateOrderBody, UpdateOrderStatusBody, RateOrderBody, ListOrdersQueryParams } from "@workspace/api-zod";
 import { calculateFees, CASH_LIMIT, CASH_WARNING_THRESHOLD } from "../lib/dispatch";
 import { sendPushToUser } from "../lib/push";
@@ -49,6 +49,7 @@ async function formatOrder(order: typeof ordersTable.$inferSelect) {
     pickingStatus: order.pickingStatus,
     requiresAgeCheck: order.requiresAgeCheck,
     ageVerified: order.ageVerified,
+    scheduledFor: order.scheduledFor,
     items: items.map(i => ({
       id: i.id,
       orderId: i.orderId,
@@ -186,7 +187,7 @@ router.post("/orders", async (req, res): Promise<void> => {
   const parsed = CreateOrderBody.safeParse(req.body);
   if (!parsed.success) { res.status(400).json({ error: parsed.error.message }); return; }
 
-  const { businessId, paymentMethod, deliveryAddress, notes, items, tip = 0, orderType = "delivery", pickupAddress } = parsed.data as any;
+  const { businessId, paymentMethod, deliveryAddress, notes, items, tip = 0, orderType = "delivery", pickupAddress, scheduledFor } = parsed.data as any;
 
   const [biz0] = await db.select({ category: businessesTable.category }).from(businessesTable).where(eq(businessesTable.id, businessId));
   const isPickingBusiness = biz0 && (biz0.category === "supermarket" || biz0.category === "liquor");
@@ -229,6 +230,7 @@ router.post("/orders", async (req, res): Promise<void> => {
     verificationPin,
     pickingStatus: isPickingBusiness ? "in_progress" : "not_required",
     requiresAgeCheck: isLiquor,
+    scheduledFor: scheduledFor ? new Date(scheduledFor) : null,
   }).returning();
 
   for (const item of itemDetails) {
@@ -689,6 +691,43 @@ router.patch("/orders/:orderId/age-verified", async (req, res): Promise<void> =>
 
   await db.update(ordersTable).set({ ageVerified: true }).where(eq(ordersTable.id, orderId));
   res.json({ ageVerified: true });
+});
+
+router.get("/orders/:orderId/messages", async (req, res): Promise<void> => {
+  const sessionUserId = (req.session as any)?.userId;
+  if (!sessionUserId) { res.status(401).json({ error: "Unauthorized" }); return; }
+  const orderId = parseInt(req.params.orderId, 10);
+  if (isNaN(orderId)) { res.status(400).json({ error: "Invalid orderId" }); return; }
+  const [order] = await db.select().from(ordersTable).where(eq(ordersTable.id, orderId));
+  if (!order) { res.status(404).json({ error: "Not found" }); return; }
+  const driver = await db.select({ id: driversTable.id }).from(driversTable).where(eq(driversTable.userId, sessionUserId));
+  const driverIds = driver.map(d => d.id);
+  const isParty = order.customerId === sessionUserId || driverIds.some(d => d === order.driverId);
+  const [user] = await db.select({ role: usersTable.role }).from(usersTable).where(eq(usersTable.id, sessionUserId));
+  if (!isParty && user?.role !== "admin" && user?.role !== "business") { res.status(403).json({ error: "Forbidden" }); return; }
+  const messages = await db.select().from(orderMessagesTable)
+    .where(eq(orderMessagesTable.orderId, orderId))
+    .orderBy(orderMessagesTable.createdAt);
+  res.json(messages);
+});
+
+router.post("/orders/:orderId/messages", async (req, res): Promise<void> => {
+  const sessionUserId = (req.session as any)?.userId;
+  if (!sessionUserId) { res.status(401).json({ error: "Unauthorized" }); return; }
+  const orderId = parseInt(req.params.orderId, 10);
+  if (isNaN(orderId)) { res.status(400).json({ error: "Invalid orderId" }); return; }
+  const { body } = req.body as { body: string };
+  if (!body?.trim()) { res.status(400).json({ error: "body required" }); return; }
+  const [order] = await db.select().from(ordersTable).where(eq(ordersTable.id, orderId));
+  if (!order) { res.status(404).json({ error: "Not found" }); return; }
+  const driver = await db.select({ id: driversTable.id }).from(driversTable).where(eq(driversTable.userId, sessionUserId));
+  const driverIds = driver.map(d => d.id);
+  const isParty = order.customerId === sessionUserId || driverIds.some(d => d === order.driverId);
+  const [user] = await db.select({ role: usersTable.role }).from(usersTable).where(eq(usersTable.id, sessionUserId));
+  if (!isParty && user?.role !== "admin") { res.status(403).json({ error: "Forbidden" }); return; }
+  const role = user?.role ?? "customer";
+  const [msg] = await db.insert(orderMessagesTable).values({ orderId, senderId: sessionUserId, senderRole: role, body: body.trim() }).returning();
+  res.status(201).json(msg);
 });
 
 export default router;

@@ -11,12 +11,15 @@ import { useToast } from "@/hooks/use-toast";
 import { useQueryClient, useMutation } from "@tanstack/react-query";
 import { XCircle, Loader2 } from "lucide-react";
 import { apiFetch } from "@/lib/apiFetch";
+import { useCart } from "@/lib/cart";
+import ChatPanel from "@/components/ChatPanel";
 
 const LiveDriverMap = lazy(() => import("@/components/LiveDriverMap"));
 
 export default function CustomerOrderDetail() {
   const { id } = useParams<{ id: string }>();
   const orderId = parseInt(id, 10);
+  const { addItem, clearCart } = useCart();
   const [driverRating, setDriverRating] = useState(5);
   const [bizRating, setBizRating] = useState(5);
   const [editingNotes, setEditingNotes] = useState(false);
@@ -367,14 +370,38 @@ export default function CustomerOrderDetail() {
         <div className={`border rounded-2xl p-4 ${isCancelled ? "bg-red-400/5 border-red-400/30" : "bg-white/8 border-white/10"}`}>
           <h2 className="font-bold text-sm text-[#FFD700]/80 mb-4 uppercase tracking-widest">{t.orderStatus}</h2>
           {isCancelled ? (
-            <div className="flex items-center gap-3 py-2">
-              <div className="w-8 h-8 rounded-full bg-red-400/20 flex items-center justify-center flex-shrink-0">
-                <XCircle size={18} className="text-red-400" />
+            <div className="space-y-3">
+              <div className="flex items-center gap-3 py-2">
+                <div className="w-8 h-8 rounded-full bg-red-400/20 flex items-center justify-center flex-shrink-0">
+                  <XCircle size={18} className="text-red-400" />
+                </div>
+                <div>
+                  <p className="font-black text-red-400">Pedido cancelado</p>
+                  <p className="text-xs text-white/60">Este pedido fue cancelado.</p>
+                </div>
               </div>
-              <div>
-                <p className="font-black text-red-400">Pedido cancelado</p>
-                <p className="text-xs text-white/60">Este pedido fue cancelado.</p>
-              </div>
+              {order?.items && order.items.length > 0 && (
+                <Button
+                  className="w-full bg-yellow-500 hover:bg-yellow-400 text-black font-black gap-2"
+                  onClick={() => {
+                    if (!order) return;
+                    clearCart();
+                    const bizId = (order as any).businessId as number;
+                    const category = (order as any).business?.category ?? undefined;
+                    order.items.forEach((item: any) => {
+                      addItem(
+                        { id: item.productId, name: item.productName, price: item.price, businessId: bizId } as any,
+                        item.quantity,
+                        category,
+                      );
+                    });
+                    navigate(`/customer/business/${bizId}`);
+                  }}
+                >
+                  <RefreshCw size={14} />
+                  Pedir de nuevo
+                </Button>
+              )}
             </div>
           ) : (
             <div className="space-y-3">
@@ -659,6 +686,15 @@ export default function CustomerOrderDetail() {
           </div>
         )}
       </div>
+
+      {/* In-app chat — only for active orders with an assigned driver */}
+      {(order?.status === "accepted" || order?.status === "picked_up") && order?.driver && (
+        <ChatPanel
+          orderId={orderId}
+          partnerRole="driver"
+          partnerName={(order.driver as any)?.user?.name ?? null}
+        />
+      )}
 
       {/* Dispute Modal */}
       {disputeModal && (

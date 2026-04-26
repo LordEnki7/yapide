@@ -1,8 +1,17 @@
 import { Router, type IRouter } from "express";
 import { eq, desc, and } from "drizzle-orm";
-import { db, usersTable, driversTable, businessesTable, ordersTable, productsTable, disputesTable, orderItemsTable, walletTransactionsTable } from "@workspace/db";
+import { db, usersTable, driversTable, businessesTable, ordersTable, productsTable, disputesTable, orderItemsTable, walletTransactionsTable, settingsTable, businessPayoutsTable } from "@workspace/db";
 import { AdminListUsersQueryParams, AdminBanUserBody, AdminLockDriverBody } from "@workspace/api-zod";
 import { sendWhatsApp } from "../lib/whatsapp";
+
+const DEFAULT_SETTINGS: Record<string, string> = {
+  base_delivery_fee: "150",
+  delivery_fee_per_km: "25",
+  driver_commission_share: "0.5",
+  platform_markup: "0.15",
+  cash_warning_threshold: "7000",
+  cash_limit: "10000",
+};
 
 const router: IRouter = Router();
 
@@ -223,6 +232,51 @@ router.patch("/admin/disputes/:disputeId/resolve", async (req, res): Promise<voi
   }).where(eq(disputesTable.id, id)).returning();
   if (!dispute) { res.status(404).json({ error: "Dispute not found" }); return; }
   res.json(dispute);
+});
+
+router.get("/admin/settings", async (req, res): Promise<void> => {
+  if (!isAdmin(req)) { res.status(401).json({ error: "Unauthorized" }); return; }
+  const rows = await db.select().from(settingsTable);
+  const result: Record<string, number> = {};
+  Object.keys(DEFAULT_SETTINGS).forEach(k => {
+    const row = rows.find(r => r.key === k);
+    result[k] = parseFloat(row?.value ?? DEFAULT_SETTINGS[k]);
+  });
+  res.json(result);
+});
+
+router.patch("/admin/settings/:key", async (req, res): Promise<void> => {
+  if (!isAdmin(req)) { res.status(401).json({ error: "Unauthorized" }); return; }
+  const key = Array.isArray(req.params.key) ? req.params.key[0] : req.params.key;
+  if (!DEFAULT_SETTINGS[key]) { res.status(400).json({ error: "Unknown setting key" }); return; }
+  const { value } = req.body as { value: string };
+  if (typeof value !== "string") { res.status(400).json({ error: "value required" }); return; }
+  await db.insert(settingsTable).values({ key, value })
+    .onConflictDoUpdate({ target: settingsTable.key, set: { value } });
+  res.json({ success: true, key, value });
+});
+
+router.get("/admin/businesses/:businessId/payouts", async (req, res): Promise<void> => {
+  if (!isAdmin(req)) { res.status(401).json({ error: "Unauthorized" }); return; }
+  const id = parseInt(Array.isArray(req.params.businessId) ? req.params.businessId[0] : req.params.businessId, 10);
+  if (isNaN(id)) { res.status(400).json({ error: "Invalid businessId" }); return; }
+  const payouts = await db.select().from(businessPayoutsTable).where(eq(businessPayoutsTable.businessId, id)).orderBy(desc(businessPayoutsTable.createdAt));
+  const deliveredOrders = await db.select({ totalAmount: ordersTable.totalAmount, commission: ordersTable.commission })
+    .from(ordersTable).where(and(eq(ordersTable.businessId, id), eq(ordersTable.status, "delivered")));
+  const totalEarned = deliveredOrders.reduce((s, o) => s + (o.totalAmount - o.commission), 0);
+  const totalPaidOut = payouts.reduce((s, p) => s + p.amount, 0);
+  res.json({ pendingAmount: Math.max(0, totalEarned - totalPaidOut), totalPaidOut, payouts });
+});
+
+router.post("/admin/businesses/:businessId/payout", async (req, res): Promise<void> => {
+  if (!isAdmin(req)) { res.status(401).json({ error: "Unauthorized" }); return; }
+  const adminId = (req.session as any)?.userId;
+  const id = parseInt(Array.isArray(req.params.businessId) ? req.params.businessId[0] : req.params.businessId, 10);
+  if (isNaN(id)) { res.status(400).json({ error: "Invalid businessId" }); return; }
+  const { amount, note } = req.body as { amount: number; note?: string };
+  if (!amount || amount <= 0) { res.status(400).json({ error: "amount required" }); return; }
+  const [payout] = await db.insert(businessPayoutsTable).values({ businessId: id, amount, note: note ?? null, paidBy: adminId }).returning();
+  res.status(201).json(payout);
 });
 
 router.post("/admin/drivers/:driverId/request-dropoff", async (req, res): Promise<void> => {

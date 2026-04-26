@@ -275,6 +275,16 @@ export default function DriverDashboard() {
             </div>
           </Link>
         </div>
+        <Link href="/driver/ratings">
+          <div className="bg-white/8 border border-white/10 rounded-2xl p-4 flex items-center gap-3 hover:border-yellow-400/30 transition cursor-pointer">
+            <span className="text-xl">⭐</span>
+            <div>
+              <p className="font-bold text-sm">Mis calificaciones</p>
+              <p className="text-xs text-white/60">Historial de estrellas de clientes</p>
+            </div>
+            <span className="ml-auto text-white/50 text-lg">›</span>
+          </div>
+        </Link>
       </div>
     </div>
   );

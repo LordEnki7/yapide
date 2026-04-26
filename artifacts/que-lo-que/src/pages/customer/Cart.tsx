@@ -11,7 +11,7 @@ import { Textarea } from "@/components/ui/textarea";
 import {
   ArrowLeft, Trash2, MapPin, Banknote, Plus, ChevronDown, ChevronUp,
   Check, Navigation, Loader2, FileText, Tag, X, CreditCard,
-  ChevronRight, Minus,
+  ChevronRight, Minus, Clock,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { requestGPS } from "@/lib/gps";
@@ -145,6 +145,8 @@ export default function CustomerCart() {
   const [showTipModal, setShowTipModal] = useState(false);
   const [showStripeSheet, setShowStripeSheet] = useState(false);
   const [showCutleryModal, setShowCutleryModal] = useState(false);
+  const [scheduleEnabled, setScheduleEnabled] = useState(false);
+  const [scheduledFor, setScheduledFor] = useState<string>("");
   const [showChangeModal, setShowChangeModal] = useState(false);
   const [cashCurrency, setCashCurrency] = useState<CashCurrency>("DOP");
   const [cashPrepared, setCashPrepared] = useState<number | null>(null); // null = exact / no change
@@ -274,6 +276,7 @@ export default function CustomerCart() {
       promoDiscount,
       orderType: isLaundry ? "laundry" : "delivery",
       pickupAddress: isLaundry ? pickupAddress : undefined,
+      scheduledFor: scheduleEnabled && scheduledFor ? scheduledFor : undefined,
     });
     setShowCutleryModal(false);
   };
@@ -664,6 +667,42 @@ export default function CustomerCart() {
         {/* ── STEP 4: Payment ── */}
         {step === 4 && (
           <div className="px-4 py-4 space-y-4">
+
+            {/* ── Scheduled delivery toggle ── */}
+            <div className="rounded-2xl border border-white/10 bg-white/5 p-4 space-y-3">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Clock size={16} className="text-blue-400" />
+                  <div>
+                    <p className="text-sm font-black text-white">Programar entrega</p>
+                    <p className="text-xs text-white/50">Elige cuándo quieres recibir tu pedido</p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => { setScheduleEnabled(e => !e); if (scheduleEnabled) setScheduledFor(""); }}
+                  className={`w-12 h-6 rounded-full transition-all flex items-center px-1 ${scheduleEnabled ? "bg-blue-500 justify-end" : "bg-white/15 justify-start"}`}
+                >
+                  <span className="w-4 h-4 rounded-full bg-white shadow block" />
+                </button>
+              </div>
+              {scheduleEnabled && (
+                <div>
+                  <input
+                    type="datetime-local"
+                    value={scheduledFor}
+                    onChange={e => setScheduledFor(e.target.value)}
+                    min={new Date(Date.now() + 30 * 60 * 1000).toISOString().slice(0, 16)}
+                    className="w-full bg-white/10 border border-white/20 rounded-xl px-3 py-2.5 text-white text-sm focus:outline-none focus:border-blue-400 [color-scheme:dark]"
+                  />
+                  {scheduledFor && (
+                    <p className="text-xs text-blue-300 mt-1.5 flex items-center gap-1">
+                      <Clock size={10} />
+                      Tu pedido será procesado a las {new Date(scheduledFor).toLocaleTimeString("es-DO", { hour: "2-digit", minute: "2-digit" })} del {new Date(scheduledFor).toLocaleDateString("es-DO", { weekday: "short", day: "numeric", month: "short" })}
+                    </p>
+                  )}
+                </div>
+              )}
+            </div>
 
             {/* Payment tiles */}
             <div>

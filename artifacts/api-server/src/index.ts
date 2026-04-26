@@ -1,9 +1,9 @@
 import app from "./app";
 import { logger } from "./lib/logger";
-import { initPush } from "./lib/push";
+import { initPush, sendPushToUser } from "./lib/push";
 import { fileURLToPath } from "url";
-import { db, ordersTable, driversTable } from "@workspace/db";
-import { eq, and, isNull } from "drizzle-orm";
+import { db, ordersTable, driversTable, businessesTable } from "@workspace/db";
+import { eq, and, isNull, lte, isNotNull } from "drizzle-orm";
 
 const rawPort = process.env["PORT"];
 
@@ -52,6 +52,30 @@ async function runAutoDispatch() {
   }
 }
 
+// ─── Scheduled orders activation ─────────────────────────────────────────────
+async function activateScheduledOrders() {
+  try {
+    const now = new Date();
+    const ready = await db.select().from(ordersTable)
+      .where(and(
+        eq(ordersTable.status, "pending"),
+        isNotNull(ordersTable.scheduledFor),
+        lte(ordersTable.scheduledFor, now),
+      ));
+    for (const order of ready) {
+      const [biz] = await db.select({ userId: businessesTable.userId, name: businessesTable.name })
+        .from(businessesTable).where(eq(businessesTable.id, order.businessId));
+      if (biz) {
+        sendPushToUser(biz.userId, "📅 Pedido programado listo", `Pedido #${order.id} — ya es hora de prepararlo`, "/business/orders").catch(() => {});
+      }
+      await db.update(ordersTable).set({ scheduledFor: null }).where(eq(ordersTable.id, order.id));
+      logger.info({ orderId: order.id }, "Scheduled order activated");
+    }
+  } catch (err) {
+    logger.warn({ err }, "Scheduled-order activation tick failed");
+  }
+}
+
 // Only bind the port when this file is the actual entry point.
 // If something dynamically imports this module (e.g. a health-check wrapper),
 // we skip listen() to avoid EADDRINUSE on the already-bound port.
@@ -71,5 +95,9 @@ if (isMain) {
     // Start auto-dispatch loop every 30 seconds
     setInterval(runAutoDispatch, 30_000);
     logger.info("Auto-dispatch agent started (30s interval)");
+
+    // Check for scheduled orders every 60 seconds
+    setInterval(activateScheduledOrders, 60_000);
+    logger.info("Scheduled-order activation agent started (60s interval)");
   });
 }
