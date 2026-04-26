@@ -57,19 +57,17 @@ export default function SplashScreen({ onDone }: SplashScreenProps) {
         {/* Motorcycle */}
         <div style={{
           width: "clamp(200px, 55vw, 260px)",
-          aspectRatio: "1 / 0.44",
           overflow: "hidden",
-          position: "relative",
           marginTop: "10px",
+          paddingBottom: "28px",
         }}>
           <img
             src="/logo.png"
             alt=""
             style={{
               width: "100%",
-              position: "absolute",
-              bottom: 0,
-              left: 0,
+              display: "block",
+              marginTop: "-42%",
               filter: "drop-shadow(0 4px 16px rgba(0,0,0,0.45))",
             }}
           />
