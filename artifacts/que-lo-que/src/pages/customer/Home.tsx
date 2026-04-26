@@ -156,6 +156,11 @@ export default function CustomerHome() {
           <div className="flex items-center gap-2">
             <NotificationBell />
             <LangToggle />
+            <Link href="/customer/search">
+              <div className="w-9 h-9 rounded-full bg-white/8 border border-white/10 flex items-center justify-center cursor-pointer hover:bg-white/12 transition">
+                <Search size={16} className="text-white/70" />
+              </div>
+            </Link>
             <Link href="/customer/orders">
               <div className="w-9 h-9 rounded-full bg-yellow-400/10 border border-yellow-400/30 flex items-center justify-center cursor-pointer hover:bg-yellow-400/20 transition">
                 <Clock size={16} className="text-yellow-400" />

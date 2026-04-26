@@ -217,8 +217,9 @@ export default function CustomerCart() {
         toast({ title: "✅ ¡Pedido enviado!", description: `Tiempo estimado: ~${etaMins} min` });
         navigate(`/customer/orders/${order.id}`);
       },
-      onError: () => {
-        toast({ title: t.error, description: t.orderError, variant: "destructive" });
+      onError: (err: any) => {
+        const msg = err?.response?.data?.error ?? err?.message ?? t.orderError;
+        toast({ title: t.error, description: msg, variant: "destructive" });
       },
     },
   });

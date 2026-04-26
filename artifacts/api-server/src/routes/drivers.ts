@@ -151,6 +151,42 @@ router.get("/drivers/me/wallet/transactions", async (req, res): Promise<void> =>
   res.json(txns);
 });
 
+// ─── Per-order earnings breakdown (grouped by day) ───────────────────────────
+router.get("/drivers/me/earnings", async (req, res): Promise<void> => {
+  const sessionUserId = (req.session as any)?.userId;
+  if (!sessionUserId) { res.status(401).json({ error: "Unauthorized" }); return; }
+  const [driver] = await db.select().from(driversTable).where(eq(driversTable.userId, sessionUserId));
+  if (!driver) { res.status(404).json({ error: "Driver not found" }); return; }
+
+  const completedOrders = await db
+    .select({
+      id: ordersTable.id,
+      driverEarnings: ordersTable.driverEarnings,
+      totalAmount: ordersTable.totalAmount,
+      paymentMethod: ordersTable.paymentMethod,
+      status: ordersTable.status,
+      updatedAt: ordersTable.updatedAt,
+      businessName: businessesTable.name,
+    })
+    .from(ordersTable)
+    .innerJoin(businessesTable, eq(ordersTable.businessId, businessesTable.id))
+    .where(and(eq(ordersTable.driverId, driver.id), eq(ordersTable.status, "delivered")))
+    .orderBy(desc(ordersTable.updatedAt));
+
+  // Group by day (DR timezone UTC-4)
+  const byDay: Record<string, { date: string; earnings: number; orders: typeof completedOrders }> = {};
+  for (const o of completedOrders) {
+    const drDate = new Date(new Date(o.updatedAt).getTime() - 4 * 60 * 60 * 1000);
+    const key = drDate.toISOString().slice(0, 10);
+    if (!byDay[key]) byDay[key] = { date: key, earnings: 0, orders: [] };
+    byDay[key].earnings += o.driverEarnings;
+    byDay[key].orders.push(o);
+  }
+
+  const days = Object.values(byDay).sort((a, b) => b.date.localeCompare(a.date));
+  res.json({ days, totalOrders: completedOrders.length });
+});
+
 router.get("/drivers/available-jobs", async (req, res): Promise<void> => {
   const sessionUserId = (req.session as any)?.userId;
   if (!sessionUserId) { res.status(401).json({ error: "Unauthorized" }); return; }

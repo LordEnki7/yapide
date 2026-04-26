@@ -1,6 +1,6 @@
 import { Router, type IRouter } from "express";
-import { eq, ilike, and, gte, desc } from "drizzle-orm";
-import { db, businessesTable, usersTable, ordersTable, orderItemsTable, businessPayoutsTable } from "@workspace/db";
+import { eq, ilike, and, gte, desc, or } from "drizzle-orm";
+import { db, businessesTable, usersTable, ordersTable, orderItemsTable, businessPayoutsTable, productsTable } from "@workspace/db";
 import { CreateBusinessBody, UpdateBusinessBody, ListBusinessesQueryParams, GetBusinessParams, UpdateBusinessParams } from "@workspace/api-zod";
 
 const router: IRouter = Router();
@@ -64,6 +64,44 @@ function formatBusiness(b: typeof businessesTable.$inferSelect) {
     createdAt: b.createdAt,
   };
 }
+
+// ─── Global search: businesses + products ────────────────────────────────────
+router.get("/search", async (req, res): Promise<void> => {
+  const q = typeof req.query.q === "string" ? req.query.q.trim() : "";
+  if (!q || q.length < 2) { res.json({ businesses: [], products: [] }); return; }
+  const s = `%${q.toLowerCase()}%`;
+
+  const allBusinesses = await db.select().from(businessesTable)
+    .where(and(eq(businessesTable.isActive, true)));
+  const matchedBusinesses = allBusinesses
+    .filter(b => b.approvalStatus === "approved" && b.name.toLowerCase().includes(q.toLowerCase()))
+    .slice(0, 10)
+    .map(formatBusiness);
+
+  const allProducts = await db.select({
+    id: productsTable.id,
+    name: productsTable.name,
+    description: productsTable.description,
+    price: productsTable.price,
+    imageUrl: productsTable.imageUrl,
+    category: productsTable.category,
+    businessId: productsTable.businessId,
+    businessName: businessesTable.name,
+    businessLogoUrl: businessesTable.logoUrl,
+  })
+    .from(productsTable)
+    .innerJoin(businessesTable, eq(productsTable.businessId, businessesTable.id))
+    .where(and(
+      eq(productsTable.isAvailable, true),
+      eq(businessesTable.isActive, true),
+    ));
+
+  const matchedProducts = allProducts
+    .filter(p => p.name.toLowerCase().includes(q.toLowerCase()) || (p.description ?? "").toLowerCase().includes(q.toLowerCase()))
+    .slice(0, 20);
+
+  res.json({ businesses: matchedBusinesses, products: matchedProducts });
+});
 
 router.get("/businesses", async (req, res): Promise<void> => {
   const params = ListBusinessesQueryParams.safeParse(req.query);

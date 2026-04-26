@@ -70,6 +70,7 @@ import AdminStaff from "@/pages/admin/Staff";
 import AdminDisputes from "@/pages/admin/Disputes";
 import AdminSettings from "@/pages/admin/Settings";
 import CustomerSupport from "@/pages/customer/Support";
+import CustomerSearch from "@/pages/customer/Search";
 import BusinessOnboarding from "@/pages/business/Onboarding";
 import DriverOnboarding from "@/pages/driver/Onboarding";
 import DriverProfile from "@/pages/driver/Profile";
@@ -125,6 +126,7 @@ function Router() {
         <Route path="/admin/disputes" component={AdminDisputes} />
         <Route path="/admin/settings" component={AdminSettings} />
         <Route path="/customer/support" component={CustomerSupport} />
+        <Route path="/customer/search" component={CustomerSearch} />
         <Route component={NotFound} />
       </Switch>
       <BottomNav />

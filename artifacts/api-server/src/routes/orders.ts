@@ -9,6 +9,28 @@ import { subscribe, emitOrderStatusChange } from "../lib/sse";
 
 const formatDOP = (n: number) => `RD$ ${Math.round(n).toLocaleString("es-DO")}`;
 
+// ─── Business-hours helper (mirrors businesses.ts) ────────────────────────────
+type DayKey = "sun" | "mon" | "tue" | "wed" | "thu" | "fri" | "sat";
+type DaySlot = { open: string; close: string } | null;
+type OpenHours = Partial<Record<DayKey, DaySlot>>;
+function getDRMinute(): { dayKey: DayKey; minuteOfDay: number } {
+  const now = new Date();
+  const drDate = new Date(now.getTime() - 4 * 60 * 60 * 1000);
+  const days: DayKey[] = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"];
+  return { dayKey: days[drDate.getUTCDay()]!, minuteOfDay: drDate.getUTCHours() * 60 + drDate.getUTCMinutes() };
+}
+function timeToMin(t: string): number { const [h, m] = t.split(":").map(Number); return (h ?? 0) * 60 + (m ?? 0); }
+function computeBusinessIsOpen(openHoursJson: string | null | undefined, fallback: boolean): boolean {
+  if (!openHoursJson) return fallback;
+  try {
+    const hours: OpenHours = JSON.parse(openHoursJson);
+    const { dayKey, minuteOfDay } = getDRMinute();
+    const slot = hours[dayKey];
+    if (!slot) return false;
+    return minuteOfDay >= timeToMin(slot.open) && minuteOfDay < timeToMin(slot.close);
+  } catch { return fallback; }
+}
+
 const router: IRouter = Router();
 
 async function formatOrder(order: typeof ordersTable.$inferSelect) {
@@ -209,7 +231,17 @@ router.post("/orders", async (req, res): Promise<void> => {
 
   const { businessId, paymentMethod, deliveryAddress, notes, items, tip = 0, orderType = "delivery", pickupAddress, scheduledFor } = parsed.data as any;
 
-  const [biz0] = await db.select({ category: businessesTable.category }).from(businessesTable).where(eq(businessesTable.id, businessId));
+  const [biz0] = await db.select({ category: businessesTable.category, isOpen: businessesTable.isOpen, openHours: businessesTable.openHours }).from(businessesTable).where(eq(businessesTable.id, businessId));
+
+  // ── Business-hours guard (skip for scheduled orders — they fire later) ──────
+  if (biz0 && !scheduledFor) {
+    const isCurrentlyOpen = computeBusinessIsOpen(biz0.openHours, biz0.isOpen);
+    if (!isCurrentlyOpen) {
+      res.status(422).json({ error: "El negocio está cerrado ahora mismo. / The business is currently closed." });
+      return;
+    }
+  }
+
   const isPickingBusiness = biz0 && (biz0.category === "supermarket" || biz0.category === "liquor");
   const isLiquor = biz0?.category === "liquor";
 
