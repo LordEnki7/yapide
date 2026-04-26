@@ -7,6 +7,7 @@ import helmet from "helmet";
 import router from "./routes";
 import { logger } from "./lib/logger";
 import { generalLimiter } from "./lib/rate-limiters";
+import { csrfMiddleware, csrfTokenHandler } from "./lib/csrf";
 import { pool } from "@workspace/db";
 
 const app: Express = express();
@@ -89,6 +90,13 @@ app.use(
 
 // ─── General rate limiter ─────────────────────────────────────────────────────
 app.use("/api", generalLimiter);
+
+// ─── CSRF token endpoint (GET — no CSRF check needed) ────────────────────────
+app.get("/api/csrf-token", csrfTokenHandler);
+
+// ─── CSRF protection — validates X-CSRF-Token on all mutations ───────────────
+// Skips: native mobile apps (no Origin header or capacitor://), GET/HEAD/OPTIONS
+app.use("/api", csrfMiddleware);
 
 // ─── Routes ───────────────────────────────────────────────────────────────────
 app.use("/api", router);

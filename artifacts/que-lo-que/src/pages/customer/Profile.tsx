@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { apiFetch } from "@/lib/apiFetch";
 import { Link } from "wouter";
 import { useGetMe, getGetMeQueryKey } from "@workspace/api-client-react";
 import { getStoredUser, clearStoredUser } from "@/lib/auth";
@@ -44,7 +45,7 @@ export default function CustomerProfile() {
   const handleDeleteAddress = async (id: number) => {
     setDeletingId(id);
     try {
-      await fetch(`/api/customer/addresses/${id}`, { method: "DELETE", credentials: "include" });
+      await apiFetch(`/api/customer/addresses/${id}`, { method: "DELETE" });
       setAddresses(prev => prev.filter(a => a.id !== id));
       toast({ title: t.addressDeleted });
     } catch {
@@ -56,9 +57,8 @@ export default function CustomerProfile() {
 
   const handleSetDefault = async (addr: SavedAddress) => {
     try {
-      await fetch("/api/customer/addresses", {
+      await apiFetch("/api/customer/addresses", {
         method: "POST",
-        credentials: "include",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ label: addr.label, address: addr.address, isDefault: true }),
       });
@@ -87,10 +87,9 @@ export default function CustomerProfile() {
     }
     setSaving(true);
     try {
-      const res = await fetch("/api/auth/me", {
+      const res = await apiFetch("/api/auth/me", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        credentials: "include",
         body: JSON.stringify({ name: name.trim(), phone: phone.trim() || undefined }),
       });
       if (!res.ok) throw new Error();
@@ -118,7 +117,7 @@ export default function CustomerProfile() {
   const handleDeleteAccount = async () => {
     setDeletingAccount(true);
     try {
-      await fetch("/api/auth/me", { method: "DELETE", credentials: "include" });
+      await apiFetch("/api/auth/me", { method: "DELETE" });
       clearStoredUser();
       window.location.href = "/";
     } catch {

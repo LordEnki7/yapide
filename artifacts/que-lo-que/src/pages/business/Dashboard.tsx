@@ -1,4 +1,5 @@
 import { Link } from "wouter";
+import { apiFetch } from "@/lib/apiFetch";
 import { useGetMyBusiness, getGetMyBusinessQueryKey, useUpdateBusiness, useGetBusinessStats, getGetBusinessStatsQueryKey } from "@workspace/api-client-react";
 import { formatDOP, getStoredUser } from "@/lib/auth";
 import { useLang } from "@/lib/lang";
@@ -64,9 +65,8 @@ export default function BusinessDashboard() {
   };
 
   const handleLogoUploaded = async (objectPath: string) => {
-    const res = await fetch("/api/businesses/mine/logo", {
+    const res = await apiFetch("/api/businesses/mine/logo", {
       method: "PATCH",
-      credentials: "include",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ logoUrl: `/api/storage/objects/${objectPath}` }),
     });
@@ -104,9 +104,8 @@ export default function BusinessDashboard() {
   const saveHours = async () => {
     setSavingHours(true);
     try {
-      const res = await fetch("/api/businesses/mine/hours", {
+      const res = await apiFetch("/api/businesses/mine/hours", {
         method: "PATCH",
-        credentials: "include",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ openHours: Object.keys(hours).length === 0 ? null : hours }),
       });
@@ -124,9 +123,8 @@ export default function BusinessDashboard() {
     setPrepTime(minutes);
     setSavingPrepTime(true);
     try {
-      await fetch("/api/businesses/mine/prep-time", {
+      await apiFetch("/api/businesses/mine/prep-time", {
         method: "PATCH",
-        credentials: "include",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ prepTimeMinutes: minutes }),
       });

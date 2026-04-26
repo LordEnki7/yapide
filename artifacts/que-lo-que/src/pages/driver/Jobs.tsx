@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { apiFetch } from "@/lib/apiFetch";
 import { Link } from "wouter";
 import { useGetAvailableJobs, getGetAvailableJobsQueryKey, useAcceptJob, useDeclineJob, useUpdateOrderStatus, getListOrdersQueryKey } from "@workspace/api-client-react";
 import { formatDOP } from "@/lib/auth";
@@ -120,9 +121,8 @@ export default function DriverJobs() {
     const sendLocation = () => {
       navigator.geolocation.getCurrentPosition(
         (pos) => {
-          fetch("/api/drivers/me/location", {
+          apiFetch("/api/drivers/me/location", {
             method: "PATCH",
-            credentials: "include",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
           }).catch(() => {});
@@ -189,9 +189,8 @@ export default function DriverJobs() {
 
     if (photo) {
       try {
-        const urlRes = await fetch("/api/storage/uploads/request-url", {
+        const urlRes = await apiFetch("/api/storage/uploads/request-url", {
           method: "POST",
-          credentials: "include",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ name: photo.name, size: photo.size, contentType: photo.type }),
         });
@@ -586,9 +585,8 @@ export default function DriverJobs() {
                   if (!reportReason || reportLoading) return;
                   setReportLoading(true);
                   try {
-                    const res = await fetch(`/api/orders/${reportModal.orderId}/report-problem`, {
+                    const res = await apiFetch(`/api/orders/${reportModal.orderId}/report-problem`, {
                       method: "POST",
-                      credentials: "include",
                       headers: { "Content-Type": "application/json" },
                       body: JSON.stringify({ reason: reportReason, notes: reportNotes || undefined }),
                     });

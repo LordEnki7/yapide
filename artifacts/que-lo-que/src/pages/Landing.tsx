@@ -4,6 +4,7 @@ import { setStoredUser, setActiveRole } from "@/lib/auth";
 import LangToggle from "@/components/LangToggle";
 import { useLang } from "@/lib/lang";
 import { Loader2, LogIn, UserPlus, ChevronDown, ChevronUp } from "lucide-react";
+import { apiFetch } from "@/lib/apiFetch";
 
 const logo = "/logo.png";
 const API = (import.meta.env.VITE_API_URL as string | undefined) ?? "";
@@ -68,10 +69,9 @@ export default function Landing() {
     setDemoLoading(role);
     setError(null);
     try {
-      await fetch(`${API}/api/demo/seed`, { method: "POST", credentials: "include" });
-      const res = await fetch(`${API}/api/demo/login?role=${role}`, {
+      await apiFetch(`${API}/api/demo/seed`, { method: "POST" });
+      const res = await apiFetch(`${API}/api/demo/login?role=${role}`, {
         method: "POST",
-        credentials: "include",
       });
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));

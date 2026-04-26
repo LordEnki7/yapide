@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { apiFetch } from "@/lib/apiFetch";
 import { Link } from "wouter";
 import { ArrowLeft, Plus, Pencil, Trash2, Shield, ShieldCheck, Crown, Eye, EyeOff, X, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -93,8 +94,8 @@ export default function AdminStaff() {
 
       const url = editTarget ? `/api/admin/staff/${editTarget.id}` : "/api/admin/staff";
       const method = editTarget ? "PATCH" : "POST";
-      const res = await fetch(url, {
-        method, credentials: "include",
+      const res = await apiFetch(url, {
+        method,
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
       });
@@ -110,7 +111,7 @@ export default function AdminStaff() {
 
   const handleDelete = async (id: number) => {
     try {
-      const res = await fetch(`/api/admin/staff/${id}`, { method: "DELETE", credentials: "include" });
+      const res = await apiFetch(`/api/admin/staff/${id}`, { method: "DELETE" });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error ?? "Error");
       toast({ title: "Eliminado", description: "Cuenta de staff removida" });

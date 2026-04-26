@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { apiFetch } from "@/lib/apiFetch";
 import { useGetMe, getGetMeQueryKey } from "@workspace/api-client-react";
 import { getStoredUser, clearStoredUser, setStoredUser } from "@/lib/auth";
 import { useLang } from "@/lib/lang";
@@ -40,10 +41,9 @@ export default function BusinessProfile() {
     }
     setSaving(true);
     try {
-      const res = await fetch("/api/auth/me", {
+      const res = await apiFetch("/api/auth/me", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        credentials: "include",
         body: JSON.stringify({ name: name.trim(), phone: phone.trim() || undefined }),
       });
       if (!res.ok) throw new Error();
@@ -68,7 +68,7 @@ export default function BusinessProfile() {
   const handleDeleteAccount = async () => {
     setDeletingAccount(true);
     try {
-      await fetch("/api/auth/me", { method: "DELETE", credentials: "include" });
+      await apiFetch("/api/auth/me", { method: "DELETE" });
       clearStoredUser();
       window.location.href = "/";
     } catch {

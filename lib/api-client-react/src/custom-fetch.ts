@@ -17,6 +17,7 @@ const DEFAULT_JSON_ACCEPT = "application/json, application/problem+json";
 
 let _baseUrl: string | null = null;
 let _authTokenGetter: AuthTokenGetter | null = null;
+let _csrfToken: string | null = null;
 
 /**
  * Set a base URL that is prepended to every relative request URL
@@ -42,6 +43,15 @@ export function setBaseUrl(url: string | null): void {
  */
 export function setAuthTokenGetter(getter: AuthTokenGetter | null): void {
   _authTokenGetter = getter;
+}
+
+/**
+ * Set the CSRF token to be sent as `X-CSRF-Token` on all state-changing
+ * requests (POST / PUT / PATCH / DELETE).  Call this once after fetching
+ * the token from `GET /api/csrf-token` on app startup.
+ */
+export function setCsrfToken(token: string | null): void {
+  _csrfToken = token;
 }
 
 function isRequest(input: RequestInfo | URL): input is Request {
@@ -356,6 +366,12 @@ export async function customFetch<T = unknown>(
     if (token) {
       headers.set("authorization", `Bearer ${token}`);
     }
+  }
+
+  // Attach CSRF token on state-changing requests (server skips for native mobile)
+  const SAFE_METHODS = new Set(["GET", "HEAD", "OPTIONS"]);
+  if (_csrfToken && !SAFE_METHODS.has(method) && !headers.has("x-csrf-token")) {
+    headers.set("x-csrf-token", _csrfToken);
   }
 
   const requestInfo = { method, url: resolveUrl(input) };

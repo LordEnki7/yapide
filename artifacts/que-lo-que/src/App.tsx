@@ -1,4 +1,5 @@
 import { useState, useCallback, Component, type ReactNode } from "react";
+import { useCsrfToken } from "@/hooks/useCsrfToken";
 import { Switch, Route, Router as WouterRouter } from "wouter";
 
 class ErrorBoundary extends Component<{ children: ReactNode }, { error: Error | null }> {
@@ -12,7 +13,9 @@ class ErrorBoundary extends Component<{ children: ReactNode }, { error: Error | 
           <div style={{ fontSize: 48, marginBottom: 16 }}>⚠️</div>
           <h2 style={{ color: "#FFD700", marginBottom: 8 }}>Error de carga</h2>
           <p style={{ color: "#fff", opacity: 0.7, marginBottom: 16, textAlign: "center" }}>{err.message}</p>
-          <pre style={{ background: "#fff1", padding: 12, borderRadius: 8, fontSize: 11, maxWidth: "90vw", overflowX: "auto", color: "#ffa0a0" }}>{err.stack}</pre>
+          {import.meta.env.DEV && (
+            <pre style={{ background: "#fff1", padding: 12, borderRadius: 8, fontSize: 11, maxWidth: "90vw", overflowX: "auto", color: "#ffa0a0" }}>{err.stack}</pre>
+          )}
           <button onClick={() => window.location.reload()} style={{ marginTop: 20, background: "#FFD700", color: "#000", border: "none", padding: "10px 24px", borderRadius: 12, fontWeight: 700, cursor: "pointer" }}>
             Recargar
           </button>
@@ -122,6 +125,8 @@ function Router() {
 }
 
 function App() {
+  useCsrfToken(); // Fetch CSRF token once at startup, inject into all mutations
+
   const [splashDone, setSplashDone] = useState(() => {
     return sessionStorage.getItem("yapide_splash_shown") === "1";
   });

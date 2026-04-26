@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { apiFetch } from "@/lib/apiFetch";
 import { Link } from "wouter";
 import { formatDOP } from "@/lib/auth";
 import {
@@ -90,7 +91,7 @@ export default function AdminCommandCenter() {
   const runDispatch = async () => {
     setDispatching(true);
     try {
-      const r = await fetch("/api/agents/dispatch/run", { method: "POST", credentials: "include" });
+      const r = await apiFetch("/api/agents/dispatch/run", { method: "POST" });
       const d = await r.json();
       toast({ title: `🚀 Dispatch completado`, description: d.message });
       fetchAll();
