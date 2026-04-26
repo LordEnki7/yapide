@@ -11,6 +11,7 @@ export const notificationsTable = pgTable("notifications", {
   message: text("message").notNull(),
   status: text("status").notNull().default("pending"),
   sent: boolean("sent").notNull().default(false),
+  sentAt: timestamp("sent_at", { withTimezone: true }),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
 

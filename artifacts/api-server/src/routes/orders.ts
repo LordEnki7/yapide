@@ -4,6 +4,7 @@ import { db, ordersTable, orderItemsTable, businessesTable, usersTable, driversT
 import { CreateOrderBody, UpdateOrderStatusBody, RateOrderBody, ListOrdersQueryParams } from "@workspace/api-zod";
 import { calculateFees, CASH_LIMIT } from "../lib/dispatch";
 import { sendPushToUser } from "../lib/push";
+import { sendWhatsApp } from "../lib/whatsapp";
 import { subscribe, emitOrderStatusChange } from "../lib/sse";
 
 const formatDOP = (n: number) => `RD$ ${Math.round(n).toLocaleString("es-DO")}`;
@@ -353,9 +354,11 @@ router.patch("/orders/:orderId/status", async (req, res): Promise<void> => {
 
   const waMsg = waMessages[parsed.data.status];
   if (waMsg) {
-    const [customer] = await db.select({ phone: usersTable.phone, name: usersTable.name }).from(usersTable).where(eq(usersTable.id, order.customerId));
+    const [customer] = await db.select({ phone: usersTable.phone, name: usersTable.name })
+      .from(usersTable).where(eq(usersTable.id, order.customerId));
     if (customer) {
-      await db.insert(notificationsTable).values({
+      // Insert notification record first (pending)
+      const [notif] = await db.insert(notificationsTable).values({
         orderId: order.id,
         channel: "whatsapp",
         recipientPhone: customer.phone ?? null,
@@ -364,7 +367,16 @@ router.patch("/orders/:orderId/status", async (req, res): Promise<void> => {
         message: waMsg,
         status: customer.phone ? "pending" : "no_phone",
         sent: false,
-      }).catch(() => {});
+      }).returning({ id: notificationsTable.id }).catch(() => []);
+
+      // Actually send via Meta Cloud API if phone is available
+      if (customer.phone && notif) {
+        const ok = await sendWhatsApp(customer.phone, waMsg);
+        await db.update(notificationsTable)
+          .set({ sent: ok, status: ok ? "sent" : "failed", sentAt: ok ? new Date() : null })
+          .where(eq(notificationsTable.id, notif.id))
+          .catch(() => {});
+      }
     }
   }
 
