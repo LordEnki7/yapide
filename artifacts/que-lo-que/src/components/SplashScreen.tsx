@@ -57,7 +57,7 @@ export default function SplashScreen({ onDone }: SplashScreenProps) {
         {/* Motorcycle */}
         <div style={{
           width: "clamp(200px, 55vw, 260px)",
-          aspectRatio: "1 / 0.56",
+          aspectRatio: "1 / 0.44",
           overflow: "hidden",
           position: "relative",
           marginTop: "10px",
