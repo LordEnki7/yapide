@@ -364,6 +364,12 @@ export default function Register() {
               >
                 {register.isPending ? t.creating : t.createAccount}
               </Button>
+              <p className="text-center text-[11px] text-white/40 leading-relaxed pt-1">
+                {lang === "es"
+                  ? <>Al crear tu cuenta aceptas nuestro{" "}<Link href="/eula"><span className="text-yellow-400/80 hover:text-yellow-400 underline underline-offset-2">Contrato de Licencia</span></Link>{" "}y nuestra{" "}<Link href="/privacy"><span className="text-yellow-400/80 hover:text-yellow-400 underline underline-offset-2">Política de Privacidad</span></Link>.</>
+                  : <>By creating an account you agree to our{" "}<Link href="/eula"><span className="text-yellow-400/80 hover:text-yellow-400 underline underline-offset-2">License Agreement</span></Link>{" "}and{" "}<Link href="/privacy"><span className="text-yellow-400/80 hover:text-yellow-400 underline underline-offset-2">Privacy Policy</span></Link>.</>
+                }
+              </p>
             </form>
           ) : (
             <form onSubmit={handlePhoneSubmit} className="space-y-3">

@@ -21,7 +21,7 @@ interface SavedAddress {
 }
 
 export default function CustomerProfile() {
-  const { t } = useLang();
+  const { t, lang } = useLang();
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const storedUser = getStoredUser();
@@ -353,6 +353,20 @@ export default function CustomerProfile() {
             </div>
           </div>
         )}
+
+        <div className="flex items-center justify-center gap-4 py-3">
+          <Link href="/privacy">
+            <span className="text-[11px] text-white/30 hover:text-yellow-400/70 transition-colors">
+              {lang === "en" ? "Privacy Policy" : "Política de Privacidad"}
+            </span>
+          </Link>
+          <span className="text-white/20 text-xs">·</span>
+          <Link href="/eula">
+            <span className="text-[11px] text-white/30 hover:text-yellow-400/70 transition-colors">
+              {lang === "en" ? "License Agreement" : "Contrato de Licencia"}
+            </span>
+          </Link>
+        </div>
       </div>
     </div>
   );

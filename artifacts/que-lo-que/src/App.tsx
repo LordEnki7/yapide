@@ -1,4 +1,4 @@
-import { useState, useCallback, Component, type ReactNode } from "react";
+import { useState, useCallback, Component, type ReactNode, useEffect } from "react";
 import { useCsrfToken } from "@/hooks/useCsrfToken";
 import { Switch, Route, Router as WouterRouter } from "wouter";
 
@@ -75,6 +75,8 @@ import BusinessOnboarding from "@/pages/business/Onboarding";
 import DriverOnboarding from "@/pages/driver/Onboarding";
 import DriverProfile from "@/pages/driver/Profile";
 import BusinessProfile from "@/pages/business/Profile";
+import PrivacyPolicy from "@/pages/PrivacyPolicy";
+import EULAPage from "@/pages/EULA";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -127,6 +129,8 @@ function Router() {
         <Route path="/admin/settings" component={AdminSettings} />
         <Route path="/customer/support" component={CustomerSupport} />
         <Route path="/customer/search" component={CustomerSearch} />
+        <Route path="/privacy" component={PrivacyPolicy} />
+        <Route path="/eula" component={EULAPage} />
         <Route component={NotFound} />
       </Switch>
       <BottomNav />
@@ -137,7 +141,11 @@ function Router() {
 function App() {
   useCsrfToken(); // Fetch CSRF token once at startup, inject into all mutations
 
+  const PUBLIC_LEGAL = ["/privacy", "/eula"];
+  const isLegalPage = PUBLIC_LEGAL.some(p => window.location.pathname.endsWith(p));
+
   const [splashDone, setSplashDone] = useState(() => {
+    if (isLegalPage) return true;
     return sessionStorage.getItem("yapide_splash_shown") === "1";
   });
 
