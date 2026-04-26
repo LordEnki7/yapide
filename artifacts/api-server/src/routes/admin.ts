@@ -3,6 +3,7 @@ import { eq, desc, and } from "drizzle-orm";
 import { db, usersTable, driversTable, businessesTable, ordersTable, productsTable, disputesTable, orderItemsTable, walletTransactionsTable, settingsTable, businessPayoutsTable } from "@workspace/db";
 import { AdminListUsersQueryParams, AdminBanUserBody, AdminLockDriverBody } from "@workspace/api-zod";
 import { sendWhatsApp } from "../lib/whatsapp";
+import { sendPushToUser } from "../lib/push";
 
 const DEFAULT_SETTINGS: Record<string, string> = {
   base_delivery_fee: "150",
@@ -87,8 +88,21 @@ router.post("/admin/businesses/:businessId/approve", async (req, res): Promise<v
   if (!isAdmin(req)) { res.status(401).json({ error: "Unauthorized" }); return; }
   const id = parseInt(Array.isArray(req.params.businessId) ? req.params.businessId[0] : req.params.businessId, 10);
   if (isNaN(id)) { res.status(400).json({ error: "Invalid businessId" }); return; }
-  const status = req.body.status ?? "approved";
-  await db.update(businessesTable).set({ approvalStatus: status }).where(eq(businessesTable.id, id));
+  const status: "approved" | "rejected" = req.body.status === "rejected" ? "rejected" : "approved";
+  const [biz] = await db.update(businessesTable)
+    .set({ approvalStatus: status, isActive: status === "approved" ? true : undefined })
+    .where(eq(businessesTable.id, id))
+    .returning();
+  if (!biz) { res.status(404).json({ error: "Business not found" }); return; }
+  // Notify business owner
+  sendPushToUser(
+    biz.userId,
+    status === "approved" ? "✅ ¡Negocio aprobado!" : "❌ Negocio no aprobado",
+    status === "approved"
+      ? `${biz.name} está aprobado y visible para los clientes. ¡Actívalo para empezar a recibir pedidos!`
+      : `Tu solicitud para ${biz.name} no fue aprobada. Contáctanos para más información.`,
+    "/business",
+  ).catch(() => {});
   res.json({ success: true, status });
 });
 
