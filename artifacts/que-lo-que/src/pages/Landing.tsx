@@ -58,7 +58,7 @@ export default function Landing() {
             <span style={{ color: "#6be832" }}>Ya</span>
             <span className="text-white">Pide</span>
           </p>
-          <div style={{ width: "clamp(200px, 55vw, 260px)", aspectRatio: "1 / 0.44", overflow: "hidden", position: "relative", marginTop: "8px" }}>
+          <div style={{ width: "clamp(200px, 55vw, 260px)", aspectRatio: "1 / 0.56", overflow: "hidden", position: "relative", marginTop: "8px" }}>
             <img src={logo} alt="" style={{ width: "100%", position: "absolute", bottom: 0, left: 0, filter: "drop-shadow(0 4px 24px rgba(0,0,0,0.55))" }} />
           </div>
         </div>
