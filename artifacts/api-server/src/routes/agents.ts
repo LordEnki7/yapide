@@ -466,13 +466,23 @@ You must return ONLY valid JSON (no markdown, no explanation) in this exact shap
         "body": "Spanish push body message",
         "segment": "all"          // "all" | "inactive" | "new"
       }
+    },
+    {
+      "type": "qr_code",
+      "label": "QR Code",
+      "data": {
+        "targetPath": "/promo/CODE",
+        "promoCode": null,
+        "description": "Spanish description of what this QR does"
+      }
     }
   ]
 }
 
 Color guide for banners: free delivery → #16a34a (green), points/rewards → #0057B7 (blue), special events → #dc2626 (red), general promos → #9333ea (purple).
 Today is ${new Date().toISOString()}. Use this to calculate datetimes when the admin says things like "this weekend" or "tonight".
-Dominican week starts on Sunday. Business peak hours are 11AM-2PM and 6PM-10PM.`;
+Dominican week starts on Sunday. Business peak hours are 11AM-2PM and 6PM-10PM.
+When generating a QR code for a promo code, use targetPath "/promo/{CODE}" and set promoCode to the code string. When asked for a QR to download the app, use targetPath "/register". Always pair a QR code with at least one other action (a banner or push) unless the user only asks for a QR.`;
 
 router.post("/agents/promo/interpret", async (req, res): Promise<void> => {
   if (!(await requireAdmin(req, res))) return;
@@ -543,6 +553,10 @@ router.post("/agents/promo/execute", async (req, res): Promise<void> => {
         const { title, body, segment } = action.data;
         const allUsers = await db.select({ id: usersTable.id }).from(usersTable).where(eq(usersTable.role, "customer"));
         results.push({ type: "push", status: "sent", id: allUsers.length });
+
+      } else if (action.type === "qr_code") {
+        const { targetPath, promoCode, description } = action.data;
+        results.push({ type: "qr_code", status: "ready", targetPath, promoCode: promoCode ?? null, description });
 
       } else {
         results.push({ type: action.type, status: "unknown_type" });

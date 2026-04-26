@@ -2,9 +2,9 @@ import { useState, useRef, useEffect } from "react";
 import { Link } from "wouter";
 import { apiFetch } from "@/lib/apiFetch";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, Sparkles, Send, Loader2, CheckCircle2, Tag, Truck, Star, Bell, RotateCcw, Megaphone } from "lucide-react";
+import { ArrowLeft, Sparkles, Send, Loader2, CheckCircle2, Tag, Truck, Star, Bell, RotateCcw, Megaphone, QrCode, Download } from "lucide-react";
 
-type ActionType = "delivery_window" | "banner" | "points_event" | "push";
+type ActionType = "delivery_window" | "banner" | "points_event" | "push" | "qr_code";
 
 interface PromoAction {
   type: ActionType;
@@ -28,13 +28,27 @@ const ACTION_META: Record<ActionType, { icon: React.ElementType; color: string; 
   banner:          { icon: Megaphone,color: "text-blue-400",   bg: "bg-blue-500/15",   border: "border-blue-500/30" },
   points_event:    { icon: Star,     color: "text-yellow-400", bg: "bg-yellow-500/15", border: "border-yellow-500/30" },
   push:            { icon: Bell,     color: "text-purple-400", bg: "bg-purple-500/15", border: "border-purple-500/30" },
+  qr_code:         { icon: QrCode,   color: "text-orange-400", bg: "bg-orange-500/15", border: "border-orange-500/30" },
 };
+
+const QR_API = (url: string, size = 220) =>
+  `https://api.qrserver.com/v1/create-qr-code/?data=${encodeURIComponent(url)}&size=${size}x${size}&color=040f26&bgcolor=FFD700&margin=10&format=png`;
+
+function downloadQR(qrUrl: string, label: string) {
+  fetch(qrUrl).then(r => r.blob()).then(blob => {
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = `yapide-qr-${label}.png`;
+    a.click();
+  });
+}
 
 const EXAMPLES = [
   "Free delivery every Friday night from 7 to 10 PM",
   "Double points all weekend starting this Saturday",
   "Send a push to inactive customers with a 'we miss you' message",
   "Run a triple points event tonight from 6 to 9 PM with a banner",
+  "Generate a QR code for promo code VERANO25 with a matching banner",
   "Free delivery this Sunday only for Mother's Day",
 ];
 
@@ -118,6 +132,36 @@ function ActionPreview({ action }: { action: PromoAction }) {
           </div>
         </div>
       )}
+
+      {action.type === "qr_code" && (() => {
+        const fullUrl = `${window.location.origin}${action.data.targetPath}`;
+        const qrImg = QR_API(fullUrl, 220);
+        return (
+          <div className="flex gap-4 items-start">
+            <div className="bg-white rounded-xl p-2 flex-shrink-0 shadow-lg">
+              <img src={qrImg} alt="QR Code preview" className="w-28 h-28 object-contain rounded-lg" />
+            </div>
+            <div className="flex-1 space-y-2 min-w-0">
+              <div className="bg-black/20 rounded-lg px-3 py-2 text-xs">
+                <p className="text-white/50 mb-0.5">Destino</p>
+                <p className="text-orange-300 font-mono font-bold break-all">{action.data.targetPath}</p>
+              </div>
+              {action.data.description && (
+                <div className="bg-black/20 rounded-lg px-3 py-2 text-xs">
+                  <p className="text-white/50 mb-0.5">Descripción</p>
+                  <p className="text-white font-medium">{action.data.description}</p>
+                </div>
+              )}
+              <button
+                onClick={() => downloadQR(qrImg, action.data.promoCode ?? "promo")}
+                className="flex items-center gap-1.5 text-xs font-bold text-orange-400 bg-orange-500/15 border border-orange-500/30 px-3 py-1.5 rounded-lg hover:bg-orange-500/25 transition"
+              >
+                <Download size={12} /> Descargar QR
+              </button>
+            </div>
+          </div>
+        );
+      })()}
     </div>
   );
 }
@@ -314,12 +358,33 @@ export default function AdminPromoAI() {
               {results.map((r, i) => {
                 const meta = ACTION_META[r.type as ActionType];
                 const Icon = meta?.icon ?? Tag;
-                const isOk = r.status === "created" || r.status === "sent";
+                const isOk = r.status === "created" || r.status === "sent" || r.status === "ready";
+
+                if (r.type === "qr_code" && r.status === "ready") {
+                  const fullUrl = `${window.location.origin}${(r as any).targetPath}`;
+                  const qrImg = QR_API(fullUrl, 200);
+                  return (
+                    <div key={i} className="bg-orange-500/10 border border-orange-500/20 rounded-xl p-4 flex gap-4 items-center">
+                      <div className="bg-white rounded-xl p-1.5 flex-shrink-0">
+                        <img src={qrImg} alt="QR" className="w-16 h-16 rounded-lg" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-bold text-white">QR Code listo</p>
+                        <p className="text-xs text-white/50 font-mono break-all">{(r as any).targetPath}</p>
+                      </div>
+                      <button onClick={() => downloadQR(qrImg, (r as any).promoCode ?? "promo")}
+                        className="flex-shrink-0 bg-orange-500/20 border border-orange-500/30 rounded-lg p-2 hover:bg-orange-500/30 transition">
+                        <Download size={16} className="text-orange-400" />
+                      </button>
+                    </div>
+                  );
+                }
+
                 return (
                   <div key={i} className={`flex items-center gap-3 rounded-xl px-4 py-3 border ${isOk ? "bg-green-500/10 border-green-500/20" : "bg-red-500/10 border-red-500/20"}`}>
                     <Icon size={16} className={meta?.color ?? "text-white/50"} />
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-bold text-white capitalize">{r.type.replace("_", " ")}</p>
+                      <p className="text-sm font-bold text-white capitalize">{r.type.replace(/_/g, " ")}</p>
                       <p className="text-xs text-white/50">{r.status}{r.id ? ` · ID #${r.id}` : ""}</p>
                     </div>
                     {isOk ? <CheckCircle2 size={16} className="text-green-400 flex-shrink-0" /> : <span className="text-red-400 text-xs">Error</span>}
