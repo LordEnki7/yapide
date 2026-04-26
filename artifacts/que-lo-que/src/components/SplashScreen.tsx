@@ -52,25 +52,15 @@ export default function SplashScreen({ onDone }: SplashScreenProps) {
             <span style={{ color: "#6be832" }}>Ya</span>
             <span style={{ color: "#ffffff" }}>Pide</span>
           </p>
-          <p style={{
-            margin: "6px 0 0",
-            fontSize: "clamp(14px, 4vw, 20px)",
-            fontWeight: 800,
-            letterSpacing: "1px",
-            color: "#ffffff",
-          }}>
-            ENTREGA <span style={{ color: "#FFD700" }}>RÁPIDA</span> Y ECONÓMICA
-          </p>
         </div>
 
-        {/* Motorcycle — overflow:hidden container shows only bottom 44% of PNG,
-            eliminating the layout gap that clip-path left behind */}
+        {/* Motorcycle */}
         <div style={{
-          width: "clamp(120px, 32vw, 150px)",
+          width: "clamp(200px, 55vw, 260px)",
           aspectRatio: "1 / 0.44",
           overflow: "hidden",
           position: "relative",
-          marginTop: "2px",
+          marginTop: "10px",
         }}>
           <img
             src="/logo.png"
@@ -85,21 +75,6 @@ export default function SplashScreen({ onDone }: SplashScreenProps) {
           />
         </div>
       </div>
-
-      <p
-        style={{
-          color: "#FFD700",
-          fontSize: "clamp(14px, 3.5vw, 18px)",
-          fontWeight: 600,
-          letterSpacing: "0.04em",
-          textAlign: "center",
-          margin: 0,
-          opacity: phase === "hold" ? 1 : 0,
-          transition: "opacity 0.4s ease 0.2s",
-        }}
-      >
-        Entrega rápida y económica.
-      </p>
 
       <div
         style={{

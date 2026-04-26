@@ -58,11 +58,8 @@ export default function Landing() {
             <span style={{ color: "#6be832" }}>Ya</span>
             <span className="text-white">Pide</span>
           </p>
-          <p className="m-0 mt-2 font-extrabold text-white text-center" style={{ fontSize: "clamp(12px, 3.2vw, 16px)", letterSpacing: "1.5px" }}>
-            ENTREGA <span style={{ color: "#FFD700" }}>RÁPIDA</span> Y ECONÓMICA
-          </p>
-          <div style={{ width: "clamp(130px, 35vw, 160px)", aspectRatio: "1 / 0.44", overflow: "hidden", position: "relative", marginTop: "4px" }}>
-            <img src={logo} alt="" style={{ width: "100%", position: "absolute", bottom: 0, left: 0, filter: "drop-shadow(0 4px 20px rgba(0,0,0,0.5))" }} />
+          <div style={{ width: "clamp(200px, 55vw, 260px)", aspectRatio: "1 / 0.44", overflow: "hidden", position: "relative", marginTop: "8px" }}>
+            <img src={logo} alt="" style={{ width: "100%", position: "absolute", bottom: 0, left: 0, filter: "drop-shadow(0 4px 24px rgba(0,0,0,0.55))" }} />
           </div>
         </div>
 
@@ -72,17 +69,6 @@ export default function Landing() {
         <p className="text-white/50 text-sm mt-2 text-center">
           {lang === "es" ? "Pide en segundos. Llega en minutos." : "Order in seconds. Arrives in minutes."}
         </p>
-      </div>
-
-      {/* City badges */}
-      <div className="px-5 pb-4 pt-1">
-        <div className="flex flex-wrap gap-1.5 justify-center">
-          {["Santo Domingo", "Santiago", "La Romana", "San Pedro", "Puerto Plata"].map(city => (
-            <span key={city} className="text-[10px] font-bold px-2.5 py-1 rounded-full bg-white/5 border border-yellow-400/20 text-yellow-400/60">
-              📍 {city}
-            </span>
-          ))}
-        </div>
       </div>
 
       {/* Primary CTAs */}
