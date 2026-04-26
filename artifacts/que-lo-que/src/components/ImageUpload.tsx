@@ -1,5 +1,6 @@
 import { useRef, useState } from "react";
 import { Camera, Loader2, CheckCircle } from "lucide-react";
+import { apiFetch } from "@/lib/apiFetch";
 
 interface Props {
   currentUrl?: string | null;
@@ -31,9 +32,8 @@ export default function ImageUpload({ currentUrl, onUploaded, shape = "square", 
     setPreview(localPreview);
 
     try {
-      const metaRes = await fetch("/api/storage/uploads/request-url", {
+      const metaRes = await apiFetch("/api/storage/uploads/request-url", {
         method: "POST",
-        credentials: "include",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name: file.name, size: file.size, contentType: file.type }),
       });
