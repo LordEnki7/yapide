@@ -27,6 +27,35 @@ const ALL_DAYS: { key: DayKey; label: string }[] = [
   { key: "sun", label: "Dom" },
 ];
 
+// ── Category-based default hours (DR market) ─────────────────────────────────
+function getCategoryDefaults(category: string): { open: string; close: string } {
+  switch (category) {
+    case "grocery":
+    case "supermarket":
+    case "supermercado":
+      return { open: "08:00", close: "21:00" };
+    case "pharmacy":
+    case "farmacia":
+      return { open: "08:00", close: "22:00" };
+    case "liquor":
+    case "licores":
+      return { open: "10:00", close: "23:00" };
+    case "food":
+    case "restaurant":
+    case "comida":
+    default:
+      return { open: "09:00", close: "23:00" };
+  }
+}
+
+function buildDefaultSchedule(category: string): OpenHours {
+  const slot = getCategoryDefaults(category);
+  return {
+    mon: slot, tue: slot, wed: slot, thu: slot,
+    fri: slot, sat: slot, sun: slot,
+  };
+}
+
 export default function BusinessDashboard() {
   const user = getStoredUser();
   const queryClient = useQueryClient();
@@ -83,17 +112,25 @@ export default function BusinessDashboard() {
   // ── Business hours state ────────────────────────────────────────────────────
   const [hours, setHours] = useState<OpenHours>({});
   const [savingHours, setSavingHours] = useState(false);
+  const [hoursAreDefaults, setHoursAreDefaults] = useState(false);
 
   useEffect(() => {
-    if (business && (business as any).openHours) {
+    if (!business) return;
+    if ((business as any).openHours) {
       setHours((business as any).openHours as OpenHours);
+      setHoursAreDefaults(false);
+    } else {
+      // No schedule set yet — pre-fill with category-based DR defaults
+      setHours(buildDefaultSchedule(business.category ?? "food"));
+      setHoursAreDefaults(true);
     }
   }, [business]);
 
   const toggleDay = (day: DayKey) => {
+    const slot = getCategoryDefaults(business?.category ?? "food");
     setHours(prev => {
       if (prev[day]) return { ...prev, [day]: null };
-      return { ...prev, [day]: { open: "08:00", close: "22:00" } };
+      return { ...prev, [day]: slot };
     });
   };
 
@@ -112,6 +149,7 @@ export default function BusinessDashboard() {
       if (!res.ok) throw new Error("Error al guardar");
       queryClient.invalidateQueries({ queryKey: getGetMyBusinessQueryKey() });
       toast({ title: "✅ Horario guardado" });
+      setHoursAreDefaults(false);
     } catch {
       toast({ title: "Error al guardar horario", variant: "destructive" });
     } finally {
@@ -328,6 +366,14 @@ export default function BusinessDashboard() {
             <CalendarClock size={14} className="text-yellow-400" />
             <span className="text-xs font-bold text-[#FFD700]/70 uppercase tracking-widest">Horario de atención</span>
           </div>
+          {hoursAreDefaults && (
+            <div className="bg-blue-400/10 border border-blue-400/30 rounded-xl px-3 py-2 mb-3 flex items-start gap-2">
+              <span className="text-blue-400 text-sm flex-shrink-0">💡</span>
+              <p className="text-xs text-blue-300 leading-snug">
+                Horario sugerido para tu categoría. Ajústalo y presiona <strong>Guardar</strong> para activarlo.
+              </p>
+            </div>
+          )}
           <div className="space-y-2">
             {ALL_DAYS.map(({ key, label }) => {
               const slot = hours[key];
@@ -377,11 +423,11 @@ export default function BusinessDashboard() {
           >
             {savingHours ? "Guardando..." : "Guardar horario"}
           </Button>
-          {(business as any).openHours && (
-            <p className="text-center text-xs text-white/40 mt-2">
-              Apertura/cierre automático según este horario (hora DR)
-            </p>
-          )}
+          <p className="text-center text-xs text-white/40 mt-2">
+            {(business as any).openHours
+              ? "Apertura/cierre automático según este horario (hora DR)"
+              : "Guarda para activar el horario automático"}
+          </p>
         </div>
 
         <div className="grid grid-cols-2 gap-3 mt-4">
