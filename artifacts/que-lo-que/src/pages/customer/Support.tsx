@@ -194,7 +194,7 @@ export default function CustomerSupport() {
       </div>
 
       {/* Quick replies + input */}
-      <div className="fixed bottom-0 left-0 right-0 bg-background border-t border-white/10 px-4 pt-3 pb-4 space-y-2 z-20" style={{ maxWidth: "430px", margin: "0 auto", left: "50%", transform: "translateX(-50%)", width: "100%" }}>
+      <div className="fixed bottom-0 left-0 right-0 bg-background border-t border-white/10 px-4 pt-3 pb-4 space-y-2 z-[60]" style={{ maxWidth: "430px", margin: "0 auto", left: "50%", transform: "translateX(-50%)", width: "100%" }}>
         {messages.length <= 2 && (
           <div className="flex gap-2 overflow-x-auto pb-1 no-scrollbar">
             {QUICK_REPLIES.map(qr => (

@@ -524,7 +524,7 @@ export default function BusinessStore() {
 
       {/* Sticky bottom — closed state OR cart button */}
       {business?.isOpen === false ? (
-        <div className="fixed bottom-0 left-0 right-0 p-4 bg-black/90 backdrop-blur-md border-t border-white/10 z-20">
+        <div className="fixed bottom-0 left-0 right-0 p-4 bg-black/90 backdrop-blur-md border-t border-white/10 z-[60]">
           <div className="flex items-center gap-3 justify-center">
             <span className="text-2xl">🍳</span>
             <div className="text-center">
@@ -534,7 +534,7 @@ export default function BusinessStore() {
           </div>
         </div>
       ) : cartCount > 0 ? (
-        <div className="fixed bottom-0 left-0 right-0 p-4 bg-background/95 backdrop-blur-sm border-t border-yellow-400/20 z-20">
+        <div className="fixed bottom-0 left-0 right-0 p-4 bg-background/95 backdrop-blur-sm border-t border-yellow-400/20 z-[60]">
           <Link href="/customer/cart">
             <Button className="w-full bg-yellow-400 text-black font-black text-base h-14 hover:bg-yellow-300 shadow-[0_0_30px_rgba(255,215,0,0.3)] flex items-center justify-between px-5">
               <span className="bg-black/20 text-black font-black text-sm w-7 h-7 rounded-full flex items-center justify-center">

@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { apiFetch } from "@/lib/apiFetch";
 
 interface PromoCode {
   id: number;
@@ -20,8 +21,6 @@ interface PromoCode {
   createdAt: string;
 }
 
-const customFetch = (url: string, opts?: RequestInit) =>
-  fetch(url, { credentials: "include", ...opts });
 
 export default function AdminPromoCodes() {
   const queryClient = useQueryClient();
@@ -39,7 +38,7 @@ export default function AdminPromoCodes() {
   const { data: codes, isLoading } = useQuery<PromoCode[]>({
     queryKey: ["promo-codes"],
     queryFn: async () => {
-      const res = await customFetch("/api/promo-codes");
+      const res = await apiFetch("/api/promo-codes");
       if (!res.ok) throw new Error("Error loading codes");
       return res.json();
     },
@@ -47,7 +46,7 @@ export default function AdminPromoCodes() {
 
   const createMutation = useMutation({
     mutationFn: async (data: typeof form) => {
-      const res = await customFetch("/api/promo-codes", {
+      const res = await apiFetch("/api/promo-codes", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -73,7 +72,7 @@ export default function AdminPromoCodes() {
 
   const toggleMutation = useMutation({
     mutationFn: async ({ id, isActive }: { id: number; isActive: boolean }) => {
-      const res = await customFetch(`/api/promo-codes/${id}`, {
+      const res = await apiFetch(`/api/promo-codes/${id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ isActive }),
@@ -87,7 +86,7 @@ export default function AdminPromoCodes() {
 
   const deleteMutation = useMutation({
     mutationFn: async (id: number) => {
-      const res = await customFetch(`/api/promo-codes/${id}`, { method: "DELETE" });
+      const res = await apiFetch(`/api/promo-codes/${id}`, { method: "DELETE" });
       if (!res.ok) throw new Error("Error deleting");
       return res.json();
     },

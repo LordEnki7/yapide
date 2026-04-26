@@ -267,17 +267,19 @@ export default function CustomerCart() {
       : "";
     const fullNotes = [notes, cutleryLine, cashLine].filter(Boolean).join("\n") || undefined;
     (createOrder.mutate as any)({
-      businessId,
-      paymentMethod,
-      deliveryAddress: address,
-      notes: fullNotes,
-      tip: activeTip,
-      items: items.map(i => ({ productId: i.productId!, quantity: i.quantity })),
-      promoCode: appliedPromo?.code,
-      promoDiscount,
-      orderType: isLaundry ? "laundry" : "delivery",
-      pickupAddress: isLaundry ? pickupAddress : undefined,
-      scheduledFor: scheduleEnabled && scheduledFor ? scheduledFor : undefined,
+      data: {
+        businessId,
+        paymentMethod,
+        deliveryAddress: address,
+        notes: fullNotes,
+        tip: activeTip,
+        items: items.map(i => ({ productId: i.productId!, quantity: i.quantity })),
+        promoCode: appliedPromo?.code,
+        promoDiscount,
+        orderType: isLaundry ? "laundry" : "delivery",
+        pickupAddress: isLaundry ? pickupAddress : undefined,
+        scheduledFor: scheduleEnabled && scheduledFor ? scheduledFor : undefined,
+      },
     });
     setShowCutleryModal(false);
   };
@@ -1023,7 +1025,7 @@ export default function CustomerCart() {
       )}
 
       {/* Bottom CTA */}
-      <div className="fixed bottom-0 left-0 right-0 p-4 bg-background/95 backdrop-blur-sm border-t border-yellow-400/20 z-20">
+      <div className="fixed bottom-0 left-0 right-0 p-4 bg-background/95 backdrop-blur-sm border-t border-yellow-400/20 z-[60]">
         {step < 4 ? (
           <Button
             className="w-full bg-yellow-400 text-black font-black text-lg h-14 hover:bg-yellow-300 shadow-[0_0_30px_rgba(255,215,0,0.25)] flex items-center justify-between px-6 disabled:opacity-50"
