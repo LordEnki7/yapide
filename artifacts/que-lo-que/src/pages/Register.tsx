@@ -5,16 +5,20 @@ import { setStoredUser } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, Eye, EyeOff, Mail, Smartphone, MessageCircle, CheckCircle, RefreshCw } from "lucide-react";
+import { ArrowLeft, Eye, EyeOff, Mail, Smartphone, CheckCircle, RefreshCw } from "lucide-react";
 import { useLang } from "@/lib/lang";
 import LangToggle from "@/components/LangToggle";
 
 const logo = "/logo.png";
 
+const ROLE_META: Record<string, { emoji: string; label: string; labelEn: string; color: string }> = {
+  driver:   { emoji: "🏍️", label: "Motorista",    labelEn: "Driver",   color: "border-blue-400/60 bg-blue-400/10 text-blue-300" },
+  business: { emoji: "🏪", label: "Negocio",       labelEn: "Business", color: "border-green-400/60 bg-green-400/10 text-green-300" },
+};
+
 export default function Register() {
   const [tab, setTab] = useState<"email" | "phone">("email");
 
-  // Email fields
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
@@ -22,17 +26,13 @@ export default function Register() {
   const [showPassword, setShowPassword] = useState(false);
   const [role, setRole] = useState("customer");
 
-  // Phone fields
   const [pName, setPName] = useState("");
   const [pPhone, setPPhone] = useState("");
   const [pPin, setPPin] = useState("");
   const [pPinConfirm, setPPinConfirm] = useState("");
-  const [pRole, setPRole] = useState("customer");
   const [pLoading, setPLoading] = useState(false);
 
-  // OTP verification state (after phone register)
   const [verifyStep, setVerifyStep] = useState(false);
-  const [otpCode, setOtpCode] = useState("");
   const [enteredOtp, setEnteredOtp] = useState("");
   const [otpVerifying, setOtpVerifying] = useState(false);
   const [otpResending, setOtpResending] = useState(false);
@@ -40,23 +40,18 @@ export default function Register() {
 
   const [, navigate] = useLocation();
   const { toast } = useToast();
-  const { t } = useLang();
+  const { lang, t } = useLang();
 
-  // Pre-select role from ?role= query param (coming from Landing page)
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const r = params.get("role");
     if (r === "customer" || r === "driver" || r === "business") {
       setRole(r);
-      setPRole(r);
     }
   }, []);
 
-  const ROLES = [
-    { value: "customer", emoji: "🍔", label: t.roleCustomerLabel, sub: t.roleCustomerSub },
-    { value: "driver", emoji: "🛵", label: t.roleDriverLabel, sub: t.roleDriverSub },
-    { value: "business", emoji: "🏪", label: t.roleBusinessLabel, sub: t.roleBusinessSub },
-  ];
+  const isNonCustomer = role === "driver" || role === "business";
+  const roleMeta = ROLE_META[role];
 
   const register = useRegisterUser({
     mutation: {
@@ -113,7 +108,7 @@ export default function Register() {
         method: "POST",
         credentials: "include",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: pName.trim(), phone: digits, pin: pPin, role: pRole }),
+        body: JSON.stringify({ name: pName.trim(), phone: digits, pin: pPin, role }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error ?? "Error al registrarse");
@@ -124,11 +119,8 @@ export default function Register() {
         role: data.user.role,
         isBanned: data.user.isBanned,
       });
-      setOtpCode(data.otpCode ?? "");
-      const dest = data.user.role === "business"
-        ? "/business/onboarding"
-        : data.user.role === "driver"
-        ? "/driver/onboarding"
+      const dest = data.user.role === "business" ? "/business/onboarding"
+        : data.user.role === "driver" ? "/driver/onboarding"
         : `/${data.user.role}`;
       setPendingNav(dest);
       setVerifyStep(true);
@@ -171,7 +163,6 @@ export default function Register() {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error ?? "Error");
-      setOtpCode(data.otpCode ?? "");
       toast({ title: "Código reenviado", description: "Se generó un nuevo código." });
     } catch (err: any) {
       toast({ title: "Error", description: err.message, variant: "destructive" });
@@ -182,17 +173,13 @@ export default function Register() {
 
   if (verifyStep) {
     return (
-      <div className="min-h-screen bg-background text-white flex flex-col">
+      <div className="min-h-screen bg-background text-white flex flex-col max-w-[430px] mx-auto">
         <div className="px-4 pt-6">
-          <button
-            onClick={() => navigate(pendingNav)}
-            className="flex items-center gap-2 text-white/60 hover:text-white transition"
-          >
+          <button onClick={() => navigate(pendingNav)} className="flex items-center gap-2 text-white/60 hover:text-white transition">
             <ArrowLeft size={18} />
             <span className="text-sm">Saltar por ahora</span>
           </button>
         </div>
-
         <div className="flex-1 flex flex-col items-center justify-center px-6">
           <div className="w-full max-w-md">
             <div className="text-center mb-8">
@@ -202,17 +189,13 @@ export default function Register() {
               <h1 className="text-2xl font-black text-yellow-400 uppercase">Verificar teléfono</h1>
               <p className="text-white/60 text-sm mt-1">Confirma que el número es tuyo</p>
             </div>
-
             <div className="bg-green-500/10 border border-green-500/30 rounded-2xl p-5 text-center mb-5">
               <p className="text-sm text-white/70 mb-2">Código enviado por WhatsApp</p>
               {import.meta.env.DEV && (
-                <p className="text-xs text-yellow-400/70 font-mono mt-1">
-                  🛠 Desarrollo: revisa la consola del servidor
-                </p>
+                <p className="text-xs text-yellow-400/70 font-mono mt-1">🛠 Desarrollo: revisa la consola del servidor</p>
               )}
               <p className="text-xs text-white/40 mt-2">Ingresa el código que recibiste. Válido 10 minutos.</p>
             </div>
-
             <div className="space-y-4">
               <Input
                 type="text"
@@ -224,20 +207,13 @@ export default function Register() {
                 maxLength={6}
                 autoFocus
               />
-
               <Button
                 onClick={handleVerifyOtp}
                 disabled={otpVerifying || enteredOtp.length < 4}
                 className="w-full bg-yellow-400 text-black font-black text-lg h-12 hover:bg-yellow-300 shadow-[0_0_20px_rgba(255,215,0,0.3)]"
               >
-                {otpVerifying ? "Verificando..." : (
-                  <span className="flex items-center gap-2">
-                    <CheckCircle size={18} />
-                    Verificar número
-                  </span>
-                )}
+                {otpVerifying ? "Verificando..." : <span className="flex items-center gap-2"><CheckCircle size={18} />Verificar número</span>}
               </Button>
-
               <button
                 onClick={handleResendOtp}
                 disabled={otpResending}
@@ -254,9 +230,9 @@ export default function Register() {
   }
 
   return (
-    <div className="min-h-screen bg-background text-white flex flex-col">
+    <div className="min-h-screen bg-background text-white flex flex-col max-w-[430px] mx-auto">
       <div className="px-4 pt-6 flex items-center justify-between">
-        <Link href="/login">
+        <Link href="/">
           <button className="flex items-center gap-2 text-white/60 hover:text-white transition">
             <ArrowLeft size={18} />
             <span className="text-sm">{t.back}</span>
@@ -265,14 +241,30 @@ export default function Register() {
         <LangToggle />
       </div>
 
-      <div className="flex-1 flex flex-col items-center justify-center px-6 py-8">
+      <div className="flex-1 flex flex-col items-center justify-center px-6 py-6">
         <div className="w-full max-w-md">
+
+          {/* Header */}
           <div className="text-center mb-6">
-            <img src={logo} alt="YaPide" className="w-28 mx-auto object-contain mb-2" />
-            <h1 className="text-2xl font-black text-yellow-400 uppercase">{t.createAccountTitle}</h1>
-            <p className="text-white/70 text-sm mt-1">{t.joinTagline}</p>
+            <img src={logo} alt="YaPide" className="w-20 mx-auto object-contain mb-3" />
+            <h1 className="text-2xl font-black text-yellow-400 uppercase">
+              {lang === "es" ? "Crear cuenta" : "Create account"}
+            </h1>
+
+            {/* Role badge — only shown for driver/business */}
+            {isNonCustomer && roleMeta ? (
+              <div className={`inline-flex items-center gap-1.5 mt-2 px-3 py-1.5 rounded-full border text-xs font-bold ${roleMeta.color}`}>
+                <span>{roleMeta.emoji}</span>
+                <span>{lang === "es" ? `Registrándote como ${roleMeta.label}` : `Registering as ${roleMeta.labelEn}`}</span>
+              </div>
+            ) : (
+              <p className="text-white/50 text-sm mt-1">
+                {lang === "es" ? "Pide comida, mandados y más" : "Order food, errands & more"}
+              </p>
+            )}
           </div>
 
+          {/* Email / Phone tab switcher */}
           <div className="flex bg-white/5 rounded-2xl p-1 mb-5 border border-white/10">
             <button
               onClick={() => setTab("email")}
@@ -288,7 +280,8 @@ export default function Register() {
                 tab === "phone" ? "bg-yellow-400 text-black shadow" : "text-white/60 hover:text-white"
               }`}
             >
-              <Smartphone size={15} /> Teléfono + PIN
+              <Smartphone size={15} />
+              {lang === "es" ? "Teléfono" : "Phone"}
             </button>
           </div>
 
@@ -335,46 +328,26 @@ export default function Register() {
                 </button>
               </div>
 
-              <div className="pt-1">
-                <p className="text-xs text-[#FFD700]/80 uppercase tracking-widest mb-2">{t.enterAs}</p>
-                <div className="grid grid-cols-3 gap-2">
-                  {ROLES.map(r => (
-                    <button
-                      key={r.value}
-                      type="button"
-                      onClick={() => setRole(r.value)}
-                      className={`p-3 rounded-xl border text-left transition-all ${
-                        role === r.value
-                          ? "bg-yellow-400/15 border-yellow-400 text-yellow-400"
-                          : "bg-white/5 border-white/10 text-white/70 hover:border-white/20"
-                      }`}
-                    >
-                      <div className="text-base leading-none mb-1">{r.emoji}</div>
-                      <div className="text-xs font-bold">{r.label}</div>
-                      <div className="text-[10px] text-white/50 mt-0.5 leading-tight">{r.sub}</div>
-                    </button>
-                  ))}
-                </div>
-              </div>
-
               <Button
                 type="submit"
-                className="w-full bg-yellow-400 text-black font-black text-lg h-12 hover:bg-yellow-300 shadow-[0_0_20px_rgba(255,215,0,0.3)] mt-2"
+                className="w-full bg-yellow-400 text-black font-black text-lg h-13 hover:bg-yellow-300 shadow-[0_0_20px_rgba(255,215,0,0.3)] mt-1"
+                style={{ height: "52px" }}
                 disabled={register.isPending}
               >
-                {register.isPending ? t.creating : t.createAccount}
+                {register.isPending ? t.creating : (lang === "es" ? "Crear cuenta gratis" : "Create free account")}
               </Button>
-              <p className="text-center text-[11px] text-white/40 leading-relaxed pt-1">
+
+              <p className="text-center text-[11px] text-white/35 leading-relaxed">
                 {lang === "es"
-                  ? <>Al crear tu cuenta aceptas nuestro{" "}<Link href="/eula"><span className="text-yellow-400/80 hover:text-yellow-400 underline underline-offset-2">Contrato de Licencia</span></Link>{" "}y nuestra{" "}<Link href="/privacy"><span className="text-yellow-400/80 hover:text-yellow-400 underline underline-offset-2">Política de Privacidad</span></Link>.</>
-                  : <>By creating an account you agree to our{" "}<Link href="/eula"><span className="text-yellow-400/80 hover:text-yellow-400 underline underline-offset-2">License Agreement</span></Link>{" "}and{" "}<Link href="/privacy"><span className="text-yellow-400/80 hover:text-yellow-400 underline underline-offset-2">Privacy Policy</span></Link>.</>
+                  ? <>Al crear tu cuenta aceptas nuestro{" "}<Link href="/eula"><span className="text-yellow-400/70 hover:text-yellow-400 underline underline-offset-2">Contrato de Licencia</span></Link>{" "}y nuestra{" "}<Link href="/privacy"><span className="text-yellow-400/70 hover:text-yellow-400 underline underline-offset-2">Política de Privacidad</span></Link>.</>
+                  : <>By creating an account you agree to our{" "}<Link href="/eula"><span className="text-yellow-400/70 hover:text-yellow-400 underline underline-offset-2">License Agreement</span></Link>{" "}and{" "}<Link href="/privacy"><span className="text-yellow-400/70 hover:text-yellow-400 underline underline-offset-2">Privacy Policy</span></Link>.</>
                 }
               </p>
             </form>
           ) : (
             <form onSubmit={handlePhoneSubmit} className="space-y-3">
               <Input
-                placeholder="Nombre completo"
+                placeholder={lang === "es" ? "Nombre completo" : "Full name"}
                 value={pName}
                 onChange={e => setPName(e.target.value)}
                 className="bg-white/8 border-white/10 text-white placeholder:text-white/40 focus:border-yellow-400 h-12"
@@ -395,7 +368,7 @@ export default function Register() {
               </div>
               <Input
                 type="password"
-                placeholder="Crear PIN (4–6 dígitos)"
+                placeholder={lang === "es" ? "Crear PIN (4–6 dígitos)" : "Create PIN (4–6 digits)"}
                 value={pPin}
                 onChange={e => setPPin(e.target.value.replace(/\D/g, "").slice(0, 6))}
                 className="bg-white/8 border-white/10 text-white placeholder:text-white/40 focus:border-yellow-400 h-12 tracking-widest text-lg text-center"
@@ -404,7 +377,7 @@ export default function Register() {
               />
               <Input
                 type="password"
-                placeholder="Confirmar PIN"
+                placeholder={lang === "es" ? "Confirmar PIN" : "Confirm PIN"}
                 value={pPinConfirm}
                 onChange={e => setPPinConfirm(e.target.value.replace(/\D/g, "").slice(0, 6))}
                 className={`bg-white/8 border-white/10 text-white placeholder:text-white/40 focus:border-yellow-400 h-12 tracking-widest text-lg text-center ${
@@ -414,39 +387,25 @@ export default function Register() {
                 maxLength={6}
               />
 
-              <div className="pt-1">
-                <p className="text-xs text-[#FFD700]/80 uppercase tracking-widest mb-2">{t.enterAs}</p>
-                <div className="grid grid-cols-3 gap-2">
-                  {ROLES.map(r => (
-                    <button
-                      key={r.value}
-                      type="button"
-                      onClick={() => setPRole(r.value)}
-                      className={`p-3 rounded-xl border text-left transition-all ${
-                        pRole === r.value
-                          ? "bg-yellow-400/15 border-yellow-400 text-yellow-400"
-                          : "bg-white/5 border-white/10 text-white/70 hover:border-white/20"
-                      }`}
-                    >
-                      <div className="text-base leading-none mb-1">{r.emoji}</div>
-                      <div className="text-xs font-bold">{r.label}</div>
-                      <div className="text-[10px] text-white/50 mt-0.5 leading-tight">{r.sub}</div>
-                    </button>
-                  ))}
-                </div>
-              </div>
-
               <Button
                 type="submit"
-                className="w-full bg-yellow-400 text-black font-black text-lg h-12 hover:bg-yellow-300 shadow-[0_0_20px_rgba(255,215,0,0.3)] mt-2"
+                className="w-full bg-yellow-400 text-black font-black text-lg hover:bg-yellow-300 shadow-[0_0_20px_rgba(255,215,0,0.3)] mt-1"
+                style={{ height: "52px" }}
                 disabled={pLoading}
               >
-                {pLoading ? "Creando cuenta..." : "Crear cuenta con PIN"}
+                {pLoading ? (lang === "es" ? "Creando cuenta..." : "Creating account...") : (lang === "es" ? "Crear cuenta gratis" : "Create free account")}
               </Button>
+
+              <p className="text-center text-[11px] text-white/35 leading-relaxed">
+                {lang === "es"
+                  ? <>Al crear tu cuenta aceptas nuestro{" "}<Link href="/eula"><span className="text-yellow-400/70 hover:text-yellow-400 underline underline-offset-2">Contrato de Licencia</span></Link>{" "}y nuestra{" "}<Link href="/privacy"><span className="text-yellow-400/70 hover:text-yellow-400 underline underline-offset-2">Política de Privacidad</span></Link>.</>
+                  : <>By creating an account you agree to our{" "}<Link href="/eula"><span className="text-yellow-400/70 hover:text-yellow-400 underline underline-offset-2">License Agreement</span></Link>{" "}and{" "}<Link href="/privacy"><span className="text-yellow-400/70 hover:text-yellow-400 underline underline-offset-2">Privacy Policy</span></Link>.</>
+                }
+              </p>
             </form>
           )}
 
-          <p className="text-center text-sm text-white/70 mt-6">
+          <p className="text-center text-sm text-white/60 mt-5">
             {t.alreadyHaveAccount}{" "}
             <Link href="/login">
               <span className="text-yellow-400 font-bold hover:underline">{t.signIn}</span>

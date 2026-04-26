@@ -9,70 +9,25 @@ import { apiFetch } from "@/lib/apiFetch";
 const logo = "/logo.png";
 const API = (import.meta.env.VITE_API_URL as string | undefined) ?? "";
 
-const ROLES = [
-  {
-    key: "customer" as const,
-    emoji: "🛵",
-    label: "Soy Cliente",
-    labelEn: "I'm a Customer",
-    sub: "Pide comida, mandados y más",
-    subEn: "Order food, errands & more",
-    activeBg: "bg-yellow-400/25",
-    glow: "shadow-[0_0_40px_rgba(255,215,0,0.4)]",
-    dot: "bg-yellow-400",
-    activeBorderColor: "rgba(255,215,0,0.6)",
-  },
-  {
-    key: "driver" as const,
-    emoji: "🏍️",
-    label: "Soy Motorista",
-    labelEn: "I'm a Driver",
-    sub: "Gana dinero haciendo deliveries",
-    subEn: "Earn money making deliveries",
-    activeBg: "bg-blue-400/25",
-    glow: "shadow-[0_0_40px_rgba(96,165,250,0.4)]",
-    dot: "bg-blue-400",
-    activeBorderColor: "rgba(96,165,250,0.6)",
-  },
-  {
-    key: "business" as const,
-    emoji: "🏪",
-    label: "Soy Negocio",
-    labelEn: "I'm a Business",
-    sub: "Vende y recibe pedidos online",
-    subEn: "Sell and receive orders online",
-    activeBg: "bg-green-400/25",
-    glow: "shadow-[0_0_40px_rgba(74,222,128,0.4)]",
-    dot: "bg-green-400",
-    activeBorderColor: "rgba(74,222,128,0.6)",
-  },
+const DEMO_ROLES = [
+  { key: "customer" as const, emoji: "🛵", label: "Cliente", labelEn: "Customer" },
+  { key: "driver" as const, emoji: "🏍️", label: "Motorista", labelEn: "Driver" },
+  { key: "business" as const, emoji: "🏪", label: "Negocio", labelEn: "Business" },
 ];
 
 export default function Landing() {
   const { lang, t } = useLang();
   const [, navigate] = useLocation();
-  const [selected, setSelected] = useState<string | null>(null);
   const [showDemo, setShowDemo] = useState(false);
   const [demoLoading, setDemoLoading] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-
-  const handleRoleSelect = (role: "customer" | "driver" | "business") => {
-    setSelected(role);
-  };
-
-  const handleCreateAccount = () => {
-    const role = selected ?? "customer";
-    navigate(`/register?role=${role}`);
-  };
 
   const handleDemoLogin = async (role: "customer" | "driver" | "business") => {
     setDemoLoading(role);
     setError(null);
     try {
       await apiFetch(`${API}/api/demo/seed`, { method: "POST" });
-      const res = await apiFetch(`${API}/api/demo/login?role=${role}`, {
-        method: "POST",
-      });
+      const res = await apiFetch(`${API}/api/demo/login?role=${role}`, { method: "POST" });
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
         throw new Error(data.error ?? "Error al entrar");
@@ -88,152 +43,107 @@ export default function Landing() {
   };
 
   return (
-    <div className="min-h-screen bg-background text-white flex flex-col">
-      {/* Header */}
-      <div className="flex items-center justify-between px-5 pt-5">
-        <div className="text-[10px] font-black text-yellow-400/60 uppercase tracking-[0.2em]">yapide.app</div>
+    <div className="min-h-screen bg-background text-white flex flex-col max-w-[430px] mx-auto">
+
+      {/* Top bar */}
+      <div className="flex items-center justify-between px-5 pt-5 pb-1">
+        <div className="text-[10px] font-black text-yellow-400/50 uppercase tracking-[0.2em]">yapide.app</div>
         <LangToggle />
       </div>
 
       {/* Hero */}
-      <div className="flex flex-col items-center pt-1 pb-3 px-6">
-        {/* Unified logo block — text top, motorcycle flush below */}
-        <div className="flex flex-col items-center mb-1" style={{ gap: 0 }}>
-          {/* Brand name */}
-          <div className="text-center" style={{ lineHeight: 1 }}>
-            <p className="m-0 font-black" style={{
-              fontSize: "clamp(48px, 13vw, 64px)",
-              letterSpacing: "-2px",
-              lineHeight: 1,
-            }}>
-              <span style={{ color: "#6be832" }}>Ya</span>
-              <span className="text-white">Pide</span>
-            </p>
-            <p className="m-0 mt-1.5 font-extrabold text-white" style={{ fontSize: "clamp(13px, 3.6vw, 18px)", letterSpacing: "1px" }}>
-              ENTREGA <span style={{ color: "#FFD700" }}>RÁPIDA</span> Y ECONÓMICA
-            </p>
-          </div>
-
-          {/* Motorcycle — overflow:hidden container shows only bottom 44% of PNG,
-              eliminating the layout gap that clip-path left behind */}
-          <div style={{
-            width: "clamp(120px, 32vw, 150px)",
-            aspectRatio: "1 / 0.44",
-            overflow: "hidden",
-            position: "relative",
-            marginTop: "2px",
-          }}>
-            <img
-              src={logo}
-              alt=""
-              style={{
-                width: "100%",
-                position: "absolute",
-                bottom: 0,
-                left: 0,
-                filter: "drop-shadow(0 4px 16px rgba(0,0,0,0.45))",
-              }}
-            />
+      <div className="flex flex-col items-center px-6 pt-4 pb-2">
+        <div className="flex flex-col items-center" style={{ gap: 0 }}>
+          <p className="m-0 font-black text-center" style={{ fontSize: "clamp(56px, 15vw, 72px)", letterSpacing: "-2px", lineHeight: 1 }}>
+            <span style={{ color: "#6be832" }}>Ya</span>
+            <span className="text-white">Pide</span>
+          </p>
+          <p className="m-0 mt-2 font-extrabold text-white text-center" style={{ fontSize: "clamp(12px, 3.2vw, 16px)", letterSpacing: "1.5px" }}>
+            ENTREGA <span style={{ color: "#FFD700" }}>RÁPIDA</span> Y ECONÓMICA
+          </p>
+          <div style={{ width: "clamp(130px, 35vw, 160px)", aspectRatio: "1 / 0.44", overflow: "hidden", position: "relative", marginTop: "4px" }}>
+            <img src={logo} alt="" style={{ width: "100%", position: "absolute", bottom: 0, left: 0, filter: "drop-shadow(0 4px 20px rgba(0,0,0,0.5))" }} />
           </div>
         </div>
-        <h1 className="text-3xl font-black text-white text-center leading-tight tracking-tight mt-1">
-          {t.heroLine1}
-          <br />
-          <span className="text-yellow-400">{t.heroLine2}</span>
+
+        <h1 className="text-2xl font-black text-white text-center leading-tight tracking-tight mt-3">
+          {lang === "es" ? <>Tu comida favorita,<br /><span className="text-yellow-400">donde estés</span></> : <>Your favorite food,<br /><span className="text-yellow-400">wherever you are</span></>}
         </h1>
-        <p className="text-[#FFD700]/80 font-medium text-sm mt-1 text-center">
-          {lang === "es" ? "¿Cómo vas a usar YaPide?" : "How will you use YaPide?"}
+        <p className="text-white/50 text-sm mt-2 text-center">
+          {lang === "es" ? "Pide en segundos. Llega en minutos." : "Order in seconds. Arrives in minutes."}
         </p>
       </div>
 
-      {/* Role picker */}
-      <div className="px-5 space-y-2.5 pb-4">
-        {ROLES.map(role => {
-          const isActive = selected === role.key;
-          return (
-            <button
-              key={role.key}
-              onClick={() => handleRoleSelect(role.key)}
-              className={`w-full rounded-2xl p-4 text-left transition-all duration-150 relative glass
-                ${isActive ? `${role.glow} scale-[0.985] border-[${role.border}]` : "hover:scale-[0.995] active:scale-[0.98] hover:brightness-110"}`}
-              style={isActive ? { borderColor: role.activeBorderColor } : {}}
-            >
-              <div className="flex items-center gap-3">
-                <div className={`w-12 h-12 rounded-xl flex items-center justify-center text-2xl flex-shrink-0 transition-all
-                  ${isActive ? role.activeBg : "bg-white/8"}`}>
-                  {role.emoji}
-                </div>
-                <div className="flex-1">
-                  <p className="font-black text-lg text-white leading-tight">
-                    {lang === "es" ? role.label : role.labelEn}
-                  </p>
-                  <p className="text-[#FFD700]/80 text-xs mt-0.5">
-                    {lang === "es" ? role.sub : role.subEn}
-                  </p>
-                </div>
-                <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 transition-all
-                  ${isActive ? `${role.dot} border-transparent` : "border-white/20 bg-transparent"}`}>
-                  {isActive && <div className="w-2 h-2 rounded-full bg-white" />}
-                </div>
-              </div>
-            </button>
-          );
-        })}
-      </div>
-
-      {/* Primary CTAs */}
-      <div className="px-5 space-y-3 pb-3">
-        <button
-          onClick={handleCreateAccount}
-          className="btn-gold w-full text-black font-black text-lg h-14 rounded-2xl active:scale-[0.98] transition-all flex items-center justify-center gap-2"
-        >
-          <UserPlus size={20} />
-          {lang === "es" ? "Crear cuenta gratis" : "Create free account"}
-        </button>
-
-        <button
-          onClick={() => navigate("/login")}
-          className="w-full glass text-white font-black text-base h-12 rounded-2xl hover:brightness-125 active:scale-[0.98] transition-all flex items-center justify-center gap-2"
-        >
-          <LogIn size={18} />
-          {lang === "es" ? "Ya tengo cuenta — Entrar" : "I have an account — Log in"}
-        </button>
-      </div>
-
-      {/* Cities */}
-      <div className="px-5 pb-3">
+      {/* City badges */}
+      <div className="px-5 pb-4 pt-1">
         <div className="flex flex-wrap gap-1.5 justify-center">
-          {["Santo Domingo", "Santiago", "La Romana", "San Pedro", "Puerto Plata", "Sosúa", "Cabarete"].map(city => (
-            <span key={city} className="text-[10px] font-bold px-2 py-1 rounded-full bg-white/5 border border-yellow-400/20 text-[#FFD700]/70">
+          {["Santo Domingo", "Santiago", "La Romana", "San Pedro", "Puerto Plata"].map(city => (
+            <span key={city} className="text-[10px] font-bold px-2.5 py-1 rounded-full bg-white/5 border border-yellow-400/20 text-yellow-400/60">
               📍 {city}
             </span>
           ))}
         </div>
       </div>
 
+      {/* Primary CTAs */}
+      <div className="px-5 space-y-3 mt-auto">
+        <button
+          onClick={() => navigate("/register")}
+          className="btn-gold w-full text-black font-black text-xl h-16 rounded-2xl active:scale-[0.98] transition-all flex items-center justify-center gap-2.5 shadow-[0_0_40px_rgba(255,215,0,0.35)]"
+        >
+          <UserPlus size={22} />
+          {lang === "es" ? "Pedir ahora — es gratis" : "Order now — it's free"}
+        </button>
+
+        <button
+          onClick={() => navigate("/login")}
+          className="w-full glass text-white font-bold text-base h-12 rounded-2xl hover:brightness-125 active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+        >
+          <LogIn size={17} />
+          {lang === "es" ? "Ya tengo cuenta — Entrar" : "I have an account — Log in"}
+        </button>
+      </div>
+
       {error && (
-        <p className="mx-5 text-center text-red-400 text-sm bg-red-500/10 border border-red-500/20 rounded-xl p-3">
+        <p className="mx-5 mt-3 text-center text-red-400 text-sm bg-red-500/10 border border-red-500/20 rounded-xl p-3">
           ⚠️ {error}
         </p>
       )}
 
-      {/* Demo toggle — for testing only */}
-      <div className="px-5 pb-6 mt-auto">
+      {/* Driver / Business subtle links */}
+      <div className="px-5 pt-5 pb-2 flex items-center justify-center gap-5">
+        <button
+          onClick={() => navigate("/register?role=driver")}
+          className="text-xs text-white/35 hover:text-white/70 transition-colors"
+        >
+          {lang === "es" ? "🏍️ Soy motorista" : "🏍️ I'm a driver"}
+        </button>
+        <span className="text-white/20 text-xs">·</span>
+        <button
+          onClick={() => navigate("/register?role=business")}
+          className="text-xs text-white/35 hover:text-white/70 transition-colors"
+        >
+          {lang === "es" ? "🏪 Tengo un negocio" : "🏪 I have a business"}
+        </button>
+      </div>
+
+      {/* Demo toggle */}
+      <div className="px-5 pb-8">
         <button
           onClick={() => setShowDemo(v => !v)}
-          className="w-full flex items-center justify-center gap-1.5 text-xs text-[#FFD700]/60 hover:text-[#FFD700] transition py-2"
+          className="w-full flex items-center justify-center gap-1.5 text-xs text-white/25 hover:text-white/50 transition py-1.5"
         >
-          {showDemo ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
+          {showDemo ? <ChevronUp size={11} /> : <ChevronDown size={11} />}
           {lang === "es" ? "Entrar sin cuenta (demo)" : "Enter without account (demo)"}
         </button>
 
         {showDemo && (
           <div className="mt-2 bg-white/5 border border-white/10 rounded-2xl p-3 space-y-2">
-            <p className="text-[10px] text-[#FFD700]/70 text-center uppercase tracking-widest mb-1">
+            <p className="text-[10px] text-yellow-400/50 text-center uppercase tracking-widest mb-1">
               {lang === "es" ? "Cuentas de prueba" : "Test accounts"}
             </p>
             <div className="grid grid-cols-3 gap-2">
-              {ROLES.map(role => (
+              {DEMO_ROLES.map(role => (
                 <button
                   key={role.key}
                   onClick={() => handleDemoLogin(role.key)}
@@ -245,14 +155,12 @@ export default function Landing() {
                     : <span className="text-lg">{role.emoji}</span>
                   }
                   <span className="text-[10px] text-white/60 font-bold">
-                    {role.key === "customer" ? (lang === "es" ? "Cliente" : "Customer")
-                     : role.key === "driver" ? (lang === "es" ? "Motorista" : "Driver")
-                     : (lang === "es" ? "Negocio" : "Business")}
+                    {lang === "es" ? role.label : role.labelEn}
                   </span>
                 </button>
               ))}
             </div>
-            <p className="text-[9px] text-white/25 text-center">{t.demoDisclaimer}</p>
+            <p className="text-[9px] text-white/20 text-center">{t.demoDisclaimer}</p>
           </div>
         )}
       </div>
