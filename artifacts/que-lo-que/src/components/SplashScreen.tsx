@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useLang } from "@/lib/lang";
 
 interface SplashScreenProps {
   onDone: () => void;
@@ -6,6 +7,7 @@ interface SplashScreenProps {
 
 export default function SplashScreen({ onDone }: SplashScreenProps) {
   const [phase, setPhase] = useState<"enter" | "hold" | "exit">("enter");
+  const { lang } = useLang();
 
   useEffect(() => {
     const t1 = setTimeout(() => setPhase("hold"), 50);
@@ -18,8 +20,6 @@ export default function SplashScreen({ onDone }: SplashScreenProps) {
     };
   }, [onDone]);
 
-  const visible = phase !== "exit";
-
   return (
     <div
       style={{
@@ -31,19 +31,32 @@ export default function SplashScreen({ onDone }: SplashScreenProps) {
         flexDirection: "column",
         alignItems: "center",
         justifyContent: "center",
-        gap: "24px",
+        gap: "12px",
         transition: "opacity 0.55s ease, transform 0.55s ease",
         opacity: phase === "enter" ? 0 : phase === "hold" ? 1 : 0,
         transform: phase === "enter" ? "scale(0.92)" : phase === "hold" ? "scale(1)" : "scale(1.04)",
         pointerEvents: "none",
       }}
     >
-      {/* Full brand poster — glossy */}
+      {/* Translatable tagline */}
+      <div style={{ textAlign: "center", lineHeight: 1.15 }}>
+        <p style={{ margin: "0 0 1px", color: "#ffffff", fontWeight: 900, letterSpacing: "0.1em", fontSize: "clamp(1rem, 5vw, 1.25rem)" }}>
+          {lang === "es" ? "ENTREGA" : "FAST"}
+        </p>
+        <p style={{ margin: "0 0 1px", color: "#FFD700", fontWeight: 900, fontStyle: "italic", letterSpacing: "0.1em", fontSize: "clamp(1.3rem, 6.5vw, 1.6rem)" }}>
+          {lang === "es" ? "RÁPIDA" : "RELIABLE"}
+        </p>
+        <p style={{ margin: 0, color: "#ffffff", fontWeight: 900, letterSpacing: "0.1em", fontSize: "clamp(1rem, 5vw, 1.25rem)" }}>
+          {lang === "es" ? "Y CONFIABLE" : "DELIVERY"}
+        </p>
+      </div>
+
+      {/* Brand poster — top text clipped, glossy */}
       <div style={{ position: "relative", width: "clamp(260px, 78vw, 340px)", borderRadius: "18px", overflow: "hidden", boxShadow: "0 8px 48px rgba(0,0,0,0.55), 0 2px 8px rgba(0,0,0,0.3)" }}>
         <img
           src="/logo.png"
           alt="YaPide"
-          style={{ width: "100%", display: "block" }}
+          style={{ width: "100%", display: "block", marginTop: "-43%" }}
         />
         {/* Gloss highlight */}
         <div style={{

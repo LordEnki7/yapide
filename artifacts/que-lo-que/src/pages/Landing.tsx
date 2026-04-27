@@ -51,12 +51,27 @@ export default function Landing() {
         <LangToggle />
       </div>
 
-      {/* Hero — glossy poster */}
+      {/* Hero — translatable tagline + glossy poster */}
+
+      {/* Tagline — same blue as the poster top, switches with lang */}
+      <div style={{ background: "#1452C8", width: "100%", textAlign: "center", padding: "18px 8px 14px", lineHeight: 1.15 }}>
+        <p style={{ margin: "0 0 2px", color: "#ffffff", fontWeight: 900, letterSpacing: "0.1em", fontSize: "clamp(1.05rem, 5.5vw, 1.35rem)" }}>
+          {lang === "es" ? "ENTREGA" : "FAST"}
+        </p>
+        <p style={{ margin: "0 0 2px", color: "#FFD700", fontWeight: 900, fontStyle: "italic", letterSpacing: "0.1em", fontSize: "clamp(1.35rem, 7vw, 1.7rem)" }}>
+          {lang === "es" ? "RÁPIDA" : "RELIABLE"}
+        </p>
+        <p style={{ margin: 0, color: "#ffffff", fontWeight: 900, letterSpacing: "0.1em", fontSize: "clamp(1.05rem, 5.5vw, 1.35rem)" }}>
+          {lang === "es" ? "Y CONFIABLE" : "DELIVERY"}
+        </p>
+      </div>
+
+      {/* Poster — top portion clipped (hides baked-in text), glossy */}
       <div style={{ position: "relative", width: "100%", overflow: "hidden" }}>
         <img
           src={logo}
-          alt="YaPide — Entrega rápida y confiable"
-          style={{ width: "100%", display: "block" }}
+          alt="YaPide"
+          style={{ width: "100%", display: "block", marginTop: "-43%" }}
         />
         {/* Gloss highlight */}
         <div style={{
