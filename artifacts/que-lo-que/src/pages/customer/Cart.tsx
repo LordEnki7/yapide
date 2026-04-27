@@ -130,6 +130,7 @@ export default function CustomerCart() {
   const [showAddressDropdown, setShowAddressDropdown] = useState(false);
   const [showSaveForm, setShowSaveForm] = useState(false);
   const [showNewAddressForm, setShowNewAddressForm] = useState(false);
+  const [confirmAddress, setConfirmAddress] = useState<SavedAddress | null>(null);
   const [pickupAddress, setPickupAddress] = useState("");
   const [gpsLoading, setGpsLoading] = useState(false);
   const [, navigate] = useLocation();
@@ -612,7 +613,7 @@ export default function CustomerCart() {
                     </button>
                     {/* Address info */}
                     <button
-                      onClick={() => { handleSelectAddress(a); calculateFee(a.address); setStep(3); }}
+                      onClick={() => setConfirmAddress(a)}
                       className="flex-1 text-left px-4 py-3 min-w-0"
                     >
                       <p className="text-sm text-white/85 leading-snug">{a.address}</p>
@@ -623,7 +624,7 @@ export default function CustomerCart() {
                     </button>
                     {/* Chevron */}
                     <button
-                      onClick={() => { handleSelectAddress(a); calculateFee(a.address); setStep(3); }}
+                      onClick={() => setConfirmAddress(a)}
                       className="flex items-center justify-center px-3 text-white/30 hover:text-yellow-400 transition flex-shrink-0"
                     >
                       <ChevronRight size={18} />
@@ -949,6 +950,37 @@ export default function CustomerCart() {
           </div>
         )}
       </div>
+
+      {/* ── Address confirmation dialog ── */}
+      {confirmAddress && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm px-8">
+          <div className="w-full max-w-xs bg-white rounded-2xl overflow-hidden shadow-2xl">
+            <div className="px-6 pt-6 pb-4 text-center">
+              <h2 className="text-base font-black text-gray-900">{confirmAddress.label}</h2>
+              <p className="text-sm text-gray-500 mt-1 leading-snug">{confirmAddress.address}</p>
+            </div>
+            <div className="flex border-t border-gray-100">
+              <button
+                onClick={() => setConfirmAddress(null)}
+                className="flex-1 py-4 text-[#0057B7] font-bold text-base border-r border-gray-100 hover:bg-gray-50 transition"
+              >
+                No
+              </button>
+              <button
+                onClick={() => {
+                  handleSelectAddress(confirmAddress);
+                  calculateFee(confirmAddress.address);
+                  setConfirmAddress(null);
+                  setStep(3);
+                }}
+                className="flex-1 py-4 text-[#0057B7] font-black text-base hover:bg-gray-50 transition"
+              >
+                Yes
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Change modal — matches screenshot style */}
       {showChangeModal && (() => {
