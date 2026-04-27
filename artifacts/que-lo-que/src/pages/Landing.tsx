@@ -61,12 +61,6 @@ export default function Landing() {
           <img src={logo} alt="" style={{ width: "clamp(200px, 60vw, 280px)", display: "block", marginTop: "8px", filter: "drop-shadow(0 4px 24px rgba(0,0,0,0.5))" }} />
         </div>
 
-        <h1 className="text-2xl font-black text-white text-center leading-tight tracking-tight mt-10">
-          {lang === "es" ? <>Tu comida favorita,<br /><span className="text-yellow-400">donde estés</span></> : <>Your favorite food,<br /><span className="text-yellow-400">wherever you are</span></>}
-        </h1>
-        <p className="text-white/50 text-sm mt-2 text-center">
-          {lang === "es" ? "Pide en segundos. Llega en minutos." : "Order in seconds. Arrives in minutes."}
-        </p>
       </div>
 
       {/* Primary CTAs */}
