@@ -24,7 +24,7 @@ export default function Landing() {
   const [demoLoading, setDemoLoading] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  // Lock body/root scroll while this page is visible
+  // Lock body/root scroll while on this page
   useEffect(() => {
     const body = document.body;
     const root = document.getElementById("root");
@@ -60,53 +60,70 @@ export default function Landing() {
 
   return (
     <div
-      className="bg-background text-white flex flex-col max-w-[430px] mx-auto"
-      style={{ height: "100svh", overflow: "hidden" }}
+      className="max-w-[430px] mx-auto"
+      style={{ position: "relative", height: "100svh", overflow: "hidden", background: "#0057b7" }}
     >
-      {/* Top bar */}
-      <div className="flex items-center justify-between px-5 pt-4 pb-1 shrink-0">
-        <div className="text-[10px] font-black text-yellow-400/50 uppercase tracking-[0.2em]">yapide.app</div>
+      {/* Full-screen background image */}
+      <img
+        src={logo}
+        alt="YaPide"
+        style={{
+          position: "absolute",
+          inset: 0,
+          width: "100%",
+          height: "100%",
+          objectFit: "cover",
+          objectPosition: "top",
+          display: "block",
+        }}
+      />
+
+      {/* Tagline overlay — speed-stripe bands */}
+      <div style={{ position: "absolute", top: "13%", left: 0, right: 0, display: "flex", flexDirection: "column", gap: "3px", pointerEvents: "none" }}>
+        <div style={{ background: STRIPE, padding: "7px 0", textAlign: "center", borderTop: "1px solid rgba(255,255,255,0.13)", borderBottom: "1px solid rgba(255,255,255,0.07)" }}>
+          <span style={{ color: "#ffffff", fontWeight: 900, letterSpacing: "0.12em", fontSize: "clamp(1.05rem, 5vw, 1.35rem)", textShadow: "0 2px 6px rgba(0,0,0,0.5)" }}>
+            {lang === "es" ? "ENTREGA" : "FAST"}
+          </span>
+        </div>
+        <div style={{ background: STRIPE, padding: "7px 0", textAlign: "center", borderTop: "1px solid rgba(255,255,255,0.13)", borderBottom: "1px solid rgba(255,255,255,0.07)" }}>
+          <span style={{ color: "#FFD700", fontWeight: 900, fontStyle: "italic", letterSpacing: "0.12em", fontSize: "clamp(1.3rem, 6.5vw, 1.7rem)", textShadow: "0 2px 6px rgba(0,0,0,0.5)" }}>
+            {lang === "es" ? "RÁPIDA" : "RELIABLE"}
+          </span>
+        </div>
+        <div style={{ background: STRIPE, padding: "7px 0", textAlign: "center", borderTop: "1px solid rgba(255,255,255,0.13)", borderBottom: "1px solid rgba(255,255,255,0.07)" }}>
+          <span style={{ color: "#ffffff", fontWeight: 900, letterSpacing: "0.12em", fontSize: "clamp(1.05rem, 5vw, 1.35rem)", textShadow: "0 2px 6px rgba(0,0,0,0.5)" }}>
+            {lang === "es" ? "Y CONFIABLE" : "DELIVERY"}
+          </span>
+        </div>
+      </div>
+
+      {/* Gloss highlight */}
+      <div style={{ position: "absolute", inset: 0, background: "linear-gradient(145deg, rgba(255,255,255,0.18) 0%, rgba(255,255,255,0.05) 35%, rgba(255,255,255,0) 58%)", pointerEvents: "none" }} />
+
+      {/* Top bar — always visible */}
+      <div style={{ position: "absolute", top: 0, left: 0, right: 0, zIndex: 20, display: "flex", alignItems: "center", justifyContent: "space-between", padding: "18px 20px 8px" }}>
+        <div className="text-[10px] font-black text-yellow-400/60 uppercase tracking-[0.2em]">yapide.app</div>
         <LangToggle />
       </div>
 
-      {/* Hero — fills all remaining space between top bar and buttons */}
-      <div style={{ position: "relative", flex: 1, overflow: "hidden", minHeight: 0 }}>
-        <img
-          src={logo}
-          alt="YaPide"
-          style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "top", display: "block" }}
-        />
-
-        {/* Tagline overlay — speed-stripe bands */}
-        <div style={{ position: "absolute", top: "6%", left: 0, right: 0, display: "flex", flexDirection: "column", gap: "3px", pointerEvents: "none" }}>
-          <div style={{ background: STRIPE, padding: "7px 0", textAlign: "center", borderTop: "1px solid rgba(255,255,255,0.13)", borderBottom: "1px solid rgba(255,255,255,0.07)" }}>
-            <span style={{ color: "#ffffff", fontWeight: 900, letterSpacing: "0.12em", fontSize: "clamp(1.05rem, 5vw, 1.35rem)", textShadow: "0 2px 6px rgba(0,0,0,0.5)" }}>
-              {lang === "es" ? "ENTREGA" : "FAST"}
-            </span>
-          </div>
-          <div style={{ background: STRIPE, padding: "7px 0", textAlign: "center", borderTop: "1px solid rgba(255,255,255,0.13)", borderBottom: "1px solid rgba(255,255,255,0.07)" }}>
-            <span style={{ color: "#FFD700", fontWeight: 900, fontStyle: "italic", letterSpacing: "0.12em", fontSize: "clamp(1.3rem, 6.5vw, 1.7rem)", textShadow: "0 2px 6px rgba(0,0,0,0.5)" }}>
-              {lang === "es" ? "RÁPIDA" : "RELIABLE"}
-            </span>
-          </div>
-          <div style={{ background: STRIPE, padding: "7px 0", textAlign: "center", borderTop: "1px solid rgba(255,255,255,0.13)", borderBottom: "1px solid rgba(255,255,255,0.07)" }}>
-            <span style={{ color: "#ffffff", fontWeight: 900, letterSpacing: "0.12em", fontSize: "clamp(1.05rem, 5vw, 1.35rem)", textShadow: "0 2px 6px rgba(0,0,0,0.5)" }}>
-              {lang === "es" ? "Y CONFIABLE" : "DELIVERY"}
-            </span>
-          </div>
-        </div>
-
-        {/* Gloss highlight */}
-        <div style={{ position: "absolute", inset: 0, background: "linear-gradient(145deg, rgba(255,255,255,0.22) 0%, rgba(255,255,255,0.06) 35%, rgba(255,255,255,0) 58%)", pointerEvents: "none" }} />
-        {/* Edge sheen */}
-        <div style={{ position: "absolute", inset: 0, boxShadow: "inset 0 1px 0 rgba(255,255,255,0.4), inset 0 -1px 0 rgba(0,0,0,0.12)", pointerEvents: "none" }} />
-      </div>
-
-      {/* Bottom — CTAs + links, fixed height, no scroll */}
-      <div className="shrink-0 px-5 pt-2 pb-3 space-y-2">
+      {/* Bottom section — always pinned to bottom */}
+      <div
+        style={{
+          position: "absolute",
+          bottom: 0,
+          left: 0,
+          right: 0,
+          zIndex: 20,
+          background: "linear-gradient(to bottom, transparent 0%, rgba(2,20,70,0.82) 28%, rgba(2,15,50,0.96) 100%)",
+          padding: "32px 20px 24px",
+          display: "flex",
+          flexDirection: "column",
+          gap: "10px",
+        }}
+      >
         <button
           onClick={() => navigate("/register")}
-          className="btn-gold w-full text-black font-black text-xl h-13 rounded-2xl active:scale-[0.98] transition-all flex items-center justify-center gap-2.5 shadow-[0_0_40px_rgba(255,215,0,0.35)]"
+          className="btn-gold w-full text-black font-black text-xl h-14 rounded-2xl active:scale-[0.98] transition-all flex items-center justify-center gap-2.5 shadow-[0_0_40px_rgba(255,215,0,0.35)]"
         >
           <UserPlus size={22} />
           {lang === "es" ? "Pedir ahora — es gratis" : "Order now — it's free"}
@@ -114,7 +131,7 @@ export default function Landing() {
 
         <button
           onClick={() => navigate("/login")}
-          className="w-full glass text-white font-bold text-base h-10 rounded-2xl hover:brightness-125 active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+          className="w-full glass text-white font-bold text-base h-11 rounded-2xl hover:brightness-125 active:scale-[0.98] transition-all flex items-center justify-center gap-2"
         >
           <LogIn size={17} />
           {lang === "es" ? "Ya tengo cuenta — Entrar" : "I have an account — Log in"}
@@ -126,19 +143,19 @@ export default function Landing() {
           </p>
         )}
 
-        {/* Driver / Business + Demo — compact row */}
-        <div className="flex items-center justify-center gap-4">
-          <button onClick={() => navigate("/register?role=driver")} className="text-xs text-white/35 hover:text-white/70 transition-colors">
+        {/* Secondary links row */}
+        <div className="flex items-center justify-center gap-4 pt-1">
+          <button onClick={() => navigate("/register?role=driver")} className="text-xs text-white/50 hover:text-white/80 transition-colors">
             {lang === "es" ? "🏍️ Soy motorista" : "🏍️ I'm a driver"}
           </button>
           <span className="text-white/20 text-xs">·</span>
-          <button onClick={() => navigate("/register?role=business")} className="text-xs text-white/35 hover:text-white/70 transition-colors">
+          <button onClick={() => navigate("/register?role=business")} className="text-xs text-white/50 hover:text-white/80 transition-colors">
             {lang === "es" ? "🏪 Tengo un negocio" : "🏪 I have a business"}
           </button>
           <span className="text-white/20 text-xs">·</span>
           <button
             onClick={() => setShowDemo(v => !v)}
-            className="flex items-center gap-1 text-xs text-white/25 hover:text-white/50 transition"
+            className="flex items-center gap-1 text-xs text-white/40 hover:text-white/70 transition"
           >
             {showDemo ? <ChevronUp size={11} /> : <ChevronDown size={11} />}
             Demo
@@ -147,7 +164,7 @@ export default function Landing() {
 
         {showDemo && (
           <div className="bg-white/5 border border-white/10 rounded-2xl p-3 space-y-2">
-            <p className="text-[10px] text-yellow-400/50 text-center uppercase tracking-widest">
+            <p className="text-[10px] text-yellow-400/60 text-center uppercase tracking-widest">
               {lang === "es" ? "Cuentas de prueba" : "Test accounts"}
             </p>
             <div className="grid grid-cols-3 gap-2">
