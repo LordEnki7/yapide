@@ -51,13 +51,27 @@ export default function Landing() {
         <LangToggle />
       </div>
 
-      {/* Hero */}
-      <div className="w-full">
+      {/* Hero — glossy poster */}
+      <div style={{ position: "relative", width: "100%", overflow: "hidden" }}>
         <img
           src={logo}
           alt="YaPide — Entrega rápida y confiable"
           style={{ width: "100%", display: "block" }}
         />
+        {/* Gloss highlight */}
+        <div style={{
+          position: "absolute",
+          inset: 0,
+          background: "linear-gradient(145deg, rgba(255,255,255,0.35) 0%, rgba(255,255,255,0.10) 35%, rgba(255,255,255,0) 58%)",
+          pointerEvents: "none",
+        }} />
+        {/* Edge sheen */}
+        <div style={{
+          position: "absolute",
+          inset: 0,
+          boxShadow: "inset 0 1px 0 rgba(255,255,255,0.55), inset 0 -1px 0 rgba(0,0,0,0.15)",
+          pointerEvents: "none",
+        }} />
       </div>
 
       {/* Primary CTAs */}

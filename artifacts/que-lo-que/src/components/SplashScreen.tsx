@@ -38,17 +38,30 @@ export default function SplashScreen({ onDone }: SplashScreenProps) {
         pointerEvents: "none",
       }}
     >
-      {/* Full brand poster */}
-      <img
-        src="/logo.png"
-        alt="YaPide"
-        style={{
-          width: "clamp(260px, 78vw, 340px)",
-          display: "block",
+      {/* Full brand poster — glossy */}
+      <div style={{ position: "relative", width: "clamp(260px, 78vw, 340px)", borderRadius: "18px", overflow: "hidden", boxShadow: "0 8px 48px rgba(0,0,0,0.55), 0 2px 8px rgba(0,0,0,0.3)" }}>
+        <img
+          src="/logo.png"
+          alt="YaPide"
+          style={{ width: "100%", display: "block" }}
+        />
+        {/* Gloss highlight */}
+        <div style={{
+          position: "absolute",
+          inset: 0,
+          background: "linear-gradient(145deg, rgba(255,255,255,0.38) 0%, rgba(255,255,255,0.12) 35%, rgba(255,255,255,0) 60%)",
           borderRadius: "18px",
-          boxShadow: "0 8px 40px rgba(0,0,0,0.45)",
-        }}
-      />
+          pointerEvents: "none",
+        }} />
+        {/* Edge sheen */}
+        <div style={{
+          position: "absolute",
+          inset: 0,
+          borderRadius: "18px",
+          boxShadow: "inset 0 1px 0 rgba(255,255,255,0.6), inset 0 -1px 0 rgba(0,0,0,0.2)",
+          pointerEvents: "none",
+        }} />
+      </div>
 
       <div
         style={{
