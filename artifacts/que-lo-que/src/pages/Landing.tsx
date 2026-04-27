@@ -51,33 +51,38 @@ export default function Landing() {
         <LangToggle />
       </div>
 
-      {/* Hero — translatable tagline + glossy poster */}
-
-      {/* Tagline — same blue as the poster top, switches with lang */}
-      <div style={{ background: "#0769E6", width: "100%", textAlign: "center", padding: "18px 8px 14px", lineHeight: 1.15 }}>
-        <p style={{ margin: "0 0 2px", color: "#ffffff", fontWeight: 900, letterSpacing: "0.1em", fontSize: "clamp(1.05rem, 5.5vw, 1.35rem)" }}>
-          {lang === "es" ? "ENTREGA" : "FAST"}
-        </p>
-        <p style={{ margin: "0 0 2px", color: "#FFD700", fontWeight: 900, fontStyle: "italic", letterSpacing: "0.1em", fontSize: "clamp(1.35rem, 7vw, 1.7rem)" }}>
-          {lang === "es" ? "RÁPIDA" : "RELIABLE"}
-        </p>
-        <p style={{ margin: 0, color: "#ffffff", fontWeight: 900, letterSpacing: "0.1em", fontSize: "clamp(1.05rem, 5.5vw, 1.35rem)" }}>
-          {lang === "es" ? "Y CONFIABLE" : "DELIVERY"}
-        </p>
-      </div>
-
-      {/* Poster — top portion clipped (hides baked-in text), glossy */}
+      {/* Hero — poster with tagline overlaid */}
       <div style={{ position: "relative", width: "100%", overflow: "hidden" }}>
         <img
           src={logo}
           alt="YaPide"
           style={{ width: "100%", display: "block" }}
         />
+
+        {/* Tagline overlay — speed-stripe bands on the image */}
+        <div style={{ position: "absolute", top: "6%", left: 0, right: 0, display: "flex", flexDirection: "column", gap: "3px", pointerEvents: "none" }}>
+          <div style={{ background: "linear-gradient(90deg, transparent 0%, rgba(4,20,90,0.80) 9%, rgba(4,20,90,0.80) 91%, transparent 100%)", padding: "8px 0", textAlign: "center", borderTop: "1px solid rgba(255,255,255,0.13)", borderBottom: "1px solid rgba(255,255,255,0.07)" }}>
+            <span style={{ color: "#ffffff", fontWeight: 900, letterSpacing: "0.12em", fontSize: "clamp(1.1rem, 5.5vw, 1.4rem)", textShadow: "0 2px 6px rgba(0,0,0,0.5)" }}>
+              {lang === "es" ? "ENTREGA" : "FAST"}
+            </span>
+          </div>
+          <div style={{ background: "linear-gradient(90deg, transparent 0%, rgba(4,20,90,0.80) 9%, rgba(4,20,90,0.80) 91%, transparent 100%)", padding: "8px 0", textAlign: "center", borderTop: "1px solid rgba(255,255,255,0.13)", borderBottom: "1px solid rgba(255,255,255,0.07)" }}>
+            <span style={{ color: "#FFD700", fontWeight: 900, fontStyle: "italic", letterSpacing: "0.12em", fontSize: "clamp(1.4rem, 7vw, 1.8rem)", textShadow: "0 2px 6px rgba(0,0,0,0.5)" }}>
+              {lang === "es" ? "RÁPIDA" : "RELIABLE"}
+            </span>
+          </div>
+          <div style={{ background: "linear-gradient(90deg, transparent 0%, rgba(4,20,90,0.80) 9%, rgba(4,20,90,0.80) 91%, transparent 100%)", padding: "8px 0", textAlign: "center", borderTop: "1px solid rgba(255,255,255,0.13)", borderBottom: "1px solid rgba(255,255,255,0.07)" }}>
+            <span style={{ color: "#ffffff", fontWeight: 900, letterSpacing: "0.12em", fontSize: "clamp(1.1rem, 5.5vw, 1.4rem)", textShadow: "0 2px 6px rgba(0,0,0,0.5)" }}>
+              {lang === "es" ? "Y CONFIABLE" : "DELIVERY"}
+            </span>
+          </div>
+        </div>
+
         {/* Gloss highlight */}
         <div style={{
           position: "absolute",
           inset: 0,
-          background: "linear-gradient(145deg, rgba(255,255,255,0.35) 0%, rgba(255,255,255,0.10) 35%, rgba(255,255,255,0) 58%)",
+          background: "linear-gradient(145deg, rgba(255,255,255,0.28) 0%, rgba(255,255,255,0.08) 35%, rgba(255,255,255,0) 58%)",
           pointerEvents: "none",
         }} />
         {/* Edge sheen */}
