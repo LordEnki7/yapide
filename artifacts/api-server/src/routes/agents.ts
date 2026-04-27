@@ -1,6 +1,6 @@
 import { Router, type IRouter } from "express";
 import { eq, desc, gte, and, isNull } from "drizzle-orm";
-import { db, ordersTable, driversTable, usersTable, businessesTable, orderItemsTable, productsTable, bannersTable, deliveryWindowsTable, pointsEventsTable } from "@workspace/db";
+import { db, ordersTable, driversTable, usersTable, businessesTable, orderItemsTable, productsTable, bannersTable, deliveryWindowsTable, pointsEventsTable, businessPayoutsTable, driverDepositsTable } from "@workspace/db";
 import { openai } from "@workspace/integrations-openai-ai-server";
 
 const router: IRouter = Router();
@@ -569,4 +569,179 @@ router.post("/agents/promo/execute", async (req, res): Promise<void> => {
   res.json({ ok: true, results });
 });
 
+// ─── 7. ACCOUNTANT AI AGENT ──────────────────────────────────────────────────
+
+router.get("/agents/accountant/snapshot", async (req, res): Promise<void> => {
+  if (!(await requireAdmin(req, res))) return;
+
+  const now = new Date();
+  const todayStart = new Date(now); todayStart.setHours(0, 0, 0, 0);
+  const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+  const monthAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+
+  const [allOrders, allBusinesses, allDrivers, allPayouts, allDeposits] = await Promise.all([
+    db.select().from(ordersTable),
+    db.select().from(businessesTable),
+    db.select().from(driversTable),
+    db.select().from(businessPayoutsTable),
+    db.select().from(driverDepositsTable),
+  ]);
+
+  const delivered = allOrders.filter(o => o.status === "delivered");
+  const deliveredToday = delivered.filter(o => new Date(o.createdAt) >= todayStart);
+  const deliveredWeek  = delivered.filter(o => new Date(o.createdAt) >= weekAgo);
+  const deliveredMonth = delivered.filter(o => new Date(o.createdAt) >= monthAgo);
+
+  const sum = (arr: typeof delivered, field: "commission" | "totalAmount" | "deliveryFee") =>
+    arr.reduce((s, o) => s + (o[field] ?? 0), 0);
+
+  const revenueToday = sum(deliveredToday, "commission");
+  const revenueWeek  = sum(deliveredWeek,  "commission");
+  const revenueMonth = sum(deliveredMonth, "commission");
+  const revenueTotal = sum(delivered, "commission");
+
+  const gmvToday = sum(deliveredToday, "totalAmount") + sum(deliveredToday, "deliveryFee");
+  const gmvWeek  = sum(deliveredWeek,  "totalAmount") + sum(deliveredWeek,  "deliveryFee");
+  const gmvMonth = sum(deliveredMonth, "totalAmount") + sum(deliveredMonth, "deliveryFee");
+  const gmvTotal = sum(delivered, "totalAmount") + sum(delivered, "deliveryFee");
+
+  // Cash with drivers (delivered, not yet deposited at office)
+  const cashWithDrivers = allOrders
+    .filter(o => o.status === "delivered" && !(o as any).cashSettled)
+    .reduce((s, o) => s + o.totalAmount + o.deliveryFee, 0);
+
+  // Cash at office (deposited by driver, not yet paid to business)
+  const cashAtOffice = allOrders
+    .filter(o => o.status === "delivered" && (o as any).cashSettled && !(o as any).businessPaid)
+    .reduce((s, o) => s + o.totalAmount + o.deliveryFee - o.commission, 0);
+
+  // Pending business payouts
+  const pendingPayouts = allPayouts
+    .filter(p => (p as any).status === "pending")
+    .reduce((s, p) => s + (p as any).amount, 0);
+
+  // Locked driver balances (cash they haven't deposited yet from driversTable)
+  const lockedCash = allDrivers.reduce((s, d) => s + (d.cashBalance ?? 0), 0);
+
+  // Revenue by business (top 5 this month)
+  const bizRevenue: Record<number, number> = {};
+  for (const o of deliveredMonth) {
+    bizRevenue[o.businessId] = (bizRevenue[o.businessId] ?? 0) + o.commission;
+  }
+  const topBusinesses = Object.entries(bizRevenue)
+    .sort(([, a], [, b]) => b - a)
+    .slice(0, 5)
+    .map(([id, commission]) => {
+      const biz = allBusinesses.find(b => b.id === parseInt(id));
+      return { businessId: parseInt(id), name: biz?.name ?? "Unknown", commission: Math.round(commission) };
+    });
+
+  // Recent deposits (last 10)
+  const recentDeposits = [...allDeposits]
+    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+    .slice(0, 10)
+    .map(d => ({
+      id: d.id,
+      driverId: d.driverId,
+      amount: d.amount,
+      discrepancy: (d as any).discrepancy ?? 0,
+      createdAt: d.createdAt,
+    }));
+
+  // Recent payouts (last 10)
+  const recentPayouts = [...allPayouts]
+    .sort((a, b) => new Date((b as any).createdAt).getTime() - new Date((a as any).createdAt).getTime())
+    .slice(0, 10)
+    .map(p => ({
+      id: p.id,
+      businessId: (p as any).businessId,
+      amount: (p as any).amount,
+      status: (p as any).status,
+      method: (p as any).payoutMethod ?? null,
+      createdAt: (p as any).createdAt,
+    }));
+
+  const totalDiscrepancies = allDeposits.reduce((s, d) => s + Math.abs((d as any).discrepancy ?? 0), 0);
+
+  res.json({
+    generatedAt: now.toISOString(),
+    revenue: { today: Math.round(revenueToday), week: Math.round(revenueWeek), month: Math.round(revenueMonth), total: Math.round(revenueTotal) },
+    gmv:     { today: Math.round(gmvToday),     week: Math.round(gmvWeek),     month: Math.round(gmvMonth),     total: Math.round(gmvTotal) },
+    cashFlow: {
+      cashWithDrivers: Math.round(cashWithDrivers),
+      cashAtOffice:    Math.round(cashAtOffice),
+      pendingPayouts:  Math.round(pendingPayouts),
+      lockedDriverCash: Math.round(lockedCash),
+      totalDiscrepancies: Math.round(totalDiscrepancies),
+    },
+    orders: {
+      total: allOrders.length,
+      delivered: delivered.length,
+      today: deliveredToday.length,
+      week: deliveredWeek.length,
+      month: deliveredMonth.length,
+    },
+    topBusinesses,
+    recentDeposits,
+    recentPayouts,
+  });
+});
+
+router.post("/agents/accountant/ask", async (req, res): Promise<void> => {
+  if (!(await requireAdmin(req, res))) return;
+  const { question, snapshot, history } = req.body ?? {};
+  if (!question?.trim()) { res.status(400).json({ error: "question required" }); return; }
+
+  const snapshotText = snapshot ? JSON.stringify(snapshot, null, 2) : "No snapshot provided.";
+
+  const systemPrompt = `Eres el Contador IA de YaPide, una app dominicana de delivery. Tu nombre es "ContadorBot".
+Eres experto en las finanzas de YaPide y respondes en español dominicano, de manera profesional y precisa.
+
+Datos financieros actuales (en RD$):
+${snapshotText}
+
+Glosario YaPide:
+- Comisión (revenue): lo que YaPide se queda de cada pedido (~10-15% del totalAmount)
+- GMV: valor bruto total de pedidos (totalAmount + deliveryFee)
+- cashWithDrivers: efectivo en manos de choferes pendiente de depositar
+- cashAtOffice: efectivo depositado por choferes, pendiente de pagar a negocios
+- pendingPayouts: lo que YaPide debe pagarle a los negocios
+- lockedDriverCash: balance en cuenta de choferes (no necesariamente efectivo físico)
+- discrepancias: diferencia entre lo esperado y lo depositado
+
+Responde de forma directa, precisa y en español. Si el admin pregunta en inglés, responde en inglés.
+Cuando menciones montos, usa el formato "RD$X,XXX". Máximo 4 párrafos por respuesta.
+Si no tienes datos suficientes para responder, dilo claramente y sugiere qué acción tomar.`;
+
+  const chatHistory: Array<{ role: "user" | "assistant"; content: string }> = [];
+  if (Array.isArray(history)) {
+    for (const msg of history.slice(-8)) {
+      if (msg.role === "user" || msg.role === "assistant") {
+        chatHistory.push({ role: msg.role, content: String(msg.content) });
+      }
+    }
+  }
+
+  try {
+    const completion = await openai.chat.completions.create({
+      model: "gpt-5.1",
+      max_completion_tokens: 1024,
+      messages: [
+        { role: "system", content: systemPrompt },
+        ...chatHistory,
+        { role: "user", content: question },
+      ],
+    });
+
+    const answer = completion.choices[0]?.message?.content?.trim()
+      ?? "No pude procesar tu pregunta. Por favor intenta de nuevo.";
+
+    res.json({ answer });
+  } catch (err: any) {
+    console.error("Accountant AI error:", err?.message ?? err);
+    res.status(500).json({ error: err?.message ?? "AI error" });
+  }
+});
+
 export default router;
+

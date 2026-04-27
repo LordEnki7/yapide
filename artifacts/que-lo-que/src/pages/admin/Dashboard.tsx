@@ -129,6 +129,24 @@ export default function AdminDashboard() {
           </Link>
         )}
 
+        {/* Accountant AI CTA — only if orders permitted */}
+        {can("orders") && (
+          <Link href="/admin/accountant">
+            <div className="bg-yellow-500/10 border border-yellow-500/25 rounded-2xl p-4 flex items-center justify-between hover:bg-yellow-500/15 transition cursor-pointer">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-yellow-400/20 flex items-center justify-center">
+                  <Calculator size={20} className="text-yellow-400" />
+                </div>
+                <div>
+                  <p className="font-black text-yellow-400">Contador IA</p>
+                  <p className="text-xs text-gray-400">KPIs financieros · Análisis de flujo de caja</p>
+                </div>
+              </div>
+              <span className="text-yellow-400 font-black text-lg">→</span>
+            </div>
+          </Link>
+        )}
+
         {/* Stats — only if dashboard permission */}
         {can("dashboard") && (
           statsLoading ? (

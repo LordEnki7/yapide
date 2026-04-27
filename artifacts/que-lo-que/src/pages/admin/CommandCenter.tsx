@@ -5,7 +5,7 @@ import { formatDOP } from "@/lib/auth";
 import {
   ArrowLeft, RefreshCw, TrendingUp, Users, Bike, Package, AlertTriangle,
   Zap, Clock, ChefHat, BarChart3, MessageSquare, CheckCircle, XCircle,
-  Shield, Activity, Bot, Play, ArrowUpRight, ArrowDownRight,
+  Shield, Activity, Bot, Play, ArrowUpRight, ArrowDownRight, Calculator,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
@@ -98,7 +98,7 @@ export default function AdminCommandCenter() {
     } catch { } finally { setDispatching(false); }
   };
 
-  const maxDailyOrders = Math.max(...(overview?.dailyStats.map(d => d.orders) ?? [1]), 1);
+  const maxDailyOrders = Math.max(...(overview?.dailyStats?.map(d => d.orders) ?? [1]), 1);
 
   const statusColors: Record<string, string> = {
     pending: "bg-yellow-400/20 text-yellow-400",
@@ -343,6 +343,20 @@ export default function AdminCommandCenter() {
                 <Link href="/customer/support">
                   <button className="ml-3 flex items-center gap-1 px-3 py-1.5 rounded-lg bg-indigo-500/20 border border-indigo-500/30 text-indigo-300 text-xs font-bold hover:bg-indigo-500/30 transition flex-shrink-0">
                     Ver <ArrowUpRight size={10} />
+                  </button>
+                </Link>
+              </div>
+            </AgentCard>
+
+            {/* 7. Accountant AI */}
+            <AgentCard title="Contador IA" icon={Calculator} iconColor="bg-emerald-600" agent={{ status: "active", lastRun: new Date().toISOString() }}>
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-gray-300">Analiza revenue, GMV, flujo de caja y discrepancias con IA. Genera reportes al instante.</p>
+                </div>
+                <Link href="/admin/accountant">
+                  <button className="ml-3 flex items-center gap-1 px-3 py-1.5 rounded-lg bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 text-xs font-bold hover:bg-emerald-500/30 transition flex-shrink-0">
+                    Abrir <ArrowUpRight size={10} />
                   </button>
                 </Link>
               </div>
