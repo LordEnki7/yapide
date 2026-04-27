@@ -75,6 +75,7 @@ import AdminDeliveryWindows from "@/pages/admin/DeliveryWindows";
 import AdminPointsEvents from "@/pages/admin/PointsEvents";
 import AdminBroadcast from "@/pages/admin/Broadcast";
 import AdminQRGenerator from "@/pages/admin/QRGenerator";
+import AdminCashFlow from "@/pages/admin/CashFlow";
 import CustomerSupport from "@/pages/customer/Support";
 import CustomerSearch from "@/pages/customer/Search";
 import BusinessOnboarding from "@/pages/business/Onboarding";
@@ -140,6 +141,7 @@ function Router() {
         <Route path="/admin/points-events" component={AdminPointsEvents} />
         <Route path="/admin/broadcast" component={AdminBroadcast} />
         <Route path="/admin/qr-generator" component={AdminQRGenerator} />
+        <Route path="/admin/cash-flow" component={AdminCashFlow} />
         <Route path="/customer/support" component={CustomerSupport} />
         <Route path="/customer/search" component={CustomerSearch} />
         <Route path="/privacy" component={PrivacyPolicy} />

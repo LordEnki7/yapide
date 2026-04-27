@@ -1,6 +1,6 @@
 import { Router, type IRouter } from "express";
-import { eq, desc, and } from "drizzle-orm";
-import { db, usersTable, driversTable, businessesTable, ordersTable, productsTable, disputesTable, orderItemsTable, walletTransactionsTable, settingsTable, businessPayoutsTable } from "@workspace/db";
+import { eq, desc, and, sql } from "drizzle-orm";
+import { db, usersTable, driversTable, businessesTable, ordersTable, productsTable, disputesTable, orderItemsTable, walletTransactionsTable, settingsTable, businessPayoutsTable, driverDepositsTable } from "@workspace/db";
 import { AdminListUsersQueryParams, AdminBanUserBody, AdminLockDriverBody } from "@workspace/api-zod";
 import { sendWhatsApp } from "../lib/whatsapp";
 import { sendPushToUser } from "../lib/push";
@@ -339,6 +339,169 @@ router.post("/admin/drivers/:driverId/record-dropoff", async (req, res): Promise
   });
 
   res.json({ success: true, previousBalance: driver.cashBalance, newCashBalance, unlockedDriver: shouldUnlock });
+});
+
+// ── Cash Flow: Driver Balances ────────────────────────────────────────────────
+router.get("/admin/cash/driver-balances", async (req, res): Promise<void> => {
+  if (!isAdmin(req)) { res.status(401).json({ error: "Unauthorized" }); return; }
+  const drivers = await db.select().from(driversTable).orderBy(desc(driversTable.createdAt));
+  const result = await Promise.all(drivers.map(async (d) => {
+    const [user] = await db.select().from(usersTable).where(eq(usersTable.id, d.userId));
+    const pendingOrders = await db.select({
+      id: ordersTable.id,
+      totalAmount: ordersTable.totalAmount,
+      commission: ordersTable.commission,
+      createdAt: ordersTable.createdAt,
+    }).from(ordersTable).where(
+      and(
+        eq(ordersTable.driverId, d.id),
+        eq(ordersTable.status, "delivered"),
+        eq(ordersTable.paymentMethod, "cash"),
+        eq(ordersTable.cashSettled, false),
+      )
+    ).orderBy(desc(ordersTable.createdAt));
+    const pendingAmount = pendingOrders.reduce((s, o) => s + (o.totalAmount - o.commission), 0);
+    return {
+      driverId: d.id,
+      userId: d.userId,
+      name: user?.name ?? "—",
+      vehicleType: d.vehicleType,
+      vehiclePlate: d.vehiclePlate,
+      pendingOrdersCount: pendingOrders.length,
+      pendingAmount,
+      pendingOrders,
+    };
+  }));
+  res.json(result.filter(d => d.pendingOrdersCount > 0 || d.pendingAmount > 0));
+});
+
+router.post("/admin/drivers/:driverId/deposit", async (req, res): Promise<void> => {
+  if (!isAdmin(req)) { res.status(401).json({ error: "Unauthorized" }); return; }
+  const driverId = parseInt(Array.isArray(req.params.driverId) ? req.params.driverId[0] : req.params.driverId, 10);
+  if (isNaN(driverId)) { res.status(400).json({ error: "Invalid driverId" }); return; }
+  const { amountReceived, note } = req.body as { amountReceived: number; note?: string };
+  if (!amountReceived || amountReceived <= 0) { res.status(400).json({ error: "amountReceived required" }); return; }
+  const adminId = (req.session as any)?.userId as number | undefined;
+
+  // Get undeposited cash orders
+  const pendingOrders = await db.select().from(ordersTable).where(
+    and(
+      eq(ordersTable.driverId, driverId),
+      eq(ordersTable.status, "delivered"),
+      eq(ordersTable.paymentMethod, "cash"),
+      eq(ordersTable.cashSettled, false),
+    )
+  );
+  const amountExpected = pendingOrders.reduce((s, o) => s + (o.totalAmount - o.commission), 0);
+  const orderIds = pendingOrders.map(o => o.id);
+
+  // Mark orders as cashSettled
+  if (orderIds.length > 0) {
+    await db.update(ordersTable)
+      .set({ cashSettled: true })
+      .where(sql`${ordersTable.id} = ANY(${sql.raw(`ARRAY[${orderIds.join(",")}]`)})`);
+  }
+
+  // Create deposit record
+  const [deposit] = await db.insert(driverDepositsTable).values({
+    driverId, adminId: adminId ?? null, amountExpected, amountReceived, note: note ?? null,
+  }).returning();
+
+  // Notify each affected business
+  const businessIds = [...new Set(pendingOrders.map(o => o.businessId))];
+  for (const bizId of businessIds) {
+    const [biz] = await db.select().from(businessesTable).where(eq(businessesTable.id, bizId));
+    if (!biz) continue;
+    const bizOrders = pendingOrders.filter(o => o.businessId === bizId);
+    const bizAmount = bizOrders.reduce((s, o) => s + (o.totalAmount - o.commission), 0);
+    const msg = `💵 Tu efectivo de RD$${bizAmount.toFixed(0)} (${bizOrders.length} pedidos) llegó a la oficina. Pronto procesamos tu pago.`;
+    sendPushToUser(biz.userId, "💵 Efectivo recibido en oficina", msg, "/business/payouts").catch(() => {});
+    sendWhatsApp(biz.phone ?? "", msg).catch(() => {});
+  }
+
+  res.json({ success: true, deposit, affectedOrders: orderIds.length, affectedBusinesses: businessIds.length });
+});
+
+// ── Cash Flow: Business Balances ──────────────────────────────────────────────
+router.get("/admin/cash/business-balances", async (req, res): Promise<void> => {
+  if (!isAdmin(req)) { res.status(401).json({ error: "Unauthorized" }); return; }
+  const businesses = await db.select().from(businessesTable).orderBy(desc(businessesTable.createdAt));
+  const result = await Promise.all(businesses.map(async (b) => {
+    const availableOrders = await db.select({
+      id: ordersTable.id,
+      totalAmount: ordersTable.totalAmount,
+      commission: ordersTable.commission,
+      createdAt: ordersTable.createdAt,
+    }).from(ordersTable).where(
+      and(
+        eq(ordersTable.businessId, b.id),
+        eq(ordersTable.status, "delivered"),
+        eq(ordersTable.cashSettled, true),
+        eq(ordersTable.businessPaid, false),
+      )
+    );
+    const availableAmount = availableOrders.reduce((s, o) => s + (o.totalAmount - o.commission), 0);
+    const lastPayout = await db.select().from(businessPayoutsTable)
+      .where(eq(businessPayoutsTable.businessId, b.id))
+      .orderBy(desc(businessPayoutsTable.createdAt)).limit(1);
+    return {
+      businessId: b.id,
+      userId: b.userId,
+      name: b.name,
+      phone: b.phone,
+      availableOrdersCount: availableOrders.length,
+      availableAmount,
+      lastPayoutDate: lastPayout[0]?.createdAt ?? null,
+      lastPayoutAmount: lastPayout[0]?.amount ?? null,
+    };
+  }));
+  res.json(result.filter(b => b.availableAmount > 0));
+});
+
+router.post("/admin/businesses/:businessId/payout", async (req, res): Promise<void> => {
+  if (!isAdmin(req)) { res.status(401).json({ error: "Unauthorized" }); return; }
+  const businessId = parseInt(Array.isArray(req.params.businessId) ? req.params.businessId[0] : req.params.businessId, 10);
+  if (isNaN(businessId)) { res.status(400).json({ error: "Invalid businessId" }); return; }
+  const { payoutMethod, reference, note } = req.body as { payoutMethod: string; reference?: string; note?: string };
+  if (!payoutMethod) { res.status(400).json({ error: "payoutMethod required" }); return; }
+  const adminId = (req.session as any)?.userId as number | undefined;
+
+  const [biz] = await db.select().from(businessesTable).where(eq(businessesTable.id, businessId));
+  if (!biz) { res.status(404).json({ error: "Business not found" }); return; }
+
+  // Get all available orders
+  const availableOrders = await db.select().from(ordersTable).where(
+    and(
+      eq(ordersTable.businessId, businessId),
+      eq(ordersTable.status, "delivered"),
+      eq(ordersTable.cashSettled, true),
+      eq(ordersTable.businessPaid, false),
+    )
+  );
+  if (availableOrders.length === 0) { res.status(400).json({ error: "No available balance to pay out" }); return; }
+
+  const amount = availableOrders.reduce((s, o) => s + (o.totalAmount - o.commission), 0);
+  const orderIds = availableOrders.map(o => o.id);
+
+  // Create payout record
+  const [payout] = await db.insert(businessPayoutsTable).values({
+    businessId, amount, payoutMethod, reference: reference ?? null,
+    note: note ?? `Liquidación ${new Date().toLocaleDateString("es-DO")} — ${orderIds.length} pedidos`,
+    paidBy: adminId ?? null,
+  }).returning();
+
+  // Mark orders as businessPaid
+  await db.update(ordersTable)
+    .set({ businessPaid: true })
+    .where(sql`${ordersTable.id} = ANY(${sql.raw(`ARRAY[${orderIds.join(",")}]`)})`);
+
+  // Notify business owner
+  const methodLabel: Record<string, string> = { efectivo: "Efectivo", tpago: "Tpago", transferencia: "Transferencia" };
+  const msg = `✅ YaPide te pagó RD$${amount.toFixed(0)} por ${orderIds.length} pedidos.\nMétodo: ${methodLabel[payoutMethod] ?? payoutMethod}${reference ? `\nRef: ${reference}` : ""}`;
+  sendPushToUser(biz.userId, "✅ Pago recibido de YaPide", msg, "/business/payouts").catch(() => {});
+  sendWhatsApp(biz.phone ?? "", msg).catch(() => {});
+
+  res.json({ success: true, payout, amount, ordersSettled: orderIds.length });
 });
 
 router.post("/admin/orders/:orderId/assign-driver", async (req, res): Promise<void> => {

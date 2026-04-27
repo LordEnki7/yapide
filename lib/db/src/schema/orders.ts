@@ -33,6 +33,8 @@ export const ordersTable = pgTable("orders", {
   requiresAgeCheck: boolean("requires_age_check").notNull().default(false),
   ageVerified: boolean("age_verified").notNull().default(false),
   scheduledFor: timestamp("scheduled_for", { withTimezone: true }),
+  cashSettled: boolean("cash_settled").notNull().default(false),
+  businessPaid: boolean("business_paid").notNull().default(false),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow().$onUpdate(() => new Date()),
 });

@@ -296,17 +296,33 @@ router.get("/businesses/mine/payouts", async (req, res): Promise<void> => {
     .where(eq(businessPayoutsTable.businessId, business.id))
     .orderBy(desc(businessPayoutsTable.createdAt));
 
-  const deliveredOrders = await db.select({ totalAmount: ordersTable.totalAmount, commission: ordersTable.commission })
-    .from(ordersTable)
+  // Three buckets using new columns
+  const deliveredOrders = await db.select({
+    totalAmount: ordersTable.totalAmount,
+    commission: ordersTable.commission,
+    paymentMethod: ordersTable.paymentMethod,
+    cashSettled: ordersTable.cashSettled,
+    businessPaid: ordersTable.businessPaid,
+  }).from(ordersTable)
     .where(and(eq(ordersTable.businessId, business.id), eq(ordersTable.status, "delivered")));
 
-  const totalEarned = deliveredOrders.reduce((s, o) => s + (o.totalAmount - o.commission), 0);
+  const inTransit = deliveredOrders
+    .filter(o => o.paymentMethod === "cash" && !o.cashSettled)
+    .reduce((s, o) => s + (o.totalAmount - o.commission), 0);
+
+  const available = deliveredOrders
+    .filter(o => o.cashSettled && !o.businessPaid)
+    .reduce((s, o) => s + (o.totalAmount - o.commission), 0);
+
   const totalPaidOut = payouts.reduce((s, p) => s + p.amount, 0);
 
   res.json({
-    pendingAmount: Math.max(0, totalEarned - totalPaidOut),
+    inTransit: Math.max(0, inTransit),
+    pendingAmount: Math.max(0, available),
     totalPaidOut,
-    payouts: payouts.map(p => ({ id: p.id, amount: p.amount, note: p.note, createdAt: p.createdAt })),
+    payouts: payouts.map(p => ({
+      id: p.id, amount: p.amount, payoutMethod: p.payoutMethod, reference: p.reference, note: p.note, createdAt: p.createdAt,
+    })),
   });
 });
 

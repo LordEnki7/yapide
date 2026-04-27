@@ -5,7 +5,7 @@ import { formatDOP } from "@/lib/auth";
 import { useAdminLang } from "@/lib/lang";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Users, Package, Bike, TrendingUp, Tag, Bot, Bell, Shield, Crown, ShieldCheck, AlertCircle, Settings, Megaphone, Truck, Star, Send, QrCode, Sparkles } from "lucide-react";
+import { Users, Package, Bike, TrendingUp, Tag, Bot, Bell, Shield, Crown, ShieldCheck, AlertCircle, Settings, Megaphone, Truck, Star, Send, QrCode, Sparkles, Banknote } from "lucide-react";
 import { getEffectivePermissions, type Permission } from "@/lib/adminPermissions";
 
 interface AdminInfo {
@@ -67,6 +67,7 @@ export default function AdminDashboard() {
     { href: "/admin/staff",           label: "Staff",          icon: Shield,      perm: "staff" as Permission },
     { href: "/admin/disputes",        label: "Disputas",       icon: AlertCircle, perm: "orders" as Permission },
     { href: "/admin/settings",        label: "Configuración",  icon: Settings,    perm: "staff" as Permission },
+    { href: "/admin/cash-flow",       label: "Flujo Efectivo", icon: Banknote,    perm: "orders" as Permission },
   ].filter(item => can(item.perm));
 
   const roleCfg = ROLE_BADGE[adminInfo?.adminRole ?? "staff"] ?? ROLE_BADGE.staff;

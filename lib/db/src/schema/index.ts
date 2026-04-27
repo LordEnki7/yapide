@@ -21,3 +21,4 @@ export * from "./location_notes";
 export * from "./banners";
 export * from "./delivery_windows";
 export * from "./points_events";
+export * from "./driver_deposits";
