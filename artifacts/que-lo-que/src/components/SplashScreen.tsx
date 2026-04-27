@@ -38,34 +38,17 @@ export default function SplashScreen({ onDone }: SplashScreenProps) {
         pointerEvents: "none",
       }}
     >
-      {/* Unified logo block — text on top, motorcycle flush below */}
-      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 0 }}>
-        {/* Brand name */}
-        <div style={{ textAlign: "center", lineHeight: 1 }}>
-          <p style={{
-            margin: 0,
-            fontSize: "clamp(52px, 14vw, 72px)",
-            fontWeight: 900,
-            letterSpacing: "-2px",
-            lineHeight: 1,
-          }}>
-            <span style={{ color: "#6be832" }}>Ya</span>
-            <span style={{ color: "#ffffff" }}>Pide</span>
-          </p>
-        </div>
-
-        {/* Motorcycle */}
-        <img
-          src="/logo.png"
-          alt=""
-          style={{
-            width: "clamp(200px, 60vw, 280px)",
-            display: "block",
-            marginTop: "10px",
-            filter: "drop-shadow(0 4px 16px rgba(0,0,0,0.45))",
-          }}
-        />
-      </div>
+      {/* Full brand poster */}
+      <img
+        src="/logo.png"
+        alt="YaPide"
+        style={{
+          width: "clamp(260px, 78vw, 340px)",
+          display: "block",
+          borderRadius: "18px",
+          boxShadow: "0 8px 40px rgba(0,0,0,0.45)",
+        }}
+      />
 
       <div
         style={{

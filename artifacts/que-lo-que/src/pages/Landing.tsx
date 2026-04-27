@@ -52,15 +52,12 @@ export default function Landing() {
       </div>
 
       {/* Hero */}
-      <div className="flex flex-col items-center px-6 pt-4 pb-2">
-        <div className="flex flex-col items-center" style={{ gap: 0 }}>
-          <p className="m-0 font-black text-center" style={{ fontSize: "clamp(56px, 15vw, 72px)", letterSpacing: "-2px", lineHeight: 1 }}>
-            <span style={{ color: "#6be832" }}>Ya</span>
-            <span className="text-white">Pide</span>
-          </p>
-          <img src={logo} alt="" style={{ width: "clamp(200px, 60vw, 280px)", display: "block", marginTop: "8px", filter: "drop-shadow(0 4px 24px rgba(0,0,0,0.5))" }} />
-        </div>
-
+      <div className="w-full">
+        <img
+          src={logo}
+          alt="YaPide — Entrega rápida y confiable"
+          style={{ width: "100%", display: "block" }}
+        />
       </div>
 
       {/* Primary CTAs */}
