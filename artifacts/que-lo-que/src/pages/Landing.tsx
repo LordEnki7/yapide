@@ -60,82 +60,67 @@ export default function Landing() {
   return (
     <div
       className="max-w-[430px] mx-auto"
-      style={{
-        display: "flex",
-        flexDirection: "column",
-        height: "100svh",
-        overflow: "hidden",
-        background: "#0057b7",
-      }}
+      style={{ position: "relative", height: "100svh", overflow: "hidden", background: "#0057b7" }}
     >
-      {/* ── Top bar ── */}
-      <div style={{
-        flexShrink: 0,
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "space-between",
-        padding: "16px 20px 8px",
-        zIndex: 2,
-      }}>
+      {/* Full-screen background image */}
+      <img
+        src={logo}
+        alt="YaPide"
+        style={{
+          position: "absolute",
+          inset: 0,
+          width: "100%",
+          height: "100%",
+          objectFit: "cover",
+          objectPosition: "top",
+          display: "block",
+        }}
+      />
+
+      {/* Tagline overlay — speed-stripe bands */}
+      <div style={{ position: "absolute", top: "9%", left: 0, right: 0, display: "flex", flexDirection: "column", gap: "3px", pointerEvents: "none" }}>
+        <div style={{ background: STRIPE, padding: "7px 0", textAlign: "center", borderTop: "1px solid rgba(255,255,255,0.13)", borderBottom: "1px solid rgba(255,255,255,0.07)" }}>
+          <span style={{ color: "#ffffff", fontWeight: 900, letterSpacing: "0.12em", fontSize: "clamp(1.05rem, 5vw, 1.35rem)", textShadow: "0 2px 6px rgba(0,0,0,0.5)" }}>
+            {lang === "es" ? "ENTREGA" : "FAST"}
+          </span>
+        </div>
+        <div style={{ background: STRIPE, padding: "7px 0", textAlign: "center", borderTop: "1px solid rgba(255,255,255,0.13)", borderBottom: "1px solid rgba(255,255,255,0.07)" }}>
+          <span style={{ color: "#FFD700", fontWeight: 900, fontStyle: "italic", letterSpacing: "0.12em", fontSize: "clamp(1.3rem, 6.5vw, 1.7rem)", textShadow: "0 2px 6px rgba(0,0,0,0.5)" }}>
+            {lang === "es" ? "RÁPIDA" : "RELIABLE"}
+          </span>
+        </div>
+        <div style={{ background: STRIPE, padding: "7px 0", textAlign: "center", borderTop: "1px solid rgba(255,255,255,0.13)", borderBottom: "1px solid rgba(255,255,255,0.07)" }}>
+          <span style={{ color: "#ffffff", fontWeight: 900, letterSpacing: "0.12em", fontSize: "clamp(1.05rem, 5vw, 1.35rem)", textShadow: "0 2px 6px rgba(0,0,0,0.5)" }}>
+            {lang === "es" ? "Y CONFIABLE" : "DELIVERY"}
+          </span>
+        </div>
+      </div>
+
+      {/* Gloss highlight */}
+      <div style={{ position: "absolute", inset: 0, background: "linear-gradient(145deg, rgba(255,255,255,0.18) 0%, rgba(255,255,255,0.05) 35%, rgba(255,255,255,0) 58%)", pointerEvents: "none" }} />
+
+      {/* Top bar */}
+      <div style={{ position: "absolute", top: 0, left: 0, right: 0, zIndex: 20, display: "flex", alignItems: "center", justifyContent: "space-between", padding: "18px 20px 8px" }}>
         <div className="text-[10px] font-black text-yellow-400/60 uppercase tracking-[0.2em]">yapide.app</div>
         <LangToggle />
       </div>
 
-      {/* ── Hero image — fills all space between top bar and buttons ── */}
-      <div style={{ flex: 1, minHeight: 0, position: "relative", overflow: "hidden" }}>
-        <img
-          src={logo}
-          alt="YaPide"
-          style={{
-            width: "100%",
-            height: "100%",
-            objectFit: "cover",
-            objectPosition: "top center",
-            display: "block",
-          }}
-        />
-
-        {/* Gloss */}
-        <div style={{
-          position: "absolute", inset: 0,
-          background: "linear-gradient(145deg, rgba(255,255,255,0.16) 0%, rgba(255,255,255,0.04) 35%, transparent 58%)",
-          pointerEvents: "none",
-        }} />
-
-        {/* Tagline stripes — between logo text and rider */}
-        <div style={{
-          position: "absolute", top: "20%", left: 0, right: 0,
-          display: "flex", flexDirection: "column", gap: "3px",
-          pointerEvents: "none",
-        }}>
-          <div style={{ background: STRIPE, padding: "7px 0", textAlign: "center", borderTop: "1px solid rgba(255,255,255,0.13)", borderBottom: "1px solid rgba(255,255,255,0.07)" }}>
-            <span style={{ color: "#fff", fontWeight: 900, letterSpacing: "0.12em", fontSize: "clamp(1.05rem, 5vw, 1.35rem)", textShadow: "0 2px 6px rgba(0,0,0,0.5)" }}>
-              {lang === "es" ? "ENTREGA" : "FAST"}
-            </span>
-          </div>
-          <div style={{ background: STRIPE, padding: "7px 0", textAlign: "center", borderTop: "1px solid rgba(255,255,255,0.13)", borderBottom: "1px solid rgba(255,255,255,0.07)" }}>
-            <span style={{ color: "#FFD700", fontWeight: 900, fontStyle: "italic", letterSpacing: "0.12em", fontSize: "clamp(1.3rem, 6.5vw, 1.7rem)", textShadow: "0 2px 6px rgba(0,0,0,0.5)" }}>
-              {lang === "es" ? "RÁPIDA" : "RELIABLE"}
-            </span>
-          </div>
-          <div style={{ background: STRIPE, padding: "7px 0", textAlign: "center", borderTop: "1px solid rgba(255,255,255,0.13)", borderBottom: "1px solid rgba(255,255,255,0.07)" }}>
-            <span style={{ color: "#fff", fontWeight: 900, letterSpacing: "0.12em", fontSize: "clamp(1.05rem, 5vw, 1.35rem)", textShadow: "0 2px 6px rgba(0,0,0,0.5)" }}>
-              {lang === "es" ? "Y CONFIABLE" : "DELIVERY"}
-            </span>
-          </div>
-        </div>
-      </div>
-
-      {/* ── Buttons — always below the image, never on top of it ── */}
-      <div style={{
-        flexShrink: 0,
-        background: "linear-gradient(180deg, #021232 0%, #010c1e 100%)",
-        padding: "16px 20px",
-        paddingBottom: "max(20px, env(safe-area-inset-bottom))",
-        display: "flex",
-        flexDirection: "column",
-        gap: "10px",
-      }}>
+      {/* Bottom section — pinned to bottom */}
+      <div
+        style={{
+          position: "absolute",
+          bottom: 0,
+          left: 0,
+          right: 0,
+          zIndex: 20,
+          background: "linear-gradient(to bottom, transparent 0%, rgba(2,20,70,0.82) 28%, rgba(2,15,50,0.96) 100%)",
+          padding: "32px 20px env(safe-area-inset-bottom, 28px)",
+          paddingBottom: "max(28px, env(safe-area-inset-bottom))",
+          display: "flex",
+          flexDirection: "column",
+          gap: "10px",
+        }}
+      >
         <button
           onClick={() => navigate("/register")}
           className="btn-gold w-full text-black font-black text-xl h-14 rounded-2xl active:scale-[0.98] transition-all flex items-center justify-center gap-2.5 shadow-[0_0_40px_rgba(255,215,0,0.35)]"
@@ -158,7 +143,7 @@ export default function Landing() {
           </p>
         )}
 
-        {/* Secondary links */}
+        {/* Secondary links row */}
         <div className="flex items-center justify-center gap-4">
           <button onClick={() => navigate("/register?role=driver")} className="text-xs text-white/50 hover:text-white/80 transition-colors">
             {lang === "es" ? "🏍️ Soy motorista" : "🏍️ I'm a driver"}
