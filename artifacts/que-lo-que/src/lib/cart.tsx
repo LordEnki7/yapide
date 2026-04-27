@@ -1,7 +1,7 @@
 import { createContext, useContext, useState, ReactNode, useEffect } from "react";
 import { OrderItemInput, Product } from "@workspace/api-client-react";
 
-type CartItem = OrderItemInput & {
+export type CartItem = OrderItemInput & {
   product: Product;
   note?: string;
 };

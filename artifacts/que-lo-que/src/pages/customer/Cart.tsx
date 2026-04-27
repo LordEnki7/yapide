@@ -266,8 +266,8 @@ export default function CustomerCart() {
         : `💵 Paga con: ${formatCurrencyAmount(cashPrepared, cashCurrency)} ${CURRENCY_META[cashCurrency].label} — cambio: ${formatCurrencyAmount(cashPrepared - getCashOptions(grandTotal, cashCurrency)[0]?.amount, cashCurrency)}`
       : "";
     const itemNoteLines = items
-      .filter((i) => (i as any).note)
-      .map((i) => `• ${i.product.name}: ${(i as any).note}`);
+      .filter((i) => i.note)
+      .map((i) => `• ${i.product.name}: ${i.note}`);
     const itemNotesBlock = itemNoteLines.length > 0
       ? `📝 Notas por artículo:\n${itemNoteLines.join("\n")}`
       : "";
@@ -453,8 +453,8 @@ export default function CustomerCart() {
                     )}
                     <div className="flex-1 min-w-0">
                       <p className="font-black text-sm leading-tight">{item.product.name}</p>
-                      {(item as any).note && (
-                        <p className="text-yellow-400/70 text-xs mt-0.5 italic">📝 "{(item as any).note}"</p>
+                      {item.note && (
+                        <p className="text-yellow-400/70 text-xs mt-0.5 italic">📝 "{item.note}"</p>
                       )}
                       <p className="text-white/60 text-xs mt-0.5">{formatDOP(customerPrice)} c/u</p>
                       <p className="text-yellow-400 font-black text-sm mt-0.5">{formatDOP(lineTotal)}</p>
