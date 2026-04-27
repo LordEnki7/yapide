@@ -5,7 +5,7 @@ interface SplashScreenProps {
   onDone: () => void;
 }
 
-const STRIPE = "linear-gradient(90deg, transparent 0%, rgba(4,20,90,0.80) 9%, rgba(4,20,90,0.80) 91%, transparent 100%)";
+const STRIPE = "linear-gradient(90deg, transparent 0%, rgba(5,30,110,0.48) 9%, rgba(5,30,110,0.48) 91%, transparent 100%)";
 
 export default function SplashScreen({ onDone }: SplashScreenProps) {
   const [phase, setPhase] = useState<"enter" | "hold" | "exit">("enter");

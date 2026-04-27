@@ -61,17 +61,17 @@ export default function Landing() {
 
         {/* Tagline overlay — speed-stripe bands on the image */}
         <div style={{ position: "absolute", top: "6%", left: 0, right: 0, display: "flex", flexDirection: "column", gap: "3px", pointerEvents: "none" }}>
-          <div style={{ background: "linear-gradient(90deg, transparent 0%, rgba(4,20,90,0.80) 9%, rgba(4,20,90,0.80) 91%, transparent 100%)", padding: "8px 0", textAlign: "center", borderTop: "1px solid rgba(255,255,255,0.13)", borderBottom: "1px solid rgba(255,255,255,0.07)" }}>
+          <div style={{ background: "linear-gradient(90deg, transparent 0%, rgba(5,30,110,0.48) 9%, rgba(5,30,110,0.48) 91%, transparent 100%)", padding: "8px 0", textAlign: "center", borderTop: "1px solid rgba(255,255,255,0.13)", borderBottom: "1px solid rgba(255,255,255,0.07)" }}>
             <span style={{ color: "#ffffff", fontWeight: 900, letterSpacing: "0.12em", fontSize: "clamp(1.1rem, 5.5vw, 1.4rem)", textShadow: "0 2px 6px rgba(0,0,0,0.5)" }}>
               {lang === "es" ? "ENTREGA" : "FAST"}
             </span>
           </div>
-          <div style={{ background: "linear-gradient(90deg, transparent 0%, rgba(4,20,90,0.80) 9%, rgba(4,20,90,0.80) 91%, transparent 100%)", padding: "8px 0", textAlign: "center", borderTop: "1px solid rgba(255,255,255,0.13)", borderBottom: "1px solid rgba(255,255,255,0.07)" }}>
+          <div style={{ background: "linear-gradient(90deg, transparent 0%, rgba(5,30,110,0.48) 9%, rgba(5,30,110,0.48) 91%, transparent 100%)", padding: "8px 0", textAlign: "center", borderTop: "1px solid rgba(255,255,255,0.13)", borderBottom: "1px solid rgba(255,255,255,0.07)" }}>
             <span style={{ color: "#FFD700", fontWeight: 900, fontStyle: "italic", letterSpacing: "0.12em", fontSize: "clamp(1.4rem, 7vw, 1.8rem)", textShadow: "0 2px 6px rgba(0,0,0,0.5)" }}>
               {lang === "es" ? "RÁPIDA" : "RELIABLE"}
             </span>
           </div>
-          <div style={{ background: "linear-gradient(90deg, transparent 0%, rgba(4,20,90,0.80) 9%, rgba(4,20,90,0.80) 91%, transparent 100%)", padding: "8px 0", textAlign: "center", borderTop: "1px solid rgba(255,255,255,0.13)", borderBottom: "1px solid rgba(255,255,255,0.07)" }}>
+          <div style={{ background: "linear-gradient(90deg, transparent 0%, rgba(5,30,110,0.48) 9%, rgba(5,30,110,0.48) 91%, transparent 100%)", padding: "8px 0", textAlign: "center", borderTop: "1px solid rgba(255,255,255,0.13)", borderBottom: "1px solid rgba(255,255,255,0.07)" }}>
             <span style={{ color: "#ffffff", fontWeight: 900, letterSpacing: "0.12em", fontSize: "clamp(1.1rem, 5.5vw, 1.4rem)", textShadow: "0 2px 6px rgba(0,0,0,0.5)" }}>
               {lang === "es" ? "Y CONFIABLE" : "DELIVERY"}
             </span>
