@@ -282,16 +282,6 @@ router.get("/admin/businesses/:businessId/payouts", async (req, res): Promise<vo
   res.json({ pendingAmount: Math.max(0, totalEarned - totalPaidOut), totalPaidOut, payouts });
 });
 
-router.post("/admin/businesses/:businessId/payout", async (req, res): Promise<void> => {
-  if (!isAdmin(req)) { res.status(401).json({ error: "Unauthorized" }); return; }
-  const adminId = (req.session as any)?.userId;
-  const id = parseInt(Array.isArray(req.params.businessId) ? req.params.businessId[0] : req.params.businessId, 10);
-  if (isNaN(id)) { res.status(400).json({ error: "Invalid businessId" }); return; }
-  const { amount, note } = req.body as { amount: number; note?: string };
-  if (!amount || amount <= 0) { res.status(400).json({ error: "amount required" }); return; }
-  const [payout] = await db.insert(businessPayoutsTable).values({ businessId: id, amount, note: note ?? null, paidBy: adminId }).returning();
-  res.status(201).json(payout);
-});
 
 router.post("/admin/drivers/:driverId/request-dropoff", async (req, res): Promise<void> => {
   if (!isAdmin(req)) { res.status(401).json({ error: "Unauthorized" }); return; }
