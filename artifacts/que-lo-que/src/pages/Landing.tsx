@@ -15,6 +15,8 @@ const DEMO_ROLES = [
   { key: "business" as const, emoji: "🏪", label: "Negocio", labelEn: "Business" },
 ];
 
+const STRIPE = "linear-gradient(90deg, transparent 0%, rgba(5,30,110,0.48) 9%, rgba(5,30,110,0.48) 91%, transparent 100%)";
+
 export default function Landing() {
   const { lang, t } = useLang();
   const [, navigate] = useLocation();
@@ -43,62 +45,54 @@ export default function Landing() {
   };
 
   return (
-    <div className="min-h-screen bg-background text-white flex flex-col max-w-[430px] mx-auto">
-
+    <div
+      className="bg-background text-white flex flex-col max-w-[430px] mx-auto"
+      style={{ height: "100dvh", overflow: "hidden" }}
+    >
       {/* Top bar */}
-      <div className="flex items-center justify-between px-5 pt-5 pb-1">
+      <div className="flex items-center justify-between px-5 pt-4 pb-1 shrink-0">
         <div className="text-[10px] font-black text-yellow-400/50 uppercase tracking-[0.2em]">yapide.app</div>
         <LangToggle />
       </div>
 
-      {/* Hero — poster with tagline overlaid */}
-      <div style={{ position: "relative", width: "100%", overflow: "hidden" }}>
+      {/* Hero — fills all remaining space between top bar and buttons */}
+      <div style={{ position: "relative", flex: 1, overflow: "hidden", minHeight: 0 }}>
         <img
           src={logo}
           alt="YaPide"
-          style={{ width: "100%", display: "block" }}
+          style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "top", display: "block" }}
         />
 
-        {/* Tagline overlay — speed-stripe bands on the image */}
+        {/* Tagline overlay — speed-stripe bands */}
         <div style={{ position: "absolute", top: "6%", left: 0, right: 0, display: "flex", flexDirection: "column", gap: "3px", pointerEvents: "none" }}>
-          <div style={{ background: "linear-gradient(90deg, transparent 0%, rgba(5,30,110,0.48) 9%, rgba(5,30,110,0.48) 91%, transparent 100%)", padding: "8px 0", textAlign: "center", borderTop: "1px solid rgba(255,255,255,0.13)", borderBottom: "1px solid rgba(255,255,255,0.07)" }}>
-            <span style={{ color: "#ffffff", fontWeight: 900, letterSpacing: "0.12em", fontSize: "clamp(1.1rem, 5.5vw, 1.4rem)", textShadow: "0 2px 6px rgba(0,0,0,0.5)" }}>
+          <div style={{ background: STRIPE, padding: "7px 0", textAlign: "center", borderTop: "1px solid rgba(255,255,255,0.13)", borderBottom: "1px solid rgba(255,255,255,0.07)" }}>
+            <span style={{ color: "#ffffff", fontWeight: 900, letterSpacing: "0.12em", fontSize: "clamp(1.05rem, 5vw, 1.35rem)", textShadow: "0 2px 6px rgba(0,0,0,0.5)" }}>
               {lang === "es" ? "ENTREGA" : "FAST"}
             </span>
           </div>
-          <div style={{ background: "linear-gradient(90deg, transparent 0%, rgba(5,30,110,0.48) 9%, rgba(5,30,110,0.48) 91%, transparent 100%)", padding: "8px 0", textAlign: "center", borderTop: "1px solid rgba(255,255,255,0.13)", borderBottom: "1px solid rgba(255,255,255,0.07)" }}>
-            <span style={{ color: "#FFD700", fontWeight: 900, fontStyle: "italic", letterSpacing: "0.12em", fontSize: "clamp(1.4rem, 7vw, 1.8rem)", textShadow: "0 2px 6px rgba(0,0,0,0.5)" }}>
+          <div style={{ background: STRIPE, padding: "7px 0", textAlign: "center", borderTop: "1px solid rgba(255,255,255,0.13)", borderBottom: "1px solid rgba(255,255,255,0.07)" }}>
+            <span style={{ color: "#FFD700", fontWeight: 900, fontStyle: "italic", letterSpacing: "0.12em", fontSize: "clamp(1.3rem, 6.5vw, 1.7rem)", textShadow: "0 2px 6px rgba(0,0,0,0.5)" }}>
               {lang === "es" ? "RÁPIDA" : "RELIABLE"}
             </span>
           </div>
-          <div style={{ background: "linear-gradient(90deg, transparent 0%, rgba(5,30,110,0.48) 9%, rgba(5,30,110,0.48) 91%, transparent 100%)", padding: "8px 0", textAlign: "center", borderTop: "1px solid rgba(255,255,255,0.13)", borderBottom: "1px solid rgba(255,255,255,0.07)" }}>
-            <span style={{ color: "#ffffff", fontWeight: 900, letterSpacing: "0.12em", fontSize: "clamp(1.1rem, 5.5vw, 1.4rem)", textShadow: "0 2px 6px rgba(0,0,0,0.5)" }}>
+          <div style={{ background: STRIPE, padding: "7px 0", textAlign: "center", borderTop: "1px solid rgba(255,255,255,0.13)", borderBottom: "1px solid rgba(255,255,255,0.07)" }}>
+            <span style={{ color: "#ffffff", fontWeight: 900, letterSpacing: "0.12em", fontSize: "clamp(1.05rem, 5vw, 1.35rem)", textShadow: "0 2px 6px rgba(0,0,0,0.5)" }}>
               {lang === "es" ? "Y CONFIABLE" : "DELIVERY"}
             </span>
           </div>
         </div>
 
         {/* Gloss highlight */}
-        <div style={{
-          position: "absolute",
-          inset: 0,
-          background: "linear-gradient(145deg, rgba(255,255,255,0.28) 0%, rgba(255,255,255,0.08) 35%, rgba(255,255,255,0) 58%)",
-          pointerEvents: "none",
-        }} />
+        <div style={{ position: "absolute", inset: 0, background: "linear-gradient(145deg, rgba(255,255,255,0.22) 0%, rgba(255,255,255,0.06) 35%, rgba(255,255,255,0) 58%)", pointerEvents: "none" }} />
         {/* Edge sheen */}
-        <div style={{
-          position: "absolute",
-          inset: 0,
-          boxShadow: "inset 0 1px 0 rgba(255,255,255,0.55), inset 0 -1px 0 rgba(0,0,0,0.15)",
-          pointerEvents: "none",
-        }} />
+        <div style={{ position: "absolute", inset: 0, boxShadow: "inset 0 1px 0 rgba(255,255,255,0.4), inset 0 -1px 0 rgba(0,0,0,0.12)", pointerEvents: "none" }} />
       </div>
 
-      {/* Primary CTAs */}
-      <div className="px-5 space-y-3 mt-auto">
+      {/* Bottom — CTAs + links, fixed height, no scroll */}
+      <div className="shrink-0 px-5 pt-3 pb-4 space-y-2">
         <button
           onClick={() => navigate("/register")}
-          className="btn-gold w-full text-black font-black text-xl h-16 rounded-2xl active:scale-[0.98] transition-all flex items-center justify-center gap-2.5 shadow-[0_0_40px_rgba(255,215,0,0.35)]"
+          className="btn-gold w-full text-black font-black text-xl h-14 rounded-2xl active:scale-[0.98] transition-all flex items-center justify-center gap-2.5 shadow-[0_0_40px_rgba(255,215,0,0.35)]"
         >
           <UserPlus size={22} />
           {lang === "es" ? "Pedir ahora — es gratis" : "Order now — it's free"}
@@ -106,49 +100,40 @@ export default function Landing() {
 
         <button
           onClick={() => navigate("/login")}
-          className="w-full glass text-white font-bold text-base h-12 rounded-2xl hover:brightness-125 active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+          className="w-full glass text-white font-bold text-base h-11 rounded-2xl hover:brightness-125 active:scale-[0.98] transition-all flex items-center justify-center gap-2"
         >
           <LogIn size={17} />
           {lang === "es" ? "Ya tengo cuenta — Entrar" : "I have an account — Log in"}
         </button>
-      </div>
 
-      {error && (
-        <p className="mx-5 mt-3 text-center text-red-400 text-sm bg-red-500/10 border border-red-500/20 rounded-xl p-3">
-          ⚠️ {error}
-        </p>
-      )}
+        {error && (
+          <p className="text-center text-red-400 text-sm bg-red-500/10 border border-red-500/20 rounded-xl p-2">
+            ⚠️ {error}
+          </p>
+        )}
 
-      {/* Driver / Business subtle links */}
-      <div className="px-5 pt-5 pb-2 flex items-center justify-center gap-5">
-        <button
-          onClick={() => navigate("/register?role=driver")}
-          className="text-xs text-white/35 hover:text-white/70 transition-colors"
-        >
-          {lang === "es" ? "🏍️ Soy motorista" : "🏍️ I'm a driver"}
-        </button>
-        <span className="text-white/20 text-xs">·</span>
-        <button
-          onClick={() => navigate("/register?role=business")}
-          className="text-xs text-white/35 hover:text-white/70 transition-colors"
-        >
-          {lang === "es" ? "🏪 Tengo un negocio" : "🏪 I have a business"}
-        </button>
-      </div>
-
-      {/* Demo toggle */}
-      <div className="px-5 pb-8">
-        <button
-          onClick={() => setShowDemo(v => !v)}
-          className="w-full flex items-center justify-center gap-1.5 text-xs text-white/25 hover:text-white/50 transition py-1.5"
-        >
-          {showDemo ? <ChevronUp size={11} /> : <ChevronDown size={11} />}
-          {lang === "es" ? "Entrar sin cuenta (demo)" : "Enter without account (demo)"}
-        </button>
+        {/* Driver / Business + Demo — compact row */}
+        <div className="flex items-center justify-center gap-4 pt-1">
+          <button onClick={() => navigate("/register?role=driver")} className="text-xs text-white/35 hover:text-white/70 transition-colors">
+            {lang === "es" ? "🏍️ Soy motorista" : "🏍️ I'm a driver"}
+          </button>
+          <span className="text-white/20 text-xs">·</span>
+          <button onClick={() => navigate("/register?role=business")} className="text-xs text-white/35 hover:text-white/70 transition-colors">
+            {lang === "es" ? "🏪 Tengo un negocio" : "🏪 I have a business"}
+          </button>
+          <span className="text-white/20 text-xs">·</span>
+          <button
+            onClick={() => setShowDemo(v => !v)}
+            className="flex items-center gap-1 text-xs text-white/25 hover:text-white/50 transition"
+          >
+            {showDemo ? <ChevronUp size={11} /> : <ChevronDown size={11} />}
+            Demo
+          </button>
+        </div>
 
         {showDemo && (
-          <div className="mt-2 bg-white/5 border border-white/10 rounded-2xl p-3 space-y-2">
-            <p className="text-[10px] text-yellow-400/50 text-center uppercase tracking-widest mb-1">
+          <div className="bg-white/5 border border-white/10 rounded-2xl p-3 space-y-2">
+            <p className="text-[10px] text-yellow-400/50 text-center uppercase tracking-widest">
               {lang === "es" ? "Cuentas de prueba" : "Test accounts"}
             </p>
             <div className="grid grid-cols-3 gap-2">
@@ -157,7 +142,7 @@ export default function Landing() {
                   key={role.key}
                   onClick={() => handleDemoLogin(role.key)}
                   disabled={!!demoLoading}
-                  className="flex flex-col items-center gap-1 py-2.5 px-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 transition active:scale-95 disabled:opacity-50"
+                  className="flex flex-col items-center gap-1 py-2 px-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 transition active:scale-95 disabled:opacity-50"
                 >
                   {demoLoading === role.key
                     ? <Loader2 size={18} className="animate-spin text-white/60" />
