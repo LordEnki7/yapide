@@ -103,10 +103,10 @@ export default function Landing() {
       </div>
 
       {/* Bottom — CTAs + links, fixed height, no scroll */}
-      <div className="shrink-0 px-5 pt-3 pb-4 space-y-2">
+      <div className="shrink-0 px-5 pt-2 pb-3 space-y-2">
         <button
           onClick={() => navigate("/register")}
-          className="btn-gold w-full text-black font-black text-xl h-14 rounded-2xl active:scale-[0.98] transition-all flex items-center justify-center gap-2.5 shadow-[0_0_40px_rgba(255,215,0,0.35)]"
+          className="btn-gold w-full text-black font-black text-xl h-13 rounded-2xl active:scale-[0.98] transition-all flex items-center justify-center gap-2.5 shadow-[0_0_40px_rgba(255,215,0,0.35)]"
         >
           <UserPlus size={22} />
           {lang === "es" ? "Pedir ahora — es gratis" : "Order now — it's free"}
@@ -114,7 +114,7 @@ export default function Landing() {
 
         <button
           onClick={() => navigate("/login")}
-          className="w-full glass text-white font-bold text-base h-11 rounded-2xl hover:brightness-125 active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+          className="w-full glass text-white font-bold text-base h-10 rounded-2xl hover:brightness-125 active:scale-[0.98] transition-all flex items-center justify-center gap-2"
         >
           <LogIn size={17} />
           {lang === "es" ? "Ya tengo cuenta — Entrar" : "I have an account — Log in"}
@@ -127,7 +127,7 @@ export default function Landing() {
         )}
 
         {/* Driver / Business + Demo — compact row */}
-        <div className="flex items-center justify-center gap-4 pt-1">
+        <div className="flex items-center justify-center gap-4">
           <button onClick={() => navigate("/register?role=driver")} className="text-xs text-white/35 hover:text-white/70 transition-colors">
             {lang === "es" ? "🏍️ Soy motorista" : "🏍️ I'm a driver"}
           </button>
