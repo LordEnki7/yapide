@@ -129,6 +129,7 @@ export default function CustomerCart() {
   const [savedAddresses, setSavedAddresses] = useState<SavedAddress[]>([]);
   const [showAddressDropdown, setShowAddressDropdown] = useState(false);
   const [showSaveForm, setShowSaveForm] = useState(false);
+  const [showNewAddressForm, setShowNewAddressForm] = useState(false);
   const [pickupAddress, setPickupAddress] = useState("");
   const [gpsLoading, setGpsLoading] = useState(false);
   const [, navigate] = useLocation();
@@ -176,6 +177,12 @@ export default function CustomerCart() {
   const handleSelectAddress = (addr: SavedAddress) => {
     setAddress(addr.address);
     setShowAddressDropdown(false);
+  };
+
+  const handleDeleteAddress = async (id: number) => {
+    await fetch(`/api/customer/addresses/${id}`, { method: "DELETE", credentials: "include" });
+    setSavedAddresses(prev => prev.filter(a => a.id !== id));
+    toast({ title: "Dirección eliminada" });
   };
 
   const handleSaveNewAddress = async () => {
@@ -546,23 +553,16 @@ export default function CustomerCart() {
 
         {/* ── STEP 2: Address ── */}
         {step === 2 && (
-          <div className="px-4 py-6 space-y-4">
-            {isLaundry ? (
-              <div className="text-center mb-2">
-                <p className="text-3xl mb-2">👕</p>
-                <h2 className="text-xl font-black">Recogida y entrega</h2>
-                <p className="text-sm text-white/60 mt-1">Indicamos al driver dónde pasar por tu ropa y dónde llevarla</p>
-              </div>
-            ) : (
-              <div className="text-center mb-2">
-                <p className="text-3xl mb-2">📍</p>
-                <h2 className="text-xl font-black">¿A dónde te lo llevamos?</h2>
-              </div>
-            )}
+          <div className="flex flex-col">
 
-            {/* Laundry: pickup address */}
+            {/* ── Laundry pickup header ── */}
             {isLaundry && (
-              <div className="space-y-2">
+              <div className="px-4 pt-4 space-y-3">
+                <div className="text-center mb-1">
+                  <p className="text-3xl mb-1">👕</p>
+                  <h2 className="text-lg font-black">Recogida y entrega</h2>
+                  <p className="text-sm text-white/60">Indica dónde recoger tu ropa y dónde entregarla</p>
+                </div>
                 <p className="text-xs font-black text-yellow-400 uppercase tracking-widest flex items-center gap-1.5">
                   <span>📤</span> ¿Dónde recogemos la ropa?
                 </p>
@@ -571,17 +571,14 @@ export default function CustomerCart() {
                     placeholder="Ej: Calle Beller #22, Santiago"
                     value={pickupAddress}
                     onChange={(e) => setPickupAddress(e.target.value)}
-                    className="bg-white/8 border-white/10 text-white placeholder:text-gray-500 focus:border-yellow-400 flex-1 text-base"
+                    className="bg-white/8 border-white/10 text-white placeholder:text-gray-500 focus:border-yellow-400 flex-1"
                     autoFocus
                   />
                   <button
                     type="button"
                     onClick={async () => {
                       setGpsLoading(true);
-                      try {
-                        const loc = await requestGPS();
-                        if (loc.address) setPickupAddress(loc.address);
-                      } catch { }
+                      try { const loc = await requestGPS(); if (loc.address) setPickupAddress(loc.address); } catch { }
                       finally { setGpsLoading(false); }
                     }}
                     disabled={gpsLoading}
@@ -590,94 +587,127 @@ export default function CustomerCart() {
                     {gpsLoading ? <Loader2 size={16} className="animate-spin" /> : <Navigation size={16} />}
                   </button>
                 </div>
-                <div className="my-1 border-t border-white/5" />
-                <p className="text-xs font-black text-yellow-400 uppercase tracking-widest flex items-center gap-1.5">
-                  <span>📥</span> ¿A dónde entregamos limpia?
-                </p>
+                <div className="border-t border-white/5 pt-1">
+                  <p className="text-xs font-black text-yellow-400 uppercase tracking-widest flex items-center gap-1.5">
+                    <span>📥</span> ¿A dónde entregamos limpia?
+                  </p>
+                </div>
               </div>
             )}
 
-            {savedAddresses.length > 0 && (
-              <div>
-                <button
-                  onClick={() => setShowAddressDropdown(!showAddressDropdown)}
-                  className="w-full flex items-center justify-between px-4 py-3 rounded-xl bg-yellow-400/10 border border-yellow-400/30 text-sm font-bold text-yellow-400"
-                >
-                  <span>📍 Mis direcciones guardadas</span>
-                  {showAddressDropdown ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
-                </button>
-                {showAddressDropdown && (
-                  <div className="mt-2 space-y-2">
-                    {savedAddresses.map(a => (
-                      <button
-                        key={a.id}
-                        onClick={() => handleSelectAddress(a)}
-                        className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl border text-left text-sm transition ${address === a.address ? "border-yellow-400 bg-yellow-400/10" : "border-white/10 bg-white/5 hover:bg-white/8"}`}
-                      >
-                        <div className="flex-1 min-w-0">
-                          <p className="font-bold text-white">{a.label}</p>
-                          <p className="text-white/60 text-xs truncate">{a.address}</p>
-                        </div>
-                        {address === a.address && <Check size={16} className="text-yellow-400 flex-shrink-0" />}
-                        {a.isDefault && <span className="text-xs text-yellow-400/60 font-bold">Principal</span>}
-                      </button>
-                    ))}
+            {/* ── Saved address cards ── */}
+            {savedAddresses.length > 0 && !showNewAddressForm && (
+              <div className="px-4 pt-4 space-y-2">
+                {savedAddresses.map(a => (
+                  <div
+                    key={a.id}
+                    className={`flex items-stretch rounded-2xl border overflow-hidden transition ${address === a.address ? "border-yellow-400/50 bg-yellow-400/5" : "border-white/10 bg-white/4 hover:bg-white/6"}`}
+                  >
+                    {/* Delete */}
+                    <button
+                      onClick={() => handleDeleteAddress(a.id)}
+                      className="flex items-center justify-center px-4 text-red-400 hover:bg-red-400/10 transition flex-shrink-0 border-r border-white/8"
+                    >
+                      <Trash2 size={17} />
+                    </button>
+                    {/* Address info */}
+                    <button
+                      onClick={() => { handleSelectAddress(a); calculateFee(a.address); setStep(3); }}
+                      className="flex-1 text-left px-4 py-3 min-w-0"
+                    >
+                      <p className="text-sm text-white/85 leading-snug">{a.address}</p>
+                      <p className="text-xs text-white/40 mt-1">
+                        Referencia: <span className="text-[#4da6ff] font-black">{a.label}</span>
+                        {a.isDefault && <span className="ml-2 text-yellow-400/60 font-bold">· Principal</span>}
+                      </p>
+                    </button>
+                    {/* Chevron */}
+                    <button
+                      onClick={() => { handleSelectAddress(a); calculateFee(a.address); setStep(3); }}
+                      className="flex items-center justify-center px-3 text-white/30 hover:text-yellow-400 transition flex-shrink-0"
+                    >
+                      <ChevronRight size={18} />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* ── New address form (shown when no saved addresses, or user tapped "Otra dirección") ── */}
+            {(savedAddresses.length === 0 || showNewAddressForm) && (
+              <div className="px-4 pt-4 space-y-3">
+                {showNewAddressForm && (
+                  <button
+                    onClick={() => { setShowNewAddressForm(false); setAddress(""); setShowSaveForm(false); }}
+                    className="flex items-center gap-1 text-xs text-white/50 hover:text-white/80 transition mb-1"
+                  >
+                    <ArrowLeft size={13} /> Volver a mis direcciones
+                  </button>
+                )}
+                <div className="flex gap-2">
+                  <Input
+                    placeholder={t.addressPlaceholder}
+                    value={address}
+                    onChange={(e) => setAddress(e.target.value)}
+                    className="bg-white/8 border-white/10 text-white placeholder:text-gray-500 focus:border-yellow-400 flex-1 text-base"
+                    data-testid="input-address"
+                    autoFocus
+                  />
+                  <button
+                    type="button"
+                    onClick={handleGPS}
+                    disabled={gpsLoading}
+                    title="Usar mi ubicación"
+                    className="px-4 rounded-xl bg-yellow-400/10 border border-yellow-400/30 text-yellow-400 hover:bg-yellow-400/20 transition disabled:opacity-50 flex items-center"
+                  >
+                    {gpsLoading ? <Loader2 size={16} className="animate-spin" /> : <Navigation size={16} />}
+                  </button>
+                </div>
+
+                {user && !showSaveForm && address.trim() && (
+                  <button
+                    onClick={() => setShowSaveForm(true)}
+                    className="flex items-center gap-1.5 text-xs text-yellow-400/70 hover:text-yellow-400 transition"
+                  >
+                    <Plus size={12} /> Guardar para próximas veces
+                  </button>
+                )}
+
+                {showSaveForm && (
+                  <div className="p-3 rounded-xl bg-yellow-400/5 border border-yellow-400/20 space-y-2">
+                    <p className="text-xs font-bold text-yellow-400">Etiquetar dirección</p>
+                    <div className="flex gap-2 flex-wrap">
+                      {["Casa", "Trabajo", "Otro"].map(l => (
+                        <button
+                          key={l}
+                          onClick={() => setAddressLabel(l)}
+                          className={`px-3 py-1 rounded-full text-xs font-bold border transition ${addressLabel === l ? "border-yellow-400 bg-yellow-400/20 text-yellow-400" : "border-white/10 bg-white/8 text-gray-400"}`}
+                        >
+                          {l}
+                        </button>
+                      ))}
+                    </div>
+                    <div className="flex gap-2">
+                      <Button onClick={handleSaveNewAddress} size="sm" className="bg-yellow-400 text-black font-bold text-xs h-8">Guardar</Button>
+                      <Button onClick={() => setShowSaveForm(false)} variant="ghost" size="sm" className="text-white/60 text-xs h-8">Cancelar</Button>
+                    </div>
                   </div>
                 )}
               </div>
             )}
 
-            <div className="space-y-2">
-              <div className="flex gap-2">
-                <Input
-                  placeholder={t.addressPlaceholder}
-                  value={address}
-                  onChange={(e) => setAddress(e.target.value)}
-                  className="bg-white/8 border-white/10 text-white placeholder:text-gray-500 focus:border-yellow-400 flex-1 text-base"
-                  data-testid="input-address"
-                  autoFocus={savedAddresses.length === 0}
-                />
+            {/* ── "Otra dirección" button — shown when viewing saved addresses list ── */}
+            {savedAddresses.length > 0 && !showNewAddressForm && (
+              <div className="px-4 pt-3 pb-4">
                 <button
-                  type="button"
-                  onClick={handleGPS}
-                  disabled={gpsLoading}
-                  title="Usar mi ubicación"
-                  className="px-4 rounded-xl bg-yellow-400/10 border border-yellow-400/30 text-yellow-400 hover:bg-yellow-400/20 transition disabled:opacity-50 flex items-center"
+                  onClick={() => { setShowNewAddressForm(true); setAddress(""); }}
+                  className="w-full h-14 bg-[#0057B7] text-white font-black text-base rounded-2xl hover:bg-[#0065d0] transition"
                 >
-                  {gpsLoading ? <Loader2 size={16} className="animate-spin" /> : <Navigation size={16} />}
+                  Otra dirección
                 </button>
               </div>
+            )}
 
-              {user && !showSaveForm && address.trim() && (
-                <button
-                  onClick={() => setShowSaveForm(true)}
-                  className="flex items-center gap-1.5 text-xs text-yellow-400/70 hover:text-yellow-400 transition mt-1"
-                >
-                  <Plus size={12} /> Guardar para próximas veces
-                </button>
-              )}
-
-              {showSaveForm && (
-                <div className="p-3 rounded-xl bg-yellow-400/5 border border-yellow-400/20 space-y-2">
-                  <p className="text-xs font-bold text-yellow-400">Etiquetar dirección</p>
-                  <div className="flex gap-2">
-                    {["Casa", "Trabajo", "Otro"].map(l => (
-                      <button
-                        key={l}
-                        onClick={() => setAddressLabel(l)}
-                        className={`px-3 py-1 rounded-full text-xs font-bold border transition ${addressLabel === l ? "border-yellow-400 bg-yellow-400/20 text-yellow-400" : "border-white/10 bg-white/8 text-gray-400"}`}
-                      >
-                        {l}
-                      </button>
-                    ))}
-                  </div>
-                  <div className="flex gap-2">
-                    <Button onClick={handleSaveNewAddress} size="sm" className="bg-yellow-400 text-black font-bold text-xs h-8">Guardar</Button>
-                    <Button onClick={() => setShowSaveForm(false)} variant="ghost" size="sm" className="text-white/60 text-xs h-8">Cancelar</Button>
-                  </div>
-                </div>
-              )}
-            </div>
           </div>
         )}
 
@@ -1038,8 +1068,8 @@ export default function CustomerCart() {
         </div>
       )}
 
-      {/* Bottom CTA */}
-      <div className="fixed bottom-0 left-0 right-0 p-4 bg-background/95 backdrop-blur-sm border-t border-yellow-400/20 z-[60]">
+      {/* Bottom CTA — hidden on step 2 when saved-address cards are shown (cards handle navigation directly) */}
+      <div className={`fixed bottom-0 left-0 right-0 p-4 bg-background/95 backdrop-blur-sm border-t border-yellow-400/20 z-[60] ${step === 2 && savedAddresses.length > 0 && !showNewAddressForm ? "hidden" : ""}`}>
         {step < 3 ? (
           <Button
             className="w-full bg-yellow-400 text-black font-black text-lg h-14 hover:bg-yellow-300 shadow-[0_0_30px_rgba(255,215,0,0.25)] flex items-center justify-between px-6 disabled:opacity-50"
