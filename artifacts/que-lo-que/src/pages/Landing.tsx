@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useLocation } from "wouter";
 import { setStoredUser, setActiveRole } from "@/lib/auth";
 import LangToggle from "@/components/LangToggle";
@@ -24,6 +24,20 @@ export default function Landing() {
   const [demoLoading, setDemoLoading] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
+  // Lock body/root scroll while this page is visible
+  useEffect(() => {
+    const body = document.body;
+    const root = document.getElementById("root");
+    const prevBody = body.style.overflow;
+    const prevRoot = root?.style.overflow ?? "";
+    body.style.overflow = "hidden";
+    if (root) root.style.overflow = "hidden";
+    return () => {
+      body.style.overflow = prevBody;
+      if (root) root.style.overflow = prevRoot;
+    };
+  }, []);
+
   const handleDemoLogin = async (role: "customer" | "driver" | "business") => {
     setDemoLoading(role);
     setError(null);
@@ -47,7 +61,7 @@ export default function Landing() {
   return (
     <div
       className="bg-background text-white flex flex-col max-w-[430px] mx-auto"
-      style={{ height: "100dvh", overflow: "hidden" }}
+      style={{ height: "100svh", overflow: "hidden" }}
     >
       {/* Top bar */}
       <div className="flex items-center justify-between px-5 pt-4 pb-1 shrink-0">
