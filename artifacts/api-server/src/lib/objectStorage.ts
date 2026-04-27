@@ -211,7 +211,24 @@ export class ObjectStorageService {
     return normalized;
   }
 
-  canAccessObjectEntity(_args: unknown): Promise<boolean> {
-    return Promise.resolve(true); // ACL not yet enforced
+  async canAccessObjectEntity(args: {
+    objectPath: string;
+    userId?: string | null;
+    permission?: "read" | "write";
+  }): Promise<boolean> {
+    const { objectPath, userId } = args;
+    if (!objectPath.startsWith("/objects/")) return false;
+    const key = objectPath.slice("/objects/".length);
+    if (!key) return false;
+
+    const policy = await getS3AclPolicy(key);
+    if (!policy) return false;
+
+    if (policy.visibility === "public") return true;
+
+    if (!userId) return false;
+    if (policy.owner === userId) return true;
+
+    return false;
   }
 }
