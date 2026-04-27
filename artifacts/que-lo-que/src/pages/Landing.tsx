@@ -54,7 +54,7 @@ export default function Landing() {
       {/* Hero — translatable tagline + glossy poster */}
 
       {/* Tagline — same blue as the poster top, switches with lang */}
-      <div style={{ background: "#1452C8", width: "100%", textAlign: "center", padding: "18px 8px 14px", lineHeight: 1.15 }}>
+      <div style={{ background: "#0769E6", width: "100%", textAlign: "center", padding: "18px 8px 14px", lineHeight: 1.15 }}>
         <p style={{ margin: "0 0 2px", color: "#ffffff", fontWeight: 900, letterSpacing: "0.1em", fontSize: "clamp(1.05rem, 5.5vw, 1.35rem)" }}>
           {lang === "es" ? "ENTREGA" : "FAST"}
         </p>
@@ -71,7 +71,7 @@ export default function Landing() {
         <img
           src={logo}
           alt="YaPide"
-          style={{ width: "100%", display: "block", marginTop: "-43%" }}
+          style={{ width: "100%", display: "block" }}
         />
         {/* Gloss highlight */}
         <div style={{

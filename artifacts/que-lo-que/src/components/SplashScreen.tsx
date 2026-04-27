@@ -56,7 +56,7 @@ export default function SplashScreen({ onDone }: SplashScreenProps) {
         <img
           src="/logo.png"
           alt="YaPide"
-          style={{ width: "100%", display: "block", marginTop: "-43%" }}
+          style={{ width: "100%", display: "block" }}
         />
         {/* Gloss highlight */}
         <div style={{
