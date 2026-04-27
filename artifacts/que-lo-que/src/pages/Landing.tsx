@@ -60,7 +60,7 @@ export default function Landing() {
   return (
     <div
       className="max-w-[430px] mx-auto"
-      style={{ position: "relative", height: "100svh", overflow: "hidden", background: "#0057b7" }}
+      style={{ position: "relative", height: "100svh", overflow: "hidden", background: "#076BE5" }}
     >
       {/* Full-screen background image */}
       <img
