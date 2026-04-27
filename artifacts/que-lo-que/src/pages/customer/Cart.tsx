@@ -265,7 +265,13 @@ export default function CustomerCart() {
         ? `💵 Paga con: monto exacto en ${CURRENCY_META[cashCurrency].label} (${formatCurrencyAmount(cashPrepared, cashCurrency)})`
         : `💵 Paga con: ${formatCurrencyAmount(cashPrepared, cashCurrency)} ${CURRENCY_META[cashCurrency].label} — cambio: ${formatCurrencyAmount(cashPrepared - getCashOptions(grandTotal, cashCurrency)[0]?.amount, cashCurrency)}`
       : "";
-    const fullNotes = [notes, cutleryLine, cashLine].filter(Boolean).join("\n") || undefined;
+    const itemNoteLines = items
+      .filter((i) => (i as any).note)
+      .map((i) => `• ${i.product.name}: ${(i as any).note}`);
+    const itemNotesBlock = itemNoteLines.length > 0
+      ? `📝 Notas por artículo:\n${itemNoteLines.join("\n")}`
+      : "";
+    const fullNotes = [notes, itemNotesBlock, cutleryLine, cashLine].filter(Boolean).join("\n") || undefined;
     (createOrder.mutate as any)({
       data: {
         businessId,
@@ -447,6 +453,9 @@ export default function CustomerCart() {
                     )}
                     <div className="flex-1 min-w-0">
                       <p className="font-black text-sm leading-tight">{item.product.name}</p>
+                      {(item as any).note && (
+                        <p className="text-yellow-400/70 text-xs mt-0.5 italic">📝 "{(item as any).note}"</p>
+                      )}
                       <p className="text-white/60 text-xs mt-0.5">{formatDOP(customerPrice)} c/u</p>
                       <p className="text-yellow-400 font-black text-sm mt-0.5">{formatDOP(lineTotal)}</p>
                     </div>

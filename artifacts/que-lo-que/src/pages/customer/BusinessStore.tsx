@@ -8,7 +8,7 @@ import LangToggle from "@/components/LangToggle";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, Star, ShoppingCart, Plus, Minus, X, ShoppingBag, Scale, Package, Check } from "lucide-react";
+import { ArrowLeft, Star, ShoppingCart, Plus, Minus, X, ShoppingBag, Scale, Package, Check, MessageSquare } from "lucide-react";
 
 const MARKUP = 0.15;
 
@@ -23,9 +23,12 @@ export default function BusinessStore() {
   const [selectedProduct, setSelectedProduct] = useState<any>(null);
   const [sheetQty, setSheetQty] = useState(1);
   const categoryRefs = useRef<Record<string, HTMLDivElement | null>>({});
-  const { addItem, removeItem, updateQuantity, items, totalAmount } = useCart();
+  const { addItem, removeItem, updateQuantity, updateNote, items, totalAmount } = useCart();
   const { t } = useLang();
   const { toast } = useToast();
+
+  const [noteProductId, setNoteProductId] = useState<number | null>(null);
+  const [noteDraft, setNoteDraft] = useState("");
 
   const guardClosed = () => {
     if (business?.isOpen === false) {
@@ -511,6 +514,38 @@ export default function BusinessStore() {
                             )}
                           </div>
                         </div>
+
+                        {/* ── Inline cart row (shown when item is in cart) ── */}
+                        {inCart && (
+                          <div className="mx-1 mb-2 bg-yellow-400/8 border border-yellow-400/20 rounded-xl px-3 py-2 flex items-center gap-2">
+                            <span className="w-6 h-6 rounded-full bg-yellow-400 text-black text-[11px] font-black flex items-center justify-center flex-shrink-0">
+                              {cartItem.quantity}
+                            </span>
+                            <div className="flex-1 min-w-0">
+                              <p className="text-xs font-bold text-white/80 truncate">{product.name}</p>
+                              {cartItem.note && (
+                                <p className="text-[11px] text-yellow-400/80 italic truncate">"{cartItem.note}"</p>
+                              )}
+                            </div>
+                            <button
+                              onClick={e => {
+                                e.stopPropagation();
+                                setNoteProductId(product.id);
+                                setNoteDraft(cartItem.note ?? "");
+                              }}
+                              className="flex items-center gap-1 text-[11px] font-black text-yellow-400 bg-yellow-400/10 border border-yellow-400/20 px-2.5 py-1.5 rounded-lg hover:bg-yellow-400/20 transition flex-shrink-0"
+                            >
+                              <MessageSquare size={11} />
+                              {cartItem.note ? "Editar nota" : "Nota"}
+                            </button>
+                            <button
+                              onClick={e => { e.stopPropagation(); removeItem(product.id); }}
+                              className="text-[11px] font-black text-red-400 bg-red-400/10 border border-red-400/20 px-2.5 py-1.5 rounded-lg hover:bg-red-400/20 transition flex-shrink-0"
+                            >
+                              Quitar
+                            </button>
+                          </div>
+                        )}
                       </div>
                     );
                   })}
@@ -549,6 +584,46 @@ export default function BusinessStore() {
           </Link>
         </div>
       ) : null}
+
+      {/* ── Per-item Note Sheet ── */}
+      {noteProductId !== null && (
+        <>
+          <div className="fixed inset-0 bg-black/60 z-[70] backdrop-blur-sm" onClick={() => setNoteProductId(null)} />
+          <div className="fixed bottom-0 left-0 right-0 z-[80] bg-[#0d1c3d] border-t border-yellow-400/30 rounded-t-3xl p-5 pb-10">
+            <div className="w-10 h-1 bg-white/20 rounded-full mx-auto mb-4" />
+            <div className="flex items-center gap-2 mb-4">
+              <MessageSquare size={18} className="text-yellow-400" />
+              <h2 className="text-base font-black text-white">Nota para este artículo</h2>
+            </div>
+            <p className="text-xs text-white/50 mb-3">Sin cebolla, extra salsa, alergia a nueces… va directo al negocio</p>
+            <textarea
+              autoFocus
+              value={noteDraft}
+              onChange={e => setNoteDraft(e.target.value)}
+              placeholder="Ej: sin picante, extra queso…"
+              rows={3}
+              className="w-full bg-white/8 border border-white/15 rounded-2xl px-4 py-3 text-white placeholder:text-white/30 text-sm focus:outline-none focus:border-yellow-400 resize-none"
+            />
+            <div className="flex gap-3 mt-4">
+              <button
+                onClick={() => setNoteProductId(null)}
+                className="flex-1 h-12 rounded-2xl border border-white/15 text-white/60 font-bold text-sm hover:bg-white/5 transition"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={() => {
+                  updateNote(noteProductId, noteDraft);
+                  setNoteProductId(null);
+                }}
+                className="flex-1 h-12 rounded-2xl bg-yellow-400 text-black font-black text-sm hover:bg-yellow-300 transition"
+              >
+                {noteDraft.trim() ? "Guardar nota" : "Sin nota"}
+              </button>
+            </div>
+          </div>
+        </>
+      )}
 
       {/* Product Detail Bottom Sheet */}
       {selectedProduct && (

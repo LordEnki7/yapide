@@ -3,6 +3,7 @@ import { OrderItemInput, Product } from "@workspace/api-client-react";
 
 type CartItem = OrderItemInput & {
   product: Product;
+  note?: string;
 };
 
 interface CartContextType {
@@ -12,6 +13,7 @@ interface CartContextType {
   addItem: (product: Product, quantity: number, category?: string) => void;
   removeItem: (productId: number) => void;
   updateQuantity: (productId: number, quantity: number) => void;
+  updateNote: (productId: number, note: string) => void;
   clearCart: () => void;
   totalAmount: number;
 }
@@ -101,6 +103,14 @@ export function CartProvider({ children }: { children: ReactNode }) {
     );
   };
 
+  const updateNote = (productId: number, note: string) => {
+    setItems((current) =>
+      current.map((item) =>
+        item.productId === productId ? { ...item, note: note.trim() || undefined } : item
+      )
+    );
+  };
+
   const clearCart = () => {
     setItems([]);
     setBusinessId(null);
@@ -121,6 +131,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
         addItem,
         removeItem,
         updateQuantity,
+        updateNote,
         clearCart,
         totalAmount,
       }}
