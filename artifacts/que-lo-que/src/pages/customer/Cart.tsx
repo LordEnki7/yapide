@@ -107,13 +107,12 @@ interface SavedAddress {
   isDefault: boolean;
 }
 
-type Step = 1 | 2 | 3 | 4;
+type Step = 1 | 2 | 3;
 
 const STEPS = [
   { n: 1, label: "Carrito" },
-  { n: 2, label: "Notas" },
-  { n: 3, label: "Dirección" },
-  { n: 4, label: "Pago" },
+  { n: 2, label: "Dirección" },
+  { n: 3, label: "Pago" },
 ];
 
 export default function CustomerCart() {
@@ -400,9 +399,8 @@ export default function CustomerCart() {
         <div className="flex-1">
           <h1 className="text-base font-black text-yellow-400">
             {step === 1 && t.yourOrder}
-            {step === 2 && "Notas al negocio"}
-            {step === 3 && (isLaundry ? "Direcciones de recogida" : t.deliveryAddress)}
-            {step === 4 && t.paymentMethod}
+            {step === 2 && (isLaundry ? "Direcciones de recogida" : t.deliveryAddress)}
+            {step === 3 && t.paymentMethod}
           </h1>
         </div>
         {/* Running total badge */}
@@ -439,51 +437,78 @@ export default function CustomerCart() {
       {/* Step content */}
       <div className="flex-1 overflow-y-auto pb-32">
 
-        {/* ── STEP 1: Cart Items ── */}
+        {/* ── STEP 1: Cart Items + Notes ── */}
         {step === 1 && (
-          <div className="px-4 py-4 space-y-3">
-            <div className="bg-white/5 border border-white/10 rounded-2xl overflow-hidden">
-              {items.map((item, idx) => {
-                const customerPrice = parseFloat((item.product.price * (1 + MARKUP)).toFixed(2));
-                const lineTotal = parseFloat((customerPrice * item.quantity).toFixed(2));
-                return (
-                  <div key={item.productId} className={`flex items-center gap-3 p-4 ${idx < items.length - 1 ? "border-b border-white/5" : ""}`}>
-                    {item.product.imageUrl && (
-                      <img src={item.product.imageUrl} alt={item.product.name} className="w-14 h-14 object-cover rounded-xl flex-shrink-0" />
-                    )}
-                    <div className="flex-1 min-w-0">
-                      <p className="font-black text-sm leading-tight">{item.product.name}</p>
-                      {item.note && (
-                        <p className="text-yellow-400/70 text-xs mt-0.5 italic">📝 "{item.note}"</p>
-                      )}
-                      <p className="text-white/60 text-xs mt-0.5">{formatDOP(customerPrice)} c/u</p>
-                      <p className="text-yellow-400 font-black text-sm mt-0.5">{formatDOP(lineTotal)}</p>
-                    </div>
-                    <div className="flex items-center gap-1.5 flex-shrink-0">
-                      <button
-                        onClick={() => updateQuantity(item.productId!, item.quantity - 1)}
-                        className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition"
-                      >
-                        <Minus size={14} />
-                      </button>
-                      <span className="text-sm font-black w-5 text-center">{item.quantity}</span>
-                      <button
-                        onClick={() => updateQuantity(item.productId!, item.quantity + 1)}
-                        className="w-8 h-8 rounded-full bg-yellow-400/20 flex items-center justify-center hover:bg-yellow-400/30 transition"
-                      >
-                        <Plus size={14} className="text-yellow-400" />
-                      </button>
-                      <button
-                        onClick={() => removeItem(item.productId!)}
-                        className="w-8 h-8 rounded-full bg-red-500/15 flex items-center justify-center hover:bg-red-500/30 transition ml-0.5"
-                      >
-                        <Trash2 size={13} className="text-red-400" />
-                      </button>
-                    </div>
+          <div className="px-4 py-4 space-y-4">
+
+            {/* General notes field (for kitchen / driver / office) */}
+            <Textarea
+              placeholder="Deja aquí tus comentarios para la cocina, el repartidor o la oficina YaPide"
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
+              className="bg-white/6 border-white/10 text-white placeholder:text-white/30 focus:border-yellow-400/60 resize-none text-sm rounded-2xl leading-relaxed"
+              rows={3}
+            />
+
+            {/* Items grouped by category */}
+            {(() => {
+              const grouped: Record<string, typeof items> = {};
+              items.forEach((item) => {
+                const cat = (item.product as any).category ?? "Otros";
+                if (!grouped[cat]) grouped[cat] = [];
+                grouped[cat].push(item);
+              });
+              return Object.entries(grouped).map(([cat, catItems]) => (
+                <div key={cat} className="rounded-2xl overflow-hidden border border-white/10">
+                  {/* Category header */}
+                  <div className="bg-[#0057B7] px-4 py-2">
+                    <p className="text-white font-black text-sm uppercase tracking-wide">{cat}</p>
                   </div>
-                );
-              })}
-            </div>
+                  {/* Items */}
+                  {catItems.map((item, idx) => {
+                    const customerPrice = parseFloat((item.product.price * (1 + MARKUP)).toFixed(2));
+                    const lineTotal = parseFloat((customerPrice * item.quantity).toFixed(2));
+                    return (
+                      <div key={item.productId} className={`flex items-start gap-3 px-4 py-3 bg-white/4 ${idx < catItems.length - 1 ? "border-b border-white/8" : ""}`}>
+                        {/* Left: info */}
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-baseline gap-2 flex-wrap">
+                            <p className="font-black text-sm leading-tight text-white">{item.product.name}</p>
+                            <p className="text-white/60 text-xs">{formatDOP(customerPrice)}</p>
+                          </div>
+                          {item.note && (
+                            <p className="text-white/50 text-xs mt-0.5 italic">{item.note}</p>
+                          )}
+                          <div className="flex items-center gap-2 mt-1.5">
+                            <button
+                              onClick={() => updateQuantity(item.productId!, item.quantity - 1)}
+                              className="w-6 h-6 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition"
+                            >
+                              <Minus size={11} />
+                            </button>
+                            <span className="text-xs font-black text-yellow-400 w-4 text-center">{item.quantity}</span>
+                            <button
+                              onClick={() => updateQuantity(item.productId!, item.quantity + 1)}
+                              className="w-6 h-6 rounded-full bg-yellow-400/20 flex items-center justify-center hover:bg-yellow-400/30 transition"
+                            >
+                              <Plus size={11} className="text-yellow-400" />
+                            </button>
+                            <span className="text-xs text-white/50 ml-1">{formatDOP(lineTotal)}</span>
+                          </div>
+                        </div>
+                        {/* Right: Remove button */}
+                        <button
+                          onClick={() => removeItem(item.productId!)}
+                          className="flex-shrink-0 mt-1 px-3 py-1.5 rounded-xl bg-red-500/15 border border-red-500/25 text-red-400 text-xs font-black hover:bg-red-500/25 transition"
+                        >
+                          Quitar
+                        </button>
+                      </div>
+                    );
+                  })}
+                </div>
+              ));
+            })()}
 
             {/* Order summary */}
             <div className="bg-white/5 border border-white/10 rounded-2xl p-4 space-y-2">
@@ -519,28 +544,8 @@ export default function CustomerCart() {
           </div>
         )}
 
-        {/* ── STEP 2: Notes ── */}
+        {/* ── STEP 2: Address ── */}
         {step === 2 && (
-          <div className="px-4 py-6 space-y-4">
-            <div className="text-center mb-2">
-              <p className="text-3xl mb-2">📝</p>
-              <h2 className="text-xl font-black">¿Alguna instrucción?</h2>
-              <p className="text-sm text-white/60 mt-1">Sin cebolla, extra salsa, etc. — esto va directo al negocio</p>
-            </div>
-            <Textarea
-              placeholder={t.specialInstructions}
-              value={notes}
-              onChange={(e) => setNotes(e.target.value)}
-              className="bg-white/8 border-white/10 text-white placeholder:text-gray-500 focus:border-yellow-400 resize-none text-base"
-              rows={5}
-              autoFocus
-            />
-            <p className="text-xs text-white/50 text-center">Opcional — puedes continuar sin notas</p>
-          </div>
-        )}
-
-        {/* ── STEP 3: Address ── */}
-        {step === 3 && (
           <div className="px-4 py-6 space-y-4">
             {isLaundry ? (
               <div className="text-center mb-2">
@@ -676,8 +681,8 @@ export default function CustomerCart() {
           </div>
         )}
 
-        {/* ── STEP 4: Payment ── */}
-        {step === 4 && (
+        {/* ── STEP 3: Payment ── */}
+        {step === 3 && (
           <div className="px-4 py-4 space-y-4">
 
             {/* ── Scheduled delivery toggle ── */}
@@ -1035,19 +1040,19 @@ export default function CustomerCart() {
 
       {/* Bottom CTA */}
       <div className="fixed bottom-0 left-0 right-0 p-4 bg-background/95 backdrop-blur-sm border-t border-yellow-400/20 z-[60]">
-        {step < 4 ? (
+        {step < 3 ? (
           <Button
             className="w-full bg-yellow-400 text-black font-black text-lg h-14 hover:bg-yellow-300 shadow-[0_0_30px_rgba(255,215,0,0.25)] flex items-center justify-between px-6 disabled:opacity-50"
             onClick={async () => {
-              if (step === 3 && !address.trim()) {
+              if (step === 2 && !address.trim()) {
                 toast({ title: t.missingAddress, description: t.addressRequired, variant: "destructive" });
                 return;
               }
-              if (step === 3 && isLaundry && !pickupAddress.trim()) {
+              if (step === 2 && isLaundry && !pickupAddress.trim()) {
                 toast({ title: "Dirección de recogida requerida", description: "Indica dónde recoger tu ropa", variant: "destructive" });
                 return;
               }
-              if (step === 3) {
+              if (step === 2) {
                 // Calculate distance-based delivery fee in background
                 calculateFee(address);
               }
@@ -1056,9 +1061,8 @@ export default function CustomerCart() {
           >
             <span className="text-yellow-400/0 text-sm">·</span>
             <span>
-              {step === 1 && "Continuar"}
-              {step === 2 && (notes.trim() ? "Agregar notas →" : "Continuar sin notas")}
-              {step === 3 && "Elegir pago →"}
+              {step === 1 && (notes.trim() ? "Continuar →" : "Continuar")}
+              {step === 2 && "Elegir pago →"}
             </span>
             <ChevronRight size={20} />
           </Button>
