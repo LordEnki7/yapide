@@ -204,13 +204,13 @@
     0 6px 36px rgba(255, 210, 0, 0.65);
 }
 
-/* ── Layout ───────────────────────────────────────────────────────────────── */
-html, body {
-  min-height: 100dvh;
-  background: #076BE5;
+/* ── Phone frame ─────────────────────────────────────────────────────────── */
+html {
+  background: radial-gradient(ellipse at 50% 40%, #1a5cc8 0%, #0d2d8a 70%);
 }
 
 body {
+  min-height: 100dvh;
   display: flex;
   justify-content: center;
   align-items: flex-start;
@@ -220,16 +220,43 @@ body {
   width: 100%;
   max-width: 430px;
   min-height: 100dvh;
-  background: #076BE5;
+  background:
+    linear-gradient(180deg,
+      rgba(255,255,255,0.20) 0%,
+      rgba(255,255,255,0.07) 18%,
+      transparent 50%
+    ),
+    linear-gradient(180deg,
+      #0057b7 0%,
+      #0048a8 15%,
+      #003898 40%,
+      #003898 60%,
+      #0048a8 85%,
+      #0057b7 100%
+    );
   position: relative;
   overflow-x: hidden;
 }
 
 @media (min-width: 500px) {
+  body {
+    padding: 14px 0;
+    background: radial-gradient(ellipse at 50% 35%, #1a5cc8 0%, #0d2d8a 65%);
+  }
+
   #root {
+    border-radius: 40px;
+    min-height: calc(100dvh - 28px);
+    max-height: calc(100dvh - 28px);
     overflow-y: auto;
     overflow-x: hidden;
+    transform: translateZ(0);
     scrollbar-width: none;
+    box-shadow:
+      0 0 0 1px rgba(100, 180, 255, 0.75),
+      0 0 0 4px rgba(0, 87, 183, 0.55),
+      0 0 60px rgba(0, 87, 183, 0.40),
+      0 30px 100px rgba(0, 30, 100, 0.70);
   }
 
   #root::-webkit-scrollbar {
