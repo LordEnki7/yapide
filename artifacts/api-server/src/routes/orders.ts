@@ -1,5 +1,5 @@
 import { Router, type IRouter } from "express";
-import { eq, and, desc, avg, sql, lte, gte } from "drizzle-orm";
+import { eq, and, desc, avg, sql, lte, gte, inArray } from "drizzle-orm";
 import { db, ordersTable, orderItemsTable, businessesTable, usersTable, driversTable, productsTable, walletTransactionsTable, pointsTransactionsTable, notificationsTable, driverReportsTable, disputesTable, orderMessagesTable, deliveryWindowsTable, pointsEventsTable } from "@workspace/db";
 import { CreateOrderBody, UpdateOrderStatusBody, RateOrderBody, ListOrdersQueryParams } from "@workspace/api-zod";
 import { calculateFees, CASH_LIMIT, CASH_WARNING_THRESHOLD } from "../lib/dispatch";
@@ -131,9 +131,10 @@ router.get("/orders", async (req, res): Promise<void> => {
       allOrders = await db.select().from(ordersTable).where(eq(ordersTable.driverId, driver.id)).orderBy(desc(ordersTable.createdAt));
     }
   } else if (user.role === "business") {
-    const [business] = await db.select().from(businessesTable).where(eq(businessesTable.userId, sessionUserId));
-    if (business) {
-      allOrders = await db.select().from(ordersTable).where(eq(ordersTable.businessId, business.id)).orderBy(desc(ordersTable.createdAt));
+    const businesses = await db.select({ id: businessesTable.id }).from(businessesTable).where(eq(businessesTable.userId, sessionUserId));
+    if (businesses.length > 0) {
+      const bizIds = businesses.map(b => b.id);
+      allOrders = await db.select().from(ordersTable).where(inArray(ordersTable.businessId, bizIds)).orderBy(desc(ordersTable.createdAt));
     }
   } else if (user.role === "admin") {
     allOrders = await db.select().from(ordersTable).orderBy(desc(ordersTable.createdAt));
