@@ -78,8 +78,8 @@ export default function Landing() {
         }}
       />
 
-      {/* Tagline overlay — speed-stripe bands, sits between logo and moto */}
-      <div style={{ position: "absolute", top: "22%", left: 0, right: 0, display: "flex", flexDirection: "column", gap: "3px", pointerEvents: "none" }}>
+      {/* Tagline overlay — speed-stripe bands */}
+      <div style={{ position: "absolute", top: "9%", left: 0, right: 0, display: "flex", flexDirection: "column", gap: "3px", pointerEvents: "none" }}>
         <div style={{ background: STRIPE, padding: "7px 0", textAlign: "center", borderTop: "1px solid rgba(255,255,255,0.13)", borderBottom: "1px solid rgba(255,255,255,0.07)" }}>
           <span style={{ color: "#ffffff", fontWeight: 900, letterSpacing: "0.12em", fontSize: "clamp(1.05rem, 5vw, 1.35rem)", textShadow: "0 2px 6px rgba(0,0,0,0.5)" }}>
             {lang === "es" ? "ENTREGA" : "FAST"}
