@@ -243,7 +243,7 @@ export default function AdminCommandCenter() {
                 <div><p className="text-lg font-black text-white">{dispatch?.availableDrivers ?? 0}</p><p className="text-[10px] text-gray-400">Disponibles</p></div>
                 <div><p className="text-lg font-black text-white">{dispatch?.recommendations?.length ?? 0}</p><p className="text-[10px] text-gray-400">Matches</p></div>
               </div>
-              {dispatch?.recommendations?.length > 0 && (
+              {dispatch?.recommendations && dispatch.recommendations.length > 0 && (
                 <div className="mt-2 space-y-1">
                   {dispatch.recommendations.slice(0, 3).map((r: any) => (
                     <div key={r.orderId} className="flex items-center justify-between bg-white/5 rounded-lg px-3 py-1.5">
@@ -262,7 +262,7 @@ export default function AdminCommandCenter() {
                 <div><p className={`text-lg font-black ${fraud?.highSeverity > 0 ? "text-red-400" : "text-green-400"}`}>{fraud?.highSeverity ?? 0}</p><p className="text-[10px] text-gray-400">Alta severidad</p></div>
                 <div><p className={`text-lg font-black ${fraud?.totalAlerts > 0 ? "text-yellow-400" : "text-green-400"}`}>{fraud?.totalAlerts ?? 0}</p><p className="text-[10px] text-gray-400">Total alertas</p></div>
               </div>
-              {fraud?.alerts?.length > 0 && (
+              {fraud?.alerts && fraud.alerts.length > 0 && (
                 <div className="mt-2 space-y-1.5 max-h-40 overflow-y-auto">
                   {fraud.alerts.slice(0, 5).map((alert: any, i: number) => (
                     <div key={i} className={`flex items-start gap-2 rounded-lg px-3 py-2 ${alert.severity === "high" ? "bg-red-400/10 border border-red-400/20" : "bg-yellow-400/8 border border-yellow-400/15"}`}>
@@ -308,7 +308,7 @@ export default function AdminCommandCenter() {
                 <div><p className={`text-lg font-black ${menu?.outOfStock > 0 ? "text-red-400" : "text-green-400"}`}>{menu?.outOfStock ?? 0}</p><p className="text-[10px] text-gray-400">Agotados</p></div>
                 <div><p className={`text-lg font-black ${menu?.insights?.length > 0 ? "text-yellow-400" : "text-green-400"}`}>{menu?.insights?.length ?? 0}</p><p className="text-[10px] text-gray-400">Insights</p></div>
               </div>
-              {menu?.insights?.length > 0 && (
+              {menu?.insights && menu.insights.length > 0 && (
                 <div className="mt-2 space-y-1.5 max-h-36 overflow-y-auto">
                   {menu.insights.slice(0, 4).map((insight: any, i: number) => (
                     <div key={i} className={`flex items-start gap-2 rounded-lg px-3 py-2 ${insight.severity === "high" ? "bg-red-400/10 border border-red-400/20" : "bg-yellow-400/8 border border-yellow-400/15"}`}>
@@ -321,7 +321,7 @@ export default function AdminCommandCenter() {
                   ))}
                 </div>
               )}
-              {menu?.topProducts?.length > 0 && (
+              {menu?.topProducts && menu.topProducts.length > 0 && (
                 <div className="mt-2">
                   <p className="text-[10px] text-gray-500 font-bold uppercase tracking-wider mb-1.5">Top productos (30 días)</p>
                   {menu.topProducts.map((p: any, i: number) => (
