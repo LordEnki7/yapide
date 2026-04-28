@@ -4,7 +4,7 @@ import { Link } from "wouter";
 import { useLang } from "@/lib/lang";
 import LangToggle from "@/components/LangToggle";
 
-const logo = "/logo.png";
+const logo = "/logo.png?v=2";
 
 interface PromoData {
   code: string;

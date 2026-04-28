@@ -9,7 +9,7 @@ import { ArrowLeft, Eye, EyeOff, Mail, Smartphone, CheckCircle, RefreshCw, Gift,
 import { useLang } from "@/lib/lang";
 import LangToggle from "@/components/LangToggle";
 
-const logo = "/logo.png";
+const logo = "/logo.png?v=2";
 
 const ROLE_META: Record<string, { emoji: string; label: string; labelEn: string; color: string }> = {
   driver:   { emoji: "🏍️", label: "Motorista",    labelEn: "Driver",   color: "border-blue-400/60 bg-blue-400/10 text-blue-300" },

@@ -135,7 +135,7 @@ export default function AdminBroadcast() {
                 <p className="text-xs font-bold text-[#FFD700]/80 uppercase tracking-widest mb-3">Vista previa</p>
                 <div className="bg-black/60 rounded-xl p-3 flex gap-3 items-start">
                   <div className="w-10 h-10 rounded-xl bg-[#0057B7] flex items-center justify-center flex-shrink-0">
-                    <img src="/logo.png" alt="" className="w-8 h-8 object-contain rounded" onError={e => (e.currentTarget.style.display = "none")} />
+                    <img src="/logo.png?v=2" alt="" className="w-8 h-8 object-contain rounded" onError={e => (e.currentTarget.style.display = "none")} />
                   </div>
                   <div>
                     <p className="font-bold text-white text-sm">{title}</p>

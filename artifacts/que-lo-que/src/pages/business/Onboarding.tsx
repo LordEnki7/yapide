@@ -6,7 +6,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { Store, MapPin, Phone, FileText, ChevronRight } from "lucide-react";
 
-const logo = "/logo.png";
+const logo = "/logo.png?v=2";
 
 const CATEGORIES = [
   { value: "fast_food", label: "🍔 Fast Food" },

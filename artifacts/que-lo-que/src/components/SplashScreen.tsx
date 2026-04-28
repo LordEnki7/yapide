@@ -32,7 +32,7 @@ export default function SplashScreen({ onDone }: SplashScreenProps) {
     >
       {/* Logo — constrained width, never cropped */}
       <img
-        src="/logo.png"
+        src="/logo.png?v=2"
         alt="YaPide"
         style={{
           width: "min(100vw, 430px)",

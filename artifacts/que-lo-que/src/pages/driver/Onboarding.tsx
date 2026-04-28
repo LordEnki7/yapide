@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { Bike, Car, Truck, ChevronRight } from "lucide-react";
 
-const logo = "/logo.png";
+const logo = "/logo.png?v=2";
 
 const VEHICLE_TYPES = [
   { value: "motorcycle", label: "🛵 Motor / Moto", icon: Bike },

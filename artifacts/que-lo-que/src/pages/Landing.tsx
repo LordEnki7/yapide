@@ -6,7 +6,7 @@ import { useLang } from "@/lib/lang";
 import { Loader2, LogIn, UserPlus, ChevronDown, ChevronUp } from "lucide-react";
 import { apiFetch } from "@/lib/apiFetch";
 
-const logo = "/logo.png";
+const logo = "/logo.png?v=2";
 const API = (import.meta.env.VITE_API_URL as string | undefined) ?? "";
 
 const DEMO_ROLES = [

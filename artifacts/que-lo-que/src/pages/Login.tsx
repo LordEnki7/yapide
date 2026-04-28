@@ -9,7 +9,7 @@ import { ArrowLeft, Eye, EyeOff, Smartphone, Mail, MessageCircle, KeyRound, Chec
 import { useLang } from "@/lib/lang";
 import LangToggle from "@/components/LangToggle";
 
-const logo = "/logo.png";
+const logo = "/logo.png?v=2";
 
 type ForgotStep = "idle" | "enter-phone" | "enter-code" | "new-pin" | "done";
 
