@@ -4,6 +4,8 @@ import pinoHttp from "pino-http";
 import session from "express-session";
 import connectPgSimple from "connect-pg-simple";
 import helmet from "helmet";
+import { existsSync } from "fs";
+import { join } from "path";
 import router from "./routes";
 import { logger } from "./lib/logger";
 import { generalLimiter } from "./lib/rate-limiters";
@@ -101,10 +103,19 @@ app.use("/api", csrfMiddleware);
 // ─── Routes ───────────────────────────────────────────────────────────────────
 app.use("/api", router);
 
-// ─── 404 ─────────────────────────────────────────────────────────────────────
-app.use((req: Request, res: Response) => {
-  res.status(404).json({ error: "Not found", path: req.path });
-});
+// ─── Serve frontend static files (production only) ───────────────────────────
+const frontendDist = process.env.FRONTEND_DIST ?? join("/app", "artifacts", "que-lo-que", "dist", "public");
+if (existsSync(frontendDist)) {
+  app.use(express.static(frontendDist));
+  app.get("*", (_req: Request, res: Response) => {
+    res.sendFile(join(frontendDist, "index.html"));
+  });
+} else {
+  // ─── 404 (API-only mode, no frontend build present) ─────────────────────
+  app.use((req: Request, res: Response) => {
+    res.status(404).json({ error: "Not found", path: req.path });
+  });
+}
 
 // ─── Error handler ────────────────────────────────────────────────────────────
 app.use((err: unknown, req: Request, res: Response, _next: NextFunction) => {

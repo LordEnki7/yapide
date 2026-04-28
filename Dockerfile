@@ -13,11 +13,14 @@ COPY pnpm-workspace.yaml pnpm-lock.yaml .npmrc ./
 COPY package.json ./
 COPY lib/ ./lib/
 COPY artifacts/api-server/ ./artifacts/api-server/
+COPY artifacts/que-lo-que/ ./artifacts/que-lo-que/
 
 RUN --mount=type=cache,id=pnpm,target=/pnpm/store \
     pnpm install --frozen-lockfile
 
 RUN pnpm --filter @workspace/api-server run build
+
+RUN VITE_API_URL="" pnpm --filter @workspace/que-lo-que run build
 
 COPY docker-entrypoint.sh /docker-entrypoint.sh
 RUN chmod +x /docker-entrypoint.sh
