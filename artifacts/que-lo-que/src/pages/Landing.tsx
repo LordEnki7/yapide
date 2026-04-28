@@ -117,13 +117,14 @@ export default function Landing() {
           left: 0,
           right: 0,
           zIndex: 20,
-          background: "linear-gradient(to bottom, transparent 0%, rgba(2,20,70,0.82) 28%, rgba(2,15,50,0.96) 100%)",
-          padding: "32px 20px 28px",
+          background: "linear-gradient(to bottom, transparent 0%, rgba(2,18,65,0.88) 22%, rgba(1,12,45,0.97) 100%)",
+          padding: "36px 24px 28px",
           display: "flex",
           flexDirection: "column",
-          gap: "10px",
+          gap: "12px",
         }}
       >
+        {/* Primary CTA */}
         <button
           onClick={() => navigate("/register")}
           className="btn-gold w-full text-black font-black text-xl h-14 rounded-2xl active:scale-[0.98] transition-all flex items-center justify-center gap-2.5 shadow-[0_0_40px_rgba(255,215,0,0.35)]"
@@ -132,6 +133,7 @@ export default function Landing() {
           {lang === "es" ? "Pedir ahora — es gratis" : "Order now — it's free"}
         </button>
 
+        {/* Login */}
         <button
           onClick={() => navigate("/login")}
           className="w-full glass text-white font-bold text-base h-11 rounded-2xl hover:brightness-125 active:scale-[0.98] transition-all flex items-center justify-center gap-2"
@@ -146,21 +148,54 @@ export default function Landing() {
           </p>
         )}
 
-        {/* Secondary links row */}
-        <div className="flex items-center justify-center gap-4">
-          <button onClick={() => navigate("/register?role=driver")} className="text-sm font-semibold text-white/70 hover:text-white transition-colors py-2 px-3">
-            {lang === "es" ? "🏍️ Soy motorista" : "🏍️ I'm a driver"}
+        {/* Divider */}
+        <div className="flex items-center gap-3 px-1">
+          <div className="flex-1 h-px bg-white/10" />
+          <span className="text-xs text-white/30 font-medium tracking-wider uppercase">
+            {lang === "es" ? "¿Eres profesional?" : "Are you a pro?"}
+          </span>
+          <div className="flex-1 h-px bg-white/10" />
+        </div>
+
+        {/* Role cards */}
+        <div className="grid grid-cols-2 gap-3">
+          <button
+            onClick={() => navigate("/register?role=driver")}
+            className="flex items-center gap-3 px-4 py-3 rounded-2xl border border-white/15 bg-white/5 hover:bg-white/10 active:scale-[0.97] transition-all"
+          >
+            <span className="text-2xl">🏍️</span>
+            <div className="text-left">
+              <p className="text-white font-bold text-sm leading-tight">
+                {lang === "es" ? "Motorista" : "Driver"}
+              </p>
+              <p className="text-white/45 text-xs leading-tight">
+                {lang === "es" ? "Gana entregando" : "Earn delivering"}
+              </p>
+            </div>
           </button>
-          <span className="text-white/20 text-sm">·</span>
-          <button onClick={() => navigate("/register?role=business")} className="text-sm font-semibold text-white/70 hover:text-white transition-colors py-2 px-3">
-            {lang === "es" ? "🏪 Tengo un negocio" : "🏪 I have a business"}
+          <button
+            onClick={() => navigate("/register?role=business")}
+            className="flex items-center gap-3 px-4 py-3 rounded-2xl border border-white/15 bg-white/5 hover:bg-white/10 active:scale-[0.97] transition-all"
+          >
+            <span className="text-2xl">🏪</span>
+            <div className="text-left">
+              <p className="text-white font-bold text-sm leading-tight">
+                {lang === "es" ? "Negocio" : "Business"}
+              </p>
+              <p className="text-white/45 text-xs leading-tight">
+                {lang === "es" ? "Vende más" : "Sell more"}
+              </p>
+            </div>
           </button>
-          <span className="text-white/20 text-sm">·</span>
+        </div>
+
+        {/* Demo — subtle */}
+        <div className="flex justify-center">
           <button
             onClick={() => setShowDemo(v => !v)}
-            className="flex items-center gap-1 text-xs text-white/40 hover:text-white/70 transition"
+            className="flex items-center gap-1 text-xs text-white/25 hover:text-white/50 transition py-1"
           >
-            {showDemo ? <ChevronUp size={11} /> : <ChevronDown size={11} />}
+            {showDemo ? <ChevronUp size={10} /> : <ChevronDown size={10} />}
             Demo
           </button>
         </div>
