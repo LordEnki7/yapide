@@ -11,6 +11,7 @@ WORKDIR /app
 
 COPY pnpm-workspace.yaml pnpm-lock.yaml .npmrc ./
 COPY package.json ./
+COPY tsconfig.base.json tsconfig.json ./
 COPY lib/ ./lib/
 COPY artifacts/api-server/ ./artifacts/api-server/
 COPY artifacts/que-lo-que/ ./artifacts/que-lo-que/

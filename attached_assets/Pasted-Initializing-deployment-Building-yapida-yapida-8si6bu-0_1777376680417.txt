@@ -1,0 +1,88 @@
+Initializing deployment
+Building yapida-yapida-8si6bu
+#0 building with "default" instance using docker driver
+#1 [internal] load build definition from Dockerfile
+#1 transferring dockerfile: 749B done
+#1 DONE 0.0s
+#2 [internal] load metadata for docker.io/library/node:24-slim
+#2 DONE 0.1s
+#3 [internal] load .dockerignore
+#3 transferring context: 2B done
+#3 DONE 0.0s
+#4 [stage-0  1/13] FROM docker.io/library/node:24-slim@sha256:03eae3ef7e88a9de535496fb488d67e02b9d96a063a8967bae657744ecd513f2
+#4 resolve docker.io/library/node:24-slim@sha256:03eae3ef7e88a9de535496fb488d67e02b9d96a063a8967bae657744ecd513f2 0.0s done
+#4 DONE 0.0s
+#5 [internal] load build context
+#5 transferring context: 36.55kB 0.0s done
+#5 DONE 0.0s
+#6 [stage-0  5/13] COPY package.json ./
+#6 CACHED
+#7 [stage-0  8/13] COPY artifacts/que-lo-que/ ./artifacts/que-lo-que/
+#7 CACHED
+#8 [stage-0  9/13] RUN --mount=type=cache,id=pnpm,target=/pnpm/store     pnpm install --frozen-lockfile
+#8 CACHED
+#9 [stage-0  6/13] COPY lib/ ./lib/
+#9 CACHED
+#10 [stage-0  3/13] WORKDIR /app
+#10 CACHED
+#11 [stage-0  7/13] COPY artifacts/api-server/ ./artifacts/api-server/
+#11 CACHED
+#12 [stage-0  2/13] RUN corepack enable && corepack prepare pnpm@latest --activate
+#12 CACHED
+#13 [stage-0  4/13] COPY pnpm-workspace.yaml pnpm-lock.yaml .npmrc ./
+#13 CACHED
+#14 [stage-0 10/13] RUN pnpm --filter @workspace/api-server run build
+#14 CACHED
+#15 [stage-0 11/13] RUN VITE_API_URL="" pnpm --filter @workspace/que-lo-que run build
+#15 0.354
+#15 0.354 > @workspace/que-lo-que@0.0.0 build /app/artifacts/que-lo-que
+#15 0.354 > vite build --config vite.config.ts
+#15 0.354
+#15 0.493 ▲ [WARNING] Cannot find base config file "../../tsconfig.base.json" [tsconfig.json]
+#15 0.493
+#15 0.493     tsconfig.json:2:13:
+#15 0.493       2 │   "extends": "../../tsconfig.base.json",
+#15 0.493         ╵              ~~~~~~~~~~~~~~~~~~~~~~~~~~
+#15 0.493
+#15 0.675 vite v7.3.1 building client environment for production...
+#15 0.742 ✓ 0 modules transformed.
+#15 0.745 ✗ Build failed in 45ms
+#15 0.745 error during build:
+#15 0.745 [vite:build-html] failed to resolve "extends":"../../tsconfig.base.json" in /app/artifacts/que-lo-que/tsconfig.json
+#15 0.745 file: /app/artifacts/que-lo-que/index.html
+#15 0.745     at resolveExtends (file:///app/node_modules/.pnpm/vite@7.3.1_@types+node@25.3.5_jiti@2.6.1_lightningcss@1.31.1_tsx@4.21.0_yaml@2.8.2/node_modules/vite/dist/node/chunks/config.js:5809:8)
+#15 0.745     at parseExtends (file:///app/node_modules/.pnpm/vite@7.3.1_@types+node@25.3.5_jiti@2.6.1_lightningcss@1.31.1_tsx@4.21.0_yaml@2.8.2/node_modules/vite/dist/node/chunks/config.js:5775:71)
+#15 0.745     at parse$13 (file:///app/node_modules/.pnpm/vite@7.3.1_@types+node@25.3.5_jiti@2.6.1_lightningcss@1.31.1_tsx@4.21.0_yaml@2.8.2/node_modules/vite/dist/node/chunks/config.js:5677:23)
+#15 0.745     at async loadTsconfigJsonForFile (file:///app/node_modules/.pnpm/vite@7.3.1_@types+node@25.3.5_jiti@2.6.1_lightningcss@1.31.1_tsx@4.21.0_yaml@2.8.2/node_modules/vite/dist/node/chunks/config.js:6286:37)
+#15 0.745     at async transformWithEsbuild (file:///app/node_modules/.pnpm/vite@7.3.1_@types+node@25.3.5_jiti@2.6.1_lightningcss@1.31.1_tsx@4.21.0_yaml@2.8.2/node_modules/vite/dist/node/chunks/config.js:6086:55)
+#15 0.745     at async Object.transform (file:///app/node_modules/.pnpm/vite@7.3.1_@types+node@25.3.5_jiti@2.6.1_lightningcss@1.31.1_tsx@4.21.0_yaml@2.8.2/node_modules/vite/dist/node/chunks/config.js:6172:20)
+#15 0.745     at async transform (file:///app/node_modules/.pnpm/rollup@4.59.0/node_modules/rollup/dist/es/shared/node-entry.js:21269:16)
+#15 0.745     at async ModuleLoader.addModuleSource (file:///app/node_modules/.pnpm/rollup@4.59.0/node_modules/rollup/dist/es/shared/node-entry.js:21497:36)
+#15 0.795 /app/artifacts/que-lo-que:
+#15 0.795  ERR_PNPM_RECURSIVE_RUN_FIRST_FAIL  @workspace/que-lo-que@0.0.0 build: `vite build --config vite.config.ts`
+#15 0.795 Exit status 1
+#15 ERROR: process "/bin/sh -c VITE_API_URL=\"\" pnpm --filter @workspace/que-lo-que run build" did not complete successfully: exit code: 1
+------
+> [stage-0 11/13] RUN VITE_API_URL="" pnpm --filter @workspace/que-lo-que run build:
+0.745     at parseExtends (file:///app/node_modules/.pnpm/vite@7.3.1_@types+node@25.3.5_jiti@2.6.1_lightningcss@1.31.1_tsx@4.21.0_yaml@2.8.2/node_modules/vite/dist/node/chunks/config.js:5775:71)
+0.745     at parse$13 (file:///app/node_modules/.pnpm/vite@7.3.1_@types+node@25.3.5_jiti@2.6.1_lightningcss@1.31.1_tsx@4.21.0_yaml@2.8.2/node_modules/vite/dist/node/chunks/config.js:5677:23)
+0.745     at async loadTsconfigJsonForFile (file:///app/node_modules/.pnpm/vite@7.3.1_@types+node@25.3.5_jiti@2.6.1_lightningcss@1.31.1_tsx@4.21.0_yaml@2.8.2/node_modules/vite/dist/node/chunks/config.js:6286:37)
+0.745     at async transformWithEsbuild (file:///app/node_modules/.pnpm/vite@7.3.1_@types+node@25.3.5_jiti@2.6.1_lightningcss@1.31.1_tsx@4.21.0_yaml@2.8.2/node_modules/vite/dist/node/chunks/config.js:6086:55)
+0.745     at async Object.transform (file:///app/node_modules/.pnpm/vite@7.3.1_@types+node@25.3.5_jiti@2.6.1_lightningcss@1.31.1_tsx@4.21.0_yaml@2.8.2/node_modules/vite/dist/node/chunks/config.js:6172:20)
+0.745     at async transform (file:///app/node_modules/.pnpm/rollup@4.59.0/node_modules/rollup/dist/es/shared/node-entry.js:21269:16)
+0.745     at async ModuleLoader.addModuleSource (file:///app/node_modules/.pnpm/rollup@4.59.0/node_modules/rollup/dist/es/shared/node-entry.js:21497:36)
+0.795 /app/artifacts/que-lo-que:
+0.795  ERR_PNPM_RECURSIVE_RUN_FIRST_FAIL  @workspace/que-lo-que@0.0.0 build: `vite build --config vite.config.ts`
+0.795 Exit status 1
+------
+Dockerfile:23
+--------------------
+|     RUN pnpm --filter @workspace/api-server run build
+|
+| >>> RUN VITE_API_URL="" pnpm --filter @workspace/que-lo-que run build
+|
+|     COPY docker-entrypoint.sh /docker-entrypoint.sh
+--------------------
+ERROR: failed to build: failed to solve: process "/bin/sh -c VITE_API_URL=\"\" pnpm --filter @workspace/que-lo-que run build" did not complete successfully: exit code: 1
+❌ Docker build failed
+Error occurred ❌, check the logs for details.
