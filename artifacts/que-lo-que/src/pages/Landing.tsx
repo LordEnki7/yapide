@@ -60,7 +60,7 @@ export default function Landing() {
   return (
     <div
       className="max-w-[430px] mx-auto"
-      style={{ position: "relative", height: "100svh", overflow: "hidden", background: "#0057b7" }}
+      style={{ position: "relative", height: "100svh", overflow: "hidden", background: "#076BE5" }}
     >
       {/* Full-screen background image */}
       <img
@@ -68,9 +68,12 @@ export default function Landing() {
         alt="YaPide"
         style={{
           position: "absolute",
-          inset: 0,
+          top: "210px",
+          left: 0,
+          right: 0,
+          bottom: 0,
           width: "100%",
-          height: "100%",
+          height: "calc(100% - 210px)",
           objectFit: "cover",
           objectPosition: "top",
           display: "block",
