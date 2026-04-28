@@ -22,7 +22,7 @@ export default function AdminOrders() {
   const [assignModal, setAssignModal] = useState<AssignModal | null>(null);
   const [selectedDriverId, setSelectedDriverId] = useState<number | null>(null);
 
-  const { data: orders, isLoading } = useAdminListOrders({
+  const { data: orders, isLoading } = useAdminListOrders(undefined, {
     query: { queryKey: getAdminListOrdersQueryKey() }
   });
 

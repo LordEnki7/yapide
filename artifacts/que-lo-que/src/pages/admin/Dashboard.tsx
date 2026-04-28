@@ -5,8 +5,8 @@ import { formatDOP } from "@/lib/auth";
 import { useAdminLang } from "@/lib/lang";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Users, Package, Bike, TrendingUp, Tag, Bot, Bell, Shield, Crown, ShieldCheck, AlertCircle, Settings, Megaphone, Truck, Star, Send, QrCode, Sparkles, Banknote } from "lucide-react";
-import { getEffectivePermissions, type Permission } from "@/lib/adminPermissions";
+import { Users, Package, Bike, TrendingUp, Tag, Bot, Bell, Shield, Crown, ShieldCheck, AlertCircle, Settings, Megaphone, Truck, Star, Send, QrCode, Sparkles, Banknote, Calculator } from "lucide-react";
+import { getEffectivePermissions, type Permission, type AdminRole } from "@/lib/adminPermissions";
 
 interface AdminInfo {
   id: number;
@@ -42,7 +42,7 @@ export default function AdminDashboard() {
       .catch(() => {});
   }, []);
 
-  const permissions = getEffectivePermissions(adminInfo?.adminRole, JSON.stringify(adminInfo?.adminPermissions));
+  const permissions = getEffectivePermissions(adminInfo?.adminRole as AdminRole | null | undefined, JSON.stringify(adminInfo?.adminPermissions));
   const can = (p: Permission) => permissions.includes(p);
 
   const statCards = [

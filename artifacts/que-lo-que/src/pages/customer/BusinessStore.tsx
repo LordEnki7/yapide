@@ -48,7 +48,7 @@ export default function BusinessStore() {
     { query: { enabled: !!businessId, queryKey: getListProductsQueryKey(businessId) } }
   );
 
-  const isLaundry = business?.category === "laundry";
+  const isLaundry = (business?.category as string) === "laundry";
   const [laundryMode, setLaundryMode] = useState<"bolsa" | "libra">("bolsa");
   const [selectedService, setSelectedService] = useState<any>(null);
   const [libras, setLibras] = useState(3);
@@ -161,8 +161,8 @@ export default function BusinessStore() {
         <div className="absolute bottom-0 left-0 right-0 px-4 pb-4 flex items-end gap-3">
           {/* Logo bubble */}
           <div className="w-16 h-16 rounded-2xl overflow-hidden border-2 border-white/20 bg-black flex-shrink-0 shadow-xl">
-            {business?.logoUrl ? (
-              <img src={business.logoUrl} alt={`${business.name} logo`} className="w-full h-full object-cover" />
+            {(business as any)?.logoUrl ? (
+              <img src={(business as any).logoUrl} alt={`${business?.name} logo`} className="w-full h-full object-cover" />
             ) : business?.imageUrl ? (
               <img src={business.imageUrl} alt={business.name} className="w-full h-full object-cover" />
             ) : (

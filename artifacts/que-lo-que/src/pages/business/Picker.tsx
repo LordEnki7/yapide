@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "@/hooks/use-toast";
 import { apiFetch } from "@/lib/apiFetch";
-import type { Order, OrderItem } from "@workspace/api-zod";
+import type { Order, OrderItem } from "@workspace/api-client-react";
 
 type PickerStatus = "pending" | "found" | "out_of_stock" | "substituted";
 

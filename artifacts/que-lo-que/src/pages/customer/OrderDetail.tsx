@@ -297,7 +297,7 @@ export default function CustomerOrderDetail() {
         )}
 
         {/* Substitution approval panel */}
-        {order?.status === "pending_substitution" && (order as any)?.items?.some((i: any) => i.pickerStatus === "substituted" || i.pickerStatus === "out_of_stock") && (
+        {(order?.status as string) === "pending_substitution" && (order as any)?.items?.some((i: any) => i.pickerStatus === "substituted" || i.pickerStatus === "out_of_stock") && (
           <div className="rounded-2xl border-2 border-orange-400/60 bg-orange-400/8 px-5 py-4 space-y-4">
             <div className="flex items-center gap-2">
               <RefreshCw size={18} className="text-orange-400" />
@@ -388,7 +388,7 @@ export default function CustomerOrderDetail() {
                     clearCart();
                     const bizId = (order as any).businessId as number;
                     const category = (order as any).business?.category ?? undefined;
-                    order.items.forEach((item: any) => {
+                    order.items?.forEach((item: any) => {
                       addItem(
                         { id: item.productId, name: item.productName, price: item.price, businessId: bizId } as any,
                         item.quantity,

@@ -67,7 +67,7 @@ export default function CustomerSearch() {
   }, [query]);
 
   const handleAddProduct = (p: ProductResult) => {
-    addItem({ id: p.id, name: p.name, price: p.price, businessId: p.businessId }, 1, p.category ?? undefined);
+    addItem({ id: p.id, name: p.name, price: p.price, businessId: p.businessId } as any, 1, p.category ?? undefined);
     toast({ title: "✅ Agregado al carrito", description: p.name });
   };
 

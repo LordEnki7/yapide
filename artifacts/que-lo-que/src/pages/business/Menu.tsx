@@ -81,7 +81,7 @@ export default function BusinessMenu() {
       isAvailable: form.isAvailable,
     };
     if (editingId) {
-      updateProduct.mutate({ productId: editingId, data: productData });
+      updateProduct.mutate({ businessId: business!.id, productId: editingId, data: productData });
     } else {
       createProduct.mutate({ businessId: business!.id, data: productData });
     }
@@ -190,7 +190,7 @@ export default function BusinessMenu() {
                       <button onClick={() => openEdit(product)} className="w-8 h-8 rounded-lg bg-white/8 flex items-center justify-center hover:bg-white/10 transition">
                         <Pencil size={12} className="text-white/50" />
                       </button>
-                      <button onClick={() => deleteProduct.mutate({ productId: product.id })} className="w-8 h-8 rounded-lg bg-red-500/10 flex items-center justify-center hover:bg-red-500/20 transition">
+                      <button onClick={() => deleteProduct.mutate({ businessId: business!.id, productId: product.id })} className="w-8 h-8 rounded-lg bg-red-500/10 flex items-center justify-center hover:bg-red-500/20 transition">
                         <Trash2 size={12} className="text-red-400" />
                       </button>
                     </div>

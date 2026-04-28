@@ -195,14 +195,14 @@ export default function BusinessOrders() {
                         </Button>
                       </>
                     )}
-                    {order.status === "picking" && (
+                    {(order.status as string) === "picking" && (
                       <Link href={`/business/orders/${order.id}/pick`} onClick={e => e.stopPropagation()}>
                         <Button size="sm" className="bg-orange-400 text-black font-bold text-xs h-8 hover:bg-orange-300 animate-pulse">
                           🛒 Recoger artículos
                         </Button>
                       </Link>
                     )}
-                    {order.status === "pending_substitution" && (
+                    {(order.status as string) === "pending_substitution" && (
                       <Badge className="bg-orange-400/20 text-orange-400 border-orange-400/40 text-xs">⏳ Cliente aprobando</Badge>
                     )}
                     {order.status === "accepted" && (

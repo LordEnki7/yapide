@@ -48,7 +48,7 @@ export default function DriverDashboard() {
 
   const toggleOnline = () => {
     if (!driver) return;
-    updateStatus.mutate({ isOnline: !driver.isOnline });
+    updateStatus.mutate({ data: { isOnline: !driver.isOnline } });
   };
 
   const { data: availableJobs } = useQuery({
@@ -170,7 +170,7 @@ export default function DriverDashboard() {
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-3">
             <ImageUpload
-              currentUrl={driver?.photoUrl ? `/api/storage/objects/${driver.photoUrl}` : undefined}
+              currentUrl={(driver as any)?.photoUrl ? `/api/storage/objects/${(driver as any).photoUrl}` : undefined}
               onUploaded={handlePhotoUploaded}
               shape="circle"
               label=""

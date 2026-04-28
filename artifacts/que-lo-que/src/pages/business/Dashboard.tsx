@@ -107,7 +107,7 @@ export default function BusinessDashboard() {
 
   const [prepTime, setPrepTime] = useState<number | null>(null);
   const [savingPrepTime, setSavingPrepTime] = useState(false);
-  const currentPrepTime = prepTime ?? business?.prepTimeMinutes ?? 25;
+  const currentPrepTime = prepTime ?? (business as any)?.prepTimeMinutes ?? 25;
 
   // ── Business hours state ────────────────────────────────────────────────────
   const [hours, setHours] = useState<OpenHours>({});
@@ -314,7 +314,7 @@ export default function BusinessDashboard() {
 
         <div className="grid grid-cols-3 gap-3 mb-4">
           <div className="bg-white/8 border border-white/10 rounded-2xl p-3 text-center">
-            <p className="text-xl font-black text-yellow-400">{formatDOP(stats?.salesToday ?? 0)}</p>
+            <p className="text-xl font-black text-yellow-400">{formatDOP(stats?.revenueToday ?? 0)}</p>
             <p className="text-xs text-[#FFD700]/70 mt-1">{t.salesToday}</p>
           </div>
           <div className="bg-white/8 border border-white/10 rounded-2xl p-3 text-center">
@@ -332,7 +332,7 @@ export default function BusinessDashboard() {
             <TrendingUp size={14} className="text-yellow-400" />
             <span className="text-xs font-bold text-[#FFD700]/70 uppercase tracking-widest">{t.thisWeekSales}</span>
           </div>
-          <p className="text-2xl font-black text-yellow-400">{formatDOP(stats?.salesWeek ?? 0)}</p>
+          <p className="text-2xl font-black text-yellow-400">{formatDOP(stats?.revenueWeek ?? 0)}</p>
         </div>
 
         {/* Prep time selector */}

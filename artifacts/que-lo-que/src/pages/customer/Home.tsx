@@ -80,7 +80,7 @@ export default function CustomerHome() {
 
   useEffect(() => {
     fetch("/api/banners/active").then(r => r.ok ? r.json() : []).then(setBanners).catch(() => {});
-    fetch("/api/delivery-windows/active").then(r => r.ok ? r.json() : {}).then(d => setFreeDelivery(d?.active ?? false)).catch(() => {});
+    fetch("/api/delivery-windows/active").then(r => r.ok ? r.json() : {}).then(d => setFreeDelivery((d as any)?.active ?? false)).catch(() => {});
     fetch("/api/points-events/active").then(r => r.ok ? r.json() : []).then(setPointsEvents).catch(() => {});
   }, []);
 
