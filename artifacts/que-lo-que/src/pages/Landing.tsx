@@ -74,6 +74,7 @@ export default function Landing() {
           objectFit: "contain",
           objectPosition: "center",
           display: "block",
+          transform: "scale(1.05)",
         }}
       />
 
