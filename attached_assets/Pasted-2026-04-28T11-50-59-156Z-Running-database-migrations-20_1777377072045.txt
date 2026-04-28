@@ -1,0 +1,95 @@
+2026-04-28T11:50:59.156Z Running database migrations...
+2026-04-28T11:50:59.225Z Running YaPide migrations...
+2026-04-28T11:50:59.226Z ✓ users.pin_hash
+2026-04-28T11:50:59.227Z ✓ users.admin_role
+2026-04-28T11:50:59.227Z ✓ users.admin_permissions
+2026-04-28T11:50:59.229Z ✓ users.phone_verified
+2026-04-28T11:50:59.229Z ✓ users.otp_code
+2026-04-28T11:50:59.230Z ✓ users.otp_expires_at
+2026-04-28T11:50:59.230Z ✓ users.points
+2026-04-28T11:50:59.231Z ✓ users.referral_code
+2026-04-28T11:50:59.231Z ✓ users.referred_by_id
+2026-04-28T11:50:59.232Z ✓ users.referral_bonus_paid
+2026-04-28T11:50:59.232Z ✓ users.updated_at
+2026-04-28T11:50:59.233Z – constraint: users_referral_code_unique (already exists)
+2026-04-28T11:50:59.234Z ✓ businesses.logo_url
+2026-04-28T11:50:59.235Z ✓ businesses.lat
+2026-04-28T11:50:59.235Z ✓ businesses.lng
+2026-04-28T11:50:59.235Z ✓ businesses.open_hours
+2026-04-28T11:50:59.236Z ✓ businesses.approval_status
+2026-04-28T11:50:59.236Z ✓ businesses.is_featured
+2026-04-28T11:50:59.237Z ✓ businesses.rating
+2026-04-28T11:50:59.237Z ✓ businesses.total_orders
+2026-04-28T11:50:59.237Z ✓ businesses.prep_time_minutes
+2026-04-28T11:50:59.237Z ✓ businesses.updated_at
+2026-04-28T11:50:59.238Z ✓ drivers.city
+2026-04-28T11:50:59.238Z ✓ drivers.is_locked
+2026-04-28T11:50:59.239Z ✓ drivers.approval_status
+2026-04-28T11:50:59.239Z ✓ drivers.acceptance_rate
+2026-04-28T11:50:59.240Z ✓ drivers.current_lat
+2026-04-28T11:50:59.240Z ✓ drivers.current_lng
+2026-04-28T11:50:59.241Z ✓ drivers.wallet_balance
+2026-04-28T11:50:59.241Z ✓ drivers.photo_url
+2026-04-28T11:50:59.241Z ✓ drivers.updated_at
+2026-04-28T11:50:59.242Z ✓ orders.commission
+2026-04-28T11:50:59.242Z ✓ orders.delivery_fee
+2026-04-28T11:50:59.243Z ✓ orders.driver_id
+2026-04-28T11:50:59.245Z ✓ orders.delivery_address
+2026-04-28T11:50:59.245Z ✓ orders.delivery_lat
+2026-04-28T11:50:59.245Z ✓ orders.delivery_lng
+2026-04-28T11:50:59.246Z ✓ orders.notes
+2026-04-28T11:50:59.247Z ✓ orders.rating
+2026-04-28T11:50:59.247Z ✓ orders.rating_comment
+2026-04-28T11:50:59.248Z ✓ orders.promo_code
+2026-04-28T11:50:59.248Z ✓ orders.discount_amount
+2026-04-28T11:50:59.249Z ✓ orders.driver_earnings
+2026-04-28T11:50:59.249Z ✓ orders.tip
+2026-04-28T11:50:59.250Z ✓ orders.payment_method
+2026-04-28T11:50:59.250Z ✓ orders.is_paid
+2026-04-28T11:50:59.253Z ✓ orders.customer_rating
+2026-04-28T11:50:59.253Z ✓ orders.driver_rating
+2026-04-28T11:50:59.255Z ✓ orders.business_rating
+2026-04-28T11:50:59.255Z ✓ orders.delivery_photo_path
+2026-04-28T11:50:59.256Z ✓ orders.verification_pin
+2026-04-28T11:50:59.257Z ✓ orders.promo_discount
+2026-04-28T11:50:59.258Z ✓ orders.order_type
+2026-04-28T11:50:59.260Z ✓ orders.pickup_address
+2026-04-28T11:50:59.261Z ✓ orders.picking_status
+2026-04-28T11:50:59.261Z ✓ orders.requires_age_check
+2026-04-28T11:50:59.261Z ✓ orders.age_verified
+2026-04-28T11:50:59.262Z ✓ orders.scheduled_for
+2026-04-28T11:50:59.263Z ✓ orders.cash_settled
+2026-04-28T11:50:59.264Z ✓ orders.business_paid
+2026-04-28T11:50:59.264Z ✓ orders.updated_at
+2026-04-28T11:50:59.265Z ✓ order_items.picker_status
+2026-04-28T11:50:59.265Z ✓ order_items.substitute_name
+2026-04-28T11:50:59.266Z ✓ order_items.substitute_price
+2026-04-28T11:50:59.267Z ✓ table: banners
+2026-04-28T11:50:59.268Z ✓ table: delivery_windows
+2026-04-28T11:50:59.268Z ✓ table: points_events
+2026-04-28T11:50:59.268Z ✓ table: business_payouts
+2026-04-28T11:50:59.268Z ✓ table: driver_deposits
+2026-04-28T11:50:59.269Z ✓ table: disputes
+2026-04-28T11:50:59.269Z ✓ table: driver_reports
+2026-04-28T11:50:59.270Z ✓ table: push_subscriptions
+2026-04-28T11:50:59.270Z ✓ table: promo_codes
+2026-04-28T11:50:59.270Z ✓ table: wallets
+2026-04-28T11:50:59.276Z Migrations complete ✓
+2026-04-28T11:50:59.281Z Starting server...
+2026-04-28T11:50:59.591Z /app/node_modules/.pnpm/path-to-regexp@8.3.0/node_modules/path-to-regexp/src/index.ts:225
+2026-04-28T11:50:59.591Z throw new PathError(`Missing parameter name at index ${index}`, str);
+2026-04-28T11:50:59.591Z ^
+2026-04-28T11:50:59.591Z PathError [TypeError]: Missing parameter name at index 3: (.*); visit https://git.new/pathToRegexpError for info
+2026-04-28T11:50:59.591Z at name (/app/node_modules/.pnpm/path-to-regexp@8.3.0/node_modules/path-to-regexp/src/index.ts:225:13)
+2026-04-28T11:50:59.591Z at parse (/app/node_modules/.pnpm/path-to-regexp@8.3.0/node_modules/path-to-regexp/src/index.ts:242:62)
+2026-04-28T11:50:59.591Z at pathToRegexp (/app/node_modules/.pnpm/path-to-regexp@8.3.0/node_modules/path-to-regexp/src/index.ts:480:54)
+2026-04-28T11:50:59.591Z at Object.match (/app/node_modules/.pnpm/path-to-regexp@8.3.0/node_modules/path-to-regexp/src/index.ts:438:28)
+2026-04-28T11:50:59.591Z at matcher (/app/node_modules/.pnpm/router@2.2.0/node_modules/router/lib/layer.js:86:23)
+2026-04-28T11:50:59.591Z at new Layer (/app/node_modules/.pnpm/router@2.2.0/node_modules/router/lib/layer.js:93:62)
+2026-04-28T11:50:59.591Z at router24.route (/app/node_modules/.pnpm/router@2.2.0/node_modules/router/index.js:428:17)
+2026-04-28T11:50:59.591Z at app2.route (/app/node_modules/.pnpm/express@5.2.1/node_modules/express/lib/application.js:257:22)
+2026-04-28T11:50:59.591Z at app2.app2.<computed> (/app/node_modules/.pnpm/express@5.2.1/node_modules/express/lib/application.js:478:22)
+2026-04-28T11:50:59.591Z at <anonymous> (/app/artifacts/api-server/src/app.ts:110:7) {
+2026-04-28T11:50:59.591Z originalPath: '(.*)'
+2026-04-28T11:50:59.591Z }
+2026-04-28T11:50:59.591Z Node.js v24.15.0
