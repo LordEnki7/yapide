@@ -66,11 +66,11 @@ export default function Landing() {
         alt="YaPide"
         style={{
           position: "absolute",
-          top: 0,
+          top: "190px",
           left: 0,
           right: 0,
           width: "100%",
-          height: "100%",
+          height: "calc(100% - 190px)",
           objectFit: "contain",
           objectPosition: "top center",
           display: "block",
@@ -83,7 +83,7 @@ export default function Landing() {
           position: "absolute",
           left: 0,
           right: 0,
-          top: "240px",
+          top: "110px",
           zIndex: 15,
           display: "flex",
           flexDirection: "column",
