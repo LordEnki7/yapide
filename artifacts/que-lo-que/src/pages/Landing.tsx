@@ -113,7 +113,7 @@ export default function Landing() {
       <div
         style={{
           position: "absolute",
-          bottom: "80px",
+          bottom: "20px",
           left: 0,
           right: 0,
           zIndex: 20,
