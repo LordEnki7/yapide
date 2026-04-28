@@ -148,14 +148,14 @@ export default function Landing() {
 
         {/* Secondary links row */}
         <div className="flex items-center justify-center gap-4">
-          <button onClick={() => navigate("/register?role=driver")} className="text-xs text-white/50 hover:text-white/80 transition-colors">
+          <button onClick={() => navigate("/register?role=driver")} className="text-sm font-semibold text-white/70 hover:text-white transition-colors py-2 px-3">
             {lang === "es" ? "🏍️ Soy motorista" : "🏍️ I'm a driver"}
           </button>
-          <span className="text-white/20 text-xs">·</span>
-          <button onClick={() => navigate("/register?role=business")} className="text-xs text-white/50 hover:text-white/80 transition-colors">
+          <span className="text-white/20 text-sm">·</span>
+          <button onClick={() => navigate("/register?role=business")} className="text-sm font-semibold text-white/70 hover:text-white transition-colors py-2 px-3">
             {lang === "es" ? "🏪 Tengo un negocio" : "🏪 I have a business"}
           </button>
-          <span className="text-white/20 text-xs">·</span>
+          <span className="text-white/20 text-sm">·</span>
           <button
             onClick={() => setShowDemo(v => !v)}
             className="flex items-center gap-1 text-xs text-white/40 hover:text-white/70 transition"
