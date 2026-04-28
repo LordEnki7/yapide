@@ -113,13 +113,12 @@ export default function Landing() {
       <div
         style={{
           position: "absolute",
-          bottom: 0,
+          bottom: "80px",
           left: 0,
           right: 0,
           zIndex: 20,
           background: "linear-gradient(to bottom, transparent 0%, rgba(2,20,70,0.82) 28%, rgba(2,15,50,0.96) 100%)",
-          padding: "32px 20px env(safe-area-inset-bottom, 28px)",
-          paddingBottom: "max(28px, env(safe-area-inset-bottom))",
+          padding: "32px 20px 28px",
           display: "flex",
           flexDirection: "column",
           gap: "10px",
