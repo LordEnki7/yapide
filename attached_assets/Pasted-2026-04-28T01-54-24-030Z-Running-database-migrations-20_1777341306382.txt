@@ -1,0 +1,61 @@
+2026-04-28T01:54:24.030Z Running database migrations...
+2026-04-28T01:54:24.109Z Running YaPide migrations...
+2026-04-28T01:54:24.114Z ✓ users.pin_hash
+2026-04-28T01:54:24.115Z ✓ users.admin_role
+2026-04-28T01:54:24.117Z ✓ users.admin_permissions
+2026-04-28T01:54:24.119Z ✓ users.phone_verified
+2026-04-28T01:54:24.119Z ✓ users.otp_code
+2026-04-28T01:54:24.120Z ✓ users.otp_expires_at
+2026-04-28T01:54:24.121Z ✓ users.points
+2026-04-28T01:54:24.123Z ✓ users.referral_code
+2026-04-28T01:54:24.123Z ✓ users.referred_by_id
+2026-04-28T01:54:24.123Z ✓ users.referral_bonus_paid
+2026-04-28T01:54:24.124Z ✓ users.updated_at
+2026-04-28T01:54:24.126Z – constraint: users_referral_code_unique (already exists)
+2026-04-28T01:54:24.126Z ✓ businesses.logo_url
+2026-04-28T01:54:24.127Z ✓ businesses.lat
+2026-04-28T01:54:24.128Z ✓ businesses.lng
+2026-04-28T01:54:24.128Z ✓ businesses.open_hours
+2026-04-28T01:54:24.130Z ✓ businesses.approval_status
+2026-04-28T01:54:24.131Z ✓ businesses.is_featured
+2026-04-28T01:54:24.131Z ✓ businesses.rating
+2026-04-28T01:54:24.132Z ✓ businesses.total_orders
+2026-04-28T01:54:24.133Z ✓ businesses.prep_time_minutes
+2026-04-28T01:54:24.134Z ✓ businesses.updated_at
+2026-04-28T01:54:24.135Z ✓ drivers.city
+2026-04-28T01:54:24.135Z ✓ drivers.is_locked
+2026-04-28T01:54:24.136Z ✓ drivers.approval_status
+2026-04-28T01:54:24.139Z ✓ drivers.acceptance_rate
+2026-04-28T01:54:24.139Z ✓ drivers.current_lat
+2026-04-28T01:54:24.139Z ✓ drivers.current_lng
+2026-04-28T01:54:24.139Z ✓ drivers.wallet_balance
+2026-04-28T01:54:24.139Z ✓ drivers.photo_url
+2026-04-28T01:54:24.141Z ✓ drivers.updated_at
+2026-04-28T01:54:24.141Z ✓ orders.commission
+2026-04-28T01:54:24.142Z ✓ orders.delivery_fee
+2026-04-28T01:54:24.142Z ✓ orders.driver_id
+2026-04-28T01:54:24.143Z ✓ orders.delivery_address
+2026-04-28T01:54:24.143Z ✓ orders.delivery_lat
+2026-04-28T01:54:24.145Z ✓ orders.delivery_lng
+2026-04-28T01:54:24.145Z ✓ orders.notes
+2026-04-28T01:54:24.145Z ✓ orders.rating
+2026-04-28T01:54:24.146Z ✓ orders.rating_comment
+2026-04-28T01:54:24.146Z ✓ orders.promo_code
+2026-04-28T01:54:24.147Z ✓ orders.discount_amount
+2026-04-28T01:54:24.147Z ✓ orders.updated_at
+2026-04-28T01:54:24.148Z ✓ table: banners
+2026-04-28T01:54:24.148Z ✓ table: delivery_windows
+2026-04-28T01:54:24.148Z ✓ table: points_events
+2026-04-28T01:54:24.149Z ✓ table: business_payouts
+2026-04-28T01:54:24.149Z ✓ table: driver_deposits
+2026-04-28T01:54:24.150Z ✓ table: disputes
+2026-04-28T01:54:24.150Z ✓ table: driver_reports
+2026-04-28T01:54:24.150Z ✓ table: push_subscriptions
+2026-04-28T01:54:24.150Z ✓ table: promo_codes
+2026-04-28T01:54:24.150Z ✓ table: wallets
+2026-04-28T01:54:24.154Z Migrations complete ✓
+2026-04-28T01:54:24.161Z Starting server...
+2026-04-28T01:54:24.588Z {"level":30,"time":1777341264587,"pid":1,"hostname":"a3e883591673","port":8080,"msg":"Server listening"}
+2026-04-28T01:54:24.589Z {"level":30,"time":1777341264587,"pid":1,"hostname":"a3e883591673","msg":"Auto-dispatch agent started (30s interval)"}
+2026-04-28T01:54:24.589Z {"level":30,"time":1777341264587,"pid":1,"hostname":"a3e883591673","msg":"Scheduled-order activation agent started (60s interval)"}
+2026-04-28T01:54:54.601Z {"level":40,"time":1777341294601,"pid":1,"hostname":"a3e883591673","err":{"type":"_DrizzleQueryError","message":"Failed query: select \"id\", \"customer_id\", \"business_id\", \"driver_id\", \"status\", \"total_amount\", \"delivery_fee\", \"commission\", \"driver_earnings\", \"tip\", \"payment_method\", \"is_paid\", \"delivery_address\", \"notes\", \"customer_rating\", \"driver_rating\", \"business_rating\", \"delivery_photo_path\", \"verification_pin\", \"promo_code\", \"promo_discount\", \"order_type\", \"pickup_address\", \"picking_status\", \"requires_age_check\", \"age_verified\", \"scheduled_for\", \"cash_settled\", \"business_paid\", \"created_at\", \"updated_at\" from \"orders\" where (\"orders\".\"status\" = $1 and \"orders\".\"driver_id\" is null)\nparams: accepted: column \"verification_pin\" does not exist","stack":"Error: Failed query: select \"id\", \"customer_id\", \"business_id\", \"driver_id\", \"status\", \"total_amount\", \"delivery_fee\", \"commission\", \"driver_earnings\", \"tip\", \"payment_method\", \"is_paid\", \"delivery_address\", \"notes\", \"customer_rating\", \"driver_rating\", \"business_rating\", \"delivery_photo_path\", \"verification_pin\", \"promo_code\", \"promo_discount\", \"order_type\", \"pickup_address\", \"picking_status\", \"requires_age_check\", \"age_verified\", \"scheduled_for\", \"cash_settled\", \"business_paid\", \"created_at\", \"updated_at\" from \"orders\" where (\"orders\".\"status\" = $1 and \"orders\".\"driver_id\" is null)\nparams: accepted\n    at NodePgPreparedQuery.queryWithCache (/app/node_modules/.pnpm/drizzle-orm@0.45.1_@types+pg@8.18.0_pg@8.20.0/node_modules/src/pg-core/session.ts:73:11)\n    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)\n    at async <anonymous> (/app/node_modules/.pnpm/drizzle-orm@0.45.1_@types+pg@8.18.0_pg@8.20.0/node_modules/src/node-postgres/session.ts:154:19)\n    at async Timeout.runAutoDispatch (/app/artifacts/api-server/src/index.ts:25:24)\ncaused by: error: column \"verification_pin\" does not exist\n    at <anonymous> (/app/node_modules/.pnpm/pg-pool@3.13.0_pg@8.20.0/node_modules/pg-pool/index.js:45:11)\n    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)\n    at async <anonymous> (/app/node_modules/.pnpm/drizzle-orm@0.45.1_@types+pg@8.18.0_pg@8.20.0/node_modules/src/node-postgres/session.ts:161:13)\n    at async NodePgPreparedQuery.queryWithCache (/app/node_modules/.pnpm/drizzle-orm@0.45.1_@types+pg@8.18.0_pg@8.20.0/node_modules/src/pg-core/session.ts:71:12)\n    at async <anonymous> (/app/node_modules/.pnpm/drizzle-orm@0.45.1_@types+pg@8.18.0_pg@8.20.0/node_modules/src/node-postgres/session.ts:154:19)\n    at async Timeout.runAutoDispatch (/app/artifacts/api-server/src/index.ts:25:24)","query":"select \"id\", \"customer_id\", \"business_id\", \"driver_id\", \"status\", \"total_amount\", \"delivery_fee\", \"commission\", \"driver_earnings\", \"tip\", \"payment_method\", \"is_paid\", \"delivery_address\", \"notes\", \"customer_rating\", \"driver_rating\", \"business_rating\", \"delivery_photo_path\", \"verification_pin\", \"promo_code\", \"promo_discount\", \"order_type\", \"pickup_address\", \"picking_status\", \"requires_age_check\", \"age_verified\", \"scheduled_for\", \"cash_settled\", \"business_paid\", \"created_at\", \"updated_at\" from \"orders\" where (\"orders\".\"status\" = $1 and \"orders\".\"driver_id\" is null)","params":["accepted"]},"msg":"Auto-dispatch tick failed"}
