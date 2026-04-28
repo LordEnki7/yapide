@@ -15,6 +15,11 @@ echo "========================"
 
 # ── 1. TypeScript ────────────────────────────────────────────────────
 header "TypeScript"
+# Rebuild shared lib declarations first so downstream packages see fresh types
+pnpm --filter @workspace/api-client-react exec tsc --build --quiet 2>/dev/null && \
+  green "Shared lib declarations rebuilt" || \
+  warn "Shared lib rebuild had warnings (continuing)"
+
 if pnpm --filter @workspace/que-lo-que exec tsc --noEmit 2>&1 | grep -q "error TS"; then
   red "Frontend TypeScript errors found"
   pnpm --filter @workspace/que-lo-que exec tsc --noEmit 2>&1 | grep "error TS" | head -5
