@@ -10,6 +10,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ArrowLeft, Star, Plus, X, Pencil, UtensilsCrossed, Search, Check, XCircle, Clock } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import type { Business } from "@workspace/api-client-react";
+
+type AdminBusiness = Business & { approvalStatus?: string };
 
 const CATEGORY_OPTIONS = ["food", "supermarket", "liquor", "pharmacy", "other"];
 
@@ -149,9 +152,10 @@ export default function AdminBusinesses() {
     setShowCreate(true);
   };
 
-  const pendingCount = (businesses ?? []).filter(b => !b.approvalStatus || b.approvalStatus === "pending").length;
+  const adminBusinesses = (businesses ?? []) as AdminBusiness[];
+  const pendingCount = adminBusinesses.filter(b => !b.approvalStatus || b.approvalStatus === "pending").length;
 
-  const filtered = (businesses ?? []).filter(biz => {
+  const filtered = adminBusinesses.filter(biz => {
     const matchSearch = !search ||
       biz.name.toLowerCase().includes(search.toLowerCase()) ||
       (biz.address && biz.address.toLowerCase().includes(search.toLowerCase()));

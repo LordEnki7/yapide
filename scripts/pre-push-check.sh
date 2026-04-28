@@ -16,7 +16,7 @@ echo "========================"
 # ── 1. TypeScript ────────────────────────────────────────────────────
 header "TypeScript"
 # Rebuild shared lib declarations first so downstream packages see fresh types
-pnpm --filter @workspace/api-client-react exec tsc --build --quiet 2>/dev/null && \
+pnpm --filter @workspace/api-client-react exec tsc --build 2>/dev/null && \
   green "Shared lib declarations rebuilt" || \
   warn "Shared lib rebuild had warnings (continuing)"
 
