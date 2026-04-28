@@ -219,7 +219,7 @@ router.patch("/businesses/:businessId", async (req, res): Promise<void> => {
 
 // PATCH /api/businesses/:id/featured — admin toggle featured
 router.patch("/businesses/:businessId/featured", requireAdminPermission("businesses"), async (req, res): Promise<void> => {
-  const id = parseInt(req.params.businessId, 10);
+  const id = parseInt(req.params.businessId as string, 10);
   if (isNaN(id)) { res.status(400).json({ error: "Invalid id" }); return; }
   const { isFeatured } = req.body ?? {};
   const [biz] = await db.update(businessesTable).set({ isFeatured: Boolean(isFeatured) }).where(eq(businessesTable.id, id)).returning();

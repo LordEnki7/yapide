@@ -15,10 +15,11 @@ echo "========================"
 
 # ── 1. TypeScript ────────────────────────────────────────────────────
 header "TypeScript"
-# Rebuild shared lib declarations first so downstream packages see fresh types
-pnpm --filter @workspace/api-client-react exec tsc --build 2>/dev/null && \
-  green "Shared lib declarations rebuilt" || \
-  warn "Shared lib rebuild had warnings (continuing)"
+# Rebuild all shared libs in dependency order so downstream packages see fresh types
+pnpm --filter @workspace/db exec tsc --build 2>/dev/null && green "lib/db rebuilt" || warn "lib/db rebuild had warnings"
+pnpm --filter @workspace/api-zod exec tsc --build 2>/dev/null && green "lib/api-zod rebuilt" || warn "lib/api-zod rebuild had warnings"
+pnpm --filter @workspace/integrations-openai-ai-server exec tsc --build 2>/dev/null && green "lib/integrations-openai-ai-server rebuilt" || warn "lib/integrations-openai-ai-server rebuild had warnings"
+pnpm --filter @workspace/api-client-react exec tsc --build 2>/dev/null && green "lib/api-client-react rebuilt" || warn "lib/api-client-react rebuild had warnings"
 
 if pnpm --filter @workspace/que-lo-que exec tsc --noEmit 2>&1 | grep -q "error TS"; then
   red "Frontend TypeScript errors found"

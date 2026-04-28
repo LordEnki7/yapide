@@ -365,7 +365,7 @@ router.patch("/orders/:orderId/status", async (req, res): Promise<void> => {
   if (parsed.data.status === "accepted") {
     const [existingOrder] = await db.select({ pickingStatus: ordersTable.pickingStatus }).from(ordersTable).where(eq(ordersTable.id, id));
     if (existingOrder?.pickingStatus === "in_progress") {
-      effectiveStatus = "picking";
+      effectiveStatus = "picking" as typeof effectiveStatus;
     }
   }
 
@@ -467,7 +467,7 @@ router.patch("/orders/:orderId/status", async (req, res): Promise<void> => {
       await db.insert(pointsTransactionsTable).values([
         { userId: order.customerId, points: REFERRAL_POINTS, type: "referral_bonus", description: "🎁 Bono por usar código de referido", orderId: order.id },
         { userId: customer.referredById, points: REFERRAL_POINTS, type: "referral_bonus", description: "🎁 Tu amigo hizo su primer pedido en YaPide", orderId: order.id },
-      ]);
+      ] as any[]);
     }
   }
 
@@ -492,7 +492,7 @@ router.patch("/orders/:orderId/status", async (req, res): Promise<void> => {
 
   // ─── WhatsApp notification log ───────────────────────────────────────────
   const waMessages: Record<string, string> = {
-    accepted: `✅ ¡Tu pedido #${order.id} fue confirmado! ${order.business ? `*${(order as any).business?.name}* está` : "El negocio está"} preparando tu pedido. Tiempo estimado: ~40 min. Sigue en vivo: yapide.app 🛵`,
+    accepted: `✅ ¡Tu pedido #${order.id} fue confirmado! El negocio está preparando tu pedido. Tiempo estimado: ~40 min. Sigue en vivo: yapide.app 🛵`,
     picked_up: `🛵 ¡Tu pedido #${order.id} está en camino! Tu driver ya recogió y va hacia ti. ¡Llega en ~20 min! Sigue en vivo: yapide.app`,
     delivered: `🎉 ¡Tu pedido #${order.id} fue entregado! ¡Buen provecho! Califica tu experiencia en la app. ¡Gracias por usar YaPide! 🙌`,
     cancelled: `❌ Tu pedido #${order.id} fue cancelado. Si fue un error, puedes hacer un nuevo pedido en yapide.app. ¿Necesitas ayuda? WhatsApp: +1-809-000-0000 | Email: info@yapide.app`,

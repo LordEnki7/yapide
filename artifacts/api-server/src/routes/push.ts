@@ -60,7 +60,7 @@ router.post("/push/broadcast", async (req, res): Promise<void> => {
   } else if (segment === "new") {
     const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
     users = await db.select({ id: usersTable.id }).from(usersTable)
-      .where(and(eq(usersTable.role, "customer"), lte(sevenDaysAgo, usersTable.createdAt))) as any;
+      .where(and(eq(usersTable.role, "customer"), lte(usersTable.createdAt, sevenDaysAgo))) as any;
   } else {
     users = await db.select({ id: usersTable.id }).from(usersTable).where(eq(usersTable.role, "customer"));
   }

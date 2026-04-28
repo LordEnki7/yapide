@@ -73,7 +73,7 @@ router.post("/admin/staff", requireAdminPermission("staff"), async (req, res): P
   const [user] = await db.insert(usersTable).values({
     name: name.trim(),
     email: email.trim().toLowerCase(),
-    passwordHash: hashPassword(password),
+    passwordHash: await hashPassword(password),
     role: "admin",
     adminRole: targetRole,
     adminPermissions: targetRole === "staff" ? JSON.stringify(permsArray) : null,
@@ -88,7 +88,7 @@ router.post("/admin/staff", requireAdminPermission("staff"), async (req, res): P
 router.patch("/admin/staff/:id", requireAdminPermission("staff"), async (req, res): Promise<void> => {
   const sessionUserId = (req.session as any)?.userId;
   const [me] = await db.select().from(usersTable).where(eq(usersTable.id, sessionUserId));
-  const targetId = parseInt(req.params.id, 10);
+  const targetId = parseInt(req.params.id as string, 10);
   if (isNaN(targetId)) { res.status(400).json({ error: "Invalid id" }); return; }
 
   const [target] = await db.select().from(usersTable).where(eq(usersTable.id, targetId));
@@ -102,7 +102,7 @@ router.patch("/admin/staff/:id", requireAdminPermission("staff"), async (req, re
   const updateData: Partial<typeof usersTable.$inferInsert> = {};
 
   if (name?.trim()?.length >= 2) updateData.name = name.trim();
-  if (password?.length >= 8) updateData.passwordHash = hashPassword(password);
+  if (password?.length >= 8) updateData.passwordHash = await hashPassword(password);
 
   const allowedRoles = me.adminRole === "owner" ? ["master", "staff"] : ["staff"];
   if (adminRole && allowedRoles.includes(adminRole) && target.adminRole !== "owner") {
@@ -128,7 +128,7 @@ router.patch("/admin/staff/:id", requireAdminPermission("staff"), async (req, re
 router.delete("/admin/staff/:id", requireAdminPermission("staff"), async (req, res): Promise<void> => {
   const sessionUserId = (req.session as any)?.userId;
   const [me] = await db.select().from(usersTable).where(eq(usersTable.id, sessionUserId));
-  const targetId = parseInt(req.params.id, 10);
+  const targetId = parseInt(req.params.id as string, 10);
   if (isNaN(targetId) || targetId === sessionUserId) { res.status(400).json({ error: "Invalid request" }); return; }
 
   const [target] = await db.select().from(usersTable).where(eq(usersTable.id, targetId));

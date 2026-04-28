@@ -7,7 +7,7 @@ import { eq } from "drizzle-orm";
 const router = Router();
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: "2025-04-30.basil",
+  apiVersion: "2026-03-25.dahlia",
 });
 
 router.get("/payments/config", (_req, res) => {
@@ -20,7 +20,7 @@ router.post("/payments/create-intent", requireAuth, async (req, res) => {
     const sessionUserId = (req.session as any).userId;
 
     if (!orderId || typeof orderId !== "number") {
-      return res.status(400).json({ error: "orderId is required" });
+      res.status(400).json({ error: "orderId is required" }); return;
     }
 
     // ── Server-side amount: always read from DB, never trust client ──
@@ -30,21 +30,21 @@ router.post("/payments/create-intent", requireAuth, async (req, res) => {
       .where(eq(ordersTable.id, orderId));
 
     if (!order) {
-      return res.status(404).json({ error: "Order not found" });
+      res.status(404).json({ error: "Order not found" }); return;
     }
 
     if (order.customerId !== sessionUserId) {
-      return res.status(403).json({ error: "Not your order" });
+      res.status(403).json({ error: "Not your order" }); return;
     }
 
-    if (order.paymentStatus === "paid") {
-      return res.status(409).json({ error: "Order already paid" });
+    if ((order as any).paymentStatus === "paid") {
+      res.status(409).json({ error: "Order already paid" }); return;
     }
 
     // Convert DOP to cents (Stripe requires smallest currency unit)
     const amountCents = Math.round(order.totalAmount * 100);
     if (amountCents < 50) {
-      return res.status(400).json({ error: "Order amount too small" });
+      res.status(400).json({ error: "Order amount too small" }); return;
     }
 
     const paymentIntent = await stripe.paymentIntents.create({

@@ -240,7 +240,7 @@ router.get("/agents/menu-optimizer/status", async (req, res): Promise<void> => {
     } else if (sales < 3) {
       insights.push({ type: "slow_mover", severity: "medium", productName: product.name, productId: product.id, description: `Only ${sales} sold in 30 days — consider a discount or feature.` });
     }
-    if (product.isOutOfStock) {
+    if (!product.isAvailable) {
       insights.push({ type: "out_of_stock", severity: "high", productName: product.name, productId: product.id, description: "Currently out of stock — revenue being lost." });
     }
   }
@@ -255,8 +255,8 @@ router.get("/agents/menu-optimizer/status", async (req, res): Promise<void> => {
 
   res.json({
     totalProducts: allProducts.length,
-    activeProducts: allProducts.filter(p => !p.isOutOfStock).length,
-    outOfStock: allProducts.filter(p => p.isOutOfStock).length,
+    activeProducts: allProducts.filter(p => !!p.isAvailable).length,
+    outOfStock: allProducts.filter(p => !p.isAvailable).length,
     insights: insights.sort((a, b) => a.severity === "high" ? -1 : 1),
     topProducts,
     status: insights.some(i => i.severity === "high") ? "action_needed" : "good",
@@ -563,7 +563,7 @@ router.post("/agents/promo/execute", async (req, res): Promise<void> => {
 
       } else if (action.type === "qr_code") {
         const { targetPath, promoCode, description } = action.data;
-        results.push({ type: "qr_code", status: "ready", targetPath, promoCode: promoCode ?? null, description });
+        results.push({ type: "qr_code", status: "ready", targetPath, promoCode: promoCode ?? null, description } as any);
 
       } else {
         results.push({ type: action.type, status: "unknown_type" });
@@ -650,7 +650,7 @@ router.get("/agents/accountant/snapshot", async (req, res): Promise<void> => {
     .map(d => ({
       id: d.id,
       driverId: d.driverId,
-      amount: d.amount,
+      amount: d.amountExpected,
       discrepancy: (d as any).discrepancy ?? 0,
       createdAt: d.createdAt,
     }));
