@@ -66,16 +66,64 @@ export default function Landing() {
         alt="YaPide"
         style={{
           position: "absolute",
-          top: "60px",
+          top: "114px",
           left: 0,
           right: 0,
           width: "100%",
-          height: "calc(100% - 60px)",
+          height: "calc(100% - 114px)",
           objectFit: "contain",
           objectPosition: "top center",
           display: "block",
         }}
       />
+
+      {/* Tagline — ENTREGA RÁPIDA Y CONFIABLE — sits just below the top bar */}
+      <div
+        style={{
+          position: "absolute",
+          left: 0,
+          right: 0,
+          top: "44px",
+          zIndex: 15,
+          display: "flex",
+          flexDirection: "column",
+          gap: "2px",
+        }}
+      >
+        {[
+          { text: "ENTREGA", yellow: false },
+          { text: "RÁPIDA", yellow: true },
+          { text: "Y CONFIABLE", yellow: false },
+        ].map(({ text, yellow }) => (
+          <div
+            key={text}
+            style={{
+              position: "relative",
+              background: "rgba(2, 18, 65, 0.78)",
+              padding: "2px 16px",
+              overflow: "hidden",
+            }}
+          >
+            <div style={{
+              position: "absolute", inset: 0, opacity: 0.15,
+              background: "repeating-linear-gradient(175deg, transparent, transparent 3px, rgba(255,255,255,0.6) 3px, rgba(255,255,255,0.6) 4px)",
+            }} />
+            <span style={{
+              position: "relative",
+              fontSize: "14px",
+              fontWeight: 900,
+              fontStyle: yellow ? "italic" : "normal",
+              color: yellow ? "#FFD700" : "#ffffff",
+              letterSpacing: "0.08em",
+              lineHeight: 1.2,
+              display: "block",
+              textAlign: "center",
+            }}>
+              {text}
+            </span>
+          </div>
+        ))}
+      </div>
 
       {/* Top bar */}
       <div style={{ position: "absolute", top: 0, left: 0, right: 0, zIndex: 20, display: "flex", alignItems: "center", justifyContent: "space-between", padding: "18px 20px 8px" }}>
