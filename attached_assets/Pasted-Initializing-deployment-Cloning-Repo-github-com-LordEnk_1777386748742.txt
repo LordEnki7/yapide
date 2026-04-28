@@ -1,0 +1,546 @@
+Initializing deployment
+Cloning Repo github.com/LordEnki7/yapide.git to /etc/dokploy/applications/yapida-yapida-8si6bu/code: ✅
+Cloning into '/etc/dokploy/applications/yapida-yapida-8si6bu/code'...
+remote: Enumerating objects: 654, done.
+remote: Counting objects:   0% (1/654)        
+remote: Counting objects:   1% (7/654)        
+remote: Counting objects:   2% (14/654)        
+remote: Counting objects:   3% (20/654)        
+remote: Counting objects:   4% (27/654)        
+remote: Counting objects:   5% (33/654)        
+remote: Counting objects:   6% (40/654)        
+remote: Counting objects:   7% (46/654)        
+remote: Counting objects:   8% (53/654)        
+remote: Counting objects:   9% (59/654)        
+remote: Counting objects:  10% (66/654)        
+remote: Counting objects:  11% (72/654)        
+remote: Counting objects:  12% (79/654)        
+remote: Counting objects:  13% (86/654)        
+remote: Counting objects:  14% (92/654)        
+remote: Counting objects:  15% (99/654)        
+remote: Counting objects:  16% (105/654)        
+remote: Counting objects:  17% (112/654)        
+remote: Counting objects:  18% (118/654)        
+remote: Counting objects:  19% (125/654)        
+remote: Counting objects:  20% (131/654)        
+remote: Counting objects:  21% (138/654)        
+remote: Counting objects:  22% (144/654)        
+remote: Counting objects:  23% (151/654)        
+remote: Counting objects:  24% (157/654)        
+remote: Counting objects:  25% (164/654)        
+remote: Counting objects:  26% (171/654)        
+remote: Counting objects:  27% (177/654)        
+remote: Counting objects:  28% (184/654)        
+remote: Counting objects:  29% (190/654)        
+remote: Counting objects:  30% (197/654)        
+remote: Counting objects:  31% (203/654)        
+remote: Counting objects:  32% (210/654)        
+remote: Counting objects:  33% (216/654)        
+remote: Counting objects:  34% (223/654)        
+remote: Counting objects:  35% (229/654)        
+remote: Counting objects:  36% (236/654)        
+remote: Counting objects:  37% (242/654)        
+remote: Counting objects:  38% (249/654)        
+remote: Counting objects:  39% (256/654)        
+remote: Counting objects:  40% (262/654)        
+remote: Counting objects:  41% (269/654)        
+remote: Counting objects:  42% (275/654)        
+remote: Counting objects:  43% (282/654)        
+remote: Counting objects:  44% (288/654)        
+remote: Counting objects:  45% (295/654)        
+remote: Counting objects:  46% (301/654)        
+remote: Counting objects:  47% (308/654)        
+remote: Counting objects:  48% (314/654)        
+remote: Counting objects:  49% (321/654)        
+remote: Counting objects:  50% (327/654)        
+remote: Counting objects:  51% (334/654)        
+remote: Counting objects:  52% (341/654)        
+remote: Counting objects:  53% (347/654)        
+remote: Counting objects:  54% (354/654)        
+remote: Counting objects:  55% (360/654)        
+remote: Counting objects:  56% (367/654)        
+remote: Counting objects:  57% (373/654)        
+remote: Counting objects:  58% (380/654)        
+remote: Counting objects:  59% (386/654)        
+remote: Counting objects:  60% (393/654)        
+remote: Counting objects:  61% (399/654)        
+remote: Counting objects:  62% (406/654)        
+remote: Counting objects:  63% (413/654)        
+remote: Counting objects:  64% (419/654)        
+remote: Counting objects:  65% (426/654)        
+remote: Counting objects:  66% (432/654)        
+remote: Counting objects:  67% (439/654)        
+remote: Counting objects:  68% (445/654)        
+remote: Counting objects:  69% (452/654)        
+remote: Counting objects:  70% (458/654)        
+remote: Counting objects:  71% (465/654)        
+remote: Counting objects:  72% (471/654)        
+remote: Counting objects:  73% (478/654)        
+remote: Counting objects:  74% (484/654)        
+remote: Counting objects:  75% (491/654)        
+remote: Counting objects:  76% (498/654)        
+remote: Counting objects:  77% (504/654)        
+remote: Counting objects:  78% (511/654)        
+remote: Counting objects:  79% (517/654)        
+remote: Counting objects:  80% (524/654)        
+remote: Counting objects:  81% (530/654)        
+remote: Counting objects:  82% (537/654)        
+remote: Counting objects:  83% (543/654)        
+remote: Counting objects:  84% (550/654)        
+remote: Counting objects:  85% (556/654)        
+remote: Counting objects:  86% (563/654)        
+remote: Counting objects:  87% (569/654)        
+remote: Counting objects:  88% (576/654)        
+remote: Counting objects:  89% (583/654)        
+remote: Counting objects:  90% (589/654)        
+remote: Counting objects:  91% (596/654)        
+remote: Counting objects:  92% (602/654)        
+remote: Counting objects:  93% (609/654)        
+remote: Counting objects:  94% (615/654)        
+remote: Counting objects:  95% (622/654)        
+remote: Counting objects:  96% (628/654)        
+remote: Counting objects:  97% (635/654)        
+remote: Counting objects:  98% (641/654)        
+remote: Counting objects:  99% (648/654)        
+remote: Counting objects: 100% (654/654)        
+remote: Counting objects: 100% (654/654), done.
+remote: Compressing objects:   0% (1/537)        
+remote: Compressing objects:   1% (6/537)        
+remote: Compressing objects:   2% (11/537)        
+remote: Compressing objects:   3% (17/537)        
+remote: Compressing objects:   4% (22/537)        
+remote: Compressing objects:   5% (27/537)        
+remote: Compressing objects:   6% (33/537)        
+remote: Compressing objects:   7% (38/537)        
+remote: Compressing objects:   8% (43/537)        
+remote: Compressing objects:   9% (49/537)        
+remote: Compressing objects:  10% (54/537)        
+remote: Compressing objects:  11% (60/537)        
+remote: Compressing objects:  12% (65/537)        
+remote: Compressing objects:  13% (70/537)        
+remote: Compressing objects:  14% (76/537)        
+remote: Compressing objects:  15% (81/537)        
+remote: Compressing objects:  16% (86/537)        
+remote: Compressing objects:  17% (92/537)        
+remote: Compressing objects:  18% (97/537)        
+remote: Compressing objects:  19% (103/537)        
+remote: Compressing objects:  20% (108/537)        
+remote: Compressing objects:  21% (113/537)        
+remote: Compressing objects:  22% (119/537)        
+remote: Compressing objects:  23% (124/537)        
+remote: Compressing objects:  24% (129/537)        
+remote: Compressing objects:  25% (135/537)        
+remote: Compressing objects:  26% (140/537)        
+remote: Compressing objects:  27% (145/537)        
+remote: Compressing objects:  28% (151/537)        
+remote: Compressing objects:  29% (156/537)        
+remote: Compressing objects:  30% (162/537)        
+remote: Compressing objects:  31% (167/537)        
+remote: Compressing objects:  32% (172/537)        
+remote: Compressing objects:  33% (178/537)        
+remote: Compressing objects:  34% (183/537)        
+remote: Compressing objects:  35% (188/537)        
+remote: Compressing objects:  36% (194/537)        
+remote: Compressing objects:  37% (199/537)        
+remote: Compressing objects:  38% (205/537)        
+remote: Compressing objects:  39% (210/537)        
+remote: Compressing objects:  40% (215/537)        
+remote: Compressing objects:  41% (221/537)        
+remote: Compressing objects:  42% (226/537)        
+remote: Compressing objects:  43% (231/537)        
+remote: Compressing objects:  44% (237/537)        
+remote: Compressing objects:  45% (242/537)        
+remote: Compressing objects:  46% (248/537)        
+remote: Compressing objects:  47% (253/537)        
+remote: Compressing objects:  48% (258/537)        
+remote: Compressing objects:  49% (264/537)        
+remote: Compressing objects:  50% (269/537)        
+remote: Compressing objects:  51% (274/537)        
+remote: Compressing objects:  52% (280/537)        
+remote: Compressing objects:  53% (285/537)        
+remote: Compressing objects:  54% (290/537)        
+remote: Compressing objects:  55% (296/537)        
+remote: Compressing objects:  56% (301/537)        
+remote: Compressing objects:  57% (307/537)        
+remote: Compressing objects:  58% (312/537)        
+remote: Compressing objects:  59% (317/537)        
+remote: Compressing objects:  60% (323/537)        
+remote: Compressing objects:  61% (328/537)        
+remote: Compressing objects:  62% (333/537)        
+remote: Compressing objects:  63% (339/537)        
+remote: Compressing objects:  64% (344/537)        
+remote: Compressing objects:  65% (350/537)        
+remote: Compressing objects:  66% (355/537)        
+remote: Compressing objects:  67% (360/537)        
+remote: Compressing objects:  68% (366/537)        
+remote: Compressing objects:  69% (371/537)        
+remote: Compressing objects:  70% (376/537)        
+remote: Compressing objects:  71% (382/537)        
+remote: Compressing objects:  72% (387/537)        
+remote: Compressing objects:  73% (393/537)        
+remote: Compressing objects:  74% (398/537)        
+remote: Compressing objects:  75% (403/537)        
+remote: Compressing objects:  76% (409/537)        
+remote: Compressing objects:  77% (414/537)        
+remote: Compressing objects:  78% (419/537)        
+remote: Compressing objects:  79% (425/537)        
+remote: Compressing objects:  80% (430/537)        
+remote: Compressing objects:  81% (435/537)        
+remote: Compressing objects:  82% (441/537)        
+remote: Compressing objects:  83% (446/537)        
+remote: Compressing objects:  84% (452/537)        
+remote: Compressing objects:  85% (457/537)        
+remote: Compressing objects:  86% (462/537)        
+remote: Compressing objects:  87% (468/537)        
+remote: Compressing objects:  88% (473/537)        
+remote: Compressing objects:  89% (478/537)        
+remote: Compressing objects:  90% (484/537)        
+remote: Compressing objects:  91% (489/537)        
+remote: Compressing objects:  92% (495/537)        
+remote: Compressing objects:  93% (500/537)        
+remote: Compressing objects:  94% (505/537)        
+remote: Compressing objects:  95% (511/537)        
+remote: Compressing objects:  96% (516/537)        
+remote: Compressing objects:  97% (521/537)        
+remote: Compressing objects:  98% (527/537)        
+remote: Compressing objects:  99% (532/537)        
+remote: Compressing objects: 100% (537/537)        
+remote: Compressing objects: 100% (537/537), done.
+Receiving objects:   0% (1/654)
+Receiving objects:   1% (7/654)
+Receiving objects:   2% (14/654)
+Receiving objects:   3% (20/654)
+Receiving objects:   4% (27/654)
+Receiving objects:   5% (33/654)
+Receiving objects:   6% (40/654)
+Receiving objects:   7% (46/654)
+Receiving objects:   8% (53/654)
+Receiving objects:   9% (59/654)
+Receiving objects:  10% (66/654)
+Receiving objects:  11% (72/654)
+Receiving objects:  12% (79/654)
+Receiving objects:  13% (86/654)
+Receiving objects:  14% (92/654)
+Receiving objects:  15% (99/654)
+Receiving objects:  16% (105/654)
+Receiving objects:  17% (112/654)
+Receiving objects:  18% (118/654)
+Receiving objects:  19% (125/654)
+Receiving objects:  20% (131/654)
+Receiving objects:  21% (138/654)
+Receiving objects:  22% (144/654)
+Receiving objects:  23% (151/654)
+Receiving objects:  24% (157/654)
+Receiving objects:  25% (164/654)
+Receiving objects:  26% (171/654)
+Receiving objects:  27% (177/654)
+Receiving objects:  28% (184/654)
+Receiving objects:  29% (190/654)
+Receiving objects:  30% (197/654)
+Receiving objects:  31% (203/654)
+Receiving objects:  32% (210/654)
+Receiving objects:  33% (216/654)
+Receiving objects:  34% (223/654)
+Receiving objects:  35% (229/654)
+Receiving objects:  36% (236/654)
+Receiving objects:  37% (242/654)
+Receiving objects:  38% (249/654)
+Receiving objects:  39% (256/654)
+Receiving objects:  40% (262/654)
+Receiving objects:  41% (269/654)
+Receiving objects:  42% (275/654)
+Receiving objects:  43% (282/654)
+Receiving objects:  44% (288/654)
+Receiving objects:  45% (295/654)
+Receiving objects:  46% (301/654)
+Receiving objects:  47% (308/654)
+Receiving objects:  48% (314/654)
+Receiving objects:  49% (321/654)
+Receiving objects:  50% (327/654)
+Receiving objects:  51% (334/654)
+Receiving objects:  52% (341/654)
+Receiving objects:  53% (347/654)
+Receiving objects:  54% (354/654)
+Receiving objects:  55% (360/654)
+Receiving objects:  56% (367/654)
+Receiving objects:  57% (373/654)
+Receiving objects:  58% (380/654)
+Receiving objects:  59% (386/654)
+Receiving objects:  60% (393/654)
+Receiving objects:  61% (399/654)
+Receiving objects:  62% (406/654)
+Receiving objects:  63% (413/654)
+Receiving objects:  64% (419/654)
+Receiving objects:  65% (426/654)
+Receiving objects:  66% (432/654)
+Receiving objects:  67% (439/654)
+Receiving objects:  68% (445/654)
+Receiving objects:  69% (452/654)
+Receiving objects:  70% (458/654)
+Receiving objects:  71% (465/654)
+Receiving objects:  72% (471/654)
+Receiving objects:  73% (478/654)
+Receiving objects:  74% (484/654)
+Receiving objects:  75% (491/654)
+Receiving objects:  76% (498/654)
+Receiving objects:  77% (504/654)
+Receiving objects:  78% (511/654)
+Receiving objects:  79% (517/654)
+Receiving objects:  80% (524/654)
+Receiving objects:  81% (530/654)
+Receiving objects:  82% (537/654)
+Receiving objects:  83% (543/654)
+Receiving objects:  84% (550/654)
+Receiving objects:  85% (556/654)
+Receiving objects:  86% (563/654)
+remote: Total 654 (delta 111), reused 480 (delta 64), pack-reused 0 (from 0)
+Receiving objects:  87% (569/654)
+Receiving objects:  88% (576/654)
+Receiving objects:  89% (583/654)
+Receiving objects:  90% (589/654)
+Receiving objects:  91% (596/654)
+Receiving objects:  92% (602/654)
+Receiving objects:  93% (609/654)
+Receiving objects:  94% (615/654)
+Receiving objects:  95% (622/654)
+Receiving objects:  96% (628/654)
+Receiving objects:  97% (635/654)
+Receiving objects:  98% (641/654)
+Receiving objects:  99% (648/654)
+Receiving objects: 100% (654/654)
+Receiving objects: 100% (654/654), 23.90 MiB | 85.88 MiB/s, done.
+Resolving deltas:   0% (0/111)
+Resolving deltas:   1% (2/111)
+Resolving deltas:   2% (3/111)
+Resolving deltas:   3% (4/111)
+Resolving deltas:   4% (5/111)
+Resolving deltas:   5% (6/111)
+Resolving deltas:   6% (7/111)
+Resolving deltas:   8% (9/111)
+Resolving deltas:   9% (10/111)
+Resolving deltas:  10% (12/111)
+Resolving deltas:  11% (13/111)
+Resolving deltas:  12% (14/111)
+Resolving deltas:  13% (15/111)
+Resolving deltas:  14% (16/111)
+Resolving deltas:  15% (17/111)
+Resolving deltas:  16% (18/111)
+Resolving deltas:  17% (19/111)
+Resolving deltas:  18% (20/111)
+Resolving deltas:  19% (22/111)
+Resolving deltas:  20% (23/111)
+Resolving deltas:  22% (25/111)
+Resolving deltas:  23% (26/111)
+Resolving deltas:  24% (27/111)
+Resolving deltas:  25% (28/111)
+Resolving deltas:  26% (29/111)
+Resolving deltas:  27% (30/111)
+Resolving deltas:  28% (32/111)
+Resolving deltas:  29% (33/111)
+Resolving deltas:  30% (34/111)
+Resolving deltas:  31% (35/111)
+Resolving deltas:  32% (36/111)
+Resolving deltas:  33% (37/111)
+Resolving deltas:  34% (38/111)
+Resolving deltas:  35% (39/111)
+Resolving deltas:  36% (40/111)
+Resolving deltas:  37% (42/111)
+Resolving deltas:  38% (43/111)
+Resolving deltas:  39% (44/111)
+Resolving deltas:  40% (45/111)
+Resolving deltas:  41% (46/111)
+Resolving deltas:  42% (47/111)
+Resolving deltas:  43% (48/111)
+Resolving deltas:  44% (49/111)
+Resolving deltas:  45% (50/111)
+Resolving deltas:  46% (52/111)
+Resolving deltas:  47% (53/111)
+Resolving deltas:  48% (54/111)
+Resolving deltas:  49% (55/111)
+Resolving deltas:  50% (56/111)
+Resolving deltas:  51% (57/111)
+Resolving deltas:  52% (58/111)
+Resolving deltas:  53% (59/111)
+Resolving deltas:  54% (60/111)
+Resolving deltas:  55% (62/111)
+Resolving deltas:  56% (63/111)
+Resolving deltas:  57% (64/111)
+Resolving deltas:  58% (65/111)
+Resolving deltas:  59% (66/111)
+Resolving deltas:  60% (67/111)
+Resolving deltas:  61% (68/111)
+Resolving deltas:  62% (69/111)
+Resolving deltas:  63% (70/111)
+Resolving deltas:  64% (72/111)
+Resolving deltas:  65% (73/111)
+Resolving deltas:  66% (74/111)
+Resolving deltas:  67% (75/111)
+Resolving deltas:  68% (76/111)
+Resolving deltas:  69% (77/111)
+Resolving deltas:  70% (78/111)
+Resolving deltas:  71% (79/111)
+Resolving deltas:  72% (80/111)
+Resolving deltas:  74% (83/111)
+Resolving deltas:  75% (84/111)
+Resolving deltas:  76% (85/111)
+Resolving deltas:  77% (86/111)
+Resolving deltas:  78% (87/111)
+Resolving deltas:  79% (88/111)
+Resolving deltas:  80% (89/111)
+Resolving deltas:  81% (90/111)
+Resolving deltas:  82% (92/111)
+Resolving deltas:  83% (93/111)
+Resolving deltas:  85% (95/111)
+Resolving deltas:  86% (96/111)
+Resolving deltas:  87% (97/111)
+Resolving deltas:  88% (98/111)
+Resolving deltas:  89% (99/111)
+Resolving deltas:  90% (100/111)
+Resolving deltas:  91% (102/111)
+Resolving deltas:  92% (103/111)
+Resolving deltas:  93% (104/111)
+Resolving deltas:  94% (105/111)
+Resolving deltas:  95% (106/111)
+Resolving deltas:  96% (107/111)
+Resolving deltas:  97% (108/111)
+Resolving deltas:  98% (109/111)
+Resolving deltas:  99% (110/111)
+Resolving deltas: 100% (111/111)
+Resolving deltas: 100% (111/111), done.
+Building yapida-yapida-8si6bu
+#0 building with "default" instance using docker driver
+#1 [internal] load build definition from Dockerfile
+#1 transferring dockerfile: 897B done
+#1 DONE 0.0s
+#2 [internal] load metadata for docker.io/library/node:24-slim
+#2 DONE 0.2s
+#3 [internal] load .dockerignore
+#3 transferring context: 2B done
+#3 DONE 0.0s
+#4 [stage-0  1/14] FROM docker.io/library/node:24-slim@sha256:03eae3ef7e88a9de535496fb488d67e02b9d96a063a8967bae657744ecd513f2
+#4 resolve docker.io/library/node:24-slim@sha256:03eae3ef7e88a9de535496fb488d67e02b9d96a063a8967bae657744ecd513f2 0.0s done
+#4 DONE 0.0s
+#5 [internal] load build context
+#5 transferring context: 5.31MB 0.1s done
+#5 DONE 0.1s
+#6 [stage-0  2/14] RUN corepack enable && corepack prepare pnpm@latest --activate
+#6 CACHED
+#7 [stage-0  3/14] WORKDIR /app
+#7 CACHED
+#8 [stage-0  4/14] COPY pnpm-workspace.yaml pnpm-lock.yaml .npmrc ./
+#8 DONE 0.1s
+#9 [stage-0  5/14] COPY package.json ./
+#9 DONE 0.0s
+#10 [stage-0  6/14] COPY tsconfig.base.json tsconfig.json ./
+#10 DONE 0.0s
+#11 [stage-0  7/14] COPY lib/ ./lib/
+#11 DONE 0.1s
+#12 [stage-0  8/14] COPY artifacts/api-server/ ./artifacts/api-server/
+#12 DONE 0.1s
+#13 [stage-0  9/14] COPY artifacts/que-lo-que/ ./artifacts/que-lo-que/
+#13 DONE 0.1s
+#14 [stage-0 10/14] RUN --mount=type=cache,id=pnpm,target=/pnpm/store     pnpm install --frozen-lockfile
+#14 0.516 Scope: all 10 workspace projects
+#14 0.583 Lockfile is up to date, resolution step is skipped
+#14 0.629 Progress: resolved 1, reused 0, downloaded 0, added 0
+#14 0.708 Packages: +811
+#14 0.708 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+#14 1.631 Progress: resolved 811, reused 696, downloaded 0, added 0
+#14 2.631 Progress: resolved 811, reused 811, downloaded 0, added 55
+#14 3.632 Progress: resolved 811, reused 811, downloaded 0, added 220
+#14 4.633 Progress: resolved 811, reused 811, downloaded 0, added 282
+#14 5.633 Progress: resolved 811, reused 811, downloaded 0, added 337
+#14 6.636 Progress: resolved 811, reused 811, downloaded 0, added 443
+#14 7.634 Progress: resolved 811, reused 811, downloaded 0, added 569
+#14 8.635 Progress: resolved 811, reused 811, downloaded 0, added 603
+#14 9.636 Progress: resolved 811, reused 811, downloaded 0, added 608
+#14 10.64 Progress: resolved 811, reused 811, downloaded 0, added 611
+#14 11.64 Progress: resolved 811, reused 811, downloaded 0, added 616
+#14 12.84 Progress: resolved 811, reused 811, downloaded 0, added 617
+#14 13.84 Progress: resolved 811, reused 811, downloaded 0, added 618
+#14 14.84 Progress: resolved 811, reused 811, downloaded 0, added 655
+#14 15.84 Progress: resolved 811, reused 811, downloaded 0, added 698
+#14 16.84 Progress: resolved 811, reused 811, downloaded 0, added 744
+#14 17.84 Progress: resolved 811, reused 811, downloaded 0, added 794
+#14 18.06 Progress: resolved 811, reused 811, downloaded 0, added 811, done
+#14 19.15
+#14 19.15 devDependencies:
+#14 19.15 + prettier 3.8.1
+#14 19.15 + sharp 0.34.5
+#14 19.15 + typescript 5.9.3
+#14 19.15
+#14 19.19 . preinstall$ sh -c 'rm -f package-lock.json yarn.lock; case "$npm_config_user_agent" in pnpm/*) ;; *) echo "Use pnpm instead" >&2; exit 1 ;; esac'
+#14 19.21 . preinstall: Done
+#14 19.32 ╭ Warning ─────────────────────────────────────────────────────────────────────╮
+#14 19.32 │                                                                              │
+#14 19.32 │   Ignored build scripts: bcrypt@6.0.0, sharp@0.34.5.                         │
+#14 19.32 │   Run "pnpm approve-builds" to pick which dependencies should be allowed     │
+#14 19.32 │   to run scripts.                                                            │
+#14 19.32 │                                                                              │
+#14 19.32 ╰──────────────────────────────────────────────────────────────────────────────╯
+#14 19.33 Done in 19.1s using pnpm v10.33.2
+#14 DONE 19.6s
+#15 [stage-0 11/14] RUN pnpm --filter @workspace/api-server run build
+#15 0.707
+#15 0.707 > @workspace/api-server@0.0.0 build /app/artifacts/api-server
+#15 0.707 > node ./build.mjs
+#15 0.707
+#15 1.138
+#15 1.138   dist/index.mjs                       3.7mb ⚠️
+#15 1.138   dist/pino-worker.mjs               153.4kb
+#15 1.138   dist/pino-file.mjs                 142.0kb
+#15 1.138   dist/pino-pretty.mjs               114.6kb
+#15 1.138   dist/thread-stream-worker.mjs        7.3kb
+#15 1.138   dist/index.mjs.map                   6.6mb
+#15 1.138   dist/pino-worker.mjs.map           256.9kb
+#15 1.138   dist/pino-file.mjs.map             229.0kb
+#15 1.138   dist/pino-pretty.mjs.map           203.9kb
+#15 1.138   dist/thread-stream-worker.mjs.map   12.0kb
+#15 1.138
+#15 1.138 ⚡ Done in 390ms
+#15 DONE 1.2s
+#16 [stage-0 12/14] RUN VITE_API_URL="" pnpm --filter @workspace/que-lo-que run build
+#16 0.377
+#16 0.377 > @workspace/que-lo-que@0.0.0 build /app/artifacts/que-lo-que
+#16 0.377 > vite build --config vite.config.ts
+#16 0.377
+#16 0.613 vite v7.3.1 building client environment for production...
+#16 0.686 transforming...
+#16 1.081 src/components/ui/tooltip.tsx (2:0): Error when using sourcemap for reporting an error: Can't resolve original location of error.
+#16 2.257 src/components/ui/progress.tsx (2:0): Error when using sourcemap for reporting an error: Can't resolve original location of error.
+#16 4.229 ✓ 2116 modules transformed.
+#16 4.435 rendering chunks...
+#16 4.608 [plugin vite:reporter]
+#16 4.608 (!) /app/artifacts/que-lo-que/src/lib/auth.ts is dynamically imported by /app/artifacts/que-lo-que/src/pages/customer/Profile.tsx but also statically imported by /app/artifacts/que-lo-que/src/components/BottomNav.tsx, /app/artifacts/que-lo-que/src/components/ChatPanel.tsx, /app/artifacts/que-lo-que/src/components/JobAlertModal.tsx, /app/artifacts/que-lo-que/src/components/RoleSwitcher.tsx, /app/artifacts/que-lo-que/src/pages/Landing.tsx, /app/artifacts/que-lo-que/src/pages/Login.tsx, /app/artifacts/que-lo-que/src/pages/Register.tsx, /app/artifacts/que-lo-que/src/pages/admin/BusinessMenu.tsx, /app/artifacts/que-lo-que/src/pages/admin/CashFlow.tsx, /app/artifacts/que-lo-que/src/pages/admin/CommandCenter.tsx, /app/artifacts/que-lo-que/src/pages/admin/Dashboard.tsx, /app/artifacts/que-lo-que/src/pages/admin/Disputes.tsx, /app/artifacts/que-lo-que/src/pages/admin/Drivers.tsx, /app/artifacts/que-lo-que/src/pages/admin/Orders.tsx, /app/artifacts/que-lo-que/src/pages/business/Analytics.tsx, /app/artifacts/que-lo-que/src/pages/business/Dashboard.tsx, /app/artifacts/que-lo-que/src/pages/business/Menu.tsx, /app/artifacts/que-lo-que/src/pages/business/Orders.tsx, /app/artifacts/que-lo-que/src/pages/business/Payouts.tsx, /app/artifacts/que-lo-que/src/pages/business/Profile.tsx, /app/artifacts/que-lo-que/src/pages/customer/BusinessStore.tsx, /app/artifacts/que-lo-que/src/pages/customer/Cart.tsx, /app/artifacts/que-lo-que/src/pages/customer/Home.tsx, /app/artifacts/que-lo-que/src/pages/customer/OrderDetail.tsx, /app/artifacts/que-lo-que/src/pages/customer/Orders.tsx, /app/artifacts/que-lo-que/src/pages/customer/Profile.tsx, /app/artifacts/que-lo-que/src/pages/customer/Search.tsx, /app/artifacts/que-lo-que/src/pages/customer/Support.tsx, /app/artifacts/que-lo-que/src/pages/driver/Dashboard.tsx, /app/artifacts/que-lo-que/src/pages/driver/Jobs.tsx, /app/artifacts/que-lo-que/src/pages/driver/Profile.tsx, /app/artifacts/que-lo-que/src/pages/driver/Wallet.tsx, dynamic import will not move module into another chunk.
+#16 4.608
+#16 4.627 computing gzip size...
+#16 4.656 dist/public/index.html                               1.44 kB │ gzip:   0.57 kB
+#16 4.656 dist/public/assets/leaflet-CIGW-MKW.css             15.61 kB │ gzip:   6.46 kB
+#16 4.656 dist/public/assets/index-BE1WvM1J.css              239.42 kB │ gzip:  35.05 kB
+#16 4.656 dist/public/assets/LiveDriverMap-DWUR1ZM_.js         4.44 kB │ gzip:   1.86 kB
+#16 4.656 dist/public/assets/StripePaymentSheet-cMyA5ztN.js   16.42 kB │ gzip:   6.45 kB
+#16 4.656 dist/public/assets/leaflet-src-CIoijuei.js         149.90 kB │ gzip:  43.48 kB
+#16 4.656 dist/public/assets/index-BtBTYh5G.js               906.89 kB │ gzip: 240.56 kB
+#16 4.656
+#16 4.656 (!) Some chunks are larger than 500 kB after minification. Consider:
+#16 4.656 - Using dynamic import() to code-split the application
+#16 4.656 - Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+#16 4.656 - Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+#16 4.656 ✓ built in 4.02s
+#16 DONE 4.8s
+#17 [stage-0 13/14] COPY docker-entrypoint.sh /docker-entrypoint.sh
+#17 DONE 0.1s
+#18 [stage-0 14/14] RUN chmod +x /docker-entrypoint.sh
+#18 DONE 0.2s
+#19 exporting to image
+#19 exporting layers
+#19 exporting layers 15.5s done
+#19 exporting manifest sha256:5b43c3175858023929ec29e9d2dccef9dfc364e388f8f635ecc98da11bde36fe 0.0s done
+#19 exporting config sha256:a0821785ef9a806e3adf12f968ec76217531a0e0d1b917709f1b11fedb9349d0 0.0s done
+#19 exporting attestation manifest sha256:1c5151cb6b7f9931c3a37f69e4536c79d6a0002f4079984c8b0c84f68eddd288 0.0s done
+#19 exporting manifest list sha256:ff86a5fd343dac8bec18785e8a9fe6c0b5bf98223c908523894f66462e6ef514 done
+#19 naming to docker.io/library/yapida-yapida-8si6bu:latest done
+#19 unpacking to docker.io/library/yapida-yapida-8si6bu:latest
+#19 unpacking to docker.io/library/yapida-yapida-8si6bu:latest 5.7s done
+#19 DONE 21.3s
+✅ Docker build completed.

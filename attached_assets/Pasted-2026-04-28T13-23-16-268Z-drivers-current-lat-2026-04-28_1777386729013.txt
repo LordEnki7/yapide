@@ -1,0 +1,89 @@
+2026-04-28T13:23:16.268Z ✓ drivers.current_lat
+2026-04-28T13:23:16.268Z ✓ drivers.current_lng
+2026-04-28T13:23:16.269Z ✓ drivers.wallet_balance
+2026-04-28T13:23:16.269Z ✓ drivers.photo_url
+2026-04-28T13:23:16.270Z ✓ drivers.updated_at
+2026-04-28T13:23:16.270Z ✓ orders.commission
+2026-04-28T13:23:16.271Z ✓ orders.delivery_fee
+2026-04-28T13:23:16.271Z ✓ orders.driver_id
+2026-04-28T13:23:16.272Z ✓ orders.delivery_address
+2026-04-28T13:23:16.272Z ✓ orders.delivery_lat
+2026-04-28T13:23:16.272Z ✓ orders.delivery_lng
+2026-04-28T13:23:16.274Z ✓ orders.notes
+2026-04-28T13:23:16.274Z ✓ orders.rating
+2026-04-28T13:23:16.274Z ✓ orders.rating_comment
+2026-04-28T13:23:16.274Z ✓ orders.promo_code
+2026-04-28T13:23:16.275Z ✓ orders.discount_amount
+2026-04-28T13:23:16.275Z ✓ orders.driver_earnings
+2026-04-28T13:23:16.275Z ✓ orders.tip
+2026-04-28T13:23:16.276Z ✓ orders.payment_method
+2026-04-28T13:23:16.276Z ✓ orders.is_paid
+2026-04-28T13:23:16.277Z ✓ orders.customer_rating
+2026-04-28T13:23:16.277Z ✓ orders.driver_rating
+2026-04-28T13:23:16.278Z ✓ orders.business_rating
+2026-04-28T13:23:16.278Z ✓ orders.delivery_photo_path
+2026-04-28T13:23:16.279Z ✓ orders.verification_pin
+2026-04-28T13:23:16.279Z ✓ orders.promo_discount
+2026-04-28T13:23:16.280Z ✓ orders.order_type
+2026-04-28T13:23:16.280Z ✓ orders.pickup_address
+2026-04-28T13:23:16.281Z ✓ orders.picking_status
+2026-04-28T13:23:16.281Z ✓ orders.requires_age_check
+2026-04-28T13:23:16.282Z ✓ orders.age_verified
+2026-04-28T13:23:16.283Z ✓ orders.scheduled_for
+2026-04-28T13:23:16.283Z ✓ orders.cash_settled
+2026-04-28T13:23:16.283Z ✓ orders.business_paid
+2026-04-28T13:23:16.284Z ✓ orders.updated_at
+2026-04-28T13:23:16.285Z ✓ order_items.picker_status
+2026-04-28T13:23:16.285Z ✓ order_items.substitute_name
+2026-04-28T13:23:16.286Z ✓ order_items.substitute_price
+2026-04-28T13:23:16.286Z ✓ table: banners
+2026-04-28T13:23:16.286Z ✓ table: delivery_windows
+2026-04-28T13:23:16.287Z ✓ table: points_events
+2026-04-28T13:23:16.287Z ✓ table: business_payouts
+2026-04-28T13:23:16.288Z ✓ table: driver_deposits
+2026-04-28T13:23:16.288Z ✓ table: disputes
+2026-04-28T13:23:16.289Z ✓ table: driver_reports
+2026-04-28T13:23:16.289Z ✓ table: push_subscriptions
+2026-04-28T13:23:16.289Z ✓ table: promo_codes
+2026-04-28T13:23:16.292Z ✓ table: wallets
+2026-04-28T13:23:16.292Z Migrations complete ✓
+2026-04-28T13:23:16.297Z Starting server...
+2026-04-28T13:23:16.632Z {"level":30,"time":1777382596632,"pid":1,"hostname":"1492a0689d75","port":8080,"msg":"Server listening"}
+2026-04-28T13:23:16.633Z {"level":30,"time":1777382596632,"pid":1,"hostname":"1492a0689d75","msg":"Auto-dispatch agent started (30s interval)"}
+2026-04-28T13:23:16.633Z {"level":30,"time":1777382596632,"pid":1,"hostname":"1492a0689d75","msg":"Scheduled-order activation agent started (60s interval)"}
+2026-04-28T13:25:07.580Z {"level":30,"time":1777382707580,"pid":1,"hostname":"1492a0689d75","req":{"id":1,"method":"GET","url":"/wp-admin/install.php"},"res":{"statusCode":200},"responseTime":18,"msg":"request completed"}
+2026-04-28T13:28:07.120Z {"level":30,"time":1777382887120,"pid":1,"hostname":"1492a0689d75","req":{"id":2,"method":"GET","url":"/"},"res":{"statusCode":200},"responseTime":3,"msg":"request completed"}
+2026-04-28T13:28:07.621Z {"level":30,"time":1777382887621,"pid":1,"hostname":"1492a0689d75","req":{"id":3,"method":"GET","url":"/assets/index-BE1WvM1J.css"},"res":{"statusCode":200},"responseTime":4,"msg":"request completed"}
+2026-04-28T13:28:07.663Z {"level":30,"time":1777382887663,"pid":1,"hostname":"1492a0689d75","req":{"id":4,"method":"GET","url":"/assets/index-Dp_l80AV.js"},"res":{"statusCode":200},"responseTime":46,"msg":"request completed"}
+2026-04-28T13:35:21.978Z {"level":30,"time":1777383321978,"pid":1,"hostname":"1492a0689d75","req":{"id":5,"method":"GET","url":"/wp-admin/install.php"},"res":{"statusCode":200},"responseTime":2,"msg":"request completed"}
+2026-04-28T13:43:29.303Z {"level":30,"time":1777383809302,"pid":1,"hostname":"1492a0689d75","req":{"id":6,"method":"GET","url":"/.git/HEAD"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+2026-04-28T13:51:51.261Z {"level":30,"time":1777384311260,"pid":1,"hostname":"1492a0689d75","req":{"id":7,"method":"GET","url":"/wp-admin/install.php"},"res":{"statusCode":200},"responseTime":2,"msg":"request completed"}
+2026-04-28T13:52:46.384Z {"level":30,"time":1777384366382,"pid":1,"hostname":"1492a0689d75","req":{"id":8,"method":"GET","url":"/api/nig-status"},"res":{"statusCode":200},"responseTime":6,"msg":"request completed"}
+2026-04-28T13:57:07.999Z {"level":30,"time":1777384627999,"pid":1,"hostname":"1492a0689d75","req":{"id":9,"method":"GET","url":"/"},"res":{"statusCode":200},"responseTime":2,"msg":"request completed"}
+2026-04-28T13:57:08.016Z {"level":30,"time":1777384628016,"pid":1,"hostname":"1492a0689d75","req":{"id":10,"method":"GET","url":"/favicon.ico"},"res":{"statusCode":200},"responseTime":2,"msg":"request completed"}
+2026-04-28T13:57:08.031Z {"level":30,"time":1777384628031,"pid":1,"hostname":"1492a0689d75","req":{"id":11,"method":"GET","url":"/favicon.png"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+2026-04-28T13:57:08.049Z {"level":30,"time":1777384628048,"pid":1,"hostname":"1492a0689d75","req":{"id":12,"method":"GET","url":"/icons/icon-192.png"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+2026-04-28T13:57:08.079Z {"level":30,"time":1777384628078,"pid":1,"hostname":"1492a0689d75","req":{"id":13,"method":"GET","url":"/icons/icon-152.png"},"res":{"statusCode":200},"responseTime":2,"msg":"request completed"}
+2026-04-28T13:57:08.095Z {"level":30,"time":1777384628095,"pid":1,"hostname":"1492a0689d75","req":{"id":14,"method":"GET","url":"/icons/icon-144.png"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+2026-04-28T13:57:08.110Z {"level":30,"time":1777384628110,"pid":1,"hostname":"1492a0689d75","req":{"id":15,"method":"GET","url":"/icons/icon-128.png"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+2026-04-28T13:58:05.896Z {"level":30,"time":1777384685896,"pid":1,"hostname":"1492a0689d75","req":{"id":16,"method":"GET","url":"/"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+2026-04-28T13:58:06.060Z {"level":30,"time":1777384686059,"pid":1,"hostname":"1492a0689d75","req":{"id":18,"method":"GET","url":"/assets/index-BE1WvM1J.css"},"res":{"statusCode":200},"responseTime":14,"msg":"request completed"}
+2026-04-28T13:58:06.062Z {"level":30,"time":1777384686062,"pid":1,"hostname":"1492a0689d75","req":{"id":17,"method":"GET","url":"/assets/index-Dp_l80AV.js"},"res":{"statusCode":200},"responseTime":18,"msg":"request completed"}
+2026-04-28T13:58:06.219Z {"level":30,"time":1777384686219,"pid":1,"hostname":"1492a0689d75","req":{"id":19,"method":"GET","url":"/sw.js"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+2026-04-28T13:58:06.252Z {"level":30,"time":1777384686251,"pid":1,"hostname":"1492a0689d75","req":{"id":21,"method":"GET","url":"/logo.png"},"res":{"statusCode":200},"responseTime":3,"msg":"request completed"}
+2026-04-28T13:58:06.257Z {"level":30,"time":1777384686256,"pid":1,"hostname":"1492a0689d75","req":{"id":20,"method":"GET","url":"/api/csrf-token"},"res":{"statusCode":200},"responseTime":12,"msg":"request completed"}
+2026-04-28T13:58:06.410Z {"level":30,"time":1777384686409,"pid":1,"hostname":"1492a0689d75","req":{"id":22,"method":"GET","url":"/favicon.ico"},"res":{"statusCode":200},"responseTime":5,"msg":"request completed"}
+2026-04-28T13:58:06.430Z {"level":30,"time":1777384686429,"pid":1,"hostname":"1492a0689d75","req":{"id":23,"method":"GET","url":"/icons/icon-192.png"},"res":{"statusCode":200},"responseTime":3,"msg":"request completed"}
+2026-04-28T13:58:06.456Z {"level":30,"time":1777384686456,"pid":1,"hostname":"1492a0689d75","req":{"id":24,"method":"GET","url":"/icons/icon-152.png"},"res":{"statusCode":200},"responseTime":3,"msg":"request completed"}
+2026-04-28T13:58:06.475Z {"level":30,"time":1777384686475,"pid":1,"hostname":"1492a0689d75","req":{"id":25,"method":"GET","url":"/icons/icon-144.png"},"res":{"statusCode":200},"responseTime":2,"msg":"request completed"}
+2026-04-28T13:58:06.496Z {"level":30,"time":1777384686496,"pid":1,"hostname":"1492a0689d75","req":{"id":26,"method":"GET","url":"/icons/icon-128.png"},"res":{"statusCode":200},"responseTime":3,"msg":"request completed"}
+2026-04-28T14:00:25.018Z {"level":30,"time":1777384825017,"pid":1,"hostname":"1492a0689d75","req":{"id":27,"method":"GET","url":"/wp-admin/install.php"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+2026-04-28T14:00:29.204Z {"level":30,"time":1777384829203,"pid":1,"hostname":"1492a0689d75","req":{"id":28,"method":"GET","url":"/wp-admin/install.php"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+2026-04-28T14:09:50.305Z {"level":30,"time":1777385390304,"pid":1,"hostname":"1492a0689d75","req":{"id":29,"method":"GET","url":"/"},"res":{"statusCode":304},"responseTime":5,"msg":"request completed"}
+2026-04-28T14:09:50.456Z {"level":30,"time":1777385390456,"pid":1,"hostname":"1492a0689d75","req":{"id":30,"method":"GET","url":"/assets/index-Dp_l80AV.js"},"res":{"statusCode":304},"responseTime":3,"msg":"request completed"}
+2026-04-28T14:09:50.459Z {"level":30,"time":1777385390459,"pid":1,"hostname":"1492a0689d75","req":{"id":31,"method":"GET","url":"/assets/index-BE1WvM1J.css"},"res":{"statusCode":304},"responseTime":2,"msg":"request completed"}
+2026-04-28T14:09:50.740Z {"level":30,"time":1777385390740,"pid":1,"hostname":"1492a0689d75","req":{"id":32,"method":"GET","url":"/icons/icon-192.png"},"res":{"statusCode":304},"responseTime":3,"msg":"request completed"}
+2026-04-28T14:09:51.182Z {"level":30,"time":1777385391181,"pid":1,"hostname":"1492a0689d75","req":{"id":33,"method":"GET","url":"/api/csrf-token"},"res":{"statusCode":304},"responseTime":4,"msg":"request completed"}
+2026-04-28T14:09:51.187Z {"level":30,"time":1777385391187,"pid":1,"hostname":"1492a0689d75","req":{"id":34,"method":"GET","url":"/logo.png"},"res":{"statusCode":304},"responseTime":2,"msg":"request completed"}
+2026-04-28T14:09:51.235Z {"level":30,"time":1777385391234,"pid":1,"hostname":"1492a0689d75","req":{"id":35,"method":"GET","url":"/manifest.json"},"res":{"statusCode":304},"responseTime":1,"msg":"request completed"}
+2026-04-28T14:09:53.393Z {"level":30,"time":1777385393393,"pid":1,"hostname":"1492a0689d75","req":{"id":36,"method":"GET","url":"/icons/icon-144.png"},"res":{"statusCo
