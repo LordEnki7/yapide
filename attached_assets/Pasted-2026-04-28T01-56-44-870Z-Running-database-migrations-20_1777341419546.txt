@@ -1,0 +1,81 @@
+2026-04-28T01:56:44.870Z Running database migrations...
+2026-04-28T01:56:44.927Z Running YaPide migrations...
+2026-04-28T01:56:44.929Z ✓ users.pin_hash
+2026-04-28T01:56:44.929Z ✓ users.admin_role
+2026-04-28T01:56:44.930Z ✓ users.admin_permissions
+2026-04-28T01:56:44.931Z ✓ users.phone_verified
+2026-04-28T01:56:44.932Z ✓ users.otp_code
+2026-04-28T01:56:44.932Z ✓ users.otp_expires_at
+2026-04-28T01:56:44.933Z ✓ users.points
+2026-04-28T01:56:44.933Z ✓ users.referral_code
+2026-04-28T01:56:44.935Z ✓ users.referred_by_id
+2026-04-28T01:56:44.935Z ✓ users.referral_bonus_paid
+2026-04-28T01:56:44.936Z ✓ users.updated_at
+2026-04-28T01:56:44.936Z – constraint: users_referral_code_unique (already exists)
+2026-04-28T01:56:44.936Z ✓ businesses.logo_url
+2026-04-28T01:56:44.937Z ✓ businesses.lat
+2026-04-28T01:56:44.937Z ✓ businesses.lng
+2026-04-28T01:56:44.937Z ✓ businesses.open_hours
+2026-04-28T01:56:44.938Z ✓ businesses.approval_status
+2026-04-28T01:56:44.938Z ✓ businesses.is_featured
+2026-04-28T01:56:44.939Z ✓ businesses.rating
+2026-04-28T01:56:44.940Z ✓ businesses.total_orders
+2026-04-28T01:56:44.940Z ✓ businesses.prep_time_minutes
+2026-04-28T01:56:44.941Z ✓ businesses.updated_at
+2026-04-28T01:56:44.941Z ✓ drivers.city
+2026-04-28T01:56:44.941Z ✓ drivers.is_locked
+2026-04-28T01:56:44.942Z ✓ drivers.approval_status
+2026-04-28T01:56:44.943Z ✓ drivers.acceptance_rate
+2026-04-28T01:56:44.943Z ✓ drivers.current_lat
+2026-04-28T01:56:44.944Z ✓ drivers.current_lng
+2026-04-28T01:56:44.945Z ✓ drivers.wallet_balance
+2026-04-28T01:56:44.945Z ✓ drivers.photo_url
+2026-04-28T01:56:44.947Z ✓ drivers.updated_at
+2026-04-28T01:56:44.947Z ✓ orders.commission
+2026-04-28T01:56:44.947Z ✓ orders.delivery_fee
+2026-04-28T01:56:44.948Z ✓ orders.driver_id
+2026-04-28T01:56:44.949Z ✓ orders.delivery_address
+2026-04-28T01:56:44.949Z ✓ orders.delivery_lat
+2026-04-28T01:56:44.950Z ✓ orders.delivery_lng
+2026-04-28T01:56:44.951Z ✓ orders.notes
+2026-04-28T01:56:44.951Z ✓ orders.rating
+2026-04-28T01:56:44.952Z ✓ orders.rating_comment
+2026-04-28T01:56:44.952Z ✓ orders.promo_code
+2026-04-28T01:56:44.953Z ✓ orders.discount_amount
+2026-04-28T01:56:44.953Z ✓ orders.driver_earnings
+2026-04-28T01:56:44.954Z ✓ orders.tip
+2026-04-28T01:56:44.955Z ✓ orders.payment_method
+2026-04-28T01:56:44.955Z ✓ orders.is_paid
+2026-04-28T01:56:44.956Z ✓ orders.customer_rating
+2026-04-28T01:56:44.956Z ✓ orders.driver_rating
+2026-04-28T01:56:44.956Z ✓ orders.business_rating
+2026-04-28T01:56:44.957Z ✓ orders.delivery_photo_path
+2026-04-28T01:56:44.959Z ✓ orders.verification_pin
+2026-04-28T01:56:44.959Z ✓ orders.promo_discount
+2026-04-28T01:56:44.959Z ✓ orders.order_type
+2026-04-28T01:56:44.960Z ✓ orders.pickup_address
+2026-04-28T01:56:44.964Z ✓ orders.picking_status
+2026-04-28T01:56:44.965Z ✓ orders.requires_age_check
+2026-04-28T01:56:44.965Z ✓ orders.age_verified
+2026-04-28T01:56:44.966Z ✓ orders.scheduled_for
+2026-04-28T01:56:44.967Z ✓ orders.cash_settled
+2026-04-28T01:56:44.969Z ✓ orders.business_paid
+2026-04-28T01:56:44.969Z ✓ orders.updated_at
+2026-04-28T01:56:44.971Z ✓ order_items.picker_status
+2026-04-28T01:56:44.971Z ✓ order_items.substitute_name
+2026-04-28T01:56:44.972Z ✓ order_items.substitute_price
+2026-04-28T01:56:44.972Z ✓ table: banners
+2026-04-28T01:56:44.973Z ✓ table: delivery_windows
+2026-04-28T01:56:44.973Z ✓ table: points_events
+2026-04-28T01:56:44.975Z ✓ table: business_payouts
+2026-04-28T01:56:44.975Z ✓ table: driver_deposits
+2026-04-28T01:56:44.975Z ✓ table: disputes
+2026-04-28T01:56:44.975Z ✓ table: driver_reports
+2026-04-28T01:56:44.975Z ✓ table: push_subscriptions
+2026-04-28T01:56:44.975Z ✓ table: promo_codes
+2026-04-28T01:56:44.975Z ✓ table: wallets
+2026-04-28T01:56:44.980Z Migrations complete ✓
+2026-04-28T01:56:44.981Z Starting server...
+2026-04-28T01:56:45.308Z {"level":30,"time":1777341405308,"pid":1,"hostname":"8f69f42205b3","port":8080,"msg":"Server listening"}
+2026-04-28T01:56:45.309Z {"level":30,"time":1777341405308,"pid":1,"hostname":"8f69f42205b3","msg":"Auto-dispatch agent started (30s interval)"}
+2026-04-28T01:56:45.309Z {"level":30,"time":1777341405308,"pid":1,"hostname":"8f69f42205b3","msg":"Scheduled-order activation agent started (60s interval)"}
