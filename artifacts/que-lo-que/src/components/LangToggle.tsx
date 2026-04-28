@@ -4,10 +4,10 @@ export default function LangToggle({ className = "" }: { className?: string }) {
   const { lang, setLang } = useLang();
 
   return (
-    <div className={`flex items-center rounded-lg border border-yellow-400/30 text-sm font-bold tracking-wide ${className}`}>
+    <div className={`flex items-center rounded-lg border border-yellow-400/30 text-sm font-bold tracking-wide overflow-hidden ${className}`}>
       <button
         onClick={() => setLang("es")}
-        className={`px-3 py-1 rounded-l-lg transition-colors ${
+        className={`px-3.5 py-1.5 transition-colors ${
           lang === "es"
             ? "bg-yellow-400 text-black"
             : "bg-transparent text-white/60 hover:text-white"
@@ -16,9 +16,10 @@ export default function LangToggle({ className = "" }: { className?: string }) {
       >
         ES
       </button>
+      <div className="w-px h-full bg-yellow-400/30 self-stretch" />
       <button
         onClick={() => setLang("en")}
-        className={`px-3 py-1 rounded-r-lg transition-colors ${
+        className={`px-3.5 py-1.5 transition-colors ${
           lang === "en"
             ? "bg-yellow-400 text-black"
             : "bg-transparent text-white/60 hover:text-white"
