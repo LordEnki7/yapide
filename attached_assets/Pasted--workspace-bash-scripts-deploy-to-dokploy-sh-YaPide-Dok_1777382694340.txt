@@ -1,0 +1,15 @@
+~/workspace$ bash scripts/deploy-to-dokploy.sh
+🚀 YaPide → Dokploy deploy
+
+🔍 Running pre-push checks...
+🔍 YaPide Pre-Push Check
+========================
+
+── TypeScript ──────────────────────────────
+  ❌ Frontend TypeScript errors found
+src/components/BottomNav.tsx(42,39): error TS2719: Type '({ icon: React.ForwardRefExoticComponent<Omit<import("/home/runner/workspace/node_modules/.pnpm/lucide-react@0.545.0_react@19.1.0/node_modules/lucide-react/dist/lucide-react").LucideProps, "ref"> & React.RefAttributes<...>>; label: "Inicio"; href: string; } | { ...; } | { ...; } | { ...; })[]' is not assignable to type '({ icon: React.ForwardRefExoticComponent<Omit<import("/home/runner/workspace/node_modules/.pnpm/lucide-react@0.545.0_react@19.1.0/node_modules/lucide-react/dist/lucide-react").LucideProps, "ref"> & React.RefAttributes<...>>; label: "Inicio"; href: string; } | { ...; } | { ...; } | { ...; })[]'. Two different types with this name exist, but they are unrelated.
+src/components/BottomNav.tsx(43,46): error TS2719: Type '({ icon: React.ForwardRefExoticComponent<Omit<import("/home/runner/workspace/node_modules/.pnpm/lucide-react@0.545.0_react@19.1.0/node_modules/lucide-react/dist/lucide-react").LucideProps, "ref"> & React.RefAttributes<...>>; label: "Inicio"; href: string; } | { ...; } | { ...; } | { ...; })[]' is not assignable to type '({ icon: React.ForwardRefExoticComponent<Omit<import("/home/runner/workspace/node_modules/.pnpm/lucide-react@0.545.0_react@19.1.0/node_modules/lucide-react/dist/lucide-react").LucideProps, "ref"> & React.RefAttributes<...>>; label: "Inicio"; href: string; } | { ...; } | { ...; } | { ...; })[]'. Two different types with this name exist, but they are unrelated.
+src/components/BottomNav.tsx(44,43): error TS2719: Type '({ icon: React.ForwardRefExoticComponent<Omit<import("/home/runner/workspace/node_modules/.pnpm/lucide-react@0.545.0_react@19.1.0/node_modules/lucide-react/dist/lucide-react").LucideProps, "ref"> & React.RefAttributes<...>>; label: "Inicio"; href: string; } | { ...; } | { ...; } | { ...; })[]' is not assignable to type '({ icon: React.ForwardRefExoticComponent<Omit<import("/home/runner/workspace/node_modules/.pnpm/lucide-react@0.545.0_react@19.1.0/node_modules/lucide-react/dist/lucide-react").LucideProps, "ref"> & React.RefAttributes<...>>; label: "Inicio"; href: string; } | { ...; } | { ...; } | { ...; })[]'. Two different types with this name exist, but they are unrelated.
+src/components/LiveDriverMap.tsx(113,15): error TS2322: Type 'LatLng' is not assignable to type 'LatLngTuple'.
+src/components/LiveDriverMap.tsx(114,15): error TS2322: Type 'LatLng' is not assignable to type 'LatLngTuple'.
+❌ Pre-push checks failed — fix issues before deploying

@@ -1,7 +1,10 @@
 import { Link, useLocation } from "wouter";
 import { Home, Clock, Package, Wallet, ChefHat, BarChart3, Users, Bike, Building2, Star, UserCircle } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 import { getStoredUser } from "@/lib/auth";
 import { useLang } from "@/lib/lang";
+
+type NavItem = { icon: LucideIcon; label: string; href: string };
 
 export default function BottomNav() {
   const [location] = useLocation();
@@ -38,7 +41,7 @@ export default function BottomNav() {
     { icon: Building2, label: t.businesses, href: "/admin/businesses" },
   ];
 
-  let navItems = CUSTOMER_NAV;
+  let navItems: NavItem[] = CUSTOMER_NAV;
   if (location.startsWith("/driver")) navItems = DRIVER_NAV;
   else if (location.startsWith("/business")) navItems = BUSINESS_NAV;
   else if (location.startsWith("/admin")) navItems = ADMIN_NAV;

@@ -109,9 +109,11 @@ export default function LiveDriverMap({ orderId, deliveryAddress }: Props) {
         if (!hasDriverLoc) {
           // Fit bounds to show driver + destination
           if (destMarkerRef.current) {
+            const dLoc = driverMarkerRef.current.getLatLng();
+            const rLoc = destMarkerRef.current.getLatLng();
             mapRef.current.fitBounds([
-              driverMarkerRef.current.getLatLng(),
-              destMarkerRef.current.getLatLng(),
+              [dLoc.lat, dLoc.lng],
+              [rLoc.lat, rLoc.lng],
             ], { padding: [40, 40] });
           } else {
             mapRef.current.setView(latLng, 15);
