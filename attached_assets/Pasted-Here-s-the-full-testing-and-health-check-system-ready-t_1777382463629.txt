@@ -1,0 +1,57 @@
+Here's the full testing and health check system — ready to paste:
+
+Testing & Validation System (Proven Setup)
+
+The Pre-Push Master Check:
+
+bash scripts/pre-push-check.sh
+
+Run this before every deployment. Build this script to automatically verify:
+
+TypeScript — zero type errors
+Server health — critical API routes respond (auth, subscriptions, etc.)
+File streaming — any video/audio assets return HTTP 206 on Range requests
+All key API routes are registered and responding
+Frontend root / renders successfully
+.github/workflows/ is in .gitignore
+Production asset files are present on disk
+Database connection is reachable
+Live API keys are in use (not test/sandbox keys)
+All public assets are tracked by git
+Version endpoint /api/version responds
+No workflow files accidentally staged for commit
+Named Workflow Checks (set these up in Replit):
+
+Workflow Name	Command	What It Tests
+typecheck	npx tsc --noEmit 2>&1 | head -50	TypeScript errors
+server-health	curl key API endpoints, check HTTP status	Backend is alive
+video-stream	Range request check on media files	Assets streaming correctly
+check-deployment	Hit live domain, verify version timestamp	Dokploy deployed successfully
+Version Endpoint (add this to every project):
+
+app.get('/api/version', (req, res) => {
+  res.json({ 
+    timestamp: new Date().toISOString(),
+    commit: process.env.COMMIT_SHA || 'local'
+  });
+});
+
+This is your single source of truth for confirming a fresh deploy went live.
+
+Quick Sanity Check (run anytime):
+
+curl -s https://yourdomain.com/api/version
+# If timestamp is fresh = new code is live
+# If timestamp is old = Dokploy got the push but didn't rebuild — trigger manually
+
+E2E Testing:
+After any significant feature, run a full end-to-end test covering:
+
+User sign-in flow
+Core feature flows (whatever the app does)
+Form submissions
+Mobile navigation
+Any payment or subscription flows
+Always test on real device for anything payment or auth related — emulators lie.
+
+That system catches 95% of problems before they ever reach production.

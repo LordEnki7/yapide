@@ -4,6 +4,10 @@ set -euo pipefail
 echo "🚀 YaPide → Dokploy deploy"
 echo ""
 
+echo "🔍 Running pre-push checks..."
+bash scripts/pre-push-check.sh || { echo "❌ Pre-push checks failed — fix issues before deploying"; exit 1; }
+echo ""
+
 echo "🗂  Staging all changes..."
 git add -A
 git reset HEAD .github/workflows/ 2>/dev/null || true

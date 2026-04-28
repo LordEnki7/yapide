@@ -11,6 +11,86 @@ env = { "CI" = "true" }
 [workflows]
 runButton = "Project"
 
+[[workflows.workflow]]
+name = "Project"
+mode = "parallel"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "typecheck"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "server-health"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "check-assets"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "check-deployment"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "pre-push"
+
+[[workflows.workflow]]
+name = "typecheck"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "pnpm --filter @workspace/que-lo-que exec tsc --noEmit 2>&1 | head -30 && pnpm --filter @workspace/api-server exec tsc --noEmit 2>&1 | head -30"
+
+[workflows.workflow.metadata]
+isValidation = true
+
+[[workflows.workflow]]
+name = "server-health"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "curl -sf http://localhost:${PORT:-8080}/api/health && curl -sf http://localhost:${PORT:-8080}/api/version && echo 'API healthy'"
+
+[workflows.workflow.metadata]
+isValidation = true
+
+[[workflows.workflow]]
+name = "check-assets"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "ls artifacts/que-lo-que/public/logo.png artifacts/que-lo-que/public/manifest.json artifacts/que-lo-que/public/sw.js artifacts/que-lo-que/public/icons/icon-192.png && echo 'All public assets present'"
+
+[workflows.workflow.metadata]
+isValidation = true
+
+[[workflows.workflow]]
+name = "check-deployment"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "curl -sf https://yapide.app/api/version | grep serverTime && echo 'Production is live'"
+
+[workflows.workflow.metadata]
+isValidation = true
+
+[[workflows.workflow]]
+name = "pre-push"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "bash scripts/pre-push-check.sh"
+
+[workflows.workflow.metadata]
+isValidation = true
+
 [agent]
 stack = "PNPM_WORKSPACE"
 expertMode = true
