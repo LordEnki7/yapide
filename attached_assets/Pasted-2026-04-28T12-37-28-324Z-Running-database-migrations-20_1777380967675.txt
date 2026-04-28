@@ -1,0 +1,98 @@
+2026-04-28T12:37:28.324Z Running database migrations...
+2026-04-28T12:37:28.433Z Running YaPide migrations...
+2026-04-28T12:37:28.435Z ✓ users.pin_hash
+2026-04-28T12:37:28.438Z ✓ users.admin_role
+2026-04-28T12:37:28.443Z ✓ users.admin_permissions
+2026-04-28T12:37:28.443Z ✓ users.phone_verified
+2026-04-28T12:37:28.444Z ✓ users.otp_code
+2026-04-28T12:37:28.446Z ✓ users.otp_expires_at
+2026-04-28T12:37:28.447Z ✓ users.points
+2026-04-28T12:37:28.448Z ✓ users.referral_code
+2026-04-28T12:37:28.451Z ✓ users.referred_by_id
+2026-04-28T12:37:28.451Z ✓ users.referral_bonus_paid
+2026-04-28T12:37:28.454Z ✓ users.updated_at
+2026-04-28T12:37:28.454Z – constraint: users_referral_code_unique (already exists)
+2026-04-28T12:37:28.456Z ✓ businesses.logo_url
+2026-04-28T12:37:28.459Z ✓ businesses.lat
+2026-04-28T12:37:28.459Z ✓ businesses.lng
+2026-04-28T12:37:28.459Z ✓ businesses.open_hours
+2026-04-28T12:37:28.459Z ✓ businesses.approval_status
+2026-04-28T12:37:28.463Z ✓ businesses.is_featured
+2026-04-28T12:37:28.463Z ✓ businesses.rating
+2026-04-28T12:37:28.463Z ✓ businesses.total_orders
+2026-04-28T12:37:28.464Z ✓ businesses.prep_time_minutes
+2026-04-28T12:37:28.466Z ✓ businesses.updated_at
+2026-04-28T12:37:28.467Z ✓ drivers.city
+2026-04-28T12:37:28.467Z ✓ drivers.is_locked
+2026-04-28T12:37:28.470Z ✓ drivers.approval_status
+2026-04-28T12:37:28.471Z ✓ drivers.acceptance_rate
+2026-04-28T12:37:28.471Z ✓ drivers.current_lat
+2026-04-28T12:37:28.473Z ✓ drivers.current_lng
+2026-04-28T12:37:28.474Z ✓ drivers.wallet_balance
+2026-04-28T12:37:28.474Z ✓ drivers.photo_url
+2026-04-28T12:37:28.475Z ✓ drivers.updated_at
+2026-04-28T12:37:28.476Z ✓ orders.commission
+2026-04-28T12:37:28.480Z ✓ orders.delivery_fee
+2026-04-28T12:37:28.482Z ✓ orders.driver_id
+2026-04-28T12:37:28.482Z ✓ orders.delivery_address
+2026-04-28T12:37:28.483Z ✓ orders.delivery_lat
+2026-04-28T12:37:28.483Z ✓ orders.delivery_lng
+2026-04-28T12:37:28.484Z ✓ orders.notes
+2026-04-28T12:37:28.484Z ✓ orders.rating
+2026-04-28T12:37:28.484Z ✓ orders.rating_comment
+2026-04-28T12:37:28.485Z ✓ orders.promo_code
+2026-04-28T12:37:28.487Z ✓ orders.discount_amount
+2026-04-28T12:37:28.487Z ✓ orders.driver_earnings
+2026-04-28T12:37:28.487Z ✓ orders.tip
+2026-04-28T12:37:28.487Z ✓ orders.payment_method
+2026-04-28T12:37:28.489Z ✓ orders.is_paid
+2026-04-28T12:37:28.489Z ✓ orders.customer_rating
+2026-04-28T12:37:28.491Z ✓ orders.driver_rating
+2026-04-28T12:37:28.492Z ✓ orders.business_rating
+2026-04-28T12:37:28.492Z ✓ orders.delivery_photo_path
+2026-04-28T12:37:28.492Z ✓ orders.verification_pin
+2026-04-28T12:37:28.493Z ✓ orders.promo_discount
+2026-04-28T12:37:28.494Z ✓ orders.order_type
+2026-04-28T12:37:28.498Z ✓ orders.pickup_address
+2026-04-28T12:37:28.498Z ✓ orders.picking_status
+2026-04-28T12:37:28.498Z ✓ orders.requires_age_check
+2026-04-28T12:37:28.499Z ✓ orders.age_verified
+2026-04-28T12:37:28.500Z ✓ orders.scheduled_for
+2026-04-28T12:37:28.500Z ✓ orders.cash_settled
+2026-04-28T12:37:28.502Z ✓ orders.business_paid
+2026-04-28T12:37:28.502Z ✓ orders.updated_at
+2026-04-28T12:37:28.504Z ✓ order_items.picker_status
+2026-04-28T12:37:28.505Z ✓ order_items.substitute_name
+2026-04-28T12:37:28.505Z ✓ order_items.substitute_price
+2026-04-28T12:37:28.506Z ✓ table: banners
+2026-04-28T12:37:28.509Z ✓ table: delivery_windows
+2026-04-28T12:37:28.509Z ✓ table: points_events
+2026-04-28T12:37:28.509Z ✓ table: business_payouts
+2026-04-28T12:37:28.509Z ✓ table: driver_deposits
+2026-04-28T12:37:28.509Z ✓ table: disputes
+2026-04-28T12:37:28.509Z ✓ table: driver_reports
+2026-04-28T12:37:28.511Z ✓ table: push_subscriptions
+2026-04-28T12:37:28.511Z ✓ table: promo_codes
+2026-04-28T12:37:28.511Z ✓ table: wallets
+2026-04-28T12:37:28.515Z Migrations complete ✓
+2026-04-28T12:37:28.520Z Starting server...
+2026-04-28T12:37:28.902Z {"level":30,"time":1777379848902,"pid":1,"hostname":"a62f221ff42e","port":8080,"msg":"Server listening"}
+2026-04-28T12:37:28.904Z {"level":30,"time":1777379848902,"pid":1,"hostname":"a62f221ff42e","msg":"Auto-dispatch agent started (30s interval)"}
+2026-04-28T12:37:28.904Z {"level":30,"time":1777379848902,"pid":1,"hostname":"a62f221ff42e","msg":"Scheduled-order activation agent started (60s interval)"}
+2026-04-28T12:40:02.971Z {"level":30,"time":1777380002970,"pid":1,"hostname":"a62f221ff42e","req":{"id":1,"method":"GET","url":"/"},"res":{"statusCode":200},"responseTime":5,"msg":"request completed"}
+2026-04-28T12:40:03.142Z {"level":30,"time":1777380003141,"pid":1,"hostname":"a62f221ff42e","req":{"id":2,"method":"GET","url":"/assets/index-CnJITUH-.js"},"res":{"statusCode":200},"responseTime":15,"msg":"request completed"}
+2026-04-28T12:40:03.153Z {"level":30,"time":1777380003153,"pid":1,"hostname":"a62f221ff42e","req":{"id":3,"method":"GET","url":"/assets/index-B9d0Ghcj.css"},"res":{"statusCode":200},"responseTime":11,"msg":"request completed"}
+2026-04-28T12:40:03.555Z {"level":30,"time":1777380003554,"pid":1,"hostname":"a62f221ff42e","req":{"id":4,"method":"GET","url":"/icons/icon-192.png"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+2026-04-28T12:40:03.948Z {"level":30,"time":1777380003948,"pid":1,"hostname":"a62f221ff42e","req":{"id":6,"method":"GET","url":"/icons/icon-192.png"},"res":{"statusCode":200},"responseTime":2,"msg":"request completed"}
+2026-04-28T12:40:03.972Z {"level":30,"time":1777380003972,"pid":1,"hostname":"a62f221ff42e","req":{"id":5,"method":"GET","url":"/api/csrf-token"},"res":{"statusCode":200},"responseTime":29,"msg":"request completed"}
+2026-04-28T12:40:03.997Z {"level":30,"time":1777380003997,"pid":1,"hostname":"a62f221ff42e","req":{"id":7,"method":"GET","url":"/manifest.json"},"res":{"statusCode":200},"responseTime":2,"msg":"request completed"}
+2026-04-28T12:40:06.162Z {"level":30,"time":1777380006162,"pid":1,"hostname":"a62f221ff42e","req":{"id":8,"method":"GET","url":"/icons/icon-144.png"},"res":{"statusCode":200},"responseTime":6,"msg":"request completed"}
+2026-04-28T12:40:06.268Z {"level":30,"time":1777380006268,"pid":1,"hostname":"a62f221ff42e","req":{"id":9,"method":"GET","url":"/assets/index-CnJITUH-.js"},"res":{"statusCode":200},"responseTime":5,"msg":"request completed"}
+2026-04-28T12:40:07.962Z {"level":30,"time":1777380007962,"pid":1,"hostname":"a62f221ff42e","req":{"id":10,"method":"GET","url":"/sw.js"},"res":{"statusCode":200},"responseTime":14,"msg":"request completed"}
+2026-04-28T12:40:21.172Z {"level":30,"time":1777380021171,"pid":1,"hostname":"a62f221ff42e","req":{"id":11,"method":"GET","url":"/wp-admin/install.php"},"res":{"statusCode":200},"responseTime":2,"msg":"request completed"}
+2026-04-28T12:40:45.218Z {"level":30,"time":1777380045218,"pid":1,"hostname":"a62f221ff42e","req":{"id":12,"method":"GET","url":"/"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+2026-04-28T12:40:45.333Z {"level":30,"time":1777380045333,"pid":1,"hostname":"a62f221ff42e","req":{"id":13,"method":"GET","url":"/robots.txt"},"res":{"statusCode":200},"responseTime":2,"msg":"request completed"}
+2026-04-28T12:40:45.745Z {"level":30,"time":1777380045745,"pid":1,"hostname":"a62f221ff42e","req":{"id":14,"method":"GET","url":"/"},"res":{"statusCode":200},"responseTime":2,"msg":"request completed"}
+2026-04-28T12:40:45.759Z {"level":30,"time":1777380045759,"pid":1,"hostname":"a62f221ff42e","req":{"id":15,"method":"GET","url":"/robots.txt"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+2026-04-28T12:51:48.510Z {"level":30,"time":1777380708510,"pid":1,"hostname":"a62f221ff42e","req":{"id":16,"method":"GET","url":"/wp-admin/install.php"},"res":{"statusCode":200},"responseTime":2,"msg":"request completed"}
+2026-04-28T12:52:40.996Z {"level":30,"time":1777380760995,"pid":1,"hostname":"a62f221ff42e","req":{"id":17,"method":"GET","url":"/api/nig-status"},"res":{"statusCode":200},"responseTime":4,"msg":"request completed"}
