@@ -1,0 +1,66 @@
+ Pre-push checks failed — fix issues before deploying
+~/workspace$ bash scripts/deploy-to-dokploy.sh
+🚀 YaPide → Dokploy deploy
+
+🔍 Running pre-push checks...
+🔍 YaPide Pre-Push Check
+========================
+
+── TypeScript ──────────────────────────────
+  ✅ lib/db rebuilt
+  ✅ lib/api-zod rebuilt
+  ✅ lib/integrations-openai-ai-server rebuilt
+  ✅ lib/api-client-react rebuilt
+  ✅ Frontend: no TS errors
+  ✅ API server: no TS errors
+
+── Public Assets ──────────────────────────────
+  ✅ artifacts/que-lo-que/public/logo.png
+  ✅ artifacts/que-lo-que/public/manifest.json
+  ✅ artifacts/que-lo-que/public/sw.js
+  ✅ artifacts/que-lo-que/public/favicon.svg
+  ✅ artifacts/que-lo-que/public/icons/icon-192.png
+  ✅ artifacts/que-lo-que/public/icons/icon-512.png
+
+── Git Safety ──────────────────────────────
+  ✅ No dist/ files staged
+  ✅ No workflow files staged
+
+── .gitignore ──────────────────────────────
+  ✅ dist/ is ignored
+  ⚠️  .github/workflows/ not in .gitignore (PAT may lack workflow scope)
+
+── Secret Safety ──────────────────────────────
+  ✅ No staged files to check
+
+── API Health (local) ──────────────────────────────
+  ✅ GET /api/health → ok
+  ✅ GET /api/csrf-token → ok
+  ✅ GET /api/version → ok
+
+── Production ──────────────────────────────
+  ✅ yapide.app is live — serverTime: 2026-04-28T14:27:37.425Z
+
+════════════════════════════════════
+⚠️  All critical checks passed (1 warning(s))
+
+🗂  Staging all changes...
+💾 Committing...
+On branch main
+Your branch is ahead of 'origin/main' by 7 commits.
+  (use "git push" to publish your local commits)
+
+nothing to commit, working tree clean
+(nothing new to commit)
+⬆️  Pushing to origin/main...
+Enumerating objects: 144, done.
+Counting objects: 100% (144/144), done.
+Delta compression using up to 8 threads
+Compressing objects: 100% (88/88), done.
+Writing objects: 100% (90/90), 13.79 KiB | 4.60 MiB/s, done.
+Total 90 (delta 75), reused 0 (delta 0), pack-reused 0 (from 0)
+remote: Resolving deltas: 100% (75/75), completed with 46 local objects.
+To https://github.com/LordEnki7/yapide.git
+   6b5fccb..9d5e353  main -> main
+
+✅ Done! Dokploy will rebuild in ~2 min.
