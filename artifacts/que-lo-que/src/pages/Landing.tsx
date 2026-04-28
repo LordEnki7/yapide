@@ -68,11 +68,11 @@ export default function Landing() {
         alt="YaPide"
         style={{
           position: "absolute",
-          top: "210px",
+          top: "-116px",
           left: 0,
           right: 0,
           width: "100%",
-          height: "100%",
+          height: "calc(100% + 116px)",
           objectFit: "cover",
           objectPosition: "top",
           display: "block",
