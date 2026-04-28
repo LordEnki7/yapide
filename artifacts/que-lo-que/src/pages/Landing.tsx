@@ -15,8 +15,6 @@ const DEMO_ROLES = [
   { key: "business" as const, emoji: "🏪", label: "Negocio", labelEn: "Business" },
 ];
 
-const STRIPE = "linear-gradient(90deg, transparent 0%, rgba(5,30,110,0.48) 9%, rgba(5,30,110,0.48) 91%, transparent 100%)";
-
 export default function Landing() {
   const { lang, t } = useLang();
   const [, navigate] = useLocation();
@@ -62,44 +60,22 @@ export default function Landing() {
       className="max-w-[430px] mx-auto"
       style={{ position: "relative", height: "100svh", overflow: "hidden", background: "#076BE5" }}
     >
-      {/* Full-screen background image */}
+      {/* Hero image — starts below the top bar so YaPide wordmark is fully visible */}
       <img
         src={logo}
         alt="YaPide"
         style={{
           position: "absolute",
-          top: 0,
+          top: "48px",
           left: 0,
           right: 0,
           width: "100%",
-          height: "100%",
+          height: "calc(100% - 48px)",
           objectFit: "contain",
           objectPosition: "top center",
           display: "block",
         }}
       />
-
-      {/* Tagline overlay — speed-stripe bands */}
-      <div style={{ position: "absolute", top: "9%", left: 0, right: 0, display: "flex", flexDirection: "column", gap: "3px", pointerEvents: "none" }}>
-        <div style={{ background: STRIPE, padding: "7px 0", textAlign: "center", borderTop: "1px solid rgba(255,255,255,0.13)", borderBottom: "1px solid rgba(255,255,255,0.07)" }}>
-          <span style={{ color: "#ffffff", fontWeight: 900, letterSpacing: "0.12em", fontSize: "clamp(1.05rem, 5vw, 1.35rem)", textShadow: "0 2px 6px rgba(0,0,0,0.5)" }}>
-            {lang === "es" ? "ENTREGA" : "FAST"}
-          </span>
-        </div>
-        <div style={{ background: STRIPE, padding: "7px 0", textAlign: "center", borderTop: "1px solid rgba(255,255,255,0.13)", borderBottom: "1px solid rgba(255,255,255,0.07)" }}>
-          <span style={{ color: "#FFD700", fontWeight: 900, fontStyle: "italic", letterSpacing: "0.12em", fontSize: "clamp(1.3rem, 6.5vw, 1.7rem)", textShadow: "0 2px 6px rgba(0,0,0,0.5)" }}>
-            {lang === "es" ? "RÁPIDA" : "RELIABLE"}
-          </span>
-        </div>
-        <div style={{ background: STRIPE, padding: "7px 0", textAlign: "center", borderTop: "1px solid rgba(255,255,255,0.13)", borderBottom: "1px solid rgba(255,255,255,0.07)" }}>
-          <span style={{ color: "#ffffff", fontWeight: 900, letterSpacing: "0.12em", fontSize: "clamp(1.05rem, 5vw, 1.35rem)", textShadow: "0 2px 6px rgba(0,0,0,0.5)" }}>
-            {lang === "es" ? "Y CONFIABLE" : "DELIVERY"}
-          </span>
-        </div>
-      </div>
-
-      {/* Gloss highlight */}
-      <div style={{ position: "absolute", inset: 0, background: "linear-gradient(145deg, rgba(255,255,255,0.18) 0%, rgba(255,255,255,0.05) 35%, rgba(255,255,255,0) 58%)", pointerEvents: "none" }} />
 
       {/* Top bar */}
       <div style={{ position: "absolute", top: 0, left: 0, right: 0, zIndex: 20, display: "flex", alignItems: "center", justifyContent: "space-between", padding: "18px 20px 8px" }}>
