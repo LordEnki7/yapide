@@ -1,7 +1,14 @@
 import { Router, type IRouter } from "express";
 import { eq, desc, gte, and, isNull } from "drizzle-orm";
 import { db, ordersTable, driversTable, usersTable, businessesTable, orderItemsTable, productsTable, bannersTable, deliveryWindowsTable, pointsEventsTable, businessPayoutsTable, driverDepositsTable } from "@workspace/db";
-import { openai } from "@workspace/integrations-openai-ai-server";
+let _openai: any = null;
+async function getOpenAI() {
+  if (!_openai) {
+    const mod = await import("@workspace/integrations-openai-ai-server");
+    _openai = mod.openai;
+  }
+  return _openai;
+}
 
 const router: IRouter = Router();
 
@@ -310,7 +317,7 @@ ${orderContext ? `\nContexto del pedido del cliente:\n${orderContext}` : ""}
 Responde siempre en español dominicano, de manera amable, directa y breve (máximo 3 oraciones). Si el cliente escribe en inglés, responde en inglés. Si no puedes resolver su problema, ofrece el WhatsApp de soporte.`;
 
   try {
-    const completion = await openai.chat.completions.create({
+    const completion = await (await getOpenAI()).chat.completions.create({
       model: "gpt-4o-mini",
       messages: [
         { role: "system", content: systemPrompt },
@@ -490,7 +497,7 @@ router.post("/agents/promo/interpret", async (req, res): Promise<void> => {
   if (!message?.trim()) { res.status(400).json({ error: "message required" }); return; }
 
   try {
-    const completion = await openai.chat.completions.create({
+    const completion = await (await getOpenAI()).chat.completions.create({
       model: "gpt-5.1",
       max_completion_tokens: 2048,
       messages: [
@@ -723,7 +730,7 @@ Si no tienes datos suficientes para responder, dilo claramente y sugiere qué ac
   }
 
   try {
-    const completion = await openai.chat.completions.create({
+    const completion = await (await getOpenAI()).chat.completions.create({
       model: "gpt-5.1",
       max_completion_tokens: 1024,
       messages: [
