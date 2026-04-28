@@ -1,0 +1,99 @@
+2026-04-28T12:11:14.546Z at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+2026-04-28T12:11:14.546Z at async <anonymous> (/app/node_modules/.pnpm/express-rate-limit@7.5.1_express@5.2.1/node_modules/express-rate-limit/dist/index.mjs:663:5) {
+2026-04-28T12:11:14.546Z code: 'ERR_ERL_UNEXPECTED_X_FORWARDED_FOR',
+2026-04-28T12:11:14.546Z help: 'https://express-rate-limit.github.io/ERR_ERL_UNEXPECTED_X_FORWARDED_FOR/'
+2026-04-28T12:11:14.546Z }
+2026-04-28T12:11:14.557Z {"level":30,"time":1777378274557,"pid":1,"hostname":"1cc2f19de52a","req":{"id":4,"method":"GET","url":"/api/csrf-token"},"res":{"statusCode":200},"responseTime":13,"msg":"request completed"}
+2026-04-28T12:11:14.558Z {"level":50,"time":1777378274557,"pid":1,"hostname":"1cc2f19de52a","err":{"type":"Error","message":"ENOENT: no such file or directory, open '/app/artifacts/api-server/dist/table.sql'","stack":"Error: ENOENT: no such file or directory, open '/app/artifacts/api-server/dist/table.sql'\n    at async open (node:internal/fs/promises:640:25)\n    at async Object.readFile (node:internal/fs/promises:1287:14)\n    at async PGStore._rawEnsureSessionStoreTable (/app/node_modules/.pnpm/connect-pg-simple@10.0.0/node_modules/connect-pg-simple/index.js:183:32)\n    at async PGStore._asyncQuery (/app/node_modules/.pnpm/connect-pg-simple@10.0.0/node_modules/connect-pg-simple/index.js:315:7)","errno":-2,"code":"ENOENT","syscall":"open","path":"/app/artifacts/api-server/dist/table.sql"},"path":"/api/csrf-token","method":"GET","msg":"Unhandled error"}
+2026-04-28T12:11:14.559Z Error [ERR_HTTP_HEADERS_SENT]: Cannot set headers after they are sent to the client
+2026-04-28T12:11:14.559Z at ServerResponse.setHeader (node:_http_outgoing:642:11)
+2026-04-28T12:11:14.559Z at ServerResponse.header (/app/node_modules/.pnpm/express@5.2.1/node_modules/express/lib/response.js:686:10)
+2026-04-28T12:11:14.559Z at ServerResponse.send2 (/app/node_modules/.pnpm/express@5.2.1/node_modules/express/lib/response.js:163:12)
+2026-04-28T12:11:14.559Z at ServerResponse.json3 (/app/node_modules/.pnpm/express@5.2.1/node_modules/express/lib/response.js:252:15)
+2026-04-28T12:11:14.559Z at <anonymous> (/app/artifacts/api-server/src/app.ts:128:22)
+2026-04-28T12:11:14.559Z at Layer.handleError (/app/node_modules/.pnpm/router@2.2.0/node_modules/router/lib/layer.js:116:17)
+2026-04-28T12:11:14.559Z at trimPrefix (/app/node_modules/.pnpm/router@2.2.0/node_modules/router/index.js:340:13)
+2026-04-28T12:11:14.559Z at <anonymous> (/app/node_modules/.pnpm/router@2.2.0/node_modules/router/index.js:297:9)
+2026-04-28T12:11:14.559Z at processParams (/app/node_modules/.pnpm/router@2.2.0/node_modules/router/index.js:582:12)
+2026-04-28T12:11:14.559Z at next (/app/node_modules/.pnpm/router@2.2.0/node_modules/router/index.js:291:5)
+2026-04-28T12:11:14.705Z {"level":30,"time":1777378274704,"pid":1,"hostname":"1cc2f19de52a","req":{"id":5,"method":"GET","url":"/manifest.json"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+2026-04-28T12:11:16.773Z {"level":30,"time":1777378276773,"pid":1,"hostname":"1cc2f19de52a","req":{"id":6,"method":"GET","url":"/icons/icon-192.png"},"res":{"statusCode":200},"responseTime":2,"msg":"request completed"}
+2026-04-28T12:11:16.785Z {"level":30,"time":1777378276784,"pid":1,"hostname":"1cc2f19de52a","req":{"id":7,"method":"GET","url":"/icons/icon-144.png"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+2026-04-28T12:11:17.086Z {"level":30,"time":1777378277085,"pid":1,"hostname":"1cc2f19de52a","req":{"id":8,"method":"GET","url":"/assets/index-DftXzewA.js"},"res":{"statusCode":200},"responseTime":2,"msg":"request completed"}
+2026-04-28T12:11:17.089Z {"level":30,"time":1777378277089,"pid":1,"hostname":"1cc2f19de52a","req":{"id":9,"method":"GET","url":"/icons/icon-192.png"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+2026-04-28T12:11:18.593Z {"level":30,"time":1777378278593,"pid":1,"hostname":"1cc2f19de52a","req":{"id":10,"method":"GET","url":"/sw.js"},"res":{"statusCode":200},"responseTime":2,"msg":"request completed"}
+2026-04-28T12:11:41.985Z {"level":30,"time":1777378301984,"pid":1,"hostname":"1cc2f19de52a","req":{"id":11,"method":"GET","url":"/"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+2026-04-28T12:11:55.069Z {"level":30,"time":1777378315069,"pid":1,"hostname":"1cc2f19de52a","req":{"id":12,"method":"GET","url":"/"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+2026-04-28T12:12:03.007Z {"level":30,"time":1777378323006,"pid":1,"hostname":"1cc2f19de52a","req":{"id":13,"method":"GET","url":"/"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+2026-04-28T12:12:05.047Z {"level":30,"time":1777378325046,"pid":1,"hostname":"1cc2f19de52a","req":{"id":14,"method":"GET","url":"/https%3A/fonts.googleapis.com/css2%3Ffamily%3DInter%3Awght%40400%3B500%3B600%3B700%26display%3Dswap"},"res":{"statusCode":200},"responseTime":3,"msg":"request completed"}
+2026-04-28T12:12:06.482Z {"level":30,"time":1777378326481,"pid":1,"hostname":"1cc2f19de52a","req":{"id":15,"method":"GET","url":"/https%3A/fonts.googleapis.com/https%3A/fonts.googleapis.com/css2%3Ffamily%3DInter%3Awght%40400%3B500%3B600%3B700%26display%3Dswap"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+2026-04-28T12:12:07.855Z {"level":30,"time":1777378327854,"pid":1,"hostname":"1cc2f19de52a","req":{"id":16,"method":"GET","url":"/assets/index-DftXzewA.js"},"res":{"statusCode":200},"responseTime":3,"msg":"request completed"}
+2026-04-28T12:14:46.891Z {"level":30,"time":1777378486890,"pid":1,"hostname":"1cc2f19de52a","req":{"id":17,"method":"GET","url":"/robots.txt"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+2026-04-28T12:15:08.731Z {"level":30,"time":1777378508731,"pid":1,"hostname":"1cc2f19de52a","req":{"id":18,"method":"GET","url":"/"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+2026-04-28T12:15:10.624Z {"level":30,"time":1777378510624,"pid":1,"hostname":"1cc2f19de52a","req":{"id":19,"method":"GET","url":"/"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+2026-04-28T12:15:13.694Z {"level":30,"time":1777378513694,"pid":1,"hostname":"1cc2f19de52a","req":{"id":20,"method":"GET","url":"/assets/index-D01lq5Au.css"},"res":{"statusCode":200},"responseTime":2,"msg":"request completed"}
+2026-04-28T12:15:14.690Z {"level":30,"time":1777378514689,"pid":1,"hostname":"1cc2f19de52a","req":{"id":21,"method":"GET","url":"/assets/index-DftXzewA.js"},"res":{"statusCode":200},"responseTime":3,"msg":"request completed"}
+2026-04-28T12:15:15.209Z {"level":30,"time":1777378515209,"pid":1,"hostname":"1cc2f19de52a","req":{"id":22,"method":"GET","url":"/assets/index-D01lq5Au.css"},"res":{"statusCode":200},"responseTime":2,"msg":"request completed"}
+2026-04-28T12:15:15.390Z {"level":30,"time":1777378515390,"pid":1,"hostname":"1cc2f19de52a","req":{"id":23,"method":"GET","url":"/assets/index-DftXzewA.js"},"res":{"statusCode":200},"responseTime":2,"msg":"request completed"}
+2026-04-28T12:15:15.814Z {"level":30,"time":1777378515813,"pid":1,"hostname":"1cc2f19de52a","req":{"id":24,"method":"GET","url":"/api/csrf-token"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+2026-04-28T12:15:15.814Z {"level":50,"time":1777378515814,"pid":1,"hostname":"1cc2f19de52a","err":{"type":"Error","message":"ENOENT: no such file or directory, open '/app/artifacts/api-server/dist/table.sql'","stack":"Error: ENOENT: no such file or directory, open '/app/artifacts/api-server/dist/table.sql'\n    at async open (node:internal/fs/promises:640:25)\n    at async Object.readFile (node:internal/fs/promises:1287:14)\n    at async PGStore._rawEnsureSessionStoreTable (/app/node_modules/.pnpm/connect-pg-simple@10.0.0/node_modules/connect-pg-simple/index.js:183:32)\n    at async PGStore._asyncQuery (/app/node_modules/.pnpm/connect-pg-simple@10.0.0/node_modules/connect-pg-simple/index.js:315:7)","errno":-2,"code":"ENOENT","syscall":"open","path":"/app/artifacts/api-server/dist/table.sql"},"path":"/api/csrf-token","method":"GET","msg":"Unhandled error"}
+2026-04-28T12:15:15.815Z Error [ERR_HTTP_HEADERS_SENT]: Cannot set headers after they are sent to the client
+2026-04-28T12:15:15.815Z at ServerResponse.setHeader (node:_http_outgoing:642:11)
+2026-04-28T12:15:15.815Z at ServerResponse.header (/app/node_modules/.pnpm/express@5.2.1/node_modules/express/lib/response.js:686:10)
+2026-04-28T12:15:15.815Z at ServerResponse.send2 (/app/node_modules/.pnpm/express@5.2.1/node_modules/express/lib/response.js:163:12)
+2026-04-28T12:15:15.815Z at ServerResponse.json3 (/app/node_modules/.pnpm/express@5.2.1/node_modules/express/lib/response.js:252:15)
+2026-04-28T12:15:15.815Z at <anonymous> (/app/artifacts/api-server/src/app.ts:128:22)
+2026-04-28T12:15:15.815Z at Layer.handleError (/app/node_modules/.pnpm/router@2.2.0/node_modules/router/lib/layer.js:116:17)
+2026-04-28T12:15:15.815Z at trimPrefix (/app/node_modules/.pnpm/router@2.2.0/node_modules/router/index.js:340:13)
+2026-04-28T12:15:15.815Z at <anonymous> (/app/node_modules/.pnpm/router@2.2.0/node_modules/router/index.js:297:9)
+2026-04-28T12:15:15.815Z at processParams (/app/node_modules/.pnpm/router@2.2.0/node_modules/router/index.js:582:12)
+2026-04-28T12:15:15.815Z at next (/app/node_modules/.pnpm/router@2.2.0/node_modules/router/index.js:291:5)
+2026-04-28T12:15:16.211Z {"level":30,"time":1777378516211,"pid":1,"hostname":"1cc2f19de52a","req":{"id":25,"method":"GET","url":"/api/csrf-token"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+2026-04-28T12:15:16.211Z {"level":50,"time":1777378516211,"pid":1,"hostname":"1cc2f19de52a","err":{"type":"Error","message":"ENOENT: no such file or directory, open '/app/artifacts/api-server/dist/table.sql'","stack":"Error: ENOENT: no such file or directory, open '/app/artifacts/api-server/dist/table.sql'\n    at async open (node:internal/fs/promises:640:25)\n    at async Object.readFile (node:internal/fs/promises:1287:14)\n    at async PGStore._rawEnsureSessionStoreTable (/app/node_modules/.pnpm/connect-pg-simple@10.0.0/node_modules/connect-pg-simple/index.js:183:32)\n    at async PGStore._asyncQuery (/app/node_modules/.pnpm/connect-pg-simple@10.0.0/node_modules/connect-pg-simple/index.js:315:7)","errno":-2,"code":"ENOENT","syscall":"open","path":"/app/artifacts/api-server/dist/table.sql"},"path":"/api/csrf-token","method":"GET","msg":"Unhandled error"}
+2026-04-28T12:15:16.212Z Error [ERR_HTTP_HEADERS_SENT]: Cannot set headers after they are sent to the client
+2026-04-28T12:15:16.212Z at ServerResponse.setHeader (node:_http_outgoing:642:11)
+2026-04-28T12:15:16.212Z at ServerResponse.header (/app/node_modules/.pnpm/express@5.2.1/node_modules/express/lib/response.js:686:10)
+2026-04-28T12:15:16.212Z at ServerResponse.send2 (/app/node_modules/.pnpm/express@5.2.1/node_modules/express/lib/response.js:163:12)
+2026-04-28T12:15:16.212Z at ServerResponse.json3 (/app/node_modules/.pnpm/express@5.2.1/node_modules/express/lib/response.js:252:15)
+2026-04-28T12:15:16.212Z at <anonymous> (/app/artifacts/api-server/src/app.ts:128:22)
+2026-04-28T12:15:16.212Z at Layer.handleError (/app/node_modules/.pnpm/router@2.2.0/node_modules/router/lib/layer.js:116:17)
+2026-04-28T12:15:16.212Z at trimPrefix (/app/node_modules/.pnpm/router@2.2.0/node_modules/router/index.js:340:13)
+2026-04-28T12:15:16.212Z at <anonymous> (/app/node_modules/.pnpm/router@2.2.0/node_modules/router/index.js:297:9)
+2026-04-28T12:15:16.212Z at processParams (/app/node_modules/.pnpm/router@2.2.0/node_modules/router/index.js:582:12)
+2026-04-28T12:15:16.212Z at next (/app/node_modules/.pnpm/router@2.2.0/node_modules/router/index.js:291:5)
+2026-04-28T12:18:44.719Z {"level":30,"time":1777378724719,"pid":1,"hostname":"1cc2f19de52a","req":{"id":26,"method":"GET","url":"/"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+2026-04-28T12:22:37.806Z {"level":30,"time":1777378957805,"pid":1,"hostname":"1cc2f19de52a","req":{"id":27,"method":"GET","url":"/wp-admin/install.php"},"res":{"statusCode":200},"responseTime":2,"msg":"request completed"}
+2026-04-28T12:22:38.056Z Failed to prune sessions: Error: ENOENT: no such file or directory, open '/app/artifacts/api-server/dist/table.sql'
+2026-04-28T12:22:38.056Z at async open (node:internal/fs/promises:640:25)
+2026-04-28T12:22:38.056Z at async Object.readFile (node:internal/fs/promises:1287:14)
+2026-04-28T12:22:38.056Z at async PGStore._rawEnsureSessionStoreTable (/app/node_modules/.pnpm/connect-pg-simple@10.0.0/node_modules/connect-pg-simple/index.js:183:32)
+2026-04-28T12:22:38.056Z at async PGStore._asyncQuery (/app/node_modules/.pnpm/connect-pg-simple@10.0.0/node_modules/connect-pg-simple/index.js:315:7) {
+2026-04-28T12:22:38.056Z errno: -2,
+2026-04-28T12:22:38.056Z code: 'ENOENT',
+2026-04-28T12:22:38.056Z syscall: 'open',
+2026-04-28T12:22:38.056Z path: '/app/artifacts/api-server/dist/table.sql'
+2026-04-28T12:22:38.056Z }
+2026-04-28T12:22:41.310Z {"level":30,"time":1777378961307,"pid":1,"hostname":"1cc2f19de52a","req":{"id":28,"method":"GET","url":"/api/nig-status"},"res":{"statusCode":200},"responseTime":5,"msg":"request completed"}
+2026-04-28T12:23:20.325Z {"level":30,"time":1777379000325,"pid":1,"hostname":"1cc2f19de52a","req":{"id":29,"method":"GET","url":"/"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+2026-04-28T12:23:51.741Z {"level":30,"time":1777379031741,"pid":1,"hostname":"1cc2f19de52a","req":{"id":30,"method":"GET","url":"/wp-admin/install.php"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+2026-04-28T12:24:09.021Z {"level":30,"time":1777379049021,"pid":1,"hostname":"1cc2f19de52a","req":{"id":31,"method":"GET","url":"/"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+2026-04-28T12:24:09.708Z {"level":30,"time":1777379049708,"pid":1,"hostname":"1cc2f19de52a","req":{"id":32,"method":"GET","url":"/assets/index-DftXzewA.js"},"res":{"statusCode":200},"responseTime":4,"msg":"request completed"}
+2026-04-28T12:24:09.754Z {"level":30,"time":1777379049754,"pid":1,"hostname":"1cc2f19de52a","req":{"id":33,"method":"GET","url":"/assets/index-D01lq5Au.css"},"res":{"statusCode":200},"responseTime":44,"msg":"request completed"}
+2026-04-28T12:24:13.281Z {"level":30,"time":1777379053281,"pid":1,"hostname":"1cc2f19de52a","req":{"id":34,"method":"GET","url":"/manifest.json"},"res":{"statusCode":200},"responseTime":2,"msg":"request completed"}
+2026-04-28T12:24:17.328Z {"level":30,"time":1777379057328,"pid":1,"hostname":"1cc2f19de52a","req":{"id":35,"method":"GET","url":"/sw.js"},"res":{"statusCode":200},"responseTime":2,"msg":"request completed"}
+2026-04-28T12:24:17.389Z {"level":30,"time":1777379057388,"pid":1,"hostname":"1cc2f19de52a","req":{"id":36,"method":"GET","url":"/api/csrf-token"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+2026-04-28T12:24:17.390Z Error [ERR_HTTP_HEADERS_SENT]: Cannot set headers after they are sent to the client
+2026-04-28T12:24:17.390Z at ServerResponse.setHeader (node:_http_outgoing:642:11)
+2026-04-28T12:24:17.390Z at ServerResponse.header (/app/node_modules/.pnpm/express@5.2.1/node_modules/express/lib/response.js:686:10)
+2026-04-28T12:24:17.390Z at ServerResponse.send2 (/app/node_modules/.pnpm/express@5.2.1/node_modules/express/lib/response.js:163:12)
+2026-04-28T12:24:17.390Z at ServerResponse.json3 (/app/node_modules/.pnpm/express@5.2.1/node_modules/express/lib/response.js:252:15)
+2026-04-28T12:24:17.390Z at <anonymous> (/app/artifacts/api-server/src/app.ts:128:22)
+2026-04-28T12:24:17.390Z at Layer.handleError (/app/node_modules/.pnpm/router@2.2.0/node_modules/router/lib/layer.js:116:17)
+2026-04-28T12:24:17.390Z at trimPrefix (/app/node_modules/.pnpm/router@2.2.0/node_modules/router/index.js:340:13)
+2026-04-28T12:24:17.390Z at <anonymous> (/app/node_modules/.pnpm/router@2.2.0/node_modules/router/index.js:297:9)
+2026-04-28T12:24:17.390Z at processParams (/app/node_modules/.pnpm/router@2.2.0/node_modules/router/index.js:582:12)
+2026-04-28T12:24:17.390Z at next (/app/node_modules/.pnpm/router@2.2.0/node_modules/router/index.js:291:5)
+2026-04-28T12:24:17.390Z {"level":50,"time":1777379057388,"pid":1,"hostname":"1cc2f19de52a","err":{"type":"Error","message":"ENOENT: no such file or directory, open '/app/artifacts/api-server/dist/table.sql'","stack":"Error: ENOENT: no such file or directory, open '/app/artifacts/api-server/dist/table.sql'\n    at async open (node:internal/fs/promises:640:25)\n    at async Object.readFile (node:internal/fs/promises:1287:14)\n    at async PGStore._rawEnsureSessionStoreTable (/app/node_modules/.pnpm/connect-pg-simple@10.0.0/node_modules/connect-pg-simple/index.js:183:32)\n    at async PGStore._asyncQuery (/app/node_modules/.pnpm/connect-pg-simple@10.0.0/node_modules/connect-pg-simple/index.js:315:7)","errno":-2,"code":"ENOENT","syscall":"open","path":"/app/artifacts/api-server/dist/table.sql"},"path":"/api/csrf-token","method":"GET","msg":"Unhandled error"}
+2026-04-28T12:24:17.394Z {"level":30,"time":1777379057394,"pid":1,"hostname":"1cc2f19de52a","req":{"id":37,"method":"GET","url":"/logo.png"},"res":{"statusCode":200},"responseTime":3,"msg":"request completed"}
+2026-04-28T12:24:17.641Z {"level":30,"time":1777379057640,"pid":1,"hostname":"1cc2f19de52a","req":{"id":38,"method":"GET","url":"/icons/icon-192.png"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+2026-04-28T12:24:17.742Z {"level":30,"time":1777379057742,"pid":1,"hostname":"1cc2f19de52a","req":{"id":39,"method":"GET","url":"/icons/icon-144.png"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}

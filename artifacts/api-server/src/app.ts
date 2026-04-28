@@ -16,6 +16,10 @@ const app: Express = express();
 
 const isProd = process.env.NODE_ENV === "production";
 
+// ─── Trust reverse proxy (Dokploy / Traefik / nginx) ─────────────────────────
+// Required for express-rate-limit to correctly read X-Forwarded-For IPs
+app.set("trust proxy", 1);
+
 // ─── Security headers ────────────────────────────────────────────────────────
 app.use(
   helmet({
@@ -124,6 +128,8 @@ app.use((err: unknown, req: Request, res: Response, _next: NextFunction) => {
     err instanceof Error ? err.message : "Internal server error";
 
   logger.error({ err, path: req.path, method: req.method }, "Unhandled error");
+
+  if (res.headersSent) return;
 
   res.status(status).json({
     error: message,
