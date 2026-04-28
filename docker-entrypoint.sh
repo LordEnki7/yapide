@@ -2,7 +2,7 @@
 set -e
 
 echo "Running database migrations..."
-yes no | pnpm --filter @workspace/db run push-force || echo "Migration completed (warnings ignored)"
+node /app/lib/db/migrate.mjs
 
 echo "Starting server..."
 exec node --enable-source-maps /app/artifacts/api-server/dist/index.mjs
