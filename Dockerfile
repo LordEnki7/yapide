@@ -1,9 +1,14 @@
 FROM node:24-slim
 
+ARG BUILD_COMMIT=unknown
+ARG BUILD_TIME=unknown
+
 ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
 ENV NODE_ENV=production
 ENV PORT=8080
+ENV BUILD_COMMIT=$BUILD_COMMIT
+ENV BUILD_TIME=$BUILD_TIME
 
 RUN corepack enable && corepack prepare pnpm@latest --activate
 

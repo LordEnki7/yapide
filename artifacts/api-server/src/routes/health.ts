@@ -5,6 +5,14 @@ import { sql } from "drizzle-orm";
 
 const router: IRouter = Router();
 
+router.get("/version", (_req, res) => {
+  res.json({
+    commit: process.env.BUILD_COMMIT ?? "dev",
+    builtAt: process.env.BUILD_TIME ?? "dev",
+    serverTime: new Date().toISOString(),
+  });
+});
+
 router.get(["/health", "/healthz"], async (_req, res) => {
   const checks: Record<string, string> = {};
   let allOk = true;

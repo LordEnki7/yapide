@@ -1,0 +1,54 @@
+itHub → Dokploy Deployment Setup (Proven System)
+
+The Core Problem This Solves:
+Replit checkpoints commit code to Replit's own git — NOT to GitHub. Dokploy watches GitHub, not Replit. So if you don't explicitly push to GitHub, Dokploy keeps deploying old code forever even when everything looks updated in Replit.
+
+Git Remote Setup:
+
+# The remote is named 'github' (NOT 'origin')
+git remote add github https://$GITHUB_PERSONAL_ACCESS_TOKEN@github.com/USERNAME/REPO.git
+# Always push from local branch to main:
+git push github local-branch:main
+
+The One Deploy Command:
+
+bash scripts/deploy-to-dokploy.sh
+
+This script must do ALL of these in order:
+
+Run npx vite build to produce a fresh dist/public/ bundle
+Write a build-info.json with current commit SHA and timestamp
+Stage all changes including the new dist/public/ bundle
+Remove .github/workflows/ from staging (PAT likely lacks workflow scope)
+Commit and push to github/main
+Why You Pre-Build the Frontend:
+Docker layer caching causes Dokploy to serve stale JS bundles even after a fresh push. The fix: build in Replit, commit dist/public/ to git, and have the Dockerfile skip the Vite build entirely. The Dockerfile only runs the fast server-side build step.
+
+Add to .gitignore:
+
+.github/workflows/
+
+This prevents workflow files from being staged and causing push errors due to PAT scope limitations.
+
+Verify After Push:
+
+Wait ~2 minutes for Dokploy to auto-deploy
+Hit /api/version on your live domain — check the timestamp is fresh
+Hard refresh browser (Cmd+Shift+R) to clear cached JS
+Troubleshooting:
+
+# Auth failed / push rejected:
+git remote set-url github https://$GITHUB_PERSONAL_ACCESS_TOKEN@github.com/USERNAME/REPO.git
+# Config lock error:
+rm -f .git/config.lock
+# Workflow files blocking push:
+git rm --cached .github/workflows/*.yml
+
+Key Facts to Never Forget:
+
+Thing	Value
+GitHub remote name	github (NOT origin)
+Dokploy watches	GitHub main branch
+Replit checkpoints	Replit only — never auto-pushes to GitHub
+Frontend build	Pre-built in Replit, committed to git
+Deploy script	Must be run from Shell tab — not a workflow
