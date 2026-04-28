@@ -298,8 +298,9 @@ export const translations = {
     profile: "Perfil",
 
     // Landing
-    heroLine1: "Entrega rápida",
-    heroLine2: "& económica",
+    heroLine1: "ENTREGA",
+    heroLine2: "RÁPIDA",
+    heroLine3: "Y CONFIABLE",
     howToEnter: "¿Cómo quieres entrar hoy?",
     demoDisclaimer: "Demo: datos ficticios, sin registro requerido",
     adminLoading: "⏳ Entrando...",
@@ -602,8 +603,9 @@ export const translations = {
     profile: "Profile",
 
     // Landing
-    heroLine1: "Fast & affordable",
-    heroLine2: "delivery",
+    heroLine1: "FAST",
+    heroLine2: "DELIVERY",
+    heroLine3: "& RELIABLE",
     howToEnter: "How do you want to enter today?",
     demoDisclaimer: "Demo: fictional data, no registration required",
     adminLoading: "⏳ Entering...",

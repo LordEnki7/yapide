@@ -91,9 +91,9 @@ export default function Landing() {
         }}
       >
         {[
-          { text: "ENTREGA", yellow: false },
-          { text: "RÁPIDA", yellow: true },
-          { text: "Y CONFIABLE", yellow: false },
+          { text: t.heroLine1, yellow: false },
+          { text: t.heroLine2, yellow: true },
+          { text: t.heroLine3, yellow: false },
         ].map(({ text, yellow }) => (
           <div
             key={text}
