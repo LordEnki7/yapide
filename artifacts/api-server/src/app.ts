@@ -107,7 +107,7 @@ app.use("/api", router);
 const frontendDist = process.env.FRONTEND_DIST ?? join("/app", "artifacts", "que-lo-que", "dist", "public");
 if (existsSync(frontendDist)) {
   app.use(express.static(frontendDist));
-  app.get("*", (_req: Request, res: Response) => {
+  app.get("(.*)", (_req: Request, res: Response) => {
     res.sendFile(join(frontendDist, "index.html"));
   });
 } else {
