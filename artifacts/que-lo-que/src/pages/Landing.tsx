@@ -66,24 +66,24 @@ export default function Landing() {
         alt="YaPide"
         style={{
           position: "absolute",
-          top: "114px",
+          top: 0,
           left: 0,
           right: 0,
           width: "100%",
-          height: "calc(100% - 114px)",
+          height: "100%",
           objectFit: "contain",
           objectPosition: "top center",
           display: "block",
         }}
       />
 
-      {/* Tagline — ENTREGA RÁPIDA Y CONFIABLE — sits just below the top bar */}
+      {/* Tagline — ENTREGA RÁPIDA Y CONFIABLE — floats above logo */}
       <div
         style={{
           position: "absolute",
           left: 0,
           right: 0,
-          top: "44px",
+          top: "240px",
           zIndex: 15,
           display: "flex",
           flexDirection: "column",
@@ -99,15 +99,9 @@ export default function Landing() {
             key={text}
             style={{
               position: "relative",
-              background: "rgba(2, 18, 65, 0.78)",
               padding: "2px 16px",
-              overflow: "hidden",
             }}
           >
-            <div style={{
-              position: "absolute", inset: 0, opacity: 0.15,
-              background: "repeating-linear-gradient(175deg, transparent, transparent 3px, rgba(255,255,255,0.6) 3px, rgba(255,255,255,0.6) 4px)",
-            }} />
             <span style={{
               position: "relative",
               fontSize: "14px",
@@ -118,6 +112,7 @@ export default function Landing() {
               lineHeight: 1.2,
               display: "block",
               textAlign: "center",
+              textShadow: "0px 2px 8px rgba(4, 15, 38, 0.6)",
             }}>
               {text}
             </span>
